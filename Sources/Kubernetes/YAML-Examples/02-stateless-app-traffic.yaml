@@ -1,0 +1,144 @@
+# This file shows the main stateless app flow:
+# Deployment creates Pods, Service discovers them, Ingress exposes them externally.
+
+---
+apiVersion: apps/v1
+kind: Deployment                    # Best controller for stateless Spring Boot apps.
+metadata:
+  name: order-service
+  namespace: interview-demo
+  labels:
+    app: order-service              # Shared identity label.
+spec:
+  replicas: 3                       # Desired Pod count.
+  revisionHistoryLimit: 5           # Old ReplicaSets kept for rollback.
+  selector:
+    matchLabels:
+      app: order-service            # Must match template labels exactly.
+  strategy:
+    type: RollingUpdate             # Safer than Recreate for APIs.
+    rollingUpdate:
+      maxUnavailable: 0             # Never take old Pods down before new are ready.
+      maxSurge: 1                   # Create one extra Pod during rollout.
+  template:
+    metadata:
+      labels:
+        app: order-service          # Service selector uses this label.
+        version: v1                 # Useful for rollout visibility or canary strategies.
+      annotations:
+        prometheus.io/scrape: "true"           # Tell Prometheus to scrape metrics.
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: order-service-sa     # References ServiceAccount from 01-foundation.yaml.
+      terminationGracePeriodSeconds: 30        # Time given for graceful shutdown.
+      containers:
+        - name: order-service
+          image: myregistry/order-service:v1.2.3   # Pinned image for reproducibility.
+          imagePullPolicy: IfNotPresent            # Avoid unnecessary pulls when image already exists.
+          ports:
+            - name: http
+              containerPort: 8080                  # App listens here inside the Pod.
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config               # Pulls from ConfigMap.
+                  key: SPRING_PROFILES_ACTIVE
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: order-config
+                  key: DB_PORT
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: order-secrets              # Pulls sensitive values from Secret.
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: order-secrets
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "250m"                         # Scheduler reserves this much CPU.
+              memory: "256Mi"                    # Scheduler reserves this much memory.
+            limits:
+              cpu: "1000m"                       # CPU above this is throttled.
+              memory: "512Mi"                    # Memory above this can cause OOMKilled.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            failureThreshold: 30                  # 30 * 2s = 60s startup allowance.
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10                     # Controls whether Pod becomes a Service endpoint.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20                     # Restarts deadlocked or stuck containers.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]         # Gives kube-proxy time to stop routing before shutdown.
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+
+---
+apiVersion: v1
+kind: Service                       # Stable internal address in front of Pods.
+metadata:
+  name: order-service
+  namespace: interview-demo
+spec:
+  type: ClusterIP                   # Internal-only service. Normal default for microservice traffic.
+  selector:
+    app: order-service              # Finds Pods created by the Deployment.
+  ports:
+    - name: http
+      port: 80                      # Service port clients call.
+      targetPort: http              # Forwards to container port named http.
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress                       # External HTTP routing into Services.
+metadata:
+  name: app-ingress
+  namespace: interview-demo
+spec:
+  ingressClassName: nginx           # Tells cluster which Ingress controller should implement this.
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service  # Ingress routes to Service, not directly to Pods.
+                port:
+                  number: 80
+
+# Relationship summary:
+# Deployment creates Pods.
+# Service selects Pods by labels from the Deployment template.
+# Readiness probe controls whether Pods appear behind the Service.
+# Ingress routes external HTTP traffic to the Service.

@@ -1,0 +1,76 @@
+# This file adds the production controls around the stateless app:
+# autoscaling, disruption safety, and Pod-level traffic restrictions.
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler       # Scales the Deployment replica count.
+metadata:
+  name: order-service-hpa
+  namespace: interview-demo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: order-service             # HPA points to the Deployment, not the Pods directly.
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60    # HPA compares observed CPU to this target.
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget           # Protects availability during voluntary disruptions.
+metadata:
+  name: order-service-pdb
+  namespace: interview-demo
+spec:
+  minAvailable: 2                   # Always keep at least 2 matching Pods running.
+  selector:
+    matchLabels:
+      app: order-service            # Applies to Pods from the Deployment.
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy                 # Pod-level firewall.
+metadata:
+  name: order-service-policy
+  namespace: interview-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: order-service            # Policy applies to these Pods.
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: ingress-nginx    # Example: only traffic coming from ingress controller Pods.
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: interview-demo
+      ports:
+        - protocol: TCP
+          port: 5432                # Example: allow DB traffic inside namespace.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443                 # Example: allow outbound HTTPS to external APIs.
+
+# Relationship summary:
+# HPA reads metrics and changes Deployment replicas.
+# PDB protects those Pods during node drains or rolling operations.
+# NetworkPolicy controls who may talk to the Pods and where the Pods may connect.

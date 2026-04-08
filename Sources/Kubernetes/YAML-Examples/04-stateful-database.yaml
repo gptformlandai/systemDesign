@@ -1,0 +1,70 @@
+# This file shows the stateful side of the system.
+# The API usually stays a Deployment, but the database may need StatefulSet semantics.
+
+---
+apiVersion: v1
+kind: Service                       # Headless Service for stable per-Pod DNS.
+metadata:
+  name: postgres-headless
+  namespace: interview-demo
+spec:
+  clusterIP: None                   # Headless means no virtual IP; DNS returns Pod identities directly.
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+
+---
+apiVersion: apps/v1
+kind: StatefulSet                   # Controller for workloads needing stable identity and storage.
+metadata:
+  name: postgres
+  namespace: interview-demo
+spec:
+  serviceName: postgres-headless    # Must point to the Headless Service above.
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: order-secrets
+                  key: DB_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: order-secrets
+                  key: DB_PASSWORD
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data  # Database files live on persistent volume here.
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce           # Typical block storage mode for one Pod per volume.
+        storageClassName: gp3       # Dynamic provisioning template.
+        resources:
+          requests:
+            storage: 50Gi           # Each replica gets its own 50Gi PVC.
+
+# Relationship summary:
+# StatefulSet creates Pods named postgres-0, postgres-1, postgres-2.
+# Each Pod gets its own PVC from volumeClaimTemplates.
+# Headless Service gives each Pod stable DNS like postgres-0.postgres-headless.
+# This is why StatefulSet is used for stateful clustered systems instead of Deployment.

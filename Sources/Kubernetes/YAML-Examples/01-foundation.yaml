@@ -1,0 +1,73 @@
+# This file defines the basic non-runtime building blocks for an application namespace.
+# These objects do not serve traffic themselves, but the runtime objects depend on them.
+
+---
+apiVersion: v1                       # Core API group for foundational objects.
+kind: Namespace                     # Logical isolation boundary for this app/environment.
+metadata:
+  name: interview-demo              # All namespaced resources below live inside this namespace.
+
+---
+apiVersion: v1
+kind: ServiceAccount                # Identity that Pods use when talking to the K8s API.
+metadata:
+  name: order-service-sa            # Deployment will reference this via spec.serviceAccountName.
+  namespace: interview-demo
+automountServiceAccountToken: false # Disable token mount if app does not need API access.
+
+---
+apiVersion: v1
+kind: ConfigMap                     # Stores non-sensitive configuration.
+metadata:
+  name: order-config
+  namespace: interview-demo
+data:
+  SPRING_PROFILES_ACTIVE: kubernetes,prod   # App runtime profile selection.
+  DB_HOST: postgres-service                  # Service DNS name, not Pod IP.
+  DB_PORT: "5432"                           # String because ConfigMap data is text.
+  LOG_LEVEL: INFO                            # Example application config.
+  INVENTORY_BASE_URL: http://inventory-service:8080  # Internal service call via Service DNS.
+
+---
+apiVersion: v1
+kind: Secret                        # Stores sensitive configuration.
+metadata:
+  name: order-secrets
+  namespace: interview-demo
+type: Opaque                        # Generic key-value secret type.
+stringData:                         # Plain strings here; API converts to base64 in storage.
+  DB_USERNAME: appuser
+  DB_PASSWORD: change-me
+  JWT_SECRET: replace-me
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role                          # Namespace-scoped permission set.
+metadata:
+  name: app-read-config
+  namespace: interview-demo
+rules:
+  - apiGroups: [""]                # Empty string means the core API group.
+    resources: ["configmaps"]      # Resource type this role can access.
+    verbs: ["get", "list"]         # Allowed actions.
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding                   # Connects a Role to a subject.
+metadata:
+  name: order-service-config-binding
+  namespace: interview-demo
+subjects:
+  - kind: ServiceAccount            # Binding is granting permissions to a ServiceAccount.
+    name: order-service-sa
+    namespace: interview-demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-read-config
+
+# Relationship summary:
+# Namespace groups everything.
+# ServiceAccount gives Pod identity.
+# ConfigMap and Secret feed environment/config into Pods.
+# Role and RoleBinding decide what that ServiceAccount may do.
