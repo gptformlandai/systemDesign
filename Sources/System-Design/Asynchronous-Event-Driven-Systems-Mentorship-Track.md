@@ -1600,3 +1600,873 @@ I would also monitor DLQ depth and age, alert on abnormal growth, and provide a 
 - Three keywords: poison, quarantine, replay
 - One interview trap: treating DLQ as a dump instead of an operational recovery mechanism
 - One memory trick: retries are treatment, DLQ is quarantine
+
+---
+
+# Topic 5: Backpressure Handling
+
+> Track: 1.7 Asynchronous & Event-Driven Systems
+> Scope: overload protection, flow control, bounded buffers, consumer lag, load shedding
+
+---
+
+## 1. Intuition
+
+Think of a highway exit during rush hour.
+
+Cars can arrive faster than the road ahead can absorb them. If we keep allowing cars to enter at full speed, traffic spills backward, everything slows down, and eventually the whole area jams.
+
+Backpressure is the system equivalent of saying:
+- slow down
+- wait
+- reject extra work
+- or process in smaller controlled batches
+
+Short memory trick:
+- no backpressure = "keep accepting until the system breaks"
+- backpressure = "protect the system by matching intake to processing capacity"
+
+---
+
+## 2. Definition
+
+- Definition: Backpressure is a set of mechanisms that prevent producers from overwhelming brokers, queues, consumers, or downstream services when processing capacity is lower than incoming load.
+- Category: Flow control and overload protection in asynchronous systems
+- Core idea: When demand exceeds capacity, the system must slow intake, buffer safely, or shed load instead of letting backlog grow without control.
+
+In practice, backpressure can mean:
+- producer throttling
+- bounded queues
+- pull-based consumption
+- consumer pause/resume
+- concurrency limits
+- rate limiting
+- load shedding
+
+---
+
+## 3. Why It Exists
+
+Asynchronous systems do not remove capacity limits.
+
+They only decouple producer timing from consumer timing.
+
+That helps, but if producers permanently outrun consumers, the backlog keeps growing until one of these happens:
+- memory pressure
+- broker saturation
+- storage growth
+- latency explosion
+- timeout storms
+- retry amplification
+- cascading failures in downstream dependencies
+
+Backpressure exists because healthy systems must fail in a controlled way under overload, not in a chaotic way.
+
+---
+
+## 4. Reality
+
+### Backpressure shows up in:
+
+- Kafka consumers falling behind during traffic spikes
+- notification pipelines during flash sales
+- log ingestion systems when storage or indexing is slow
+- stream processors when one operator becomes slower than upstream
+- webhook delivery systems when third-party endpoints are slow
+- worker queues where database writes become the bottleneck
+
+### Real-world architecture truth
+
+Backpressure is rarely one single feature.
+
+Strong systems usually combine:
+- bounded queues
+- consumer lag monitoring
+- producer throttling
+- autoscaling
+- load shedding
+- retries with backoff
+- priority queues for important work
+
+Another important truth:
+- adding a queue is not the same as solving overload
+
+A queue can absorb bursts, but it cannot absorb unlimited mismatch forever.
+
+---
+
+## 5. How It Works
+
+The basic loop is:
+
+1. Measure saturation.
+2. Detect that consumers or downstream systems are falling behind.
+3. Reduce intake or slow producers.
+4. Protect the system with buffering limits or shedding.
+5. Recover gradually when pressure drops.
+
+### Common backpressure signals
+
+- queue depth
+- age of oldest message
+- stream consumer lag
+- worker utilization
+- thread-pool saturation
+- rising p95 or p99 latency
+- high retry rates
+- growing timeout rates
+
+### Common backpressure actions
+
+- block the producer temporarily
+- return `429 Too Many Requests` or another retryable signal
+- reduce concurrency
+- pause consumption on hot partitions
+- batch work more efficiently
+- shed low-priority traffic
+- spill to durable storage if the design supports it
+- scale consumers horizontally
+
+### Three important patterns
+
+#### Bounded buffering
+
+Allow a queue or in-memory buffer to grow only to a safe limit.
+
+If that limit is hit, do not keep accepting work blindly.
+
+#### Pull-based flow control
+
+Consumers pull only as much work as they can handle.
+
+This is healthier than unbounded push when workloads vary a lot.
+
+#### Load shedding
+
+When the system is already overloaded, it can be better to reject low-priority work early rather than degrade every request and every queue.
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: prevents overload from turning into uncontrolled backlog growth and cascading failure
+- Secondary benefits: protects latency, preserves critical traffic, improves stability under bursts, avoids memory exhaustion
+- Systems impact: determines whether async pipelines stay healthy during spikes or collapse under accumulated lag
+
+Backpressure is fundamentally about survivability under mismatch between arrival rate and processing rate.
+
+---
+
+## 7. When to Rely on It
+
+Use explicit backpressure handling when:
+- producers can burst much faster than consumers
+- downstream dependencies are slower or more fragile than upstream producers
+- queues or streams are part of the critical path
+- lag and latency matter operationally
+- you need graceful degradation rather than full collapse
+- workloads have different priorities and not all work is equally valuable
+
+Especially important for:
+- event ingestion systems
+- stream processing systems
+- notification pipelines
+- media pipelines
+- payment-adjacent async workflows
+- systems with many fan-in producers
+
+---
+
+## 8. When Not to Use It
+
+Do not overengineer backpressure when:
+- throughput is tiny and predictable
+- the workload is simple enough for synchronous handling
+- the queue is only smoothing very small bursts and is heavily overprovisioned
+
+But even in smaller systems, avoid these dangerous assumptions:
+- "the queue will absorb everything"
+- "autoscaling alone is enough"
+- "we can retry forever"
+
+Better alternatives in very small systems:
+- simple rate limiting
+- a small bounded worker pool
+- returning a clear retry-later response instead of buffering indefinitely
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Backpressure handling | Protects system stability, contains overload, preserves critical paths | Can reduce throughput, reject work, and adds operational tuning complexity |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Throughput vs latency:
+  aggressive buffering may preserve throughput temporarily but can destroy latency.
+- Availability vs quality:
+  rejecting low-priority work can protect important traffic.
+- Simplicity vs control:
+  one queue is simple, but layered backpressure gives better survivability.
+- Buffering vs shedding:
+  buffering helps bursts; shedding helps sustained overload.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Using unbounded queues or buffers | Hides overload until memory or latency explodes | Use bounded queues with clear policies |
+| Depending only on autoscaling | Scaling is not instant and may not fix a slow dependency | Combine scaling with throttling and admission control |
+| Retrying aggressively during overload | Retries amplify pressure and can create storms | Use exponential backoff and retry budgets |
+| Treating all traffic equally | Low-value work can crowd out critical work | Use priority classes or separate queues |
+| Detecting pressure too late | Backlog and lag are already expensive by the time users feel pain | Alert on leading indicators such as lag and queue age |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal rules.
+
+- Queue depth:
+  should remain within a known safe bound, not "grow until disk is full"
+- Age of oldest message:
+  often more useful than raw count because it shows user-facing delay
+- Consumer lag:
+  one of the best signals in streaming systems
+- Utilization target:
+  many teams try to avoid running core consumers at 100 percent sustained utilization
+- Retry budget:
+  retries should be capped, not infinite
+- High-water mark:
+  threshold where throttling or shedding begins
+- Low-water mark:
+  threshold where the system resumes normal intake
+
+Interview shorthand:
+- bursts need buffering
+- sustained mismatch needs throttling or shedding
+
+---
+
+## 12. Failure Modes
+
+### Unbounded backlog growth
+
+Problem:
+- Producers continue at full speed while consumers remain slower for a long period.
+
+User impact:
+- long delays, stale work, possible memory or disk exhaustion
+
+Mitigation:
+- bounded queues
+- admission control
+- load shedding
+
+### Retry storm
+
+Problem:
+- Timeouts trigger retries from many callers while the downstream system is already overloaded.
+
+User impact:
+- pressure multiplies, causing wider failure and slower recovery
+
+Mitigation:
+- exponential backoff
+- jitter
+- retry limits
+- circuit breakers
+
+### Hot partition or slow shard
+
+Problem:
+- One partition receives much more traffic or contains expensive work.
+
+User impact:
+- lag grows unevenly, ordering-sensitive consumers fall behind
+
+Mitigation:
+- better partition key design
+- sharding hot keys
+- workload-aware scaling
+
+### Downstream dependency collapse
+
+Problem:
+- The queue workers are healthy, but the database or external API becomes slow.
+
+User impact:
+- workers pile up, backlog grows, latency spikes across the async pipeline
+
+Mitigation:
+- concurrency caps
+- fallback behavior
+- degrade non-critical work
+- isolate dependencies
+
+---
+
+## 13. Scenario
+
+- Product / system: Ticketing platform during a major concert release
+- Traffic pattern:
+  purchase events and notification jobs spike 20x within minutes
+- Problem:
+  the notification workers and downstream email provider cannot keep up
+- Good design:
+  queue notifications, cap worker concurrency, prioritize purchase-confirmation emails over promotional emails, and shed low-value work when backlog crosses thresholds
+- What would go wrong without backpressure:
+  backlog grows without bound, retries amplify the spike, and even high-priority customer confirmations become delayed
+
+---
+
+## 14. Code Sample
+
+### Simple admission control pseudocode
+
+```java
+public PublishResult publish(NotificationJob job) {
+    int backlog = queueClient.depth("notification-jobs");
+
+    if (backlog > HIGH_WATER_MARK && !job.isCritical()) {
+        return PublishResult.rejected("retry-later");
+    }
+
+    queueClient.send(job);
+    return PublishResult.accepted();
+}
+```
+
+### Consumer-side pause example
+
+```java
+public void pollAndProcess() {
+    if (databaseClient.isOverloaded()) {
+        streamClient.pause("order-events");
+        return;
+    }
+
+    for (EventRecord record : streamClient.poll()) {
+        process(record);
+    }
+}
+```
+
+Key idea:
+- backpressure is not only about consumers reading slower
+- it is also about producers and brokers behaving safely under pressure
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows a bounded queue with shedding when producers outrun consumers.
+
+```python
+from collections import deque
+
+
+queue = deque()
+MAX_QUEUE = 5
+accepted = 0
+rejected = 0
+
+
+def produce(job_id: int) -> None:
+    global accepted, rejected
+    if len(queue) >= MAX_QUEUE:
+        rejected += 1
+        print("Rejected:", job_id)
+        return
+    queue.append(job_id)
+    accepted += 1
+    print("Accepted:", job_id)
+
+
+def consume(max_items: int) -> None:
+    for _ in range(min(max_items, len(queue))):
+        print("Processed:", queue.popleft())
+
+
+def main() -> None:
+    for job_id in range(1, 11):
+        produce(job_id)
+        if job_id % 3 == 0:
+            consume(max_items=1)
+
+    print("Remaining queue:", list(queue))
+    print("Accepted:", accepted)
+    print("Rejected:", rejected)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- bounded buffering protects the system
+- not all incoming work can be accepted safely
+- under sustained mismatch, rejection is healthier than unbounded growth
+
+---
+
+## 16. Practical Question
+
+> Your notification pipeline receives a 30x spike during a flash sale. Queue depth, consumer lag, and retry rate are all rising. How would you design backpressure handling so the system stays stable and important notifications still go through?
+
+---
+
+## 17. Strong Answer
+
+I would treat this as an overload-management problem, not just a scaling problem.
+
+First, I would make the queues and worker pools bounded so we cannot grow backlog without limit. Then I would define high-water and low-water thresholds based on queue depth, queue age, and downstream latency. When the system crosses those thresholds, I would throttle producers, reduce or pause intake for lower-priority work, and start shedding non-critical traffic such as promotional notifications.
+
+I would also separate priority classes so critical events like payment confirmations are isolated from best-effort traffic. On the consumer side, I would cap concurrency to protect the database or third-party providers from collapse. Retries would use exponential backoff with jitter, because aggressive retries during overload usually make the system worse.
+
+If the workload is long-lived, I would combine this with autoscaling, but I would not depend on autoscaling alone because it reacts too slowly for sudden spikes. The goal of backpressure is graceful degradation: keep the important path alive and prevent the async system from failing everywhere at once.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Backpressure protects an async system by slowing intake, buffering safely, or shedding work when producers outrun consumers.
+- Three keywords: throttling, bounded, overload
+- One interview trap: believing a queue alone solves overload forever
+- One memory trick: if the drain is slow, do not keep opening the tap
+
+---
+
+# Topic 6: Event-Driven Architecture
+
+> Track: 1.7 Asynchronous & Event-Driven Systems
+> Scope: decoupled services, event publication, subscribers, eventual consistency, fan-out
+
+---
+
+## 1. Intuition
+
+Think of a hotel front desk.
+
+When a guest checks in, the front desk does not directly walk over and tell every other team what to do. Instead, the check-in becomes a fact:
+- room service may react
+- billing may react
+- analytics may react
+- housekeeping may react
+
+The front desk owns the check-in action.
+Other teams react to the fact that it happened.
+
+That is the heart of event-driven architecture:
+- a service publishes that something happened
+- other services subscribe and react independently
+
+Short memory trick:
+- command = "do this"
+- event = "this happened"
+
+---
+
+## 2. Definition
+
+- Definition: Event-driven architecture is a system design style where components communicate primarily by publishing and reacting to events that describe state changes or business facts.
+- Category: Distributed architecture and service-decoupling pattern
+- Core idea: Producers emit events without tightly coupling themselves to all downstream consumers that may need to react.
+
+Important distinction:
+- commands are requests for work
+- events are records of facts that already happened
+
+---
+
+## 3. Why It Exists
+
+In tightly coupled systems, one service often calls many others directly.
+
+That creates:
+- temporal coupling
+- dependency chains
+- slower request paths
+- brittle change management
+- limited fan-out
+
+Event-driven architecture exists because many systems need:
+- one business action to trigger many downstream reactions
+- independent teams to build consumers without changing the producer
+- better decoupling between write paths and side effects
+- durable event history or replay in some cases
+
+It is especially attractive when the system is growing in both scale and organizational complexity.
+
+---
+
+## 4. Reality
+
+### Event-driven architecture is common in:
+
+- e-commerce order workflows
+- user signup and onboarding pipelines
+- payment and fraud platforms
+- logistics and shipment tracking
+- notifications and recommendation systems
+- audit and analytics pipelines
+
+Typical technologies:
+- Kafka
+- Pulsar
+- Kinesis
+- SNS plus SQS fan-out
+- EventBridge
+- RabbitMQ pub/sub patterns
+
+### Real-world architecture truth
+
+Most strong systems are hybrid, not purely event-driven.
+
+They often use:
+- synchronous APIs for immediate reads, validation, and user-facing confirmation
+- events for downstream side effects, fan-out, and cross-domain propagation
+
+Another truth:
+- event-driven architecture improves decoupling, but it makes debugging, ordering, and consistency reasoning harder
+
+---
+
+## 5. How It Works
+
+A common flow looks like this:
+
+1. A user or upstream service sends a command.
+2. The owning service validates the request and changes its own state.
+3. That service publishes an event describing the completed business fact.
+4. A broker distributes the event to interested consumers.
+5. Each consumer processes the event independently and updates its own state.
+6. The system reaches eventual consistency across domains.
+
+### Example
+
+1. Checkout service creates an order.
+2. It publishes `OrderPlaced`.
+3. Inventory reserves stock.
+4. Notifications send confirmation.
+5. Analytics records conversion data.
+6. Fraud service starts risk checks.
+
+### Important design rule
+
+The service that owns the business state should emit the event.
+
+Consumers should react to events, not reach back and mutate the producer's internal state directly.
+
+### Important reliability rule
+
+If state is committed but the event is not published, the architecture breaks.
+
+That is why teams often use:
+- transactional outbox
+- idempotent consumers
+- schema versioning
+- retries and DLQs
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: decouples one business action from many downstream reactions
+- Secondary benefits: easier fan-out, extensibility, team independence, replay-friendly workflows, async scalability
+- Systems impact: shifts systems from direct call chains toward loosely coupled event propagation and eventual consistency
+
+Event-driven architecture is most valuable when many parts of the organization need to react to the same business facts without tight coordination.
+
+---
+
+## 7. When to Rely on It
+
+Use event-driven architecture when:
+- one state change must trigger multiple downstream behaviors
+- producer and consumers should evolve independently
+- side effects do not need to finish before the user gets a response
+- eventual consistency is acceptable
+- auditability or replay matters
+- new consumers are likely to be added over time
+
+Strong fits:
+- order processing
+- onboarding workflows
+- analytics propagation
+- notifications
+- inventory updates
+- domain integration between microservices
+
+---
+
+## 8. When Not to Use It
+
+Avoid event-driven architecture when:
+- the workflow must complete synchronously before the response is considered successful
+- strict cross-service transactions are required everywhere
+- the system is small enough that direct calls are simpler and clearer
+- the team is not ready to operate async debugging, retries, idempotency, and schema evolution
+
+Bad reasons to use it:
+- "microservices should always be event-driven"
+- "queues automatically make architecture clean"
+- "async is always more scalable"
+
+Better alternatives for simpler cases:
+- direct request-response calls
+- a modular monolith with clear boundaries
+- a single service handling the workflow end to end
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Event-driven architecture | Strong decoupling, natural fan-out, extensibility, async scaling | Harder debugging, eventual consistency, more operational and schema-management complexity |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Decoupling vs observability:
+  fewer direct dependencies, but harder end-to-end tracing.
+- Scalability vs consistency simplicity:
+  async flows scale well, but reasoning about current state becomes harder.
+- Extensibility vs governance:
+  new consumers are easy to add, but event contracts need discipline.
+- Fast response vs delayed completion:
+  user-facing latency improves, but downstream side effects may finish later.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Treating events like commands | Events should describe facts, not hidden remote procedure calls | Model events as past-tense business facts |
+| Publishing without reliable state-to-event coordination | State may commit while the event is lost | Use outbox or equivalent durable publish pattern |
+| Skipping idempotency | Consumers can see duplicates | Make consumers safe to retry |
+| Ignoring schema evolution | New producers can break old consumers | Version schemas and evolve compatibly |
+| Making everything asynchronous | Some flows truly need immediate synchronous confirmation | Keep a hybrid model where appropriate |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Event size:
+  keep events focused and reasonably small rather than embedding huge payloads
+- End-to-end async SLA:
+  define how quickly downstream consumers are expected to react
+- Consumer lag:
+  a core health signal for event-driven systems
+- Retry count:
+  bounded retries before DLQ or quarantine
+- Event retention:
+  depends on replay and audit needs
+- Outbox publish delay:
+  should remain small enough that business propagation feels timely
+
+Interview shorthand:
+- event-driven systems trade direct coupling for eventual consistency and operational discipline
+
+---
+
+## 12. Failure Modes
+
+### Lost publish after state commit
+
+Problem:
+- The service updates its database but crashes before publishing the event.
+
+User impact:
+- downstream systems never react, creating inconsistent cross-service state
+
+Mitigation:
+- transactional outbox
+- reliable publisher
+- replay tooling
+
+### Duplicate event handling
+
+Problem:
+- A consumer processes the event, crashes, and then sees it again after retry.
+
+User impact:
+- duplicate emails, duplicate side effects, corrupted counters
+
+Mitigation:
+- idempotent consumers
+- dedupe keys
+- safe retries
+
+### Breaking schema change
+
+Problem:
+- A producer changes the event format in an incompatible way.
+
+User impact:
+- downstream consumers fail or silently misread data
+
+Mitigation:
+- backward-compatible schema evolution
+- contract testing
+- versioning
+
+### Event feedback loop
+
+Problem:
+- One event triggers another service, which emits a new event that unintentionally triggers the first workflow again.
+
+User impact:
+- event storms, duplicate workflows, runaway processing
+
+Mitigation:
+- explicit workflow boundaries
+- idempotency
+- correlation IDs
+- loop-prevention rules
+
+---
+
+## 13. Scenario
+
+- Product / system: E-commerce marketplace
+- Trigger:
+  a user places an order
+- Event:
+  `OrderPlaced`
+- Downstream consumers:
+  inventory, analytics, notification, fraud, loyalty points, audit
+- Why event-driven architecture is good here:
+  the order service should not synchronously call every downstream team before returning success
+- What would go wrong with only direct calls:
+  tight coupling, slow checkout path, cascading failures, and painful onboarding of new consumers
+
+---
+
+## 14. Code Sample
+
+### Producer-side pseudocode with outbox idea
+
+```java
+public void placeOrder(CreateOrderCommand command) {
+    Order order = orderRepository.save(Order.create(command));
+    outboxRepository.save(new OutboxEvent(
+        "OrderPlaced",
+        order.id().toString(),
+        serialize(new OrderPlacedEvent(order.id(), order.userId(), order.total()))
+    ));
+}
+```
+
+### Outbox publisher sketch
+
+```java
+public void publishOutboxBatch(List<OutboxEvent> events) {
+    for (OutboxEvent event : events) {
+        eventBus.publish(event.type(), event.key(), event.payload());
+        outboxRepository.markPublished(event.id());
+    }
+}
+```
+
+### Consumer example
+
+```java
+public void onOrderPlaced(OrderPlacedEvent event) {
+    inventoryService.reserve(event.orderId());
+    analyticsService.recordOrder(event.orderId(), event.total());
+}
+```
+
+Key idea:
+- the producer owns the fact
+- the broker distributes the fact
+- consumers react independently
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows one event fan out to multiple independent consumers.
+
+```python
+subscribers = {
+    "OrderPlaced": [],
+}
+
+
+def subscribe(event_type: str, handler) -> None:
+    subscribers.setdefault(event_type, []).append(handler)
+
+
+def publish(event_type: str, payload: dict) -> None:
+    for handler in subscribers.get(event_type, []):
+        handler(payload)
+
+
+def analytics_handler(payload: dict) -> None:
+    print("Analytics saw order:", payload["order_id"])
+
+
+def notification_handler(payload: dict) -> None:
+    print("Notification sent for order:", payload["order_id"])
+
+
+def loyalty_handler(payload: dict) -> None:
+    print("Points awarded for order:", payload["order_id"])
+
+
+def main() -> None:
+    subscribe("OrderPlaced", analytics_handler)
+    subscribe("OrderPlaced", notification_handler)
+    subscribe("OrderPlaced", loyalty_handler)
+
+    publish("OrderPlaced", {"order_id": "o-101"})
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- the producer does not know all consumers
+- one business fact can fan out to many reactions
+- new consumers can be added without changing the producer code
+
+---
+
+## 16. Practical Question
+
+> You are designing a signup platform. After a user account is created, the system must send a welcome email, provision a profile, emit analytics, and trigger fraud checks. How would you decide what stays synchronous and what becomes event-driven?
+
+---
+
+## 17. Strong Answer
+
+I would keep only the minimum critical path synchronous, and move independent side effects to event-driven processing.
+
+The account service should synchronously validate the request, create the user record, and return success only after its own source-of-truth state is committed. After that, it should publish a `UserCreated` event. Consumers such as email, analytics, profile initialization, and fraud checks can react independently.
+
+This gives me loose coupling and makes it easy to add new subscribers later without changing the signup service. It also shortens the user-facing response path because the signup API does not block on every side effect. The trade-off is eventual consistency, so I would use reliable publish semantics such as an outbox, make consumers idempotent, version event schemas carefully, and trace the workflow with correlation IDs.
+
+I would not force everything into events. If the business requires a step to complete before signup is considered successful, that step should remain synchronous.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Event-driven architecture lets services publish business facts and lets other services react independently with loose coupling.
+- Three keywords: fan-out, decoupling, eventual-consistency
+- One interview trap: making everything asynchronous without deciding what truly belongs on the critical path
+- One memory trick: command asks, event tells
