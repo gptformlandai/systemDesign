@@ -1546,3 +1546,807 @@ The main design principle is that retries should help the dependency recover, no
 - Three keywords: transient, jitter, idempotency
 - One interview trap: retrying every failure, including permanent or unsafe ones
 - One memory trick: retry, but breathe longer each time
+
+---
+
+# Topic 5: Circuit Breakers
+
+> Track: 1.8 Reliability & Fault Tolerance
+> Scope: dependency protection, cascading failure prevention, breaker states, fallback behavior, recovery probing
+
+---
+
+## 1. Intuition
+
+Think of a circuit breaker in a house.
+
+When too much current flows, the breaker trips and cuts off power to protect the wiring and prevent larger damage. It is not trying to "fix" the appliance. It is trying to stop the failure from spreading.
+
+A service-level circuit breaker does the same thing for remote dependencies.
+
+If a downstream service is already timing out or failing badly, the caller should stop sending more work for a while and fail fast instead of wasting threads, connections, and patience.
+
+Short memory trick:
+- timeout says "do not wait forever"
+- retry says "try again carefully"
+- circuit breaker says "stop sending for now"
+
+---
+
+## 2. Definition
+
+- Definition: A circuit breaker is a fault-tolerance pattern that temporarily blocks calls to an unhealthy dependency after failures cross a configured threshold, then later probes for recovery.
+- Category: Dependency isolation and cascading-failure prevention pattern
+- Core idea: When a downstream system is already unhealthy, fast failure is often safer than continued retries and thread exhaustion.
+
+Typical breaker states:
+- closed
+- open
+- half-open
+
+---
+
+## 3. Why It Exists
+
+Without a circuit breaker, callers often keep hammering a sick dependency.
+
+That creates several bad outcomes:
+- request threads stay blocked
+- connection pools get exhausted
+- queues grow
+- retries pile up
+- the caller itself becomes unhealthy
+
+Circuit breakers exist because systems need a way to protect themselves when a dependency is failing persistently, not just occasionally.
+
+They are a classic defense against cascading failures.
+
+---
+
+## 4. Reality
+
+### Circuit breakers are common around:
+
+- third-party APIs
+- payment gateways
+- fraud or risk engines
+- recommendation or personalization services
+- internal HTTP or gRPC dependencies
+- database or cache calls in some architectures
+
+### Real-world architecture truth
+
+A circuit breaker is not a substitute for:
+- timeouts
+- retries
+- fallbacks
+- capacity planning
+- observability
+
+It works best as part of a package.
+
+Another important truth:
+- the breaker should usually be scoped to a dependency or operation, not the whole service
+
+If one endpoint on a downstream service is unhealthy, you do not necessarily want to block every other dependency path too.
+
+---
+
+## 5. How It Works
+
+The classic flow is:
+
+1. The breaker starts in `closed`.
+2. Calls are allowed through normally.
+3. The system measures failures and often slow calls over a rolling window.
+4. If error rate or slow-call rate crosses the threshold, the breaker moves to `open`.
+5. In `open`, calls fail fast or return a fallback without touching the dependency.
+6. After a wait period, the breaker moves to `half-open`.
+7. In `half-open`, only a small number of probe requests are allowed through.
+8. If those probes succeed, the breaker closes.
+9. If they fail, the breaker opens again.
+
+### The three states
+
+#### Closed
+
+- normal behavior
+- traffic is allowed
+- metrics are recorded
+
+#### Open
+
+- requests are blocked immediately
+- callers fail fast or use fallback behavior
+- dependency gets time to recover
+
+#### Half-open
+
+- limited trial traffic is allowed
+- the system tests whether the dependency is healthy again
+
+### Important design details
+
+- use rolling windows, not lifetime counters
+- define what counts as failure
+- often include slow-call rate, not just hard errors
+- pair the breaker with short timeouts
+- keep fallback behavior explicit
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: prevents a failing dependency from exhausting caller resources and causing cascading failure
+- Secondary benefits: faster failure detection, better tail latency, more stable recovery behavior, cleaner fallback paths
+- Systems impact: directly affects whether one sick dependency can drag down healthy services
+
+Circuit breakers answer the question:
+- when should the caller stop trying for a while and protect itself?
+
+---
+
+## 7. When to Rely on It
+
+Use circuit breakers when:
+- you call remote dependencies over the network
+- the dependency can become slow or flaky
+- the caller has limited threads, connections, or request budget
+- you have meaningful fallback or fail-fast behavior
+- failure amplification is a real risk
+
+Strong fits:
+- external APIs
+- internal service-to-service calls
+- optional enrichments
+- rate-limited downstream systems
+- services with high concurrency and tight latency budgets
+
+---
+
+## 8. When Not to Use It
+
+Be careful with circuit breakers when:
+- the code path is local and cheap
+- request volume is too low for thresholds to mean anything
+- you cannot define what recovery looks like
+- you are trying to use the breaker to hide a permanently broken system
+
+Also avoid these bad patterns:
+- one global breaker for unrelated dependencies
+- opening the breaker on user-caused `4xx` errors
+- adding a breaker without timeouts
+
+Better rule:
+- use breakers for dependency health isolation, not as a generic error-handling hammer
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Circuit breakers | Prevent cascading failure, preserve caller resources, improve fail-fast behavior, enable fallback | Threshold tuning is tricky, false opens are possible, and recovery behavior can flap if poorly configured |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Protection vs availability:
+  opening fast protects the caller, but may reject some recoverable requests.
+- Sensitivity vs stability:
+  aggressive thresholds detect trouble quickly, but can cause false opens.
+- Fast failure vs user completeness:
+  a fallback may be worse than the full result, but still healthier than full collapse.
+- Simplicity vs precision:
+  one coarse breaker is simpler, but per-dependency or per-operation breakers are safer.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| No timeout under the breaker | Calls can still hang and exhaust resources | Use strict timeouts before breaker logic becomes meaningful |
+| Opening on all errors equally | User errors and transient dependency failures are not the same | Classify failures carefully |
+| One breaker for many unrelated calls | One bad path can block healthy paths | Scope breakers by dependency and operation |
+| No half-open probe discipline | Recovery becomes guesswork or flapping | Allow limited probe traffic with clear criteria |
+| Combining retries and breakers badly | Retries can keep tripping the breaker or flood the dependency | Coordinate retry budgets and breaker thresholds |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Rolling window size:
+  enough requests or time to make health signals meaningful
+- Failure-rate threshold:
+  commonly based on percentage of failures in the window
+- Slow-call threshold:
+  useful when the dependency is not fully failing but is too slow
+- Open wait duration:
+  how long to stop calls before half-open probes
+- Half-open probe count:
+  limit trial traffic to avoid immediate re-overload
+- Timeout budget:
+  should be shorter than the caller's full request deadline
+
+Interview shorthand:
+- closed, open, half-open, rolling window, fallback
+
+---
+
+## 12. Failure Modes
+
+### Breaker never trips
+
+Problem:
+- Thresholds are too loose or failures are measured badly.
+
+User impact:
+- the caller keeps burning threads and latency on a sick dependency
+
+Mitigation:
+- tune thresholds
+- measure slow calls and failures
+- alert on saturation
+
+### Breaker opens too aggressively
+
+Problem:
+- Small bursts or low-volume noise cause false opens.
+
+User impact:
+- healthy requests are rejected unnecessarily
+
+Mitigation:
+- use minimum request volume
+- tune rolling windows
+- calibrate thresholds
+
+### Breaker flapping
+
+Problem:
+- The breaker repeatedly opens and closes because recovery checks are too aggressive or unstable.
+
+User impact:
+- noisy behavior and unpredictable latency
+
+Mitigation:
+- longer open interval
+- limited half-open probes
+- better dependency health classification
+
+### Shared-breaker blast radius
+
+Problem:
+- One unhealthy endpoint causes the breaker to block unrelated traffic.
+
+User impact:
+- wider outage than necessary
+
+Mitigation:
+- scope breakers narrowly
+- isolate by route or dependency operation
+
+---
+
+## 13. Scenario
+
+- Product / system: Checkout service calling a third-party fraud-scoring API
+- Requirement:
+  checkout should not hang and exhaust threads if the fraud API becomes very slow
+- Good design:
+  put the fraud call behind a timeout and circuit breaker, and route degraded cases to manual review or a safe fallback policy
+- Why circuit breaker fits:
+  the caller needs protection from a dependency that can fail persistently under load
+- What would go wrong without it:
+  the checkout service would keep waiting, retries would pile up, and even healthy requests could start timing out
+
+---
+
+## 14. Code Sample
+
+### Breaker-aware call sketch
+
+```java
+public FraudDecision getFraudDecision(Order order) {
+    if (!circuitBreaker.allowRequest()) {
+        return FraudDecision.manualReview("breaker-open");
+    }
+
+    try {
+        FraudDecision decision = fraudClient.score(order);
+        circuitBreaker.recordSuccess();
+        return decision;
+    } catch (TimeoutException | ServiceUnavailableException ex) {
+        circuitBreaker.recordFailure();
+        return FraudDecision.manualReview("fraud-service-unavailable");
+    }
+}
+```
+
+### State transition sketch
+
+```java
+public void recordFailure() {
+    metricsWindow.addFailure();
+
+    if (metricsWindow.failureRate() > FAILURE_THRESHOLD) {
+        state = BreakerState.OPEN;
+        openedAt = clock.now();
+    }
+}
+```
+
+Key idea:
+- the breaker is there to protect the caller, not to pretend the dependency is healthy
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows a tiny breaker moving from closed to open.
+
+```python
+failures = 0
+state = "closed"
+
+
+def call_dependency() -> None:
+    raise TimeoutError("dependency slow")
+
+
+def guarded_call() -> None:
+    global failures, state
+
+    if state == "open":
+        print("Fast fail because breaker is open")
+        return
+
+    try:
+        call_dependency()
+    except TimeoutError:
+        failures += 1
+        print("Failure count:", failures)
+        if failures >= 3:
+            state = "open"
+            print("Breaker opened")
+
+
+def main() -> None:
+    for _ in range(4):
+        guarded_call()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- repeated failures should eventually stop normal traffic
+- fast failure can be healthier than continuing to hammer the dependency
+
+---
+
+## 16. Practical Question
+
+> You are calling a payment-enrichment service that has become slow and unstable. How would you design a circuit breaker around it, and how would that interact with timeouts, retries, and fallback behavior?
+
+---
+
+## 17. Strong Answer
+
+I would start with a strict timeout on the dependency, because a circuit breaker without timeouts still lets calls consume resources for too long. Then I would put the dependency behind a breaker that measures failure rate and possibly slow-call rate over a rolling window. When the failure threshold is crossed, the breaker should open and fail fast instead of continuing to send traffic.
+
+I would scope the breaker to that specific dependency or operation, not the whole service, so one unhealthy path does not widen the outage. While the breaker is open, I would return a clear fallback such as cached data, a degraded response, or a safe manual-review path depending on the business flow. After a wait period, the breaker would move to half-open and allow a small number of probe calls to test recovery.
+
+I would also coordinate retries carefully. Retries should be bounded and should not keep hammering a dependency that is already open or unhealthy. The purpose of the breaker is to protect the caller from cascading failure, not just to count errors.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: A circuit breaker trips when a dependency becomes unhealthy and temporarily blocks calls so the failure does not spread.
+- Three keywords: open, half-open, fallback
+- One interview trap: adding a breaker without timeouts, scoped thresholds, or recovery probes
+- One memory trick: when the wire is burning, stop the current first
+
+---
+
+# Topic 6: Bulkheads
+
+> Track: 1.8 Reliability & Fault Tolerance
+> Scope: resource isolation, noisy-neighbor protection, pool separation, concurrency limits, failure-domain containment
+
+---
+
+## 1. Intuition
+
+Think of a ship divided into watertight compartments.
+
+If one compartment fills with water, the whole ship does not immediately sink because the damage is contained.
+
+That is the bulkhead idea in software:
+- isolate resources
+- isolate failure
+- keep one overloaded path from taking down everything else
+
+Short memory trick:
+- circuit breaker stops calls to a sick dependency
+- bulkhead stops one workload from drowning the rest of the service
+
+---
+
+## 2. Definition
+
+- Definition: A bulkhead is a resource-isolation pattern that separates workloads, dependencies, or tenants into distinct pools so failure or overload in one area does not exhaust the entire system.
+- Category: Fault isolation and resource-containment pattern
+- Core idea: Shared resources create blast radius; isolation limits how far one failure can spread.
+
+Bulkheads can isolate:
+- thread pools
+- connection pools
+- request queues
+- rate limits
+- compute capacity
+- storage partitions
+- tenants or customer classes
+
+---
+
+## 3. Why It Exists
+
+Many outages happen because one bad path consumes all shared resources.
+
+Examples:
+- one slow downstream call exhausts a shared thread pool
+- one noisy tenant saturates the request queue
+- one analytics workflow steals capacity from checkout
+- one region or cell overload spills into everything else
+
+Bulkheads exist because shared pools are convenient, but they are dangerous when workloads have different criticality or failure behavior.
+
+The pattern protects systems from noisy neighbors and from resource-coupling disasters.
+
+---
+
+## 4. Reality
+
+### Bulkheads are common in:
+
+- separate thread pools for different dependency calls
+- separate queues for high-priority and low-priority work
+- separate connection pools for databases and third-party services
+- per-tenant rate limiting
+- isolated worker fleets for critical and non-critical jobs
+- cell or shard-level isolation in large platforms
+
+### Real-world architecture truth
+
+Bulkheads are not only about threads.
+
+They can exist at many layers:
+- code level
+- process level
+- node level
+- queue level
+- tenant level
+- cluster level
+
+Another important truth:
+- bulkheads do not eliminate overload by themselves
+
+They limit the blast radius. You still need bounded queues, admission control, good sizing, and often graceful degradation or shedding.
+
+---
+
+## 5. How It Works
+
+The core flow is:
+
+1. Identify workloads or dependencies that should not share all resources.
+2. Create separate pools or quotas for them.
+3. Bound each pool with limits and often queue caps.
+4. If one pool saturates, only that compartment degrades.
+5. Critical paths continue because they still have reserved capacity.
+
+### Common bulkhead boundaries
+
+#### By dependency
+
+- payment calls use one pool
+- recommendation calls use another
+
+#### By priority
+
+- checkout has protected capacity
+- analytics or enrichment gets best-effort capacity
+
+#### By tenant or customer tier
+
+- one noisy customer cannot consume all shared throughput
+
+#### By cell or shard
+
+- one bad partition affects only part of the fleet
+
+### Important design rule
+
+Bulkheads need limits.
+
+If everything still queues indefinitely behind each pool, you may only move the congestion rather than contain it.
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: prevents one overloaded workload or dependency from exhausting shared resources for unrelated work
+- Secondary benefits: better QoS for critical paths, stronger noisy-neighbor isolation, smaller blast radius during incidents
+- Systems impact: changes outages from "everything slows or fails" to "one compartment degrades while the rest survives"
+
+Bulkheads answer the question:
+- what keeps this optional or unhealthy workload from consuming resources needed by the core path?
+
+---
+
+## 7. When to Rely on It
+
+Use bulkheads when:
+- the service handles workloads of different importance
+- one dependency is historically slower or less predictable
+- there are shared thread or connection pools
+- multi-tenant traffic can be uneven
+- overload in one path should not affect others
+
+Strong fits:
+- checkout vs recommendation
+- user-facing vs batch work
+- premium vs free-tier traffic
+- write path vs read enrichment
+- critical worker queues vs best-effort jobs
+
+---
+
+## 8. When Not to Use It
+
+Be careful with bulkheads when:
+- the system is very small and one shared pool is still easier to reason about
+- isolation would create too much stranded capacity
+- the team cannot operate and tune multiple pools sensibly
+
+Also avoid:
+- too many tiny pools
+- unbounded queues behind each pool
+- copying the same limits everywhere without understanding the workload
+
+Good rule:
+- isolate where failure behavior or business priority truly differs
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Bulkheads | Contains noisy neighbors, protects critical paths, reduces shared-resource blast radius | Can waste capacity, adds tuning complexity, and may move congestion if queues remain unbounded |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Isolation vs utilization:
+  stronger isolation protects reliability, but unused reserved capacity may sit idle.
+- Simplicity vs control:
+  one shared pool is easier, but separate pools protect priority flows.
+- Fairness vs efficiency:
+  strict quotas prevent abuse, but may underuse capacity during quiet periods.
+- Local isolation vs system-wide complexity:
+  more compartments improve containment, but add operational knobs.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| One giant shared thread pool for everything | One slow dependency can starve all work | Isolate pools by dependency or priority |
+| Unbounded queue behind a bulkhead | Congestion still grows until latency explodes | Bound queues and reject or degrade early |
+| No distinction between critical and optional work | Best-effort traffic can crowd out business-critical paths | Reserve capacity for the core path |
+| Over-fragmenting into many tiny pools | Capacity becomes stranded and hard to tune | Isolate only meaningful failure domains |
+| Ignoring hidden shared resources | Separate threads do not help if all calls still share one fragile dependency | Audit true bottlenecks end to end |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Pool size:
+  should reflect dependency latency, concurrency needs, and criticality
+- Queue length:
+  should be bounded and monitored
+- Rejection rate:
+  a key signal that the compartment is saturated
+- Saturation threshold:
+  helps trigger degradation, autoscaling, or alerts
+- Per-tenant or per-priority quota:
+  useful in noisy-neighbor scenarios
+
+Interview shorthand:
+- isolation, noisy neighbor, separate pools, bounded queue, protected capacity
+
+---
+
+## 12. Failure Modes
+
+### Shared-resource starvation
+
+Problem:
+- A slow optional dependency consumes all shared worker threads.
+
+User impact:
+- even critical requests start timing out
+
+Mitigation:
+- isolate worker pools
+- bound concurrency
+- protect critical paths
+
+### Bulkhead too small
+
+Problem:
+- The compartment is so tightly sized that healthy traffic gets rejected too often.
+
+User impact:
+- unnecessary degradation or underutilization
+
+Mitigation:
+- tune with real traffic data
+- revisit pool sizing and fallback behavior
+
+### Hidden shared bottleneck
+
+Problem:
+- Separate pools exist in the application, but all paths still share one downstream database or one queue.
+
+User impact:
+- blast radius remains larger than expected
+
+Mitigation:
+- map dependencies end to end
+- isolate true bottlenecks where possible
+
+### Queueing inside each compartment
+
+Problem:
+- Each bulkhead has its own long unbounded queue, so the system still suffers huge latency under stress.
+
+User impact:
+- users wait too long even though some isolation exists
+
+Mitigation:
+- use bounded queues
+- reject, defer, or degrade earlier
+
+---
+
+## 13. Scenario
+
+- Product / system: E-commerce API gateway
+- Requirement:
+  checkout and login must remain healthy even if recommendation and analytics calls become slow
+- Good design:
+  separate executors, connection pools, and queue budgets for critical and best-effort paths
+- Why bulkheads fit:
+  shared resource exhaustion is the real failure risk
+- What would go wrong without them:
+  slow enrichment work could consume all workers and make checkout look broken
+
+---
+
+## 14. Code Sample
+
+### Separate executors sketch
+
+```java
+private final ExecutorService checkoutPool = Executors.newFixedThreadPool(32);
+private final ExecutorService enrichmentPool = Executors.newFixedThreadPool(8);
+
+public Future<CheckoutResponse> submitCheckout(Callable<CheckoutResponse> task) {
+    return checkoutPool.submit(task);
+}
+
+public Future<RecommendationResponse> submitRecommendation(Callable<RecommendationResponse> task) {
+    return enrichmentPool.submit(task);
+}
+```
+
+### Queue-cap check sketch
+
+```java
+public void submitBestEffort(Job job) {
+    if (bestEffortQueue.size() >= MAX_BEST_EFFORT_QUEUE) {
+        throw new RejectedExecutionException("best-effort bulkhead saturated");
+    }
+
+    bestEffortQueue.add(job);
+}
+```
+
+Key idea:
+- the point is not just separate pools
+- the point is to protect critical capacity from unrelated overload
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows critical and optional work isolated into separate pools.
+
+```python
+critical_capacity = 2
+optional_capacity = 1
+
+critical_in_use = 0
+optional_in_use = 0
+
+
+def submit_critical(name: str) -> None:
+    global critical_in_use
+    if critical_in_use >= critical_capacity:
+        print("Critical rejected:", name)
+        return
+    critical_in_use += 1
+    print("Critical accepted:", name)
+
+
+def submit_optional(name: str) -> None:
+    global optional_in_use
+    if optional_in_use >= optional_capacity:
+        print("Optional rejected:", name)
+        return
+    optional_in_use += 1
+    print("Optional accepted:", name)
+
+
+def main() -> None:
+    submit_optional("rec-1")
+    submit_optional("rec-2")
+    submit_critical("checkout-1")
+    submit_critical("checkout-2")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- optional work can saturate its own compartment
+- critical work still has protected capacity
+
+---
+
+## 16. Practical Question
+
+> Your service handles checkout, search enrichment, analytics export, and recommendation calls. One optional downstream service becomes very slow. How would you use bulkheads so checkout remains healthy?
+
+---
+
+## 17. Strong Answer
+
+I would separate critical and non-critical work into different resource pools so optional or unstable dependencies cannot consume everything. At a minimum, I would isolate thread pools, connection pools, and queue budgets for checkout versus best-effort enrichment or analytics paths.
+
+I would keep those pools bounded, because an isolated but unbounded queue still creates long latency and hidden failure. If the optional compartment saturates, I would reject, defer, or degrade that work while preserving reserved capacity for checkout and login. I would also monitor pool saturation, rejection rate, and queue depth so the team can see when the bulkhead is doing real work.
+
+The key architectural point is that bulkheads protect against shared-resource starvation. Circuit breakers help with unhealthy dependencies, but bulkheads protect the caller from one category of work exhausting the entire service. In strong systems, the two patterns often work together.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Bulkheads isolate resources so one overloaded workload or dependency cannot starve the rest of the system.
+- Three keywords: isolation, noisy-neighbor, protected-capacity
+- One interview trap: creating separate pools but still leaving unbounded queues or hidden shared bottlenecks
+- One memory trick: one flooded compartment should not sink the whole ship
