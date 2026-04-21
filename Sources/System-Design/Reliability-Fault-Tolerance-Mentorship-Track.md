@@ -2350,3 +2350,804 @@ The key architectural point is that bulkheads protect against shared-resource st
 - Three keywords: isolation, noisy-neighbor, protected-capacity
 - One interview trap: creating separate pools but still leaving unbounded queues or hidden shared bottlenecks
 - One memory trick: one flooded compartment should not sink the whole ship
+
+---
+
+# Topic 7: Cell-based Architecture
+
+> Track: 1.8 Reliability & Fault Tolerance
+> Scope: isolated service compartments, per-cell routing, independent capacity, fault-domain reduction, scaling by duplication
+
+---
+
+## 1. Intuition
+
+Think of a large platform not as one giant warehouse, but as many regional fulfillment centers.
+
+Each center can serve its assigned customers with its own staff, shelves, and local operations. If one center has a problem, the entire company does not stop working. Only the customers assigned to that center are affected.
+
+Cell-based architecture applies that idea to software.
+
+Instead of one huge shared fleet handling everyone, the platform is divided into smaller mostly independent cells, each responsible for a subset of traffic, tenants, or data.
+
+Short memory trick:
+- one giant fleet = big shared blast radius
+- many cells = smaller independent fault domains
+
+---
+
+## 2. Definition
+
+- Definition: Cell-based architecture is a system design pattern where a platform is divided into multiple mostly self-sufficient cells, each serving a subset of traffic or tenants with isolated resources and operational boundaries.
+- Category: Large-scale reliability, fault-isolation, and horizontal-scaling pattern
+- Core idea: shrink the fault domain by making smaller copies of the platform instead of one giant shared system.
+
+A cell often includes its own:
+- service instances
+- queues
+- caches
+- data partitions or replicas
+- autoscaling boundaries
+- deployment target
+- operational ownership or controls
+
+---
+
+## 3. Why It Exists
+
+At enough scale, the shared-fleet model becomes dangerous.
+
+Problems start to look like this:
+- one bad deploy affects everyone
+- one hot tenant hurts all tenants
+- one overloaded queue slows the whole platform
+- one operational mistake becomes a fleet-wide incident
+- scaling one part of the platform means scaling everything together
+
+Cell-based architecture exists because large systems need a way to reduce blast radius while still growing.
+
+It is a direct answer to this question:
+- how do we stop a platform problem from becoming a platform-wide outage?
+
+---
+
+## 4. Reality
+
+### Cell-based architecture is common in:
+
+- very large multi-tenant SaaS platforms
+- marketplaces
+- payment platforms
+- internal cloud platforms
+- high-scale control planes
+- large consumer systems with tenant or region partitioning
+
+### Real-world architecture truth
+
+A cell is not just:
+- a Kubernetes namespace
+- a deployment label
+- one shard with no operational isolation
+
+A real cell usually needs:
+- dedicated routing boundaries
+- dedicated capacity
+- isolation from other cells
+- controlled dependencies on shared global systems
+
+Another important truth:
+- cells are rarely fully independent
+
+There are usually still some shared systems such as:
+- identity
+- billing
+- observability
+- configuration
+- service discovery
+
+The architectural challenge is to minimize and harden those global dependencies so they do not destroy the value of cell isolation.
+
+---
+
+## 5. How It Works
+
+The general pattern is:
+
+1. Divide the system into multiple cells.
+2. Assign users, tenants, geographies, or partitions to those cells.
+3. Route each request to the correct cell.
+4. Keep each cell operationally isolated as much as possible.
+5. Scale, deploy, and fail cells independently.
+
+### Common ways to assign traffic to cells
+
+- by tenant
+- by geography
+- by account range
+- by shard key
+- by product segment
+
+### What typically lives inside a cell
+
+- application services
+- local queues
+- local caches
+- database shards or replicas
+- worker pools
+- health checks
+- deployment pipeline target
+
+### Important design rule
+
+The router and cell mapping are first-class parts of the architecture.
+
+If the system cannot reliably answer:
+- which cell owns this tenant?
+- how do we fail traffic away from a bad cell?
+
+then the cell design is incomplete.
+
+### Operational benefit
+
+Cells allow:
+- one-cell deployments
+- one-cell rollback
+- one-cell incident isolation
+- one-cell capacity expansion
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: reduces whole-platform blast radius by containing failures to one cell or a small set of cells
+- Secondary benefits: safer deployments, better noisy-tenant isolation, modular scaling, clearer operational ownership
+- Systems impact: changes architecture from one giant failure domain to many smaller ones
+
+Cell-based architecture is one concrete way to implement blast radius containment at platform scale.
+
+---
+
+## 7. When to Rely on It
+
+Use cell-based architecture when:
+- the system is large enough that fleet-wide incidents are too expensive
+- different tenant groups can be cleanly partitioned
+- the platform needs safer rollouts and better fault isolation
+- one giant shared control plane or data plane is becoming risky
+- the team can operate the added routing and duplication complexity
+
+Strong fits:
+- large B2B SaaS
+- high-scale marketplaces
+- payments and financial infrastructure
+- large internal platforms
+- regionalized or tenant-partitioned systems
+
+---
+
+## 8. When Not to Use It
+
+Do not jump to cells too early when:
+- the system is still small and operational simplicity matters more
+- traffic is low enough that one fleet is manageable
+- the domain model does not partition cleanly
+- cross-cell coordination would dominate the design
+
+Also avoid this misunderstanding:
+- cells are not just "more microservices"
+
+They are about fault domains and operational isolation, not service-count for its own sake.
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Cell-based architecture | Strong blast-radius reduction, safer rollouts, modular scaling, better tenant isolation | Higher operational complexity, more duplicated infrastructure, harder cross-cell coordination and balancing |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Isolation vs efficiency:
+  cells protect reliability, but some capacity will be duplicated or underused.
+- Simplicity vs survivability:
+  one shared fleet is easier, but cells reduce platform-wide failure scope.
+- Independence vs global coordination:
+  more cell autonomy means more thought about shared config, auth, and observability.
+- Static ownership vs dynamic balancing:
+  stable cell mapping is simple, but uneven growth can create hot cells.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Calling any partition a cell | Data partitioning alone is not enough without operational isolation | Define routing, ownership, deployment, and resource boundaries clearly |
+| Keeping too many global shared dependencies | One shared system can still cause fleet-wide failure | Minimize and harden global control points |
+| No cell-aware routing or migration story | Rebalancing and incident handling become painful | Build tenant-to-cell mapping and migration tooling |
+| Deploying all cells at once | You lose one of the biggest reliability benefits | Roll out one cell at a time |
+| Ignoring cell imbalance | One hot cell can become a permanent pain point | Monitor and rebalance capacity or tenant assignment |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Cell size:
+  how many tenants, users, or requests one cell owns
+- Spare capacity per cell:
+  enough headroom so one cell incident does not immediately overload neighbors
+- Number of cells:
+  more cells reduce blast radius, but increase operational overhead
+- Cross-cell traffic:
+  should stay low when possible, because heavy cross-cell coordination weakens isolation
+- Rollout scope:
+  how many cells a deploy touches at once
+
+Interview shorthand:
+- fault domain, per-cell routing, independent deploy, shared dependency minimization
+
+---
+
+## 12. Failure Modes
+
+### Hot cell
+
+Problem:
+- One cell owns a disproportionately heavy tenant set or traffic pattern.
+
+User impact:
+- local saturation, uneven performance, repeated incidents in the same compartment
+
+Mitigation:
+- rebalancing tools
+- better assignment strategy
+- per-cell capacity planning
+
+### Shared global dependency defeats isolation
+
+Problem:
+- Every cell still depends on one fragile global config store or control path.
+
+User impact:
+- the system still suffers fleet-wide incidents despite cell design
+
+Mitigation:
+- minimize global dependencies
+- cache critical config locally
+- harden shared control planes
+
+### Bad routing or ownership mapping
+
+Problem:
+- Requests are sent to the wrong cell, or the mapping service becomes unreliable.
+
+User impact:
+- wrong data access, failed requests, difficult failover
+
+Mitigation:
+- reliable cell directory
+- explicit ownership metadata
+- tested rerouting paths
+
+### Cross-cell dependency spread
+
+Problem:
+- Cells depend synchronously on one another during core flows.
+
+User impact:
+- one cell incident propagates to others
+
+Mitigation:
+- keep cells as self-sufficient as possible
+- minimize synchronous cross-cell calls
+
+---
+
+## 13. Scenario
+
+- Product / system: Multi-tenant commerce platform
+- Requirement:
+  one large seller's traffic spike or one bad deploy should not affect every merchant on the platform
+- Good design:
+  assign merchants to cells, give each cell its own service fleet and local dependencies, and route requests using tenant-to-cell mapping
+- Why cells fit:
+  the platform needs reliability through isolation, not just more horizontal scale
+- What would go wrong without them:
+  one fleet-wide deployment or one hot tenant could degrade the whole marketplace
+
+---
+
+## 14. Code Sample
+
+### Tenant-to-cell routing sketch
+
+```java
+public Endpoint routeRequest(String tenantId) {
+    CellId cellId = cellDirectory.lookup(tenantId);
+    return cellRegistry.endpointFor(cellId);
+}
+```
+
+### Cell-scoped deployment sketch
+
+```java
+public void deployToCell(CellId cellId, ReleaseVersion version) {
+    deploymentController.deploy(cellId, version);
+    healthMonitor.verify(cellId, version);
+}
+```
+
+Key idea:
+- cells are a routing and ownership model as much as an infrastructure model
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows tenants mapped to cells and one bad cell affecting only its own tenants.
+
+```python
+tenant_to_cell = {
+    "tenant-a": "cell-1",
+    "tenant-b": "cell-1",
+    "tenant-c": "cell-2",
+}
+
+cell_health = {
+    "cell-1": "down",
+    "cell-2": "healthy",
+}
+
+
+def handle_request(tenant: str) -> None:
+    cell = tenant_to_cell[tenant]
+    if cell_health[cell] != "healthy":
+        print(tenant, "is affected because", cell, "is unhealthy")
+        return
+    print(tenant, "served by", cell)
+
+
+def main() -> None:
+    for tenant in tenant_to_cell:
+        handle_request(tenant)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- failure scope can be bounded by routing ownership
+- cell isolation is about reducing who gets hurt when a compartment fails
+
+---
+
+## 16. Practical Question
+
+> You run a large multi-tenant platform and want to avoid fleet-wide incidents from hot tenants and bad deployments. How would you use cell-based architecture, and what shared dependencies would you be most careful about?
+
+---
+
+## 17. Strong Answer
+
+I would divide the platform into multiple cells, each with its own service capacity, local queues, caches, and data ownership boundaries where possible. Tenants would be mapped deterministically to cells, and request routing would send each tenant to its assigned cell. That gives me smaller fault domains, so one hot tenant or one bad deploy affects only part of the platform instead of everyone.
+
+I would also make cell isolation operationally real, not just logical. That means deployments should be cell-scoped, health checks should be cell-aware, and capacity planning should assume that cells can fail or become imbalanced. I would be especially careful about global dependencies such as config, identity, routing metadata, and observability pipelines, because those can quietly reintroduce fleet-wide blast radius if they are not hardened.
+
+The main trade-off is complexity and some duplicated capacity, but at large scale the reliability benefit is often worth it because cell architecture turns platform-wide incidents into cell-sized incidents.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Cell-based architecture divides a large system into smaller self-sufficient compartments so failures stay local instead of becoming platform-wide.
+- Three keywords: cells, routing, fault-domain
+- One interview trap: describing sharding alone without explaining operational isolation and shared-dependency risks
+- One memory trick: many small fulfillment centers are safer than one giant warehouse
+
+---
+
+# Topic 8: Blast Radius Containment
+
+> Track: 1.8 Reliability & Fault Tolerance
+> Scope: limiting failure scope, fault domains, rollout safety, dependency isolation, change management
+
+---
+
+## 1. Intuition
+
+Think of fire doors in a building.
+
+If one room catches fire, the goal is not only to detect it. The goal is to stop it from spreading to the entire building.
+
+Blast radius containment applies that same idea to software systems and operations.
+
+When something goes wrong:
+- a bad deploy
+- a config mistake
+- a hot tenant
+- a dependency outage
+- a runaway job
+
+the system should limit how much of the platform gets affected.
+
+Short memory trick:
+- reliability asks "can we survive failure?"
+- blast radius containment asks "how much gets hurt when failure happens?"
+
+---
+
+## 2. Definition
+
+- Definition: Blast radius containment is the design and operational principle of limiting the scope of impact from failures, changes, overload, and security or configuration mistakes.
+- Category: Reliability and system-safety principle
+- Core idea: failures are inevitable, but platform-wide failures should not be.
+
+It is broader than any one pattern.
+
+Tools that help achieve blast radius containment include:
+- cell-based architecture
+- bulkheads
+- circuit breakers
+- rate limits and quotas
+- canary deployments
+- feature flags
+- tenant isolation
+- least-privilege controls
+
+---
+
+## 3. Why It Exists
+
+Big outages often start as small mistakes.
+
+Examples:
+- one bad config push
+- one hot key
+- one overloaded tenant
+- one broken dependency
+- one buggy code path
+
+Without containment, those local failures can spread through shared resources, shared control planes, or shared rollout paths and become system-wide incidents.
+
+Blast radius containment exists because the safest system is not the one that never fails. It is the one where failure cannot spread too far.
+
+---
+
+## 4. Reality
+
+### Blast radius containment appears in:
+
+- progressive rollouts
+- canary releases
+- per-tenant quotas
+- regional isolation
+- cell-based architecture
+- separate worker pools
+- kill switches and feature flags
+- scoped permissions and admin controls
+
+### Real-world architecture truth
+
+Blast radius containment is not a single component you install.
+
+It is a design mindset that should show up in:
+- architecture
+- deployment
+- traffic management
+- configuration
+- security permissions
+- operational tooling
+
+Another important truth:
+- many severe incidents are change-related, not just dependency-related
+
+So containment must apply to:
+- code rollout
+- schema changes
+- config pushes
+- feature launches
+- administrative actions
+
+---
+
+## 5. How It Works
+
+The general pattern is:
+
+1. Identify a fault domain.
+2. Add boundaries so problems stay inside that domain.
+3. Limit how much any actor, tenant, or rollout can affect at once.
+4. Detect abnormal behavior quickly.
+5. Stop or roll back before the impact spreads.
+
+### Common containment mechanisms
+
+#### Progressive rollout
+
+- release to one small group, then expand only if healthy
+
+#### Resource isolation
+
+- separate pools, quotas, and limits so local overload does not become global
+
+#### Traffic scoping
+
+- limit which tenants, cells, regions, or users see a new path
+
+#### Permission scoping
+
+- avoid giving one actor or one automation job global destructive power
+
+#### Kill switches and feature flags
+
+- turn off the bad path without taking down the whole platform
+
+### Important design rule
+
+Containment requires explicit boundaries.
+
+If every deployment, config change, queue, pool, and credential is global, then your blast radius is global too.
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: prevents local failures or changes from becoming system-wide incidents
+- Secondary benefits: safer deployments, easier incident recovery, better tenant isolation, lower operational risk
+- Systems impact: determines whether outages stay local and recoverable or become broad and expensive
+
+Blast radius containment is one of the highest-level reliability ideas because it shapes how all other patterns are used.
+
+---
+
+## 7. When to Rely on It
+
+Use blast radius containment thinking:
+- always
+
+But it becomes especially important when:
+- the system is multi-tenant
+- the platform runs at large scale
+- deployments are frequent
+- changes are risky
+- one failure can be very expensive
+- teams need safe experimentation
+
+Strong fits:
+- cloud platforms
+- marketplaces
+- financial systems
+- high-scale consumer systems
+- internal developer platforms
+
+---
+
+## 8. When Not to Use It
+
+This is one of the rare topics where the answer is not really "do not use it."
+
+Instead:
+- apply it proportionally to the scale and risk of the system
+
+For smaller systems, containment may be simpler:
+- one canary environment
+- one feature flag
+- one staged rollout
+- one quota boundary
+
+But the principle still matters.
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Blast radius containment | Reduces incident scope, makes rollouts safer, limits damage from mistakes, improves recoverability | Adds boundaries, guardrails, and operational complexity that can reduce short-term convenience |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Safety vs speed:
+  more containment often means slower rollout and more guardrails.
+- Isolation vs efficiency:
+  tighter boundaries can leave some capacity underused.
+- Local autonomy vs centralized simplicity:
+  scoped control reduces risk, but global tools are easier to operate.
+- Operational overhead vs incident cost:
+  the guardrails cost effort, but they save pain during failure.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Global config or rollout by default | One mistake instantly affects everyone | Use staged rollout and scoped config |
+| Unlimited tenant or job impact | One actor can dominate the system | Use quotas, rate limits, and isolation |
+| Shared credentials or global admin power | One bad action can damage the whole fleet | Apply least privilege and scoped permissions |
+| No kill switch for risky features | Recovery requires redeploy or deep incident response | Add fast disable paths |
+| Treating blast radius as only an infrastructure issue | Many incidents start in code, config, or operations | Apply containment across the full delivery path |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Canary scope:
+  how many users, cells, or tenants see the new change first
+- Rollout step size:
+  how much additional exposure is allowed per stage
+- Max tenants per fault domain:
+  helps define acceptable incident scope
+- Quota limits:
+  cap how much damage one actor can cause
+- Rollback time:
+  how quickly the system can retreat from a bad change
+
+Interview shorthand:
+- fault domain, canary, quota, scoped rollout, kill switch
+
+---
+
+## 12. Failure Modes
+
+### Global rollout failure
+
+Problem:
+- A buggy release is pushed everywhere at once.
+
+User impact:
+- full platform outage or widespread degradation
+
+Mitigation:
+- canary rollout
+- cell-by-cell deployment
+- automatic rollback
+
+### Shared control-plane failure
+
+Problem:
+- A global config or routing service breaks and affects all traffic.
+
+User impact:
+- broad outage across otherwise healthy workloads
+
+Mitigation:
+- harden control plane
+- cache locally
+- scope changes carefully
+
+### Noisy tenant or runaway job
+
+Problem:
+- One customer or one background job consumes disproportionate resources.
+
+User impact:
+- unrelated users see degraded performance
+
+Mitigation:
+- quotas
+- bulkheads
+- per-tenant isolation
+
+### Irreversible change path
+
+Problem:
+- A risky feature or config change has no quick rollback or disable path.
+
+User impact:
+- incident lasts longer and spreads farther
+
+Mitigation:
+- feature flags
+- kill switches
+- staged rollout with stop conditions
+
+---
+
+## 13. Scenario
+
+- Product / system: Large recommendation platform
+- Requirement:
+  a bad model rollout should not degrade recommendations for the entire user base
+- Good design:
+  release the new model to one canary slice or one cell first, monitor health, and expand only if safe
+- Why blast radius containment fits:
+  the real problem is not just failure, but how much of the user base the failure touches
+- What would go wrong without it:
+  one mistaken rollout could instantly degrade the whole platform
+
+---
+
+## 14. Code Sample
+
+### Cell-scoped feature rollout sketch
+
+```java
+public boolean useNewRankingModel(String tenantId) {
+    CellId cellId = cellDirectory.lookup(tenantId);
+    return featureFlagService.enabled("ranking-v2", cellId.toString());
+}
+```
+
+### Stop-condition sketch
+
+```java
+public void evaluateRollout(Metrics metrics) {
+    if (metrics.errorRate() > ERROR_THRESHOLD || metrics.p99LatencyMs() > LATENCY_THRESHOLD_MS) {
+        rolloutController.pause();
+        rolloutController.rollback();
+    }
+}
+```
+
+Key idea:
+- containment often means scoping who sees risk first and stopping expansion quickly if health degrades
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program shows a rollout limited to one slice instead of everyone.
+
+```python
+users = {
+    "u-1": "canary",
+    "u-2": "stable",
+    "u-3": "stable",
+}
+
+
+def serve(user_id: str) -> None:
+    if users[user_id] == "canary":
+        print(user_id, "gets new version")
+    else:
+        print(user_id, "gets stable version")
+
+
+def main() -> None:
+    for user_id in users:
+        serve(user_id)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- not everyone needs to absorb the risk of every change
+- scoped exposure is the heart of blast radius containment
+
+---
+
+## 16. Practical Question
+
+> You are designing a deployment and runtime strategy for a multi-tenant platform. How would you contain the blast radius of bad code, bad config, and noisy-tenant behavior without slowing the team to a halt?
+
+---
+
+## 17. Strong Answer
+
+I would treat blast radius containment as a cross-cutting design principle, not one isolated feature. At the architecture level, I would use clear fault domains such as cells, bulkheads, tenant quotas, and regional boundaries so local failures stay local. At the deployment level, I would use canary or cell-by-cell rollout, feature flags, health-based stop conditions, and fast rollback. At the operational level, I would scope permissions, avoid global destructive actions by default, and add kill switches for risky paths.
+
+I would also be explicit about the difference between prevention and containment. We still want correct code and healthy dependencies, but we should assume some failures and bad changes will happen. The goal is to make sure they only affect a small subset of the system first, where they are easier to detect and recover from.
+
+Cell-based architecture is one strong way to achieve blast radius containment, but it is not the whole story. Containment should also exist in rollout design, quotas, traffic management, admin permissions, and dependency isolation.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Blast radius containment is the discipline of making sure local failures and bad changes stay local instead of becoming system-wide incidents.
+- Three keywords: fault-domain, canary, containment
+- One interview trap: describing it as one tool instead of a broad reliability principle applied across architecture and operations
+- One memory trick: fire doors matter because fires happen
