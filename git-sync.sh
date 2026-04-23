@@ -1,6 +1,4 @@
 #!/usr/bin/env bash 
-#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
-
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
