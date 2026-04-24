@@ -116,3 +116,30 @@ Will be appended at the end after all batches are complete:
 Each batch targets **one sitting of focused reading**. Code samples in Java throughout.
 
 ---
+
+## Final Review Assets
+
+- [All-In-One-Version.md](Spring-Webflux/All-In-One-Version.md) — story-mode end-to-end request travel using all six batches, cheat sheet, ultra-short revision, and Marriott-style interview questions with spoken answers.
+
+### Quick Decision Snapshot
+
+Use WebFlux when the service is:
+
+- I/O-heavy
+- high-concurrency
+- fan-out heavy
+- streaming-friendly
+- mostly non-blocking end to end
+
+Prefer MVC when the service is:
+
+- simple CRUD
+- JPA/JDBC-heavy
+- low-concurrency
+- CPU-heavy
+- not worth the reactive complexity
+
+### Last-Minute Memory Line
+
+WebFlux is about making waiting cheap, not making slow dependencies magically fast.
+
