@@ -6,6 +6,7 @@
 
 # Table of Contents
 
+0. [Interview Command Center](#0-interview-command-center)
 1. [The Dataset We Use Throughout](#1-the-dataset-we-use-throughout)
 2. [SELECT and FROM — The Starting Point](#2-select-and-from--the-starting-point)
 3. [WHERE — Filtering Rows Before Anything Else](#3-where--filtering-rows-before-anything-else)
@@ -30,6 +31,130 @@
 22. [Normalization and Denormalization](#22-normalization-and-denormalization)
 23. [Classic Interview Query Patterns](#23-classic-interview-query-patterns)
 24. [Quick Revision Sheet](#24-quick-revision-sheet)
+25. [Interview Query Pattern Playbook](#25-interview-query-pattern-playbook)
+26. [SQL Hot Interview Questions and Strong Answers](#26-sql-hot-interview-questions-and-strong-answers)
+27. [Performance and Indexing Master Checklist](#27-performance-and-indexing-master-checklist)
+28. [Transactions, Locks, and Concurrency Interview Deep Dive](#28-transactions-locks-and-concurrency-interview-deep-dive)
+29. [Backend and Spring Boot SQL Interview Mapping](#29-backend-and-spring-boot-sql-interview-mapping)
+30. [PostgreSQL Features Worth Knowing](#30-postgresql-features-worth-knowing)
+31. [Final SQL Drill Bank](#31-final-sql-drill-bank)
+32. [One-Hour SQL Revision Plan](#32-one-hour-sql-revision-plan)
+
+---
+
+# 0. Interview Command Center
+
+Use this section as the first and last revision pass before any SQL interview.
+
+## SQL Interview Priority Meter
+
+| Topic | Priority | Why Interviewers Ask |
+|---|---:|---|
+| Logical execution order | Very high | Prevents wrong WHERE/HAVING/alias answers |
+| Joins | Very high | Almost every real query crosses tables |
+| GROUP BY and HAVING | Very high | Tests aggregation clarity |
+| Window functions | Very high | Top N, ranking, running totals, latest row |
+| Subqueries, CTEs, EXISTS | High | Tests query decomposition |
+| NULL handling | High | Causes subtle production bugs |
+| Indexes | Very high | Backend roles must reason about performance |
+| EXPLAIN / EXPLAIN ANALYZE | High | Shows practical debugging ability |
+| Transactions and isolation | High | Tests data correctness under concurrency |
+| Normalization | Medium-high | Schema design fundamentals |
+| DML: INSERT/UPDATE/DELETE/UPSERT | Medium-high | Practical backend SQL |
+| PostgreSQL-specific features | Medium | Useful because JD mentions PostgreSQL |
+
+## The Query-Solving Framework
+
+When given a SQL problem, think in this order:
+
+```text
+1. What is the output grain?
+   One row per employee? Per department? Per customer per month?
+
+2. What tables are needed?
+   Start from the entity that defines the output grain.
+
+3. What joins are needed?
+   INNER JOIN if matching records are required.
+   LEFT JOIN if missing related records must still appear.
+
+4. What filters apply before grouping?
+   Put row-level filters in WHERE.
+
+5. Do I need aggregation?
+   If yes, GROUP BY the output grain.
+
+6. Do I need to filter aggregate results?
+   Put group-level filters in HAVING.
+
+7. Do I need ranking, latest row, running total, or comparison with previous row?
+   Use window functions.
+
+8. Do I need readability?
+   Use CTEs to split the query into named steps.
+
+9. Do I need performance?
+   Check indexes, sargability, row counts, and EXPLAIN ANALYZE.
+```
+
+## The Most Important Word: Grain
+
+Grain means:
+
+```text
+What does one output row represent?
+```
+
+Examples:
+
+| Requirement | Output Grain |
+|---|---|
+| Total salary by department | One row per department |
+| Top 3 salaries per department | One row per employee inside each department rank |
+| Monthly revenue | One row per month |
+| Customers who never ordered | One row per customer |
+| Latest order per customer | One row per customer |
+
+If you identify the grain correctly, the query usually becomes clear.
+
+## Clause Selection Mind Map
+
+| Need | Use |
+|---|---|
+| Filter raw rows | `WHERE` |
+| Filter grouped result | `HAVING` |
+| Combine tables | `JOIN` |
+| Keep unmatched left-side rows | `LEFT JOIN` |
+| Find missing relationship | `LEFT JOIN ... IS NULL` or `NOT EXISTS` |
+| Collapse rows into summary | `GROUP BY` |
+| Rank rows | `ROW_NUMBER`, `RANK`, `DENSE_RANK` |
+| Pick latest row per group | `ROW_NUMBER() OVER (PARTITION BY ... ORDER BY date DESC)` |
+| Compare with previous row | `LAG` |
+| Compare with next row | `LEAD` |
+| Running total | `SUM(...) OVER (ORDER BY ...)` |
+| Conditional count/sum | `CASE` or PostgreSQL `FILTER` |
+| Reuse query result | `CTE` |
+| Test existence | `EXISTS` |
+| Replace NULL | `COALESCE` |
+| Avoid divide-by-zero | `NULLIF` |
+| Improve lookup speed | Index |
+
+## Gold Rule For Interviews
+
+```text
+Do not start writing SQL immediately. First say the grain, then joins, then filters,
+then aggregation/windowing.
+```
+
+Example answer start:
+
+```text
+We need one row per department, so department is the grain. I will start from employees,
+group by department, calculate COUNT and AVG salary, then use HAVING if we only need
+departments above a threshold.
+```
+
+This sounds senior and controlled.
 
 ---
 
@@ -1374,7 +1499,7 @@ Denormalize: faster reads, fewer joins, harder to keep consistent
 
 ## 22.3 Star Schema (BI Context)
 
-Surendra's domain. Star schema has:
+A star schema is common in analytics and reporting systems. It has:
 
 ```text
 Fact table:      orders_fact (measures: amount, quantity)
@@ -1578,4 +1703,1460 @@ TRANSACTION = group of statements that succeed or fail together
 
 ```text
 I approach SQL queries by first understanding the execution order: FROM reads the data, WHERE filters rows, GROUP BY collapses groups, HAVING filters groups, SELECT picks columns, ORDER BY sorts, and LIMIT caps the output. For analytics, I use window functions like ROW_NUMBER and DENSE_RANK because they operate across rows without collapsing them. For performance, I use EXPLAIN ANALYZE to identify missing indexes or full table scans, and I prefer covering indexes and cursor-based pagination for large datasets.
+```
+
+---
+
+# 25. Interview Query Pattern Playbook
+
+This section is the "if they ask this, write that" part.
+
+The goal is fast recall.
+
+---
+
+## 25.1 Latest Row Per Group
+
+Question:
+
+```text
+Find the latest order for each customer.
+```
+
+Best pattern:
+
+```sql
+WITH ranked AS (
+    SELECT o.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY customer_id
+               ORDER BY order_date DESC, id DESC
+           ) AS rn
+    FROM orders o
+)
+SELECT *
+FROM ranked
+WHERE rn = 1;
+```
+
+Why `ROW_NUMBER`?
+
+```text
+We need exactly one latest row per customer.
+```
+
+Tie handling:
+- If multiple orders have same date, `id DESC` breaks tie.
+- If interviewer wants all tied latest rows, use `RANK()` instead.
+
+---
+
+## 25.2 Top N Per Group
+
+Question:
+
+```text
+Find top 3 highest paid employees in each department.
+```
+
+```sql
+WITH ranked AS (
+    SELECT e.*,
+           DENSE_RANK() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS salary_rank
+    FROM employees e
+)
+SELECT *
+FROM ranked
+WHERE salary_rank <= 3;
+```
+
+Use:
+- `ROW_NUMBER` if exactly 3 rows per department.
+- `DENSE_RANK` if ties should be included.
+- `RANK` if ranking gaps matter.
+
+---
+
+## 25.3 Find Missing Relationship
+
+Question:
+
+```text
+Find customers who never placed an order.
+```
+
+Preferred pattern:
+
+```sql
+SELECT c.*
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = c.id
+);
+```
+
+Alternative:
+
+```sql
+SELECT c.*
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL;
+```
+
+Interview line:
+
+```text
+I prefer NOT EXISTS because it is NULL-safe and expresses anti-join intent clearly.
+```
+
+---
+
+## 25.4 Duplicate Detection
+
+Question:
+
+```text
+Find duplicate customer emails.
+```
+
+```sql
+SELECT email, COUNT(*) AS duplicate_count
+FROM customers
+GROUP BY email
+HAVING COUNT(*) > 1;
+```
+
+Find duplicate rows with IDs:
+
+```sql
+SELECT *
+FROM customers
+WHERE email IN (
+    SELECT email
+    FROM customers
+    GROUP BY email
+    HAVING COUNT(*) > 1
+);
+```
+
+---
+
+## 25.5 Delete Duplicates Safely
+
+Question:
+
+```text
+Delete duplicate customers by email, keeping the smallest id.
+```
+
+PostgreSQL pattern:
+
+```sql
+WITH ranked AS (
+    SELECT id,
+           ROW_NUMBER() OVER (
+               PARTITION BY email
+               ORDER BY id
+           ) AS rn
+    FROM customers
+)
+DELETE FROM customers
+WHERE id IN (
+    SELECT id
+    FROM ranked
+    WHERE rn > 1
+);
+```
+
+Interview safety line:
+
+```text
+Before running DELETE, I first run the CTE as a SELECT to verify which rows will be deleted.
+```
+
+---
+
+## 25.6 Conditional Aggregation
+
+Question:
+
+```text
+Count completed, pending, and cancelled orders per customer.
+```
+
+Portable SQL:
+
+```sql
+SELECT customer_id,
+       SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_count,
+       SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_count,
+       SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled_count
+FROM orders
+GROUP BY customer_id;
+```
+
+PostgreSQL:
+
+```sql
+SELECT customer_id,
+       COUNT(*) FILTER (WHERE status = 'completed') AS completed_count,
+       COUNT(*) FILTER (WHERE status = 'pending') AS pending_count,
+       COUNT(*) FILTER (WHERE status = 'cancelled') AS cancelled_count
+FROM orders
+GROUP BY customer_id;
+```
+
+---
+
+## 25.7 Running Total
+
+Question:
+
+```text
+Show running revenue by order date.
+```
+
+```sql
+SELECT order_date,
+       amount,
+       SUM(amount) OVER (
+           ORDER BY order_date, id
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_revenue
+FROM orders;
+```
+
+Why specify `ROWS`?
+
+```text
+It makes the window frame explicit and avoids surprises with duplicate ORDER BY values.
+```
+
+---
+
+## 25.8 Month-Over-Month Growth
+
+Question:
+
+```text
+Find monthly revenue growth percentage.
+```
+
+```sql
+WITH monthly AS (
+    SELECT DATE_TRUNC('month', order_date) AS month,
+           SUM(amount) AS revenue
+    FROM orders
+    GROUP BY DATE_TRUNC('month', order_date)
+),
+with_previous AS (
+    SELECT month,
+           revenue,
+           LAG(revenue) OVER (ORDER BY month) AS previous_revenue
+    FROM monthly
+)
+SELECT month,
+       revenue,
+       previous_revenue,
+       ROUND(
+           (revenue - previous_revenue) * 100.0 / NULLIF(previous_revenue, 0),
+           2
+       ) AS growth_pct
+FROM with_previous;
+```
+
+Why `NULLIF`?
+
+```text
+It prevents divide-by-zero.
+```
+
+---
+
+## 25.9 Gaps And Islands: Consecutive Days
+
+Question:
+
+```text
+Find users active for at least 3 consecutive days.
+```
+
+```sql
+WITH distinct_logins AS (
+    SELECT DISTINCT user_id, login_date
+    FROM user_logins
+),
+numbered AS (
+    SELECT user_id,
+           login_date,
+           login_date - INTERVAL '1 day' * ROW_NUMBER() OVER (
+               PARTITION BY user_id
+               ORDER BY login_date
+           ) AS island_key
+    FROM distinct_logins
+)
+SELECT user_id,
+       MIN(login_date) AS start_date,
+       MAX(login_date) AS end_date,
+       COUNT(*) AS streak_days
+FROM numbered
+GROUP BY user_id, island_key
+HAVING COUNT(*) >= 3;
+```
+
+Mind trick:
+
+```text
+For consecutive dates, date - row_number stays constant.
+```
+
+---
+
+## 25.10 Overlapping Date Ranges
+
+Question:
+
+```text
+Find bookings that overlap with a requested date range.
+```
+
+Given:
+
+```text
+requested_start
+requested_end
+```
+
+Overlap condition:
+
+```sql
+existing_start < requested_end
+AND existing_end > requested_start
+```
+
+Example:
+
+```sql
+SELECT *
+FROM bookings
+WHERE check_in < :requested_check_out
+  AND check_out > :requested_check_in;
+```
+
+Interview line:
+
+```text
+Two ranges overlap if each range starts before the other range ends.
+```
+
+For hotel booking, this is extremely important.
+
+---
+
+## 25.11 Pagination
+
+Offset pagination:
+
+```sql
+SELECT *
+FROM orders
+ORDER BY order_date DESC, id DESC
+LIMIT 20 OFFSET 1000;
+```
+
+Problem:
+
+```text
+Large OFFSET gets slower because database still has to walk past skipped rows.
+```
+
+Cursor/keyset pagination:
+
+```sql
+SELECT *
+FROM orders
+WHERE (order_date, id) < (:last_order_date, :last_id)
+ORDER BY order_date DESC, id DESC
+LIMIT 20;
+```
+
+Required index:
+
+```sql
+CREATE INDEX idx_orders_date_id
+ON orders(order_date DESC, id DESC);
+```
+
+Interview line:
+
+```text
+For large datasets, cursor-based pagination is usually better than OFFSET pagination.
+```
+
+---
+
+## 25.12 Join Multiplication Trap
+
+Problem:
+
+```text
+Joining orders to order_items multiplies order rows by item count.
+```
+
+Wrong if you want order count:
+
+```sql
+SELECT c.id, COUNT(*) AS order_count
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id;
+```
+
+This counts items, not orders.
+
+Correct:
+
+```sql
+SELECT c.id, COUNT(DISTINCT o.id) AS order_count
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id;
+```
+
+Even better, pre-aggregate:
+
+```sql
+WITH customer_orders AS (
+    SELECT customer_id, COUNT(*) AS order_count
+    FROM orders
+    GROUP BY customer_id
+)
+SELECT c.id, COALESCE(co.order_count, 0) AS order_count
+FROM customers c
+LEFT JOIN customer_orders co ON co.customer_id = c.id;
+```
+
+---
+
+# 26. SQL Hot Interview Questions and Strong Answers
+
+## Q1. What is SQL logical execution order?
+
+```text
+FROM and JOIN happen first, then WHERE, GROUP BY, HAVING, SELECT, ORDER BY, and LIMIT.
+This matters because WHERE cannot filter aggregate results and usually cannot use SELECT aliases.
+```
+
+## Q2. WHERE vs HAVING?
+
+```text
+WHERE filters rows before grouping. HAVING filters groups after aggregation.
+Use WHERE for row-level conditions and HAVING for aggregate conditions like COUNT(*) > 5.
+```
+
+## Q3. INNER JOIN vs LEFT JOIN?
+
+```text
+INNER JOIN returns only matching rows from both tables. LEFT JOIN returns all rows from the
+left table and matching rows from the right table, with NULLs when no match exists.
+```
+
+## Q4. When would you use LEFT JOIN?
+
+```text
+When I need to preserve all rows from the left table, even if matching child records do not
+exist. Example: customers who may or may not have orders.
+```
+
+## Q5. How do you find records in one table but not another?
+
+```text
+Use NOT EXISTS or LEFT JOIN with IS NULL. I usually prefer NOT EXISTS because it is NULL-safe
+and clearly expresses anti-join intent.
+```
+
+## Q6. IN vs EXISTS?
+
+```text
+IN compares a value against a result list. EXISTS checks whether a matching row exists.
+EXISTS is often better for correlated checks and avoids NULL surprises with NOT IN.
+```
+
+## Q7. Why is NOT IN dangerous with NULL?
+
+```text
+If the subquery returns NULL, NOT IN can return no rows because comparisons with NULL are
+UNKNOWN. NOT EXISTS avoids this issue.
+```
+
+## Q8. UNION vs UNION ALL?
+
+```text
+UNION removes duplicates, which requires extra work. UNION ALL keeps duplicates and is faster.
+Use UNION ALL unless duplicate removal is required.
+```
+
+## Q9. COUNT(*) vs COUNT(column)?
+
+```text
+COUNT(*) counts rows. COUNT(column) counts non-NULL values in that column.
+COUNT(DISTINCT column) counts unique non-NULL values.
+```
+
+## Q10. ROW_NUMBER vs RANK vs DENSE_RANK?
+
+```text
+ROW_NUMBER gives unique sequence numbers. RANK gives same rank for ties but skips numbers.
+DENSE_RANK gives same rank for ties and does not skip numbers.
+```
+
+## Q11. When do you use window functions instead of GROUP BY?
+
+```text
+Use GROUP BY when you want to collapse rows. Use window functions when you want calculations
+across related rows while keeping individual row detail.
+```
+
+## Q12. CTE vs subquery?
+
+```text
+Both can express nested logic. CTEs improve readability by naming intermediate results and
+are useful for multi-step queries or recursion.
+```
+
+## Q13. Can CTE improve performance?
+
+```text
+Sometimes, but primarily CTEs improve readability. Performance depends on the database and
+optimizer. I verify with EXPLAIN ANALYZE.
+```
+
+## Q14. What is an index?
+
+```text
+An index is a data structure, commonly B-tree, that helps the database find rows faster
+without scanning the whole table.
+```
+
+## Q15. When should we not create an index?
+
+```text
+Avoid indexes on tiny tables, very low-selectivity columns, columns rarely filtered/joined,
+or write-heavy tables where index maintenance cost outweighs read benefit.
+```
+
+## Q16. What is a composite index?
+
+```text
+A composite index uses multiple columns. Column order matters because the leftmost prefix
+is most useful for filtering and sorting.
+```
+
+## Q17. What is a covering index?
+
+```text
+A covering index contains all columns needed by a query, allowing the database to answer
+from the index without reading the table heap in many cases.
+```
+
+## Q18. What is sargability?
+
+```text
+A predicate is sargable when it can use an index efficiently. Avoid wrapping indexed columns
+in functions in WHERE clauses unless you have a matching functional index.
+```
+
+## Q19. Example of non-sargable query?
+
+Bad:
+
+```sql
+WHERE DATE(order_date) = DATE '2026-04-25'
+```
+
+Better:
+
+```sql
+WHERE order_date >= TIMESTAMP '2026-04-25 00:00:00'
+  AND order_date <  TIMESTAMP '2026-04-26 00:00:00'
+```
+
+## Q20. What is normalization?
+
+```text
+Normalization organizes data to reduce duplication and update anomalies. It improves data
+integrity, though highly normalized schemas may require more joins.
+```
+
+## Q21. What is denormalization?
+
+```text
+Denormalization intentionally stores redundant/precomputed data to improve read performance,
+at the cost of extra storage and consistency complexity.
+```
+
+## Q22. What is ACID?
+
+```text
+Atomicity means all-or-nothing, Consistency means valid state transitions, Isolation means
+concurrent transactions do not incorrectly interfere, and Durability means committed data
+survives failures.
+```
+
+## Q23. What is dirty read?
+
+```text
+A dirty read happens when one transaction reads uncommitted changes from another transaction.
+```
+
+## Q24. What is phantom read?
+
+```text
+A phantom read happens when re-running a range query returns new or missing rows because
+another transaction inserted/deleted rows matching the condition.
+```
+
+## Q25. How do you debug a slow query?
+
+```text
+I use EXPLAIN ANALYZE, check whether the query is doing sequential scans, bad joins, large
+sorts, or reading too many rows, then verify indexes, predicate selectivity, and whether the
+query can be rewritten to reduce data earlier.
+```
+
+---
+
+# 27. Performance and Indexing Master Checklist
+
+## The Performance Mindset
+
+SQL performance is usually about:
+
+```text
+Read fewer rows.
+Join fewer rows.
+Sort fewer rows.
+Return fewer rows.
+Use the right index.
+```
+
+## High-Impact Index Rules
+
+| Rule | Explanation |
+|---|---|
+| Index join columns | Foreign keys often need indexes for joins |
+| Index selective filters | High-cardinality filters benefit more |
+| Composite index order matters | Put equality filters first, then range/sort columns |
+| Avoid over-indexing | Indexes slow writes and take storage |
+| Use partial index for common filtered subset | Example: active records only |
+| Use covering index for read-heavy queries | Include selected columns where useful |
+| Avoid functions on indexed column | Unless functional index exists |
+
+## Composite Index Example
+
+Query:
+
+```sql
+SELECT *
+FROM orders
+WHERE customer_id = 10
+  AND status = 'completed'
+ORDER BY order_date DESC;
+```
+
+Good index:
+
+```sql
+CREATE INDEX idx_orders_customer_status_date
+ON orders(customer_id, status, order_date DESC);
+```
+
+Why this order?
+
+```text
+customer_id and status are equality filters. order_date supports sorting within that filtered set.
+```
+
+## Leftmost Prefix Rule
+
+Index:
+
+```sql
+CREATE INDEX idx_orders_customer_status_date
+ON orders(customer_id, status, order_date);
+```
+
+Useful for:
+
+```sql
+WHERE customer_id = ?
+```
+
+Useful for:
+
+```sql
+WHERE customer_id = ? AND status = ?
+```
+
+Less useful for:
+
+```sql
+WHERE status = ?
+```
+
+Because `customer_id` is the leftmost column and is missing.
+
+## Sargable vs Non-Sargable
+
+Bad:
+
+```sql
+WHERE LOWER(email) = 'a@example.com'
+```
+
+Better options:
+
+```sql
+WHERE email = 'a@example.com'
+```
+
+or create functional index:
+
+```sql
+CREATE INDEX idx_customers_lower_email
+ON customers(LOWER(email));
+```
+
+## EXPLAIN Terms To Recognize
+
+| Term | Meaning |
+|---|---|
+| Seq Scan | Reads entire table |
+| Index Scan | Uses index and visits table rows |
+| Index Only Scan | Uses index without reading table rows, when possible |
+| Nested Loop | Good for small outer rows with indexed inner lookup |
+| Hash Join | Builds hash table for join, good for larger joins |
+| Merge Join | Joins sorted inputs |
+| Sort | Explicit sorting step |
+| Filter | Rows removed after scan |
+| Cost | Planner estimate |
+| Actual time | Real execution time in EXPLAIN ANALYZE |
+
+## Slow Query Checklist
+
+1. Did we filter early?
+2. Are joins using indexed keys?
+3. Are we accidentally multiplying rows?
+4. Is `ORDER BY` sorting huge data?
+5. Is `OFFSET` too large?
+6. Are functions blocking index use?
+7. Are statistics stale?
+8. Is the query returning more columns than needed?
+9. Would pre-aggregation reduce join size?
+10. Would a partial/composite/covering index help?
+
+## Common Bad Patterns
+
+Bad:
+
+```sql
+SELECT * FROM orders;
+```
+
+Better:
+
+```sql
+SELECT id, customer_id, amount, status
+FROM orders
+WHERE customer_id = :customer_id;
+```
+
+Bad:
+
+```sql
+WHERE EXTRACT(YEAR FROM order_date) = 2026
+```
+
+Better:
+
+```sql
+WHERE order_date >= DATE '2026-01-01'
+  AND order_date <  DATE '2027-01-01'
+```
+
+Bad:
+
+```sql
+WHERE customer_id::TEXT = '10'
+```
+
+Better:
+
+```sql
+WHERE customer_id = 10
+```
+
+## Index Trade-Off Interview Answer
+
+```text
+Indexes improve read performance for filters, joins, and sorts, but they add storage cost
+and slow down INSERT, UPDATE, and DELETE because every index must be maintained. I create
+indexes based on real query patterns and validate with EXPLAIN ANALYZE.
+```
+
+---
+
+# 28. Transactions, Locks, and Concurrency Interview Deep Dive
+
+## Transaction Basics
+
+```sql
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 100
+WHERE id = 1;
+
+UPDATE accounts
+SET balance = balance + 100
+WHERE id = 2;
+
+COMMIT;
+```
+
+If something fails:
+
+```sql
+ROLLBACK;
+```
+
+## ACID In Interview Language
+
+| Property | Interview Meaning |
+|---|---|
+| Atomicity | All operations happen or none happen |
+| Consistency | Constraints and valid state are preserved |
+| Isolation | Concurrent transactions do not corrupt each other |
+| Durability | Committed changes survive crashes |
+
+## Isolation Anomalies
+
+| Anomaly | Meaning |
+|---|---|
+| Dirty read | Read uncommitted data |
+| Non-repeatable read | Same row read twice gives different values |
+| Phantom read | Same range query returns different row set |
+| Lost update | Two transactions overwrite each other's updates |
+
+## Isolation Levels
+
+| Isolation Level | Prevents |
+|---|---|
+| Read Uncommitted | Almost nothing; dirty reads possible in theory |
+| Read Committed | Prevents dirty reads |
+| Repeatable Read | Prevents dirty and non-repeatable reads |
+| Serializable | Strongest; behaves like transactions ran one by one |
+
+PostgreSQL note:
+
+```text
+PostgreSQL treats Read Uncommitted like Read Committed.
+```
+
+## Pessimistic Locking
+
+Use when conflicts are likely and you want to lock rows before update.
+
+```sql
+BEGIN;
+
+SELECT *
+FROM rooms
+WHERE id = :room_id
+FOR UPDATE;
+
+UPDATE rooms
+SET available = false
+WHERE id = :room_id;
+
+COMMIT;
+```
+
+## Optimistic Locking
+
+Use a version column.
+
+```sql
+UPDATE bookings
+SET status = 'CONFIRMED',
+    version = version + 1
+WHERE id = :id
+  AND version = :expected_version;
+```
+
+If affected rows = 0:
+
+```text
+Someone else updated the row first.
+```
+
+## Hotel Booking Double-Booking Problem
+
+Question:
+
+```text
+Two users try to book the same room for overlapping dates. How do you prevent double booking?
+```
+
+Strong answer:
+
+```text
+I would enforce correctness at the database level, not only in application code. Use a
+transaction, check overlapping bookings, lock the relevant room or availability row, and
+ideally enforce a constraint or exclusion constraint where supported. Application checks
+alone can race.
+```
+
+PostgreSQL exclusion constraint idea:
+
+```sql
+-- Conceptual PostgreSQL approach for date-range overlap prevention
+-- Requires suitable extensions/types depending schema.
+-- Prevent same room from having overlapping booked date ranges.
+```
+
+Interview-safe version:
+
+```sql
+BEGIN;
+
+SELECT id
+FROM rooms
+WHERE id = :room_id
+FOR UPDATE;
+
+SELECT 1
+FROM bookings
+WHERE room_id = :room_id
+  AND check_in < :requested_check_out
+  AND check_out > :requested_check_in
+  AND status IN ('CONFIRMED', 'HELD');
+
+-- If no row exists, insert booking.
+
+INSERT INTO bookings(room_id, check_in, check_out, status)
+VALUES (:room_id, :requested_check_in, :requested_check_out, 'CONFIRMED');
+
+COMMIT;
+```
+
+## Deadlocks
+
+Deadlock example:
+
+```text
+Transaction A locks row 1, then waits for row 2.
+Transaction B locks row 2, then waits for row 1.
+```
+
+Prevention:
+- Lock rows in consistent order.
+- Keep transactions short.
+- Avoid user/network calls inside transaction.
+- Add proper indexes so updates lock fewer rows.
+- Retry on deadlock errors.
+
+## Transaction Interview Traps
+
+| Trap | Correct View |
+|---|---|
+| Transactions are only for money transfer | Any multi-step data consistency flow needs transactions |
+| Application check is enough for uniqueness | Database constraint is safer |
+| Higher isolation is always better | It can reduce concurrency and increase retries |
+| Long transaction is fine | It holds locks and hurts concurrency |
+| Deadlocks mean database is broken | Deadlocks are possible; handle with ordering and retries |
+
+---
+
+# 29. Backend and Spring Boot SQL Interview Mapping
+
+## Common Backend SQL Problems
+
+| Backend Problem | SQL Concept |
+|---|---|
+| Search API with filters | WHERE, indexes, dynamic predicates |
+| Paginated API | ORDER BY + LIMIT, cursor pagination |
+| Dashboard counts | GROUP BY, conditional aggregation |
+| Top products | GROUP BY + ORDER BY + LIMIT |
+| Latest status per entity | ROW_NUMBER |
+| Audit history | LAG/LEAD, time filters |
+| Booking availability | Date range overlap, locking |
+| Duplicate prevention | Unique constraints, UPSERT |
+| Idempotency key | Unique index + safe insert |
+| Performance issue | EXPLAIN ANALYZE, indexes |
+
+## N+1 Query Problem
+
+Problem:
+
+```text
+Application loads 100 customers, then runs one query per customer to load orders.
+Total = 1 + 100 queries.
+```
+
+Fix options:
+- Join fetch where appropriate.
+- Batch fetch.
+- Query child rows with `WHERE customer_id IN (...)`.
+- Use DTO projection.
+- Use pagination carefully.
+
+SQL-style fix:
+
+```sql
+SELECT c.id, c.name, o.id AS order_id, o.amount
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE c.id IN (:customer_ids);
+```
+
+## API Filter Query Pattern
+
+```sql
+SELECT id, customer_id, amount, status, order_date
+FROM orders
+WHERE (:status IS NULL OR status = :status)
+  AND (:customer_id IS NULL OR customer_id = :customer_id)
+  AND (:from_date IS NULL OR order_date >= :from_date)
+  AND (:to_date IS NULL OR order_date < :to_date)
+ORDER BY order_date DESC, id DESC
+LIMIT :limit;
+```
+
+Performance caution:
+
+```text
+Dynamic OR conditions can reduce index usage. For high-performance APIs, build SQL dynamically
+for only the filters present, or use query builder/specification carefully.
+```
+
+## Idempotent Insert Pattern
+
+```sql
+INSERT INTO payments(idempotency_key, amount, status)
+VALUES (:key, :amount, 'INITIATED')
+ON CONFLICT (idempotency_key)
+DO NOTHING;
+```
+
+Then fetch existing row:
+
+```sql
+SELECT *
+FROM payments
+WHERE idempotency_key = :key;
+```
+
+## Unique Constraint Is Business Logic Protection
+
+Example:
+
+```sql
+CREATE UNIQUE INDEX uk_customers_email
+ON customers(email);
+```
+
+Strong answer:
+
+```text
+I validate in application for good error messages, but enforce uniqueness in the database
+because concurrent requests can bypass application-only checks.
+```
+
+## @Transactional Interview Mapping
+
+Spring:
+
+```java
+@Transactional
+public void createBooking(...) {
+    // multiple DB statements
+}
+```
+
+SQL meaning:
+
+```text
+BEGIN happens before method, COMMIT after success, ROLLBACK on failure depending rollback rules.
+```
+
+Interview caution:
+
+```text
+Keep transactions short. Do not call slow external APIs inside a DB transaction unless
+there is a very strong reason.
+```
+
+---
+
+# 30. PostgreSQL Features Worth Knowing
+
+The JD mentions PostgreSQL. These features are worth recognizing.
+
+## SERIAL vs IDENTITY
+
+Older:
+
+```sql
+id SERIAL PRIMARY KEY
+```
+
+Modern SQL-standard style:
+
+```sql
+id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY
+```
+
+Interview line:
+
+```text
+SERIAL is PostgreSQL-specific shorthand using a sequence. IDENTITY is the more SQL-standard
+modern approach.
+```
+
+## UPSERT
+
+```sql
+INSERT INTO customers(email, name)
+VALUES ('a@example.com', 'Aravind')
+ON CONFLICT (email)
+DO UPDATE SET name = EXCLUDED.name;
+```
+
+Use case:
+- Idempotency
+- Sync jobs
+- Insert-or-update flows
+
+## RETURNING
+
+```sql
+INSERT INTO customers(name, email)
+VALUES ('Aravind', 'a@example.com')
+RETURNING id, name, email;
+```
+
+Useful for backend APIs because you can insert and return generated values in one round trip.
+
+## DISTINCT ON
+
+PostgreSQL-specific latest row per group:
+
+```sql
+SELECT DISTINCT ON (customer_id) *
+FROM orders
+ORDER BY customer_id, order_date DESC, id DESC;
+```
+
+Interview caution:
+
+```text
+DISTINCT ON is concise in PostgreSQL, but ROW_NUMBER is more portable across databases.
+```
+
+## FILTER Clause
+
+```sql
+SELECT customer_id,
+       COUNT(*) FILTER (WHERE status = 'completed') AS completed_orders,
+       COUNT(*) FILTER (WHERE status = 'cancelled') AS cancelled_orders
+FROM orders
+GROUP BY customer_id;
+```
+
+Portable alternative:
+
+```sql
+SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)
+```
+
+## JSONB
+
+```sql
+CREATE TABLE events (
+    id BIGSERIAL PRIMARY KEY,
+    payload JSONB
+);
+```
+
+Query:
+
+```sql
+SELECT *
+FROM events
+WHERE payload ->> 'type' = 'BOOKING_CREATED';
+```
+
+Interview line:
+
+```text
+JSONB is useful for flexible semi-structured data, but I avoid using it as an excuse to skip
+relational modeling for core queryable business entities.
+```
+
+## Array Type
+
+```sql
+CREATE TABLE products (
+    id BIGSERIAL PRIMARY KEY,
+    tags TEXT[]
+);
+```
+
+Query:
+
+```sql
+SELECT *
+FROM products
+WHERE 'featured' = ANY(tags);
+```
+
+## ILIKE
+
+Case-insensitive search:
+
+```sql
+SELECT *
+FROM customers
+WHERE name ILIKE '%aravind%';
+```
+
+Performance caution:
+
+```text
+Leading wildcard searches usually cannot use a normal B-tree index efficiently.
+For serious search, consider trigram indexes or a search engine depending requirements.
+```
+
+## Date Functions
+
+```sql
+SELECT DATE_TRUNC('month', order_date) AS month,
+       SUM(amount)
+FROM orders
+GROUP BY DATE_TRUNC('month', order_date);
+```
+
+## EXPLAIN ANALYZE
+
+```sql
+EXPLAIN ANALYZE
+SELECT *
+FROM orders
+WHERE customer_id = 10;
+```
+
+Strong answer:
+
+```text
+EXPLAIN shows the plan. EXPLAIN ANALYZE actually runs the query and shows real timings,
+so use it carefully on write queries or expensive production queries.
+```
+
+---
+
+# 31. Final SQL Drill Bank
+
+Practice writing these without looking.
+
+## Beginner-Medium Must Code
+
+1. Find employees in Engineering with salary above 80000.
+2. Count employees by department.
+3. Departments with more than 2 employees.
+4. Customers who never ordered.
+5. Duplicate customer emails.
+6. Employees earning more than their manager.
+7. Total revenue by customer.
+8. Top 5 products by revenue.
+9. Orders placed in the last 30 days.
+10. Completed order count by month.
+
+## Medium Must Code
+
+1. Second highest distinct salary.
+2. Nth highest salary.
+3. Top 3 salaries per department.
+4. Latest order per customer.
+5. Running total by order date.
+6. Month-over-month revenue growth.
+7. Delete duplicates and keep smallest ID.
+8. Customers with more than 3 completed orders.
+9. Products never ordered.
+10. Average order value per customer.
+
+## Advanced But Common
+
+1. Consecutive login days.
+2. Date range overlap for bookings.
+3. Cursor pagination query.
+4. Conditional aggregation pivot.
+5. Retention-style query: users active in month 1 and month 2.
+6. Find gaps in sequence numbers.
+7. Identify customers whose latest order is cancelled.
+8. Find first order and latest order per customer.
+9. Calculate percentage contribution of each category to total revenue.
+10. Find orders whose amount is above customer average.
+
+## Theory Drill
+
+Answer these out loud:
+
+1. Explain SQL execution order.
+2. WHERE vs HAVING.
+3. INNER JOIN vs LEFT JOIN.
+4. IN vs EXISTS.
+5. NOT IN with NULL problem.
+6. ROW_NUMBER vs RANK vs DENSE_RANK.
+7. GROUP BY vs window function.
+8. CTE vs subquery.
+9. UNION vs UNION ALL.
+10. COUNT(*) vs COUNT(column).
+11. What is an index?
+12. Composite index column order.
+13. What is a covering index?
+14. What is sargability?
+15. How do you debug slow query?
+16. ACID.
+17. Isolation levels.
+18. Dirty/non-repeatable/phantom reads.
+19. Optimistic vs pessimistic locking.
+20. Normalization vs denormalization.
+
+---
+
+# 32. One-Hour SQL Revision Plan
+
+## First 10 Minutes: Execution and Joins
+
+Revise:
+- SQL logical order
+- WHERE vs HAVING
+- INNER/LEFT/FULL/CROSS/SELF JOIN
+- Anti-join with `NOT EXISTS`
+
+Must write:
+
+```sql
+SELECT c.*
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = c.id
+);
+```
+
+## Next 15 Minutes: Aggregation
+
+Revise:
+- GROUP BY
+- COUNT/SUM/AVG
+- Conditional aggregation
+- Duplicate detection
+
+Must write:
+
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 2;
+```
+
+## Next 15 Minutes: Window Functions
+
+Revise:
+- ROW_NUMBER
+- RANK
+- DENSE_RANK
+- LAG/LEAD
+- Running totals
+
+Must write:
+
+```sql
+WITH ranked AS (
+    SELECT e.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS rn
+    FROM employees e
+)
+SELECT *
+FROM ranked
+WHERE rn <= 3;
+```
+
+## Next 10 Minutes: Performance
+
+Revise:
+- Index basics
+- Composite index order
+- Sargability
+- EXPLAIN ANALYZE
+- Offset vs cursor pagination
+
+Must say:
+
+```text
+I validate performance with EXPLAIN ANALYZE and check row counts, scan type, joins,
+sorts, and whether predicates can use indexes.
+```
+
+## Final 10 Minutes: Transactions
+
+Revise:
+- ACID
+- Isolation anomalies
+- Locks
+- Optimistic vs pessimistic locking
+- Double-booking prevention
+
+Must say:
+
+```text
+For concurrency-sensitive flows, I do not rely only on application checks. I use database
+transactions, constraints, appropriate locking or optimistic version checks, and retry logic
+where needed.
+```
+
+---
+
+# Final Interview Closing Answer
+
+If interviewer asks:
+
+```text
+How comfortable are you with SQL?
+```
+
+Say:
+
+```text
+I am comfortable writing SQL for backend and analytical use cases. My usual approach is to
+first identify the output grain, then choose joins, filters, grouping, and window functions.
+For performance, I look at EXPLAIN ANALYZE, index usage, row counts, join strategy, sorting,
+and pagination pattern. For correctness, I pay attention to NULL handling, transaction
+boundaries, isolation, and database constraints, especially for concurrent flows like booking
+or payment processing.
 ```
