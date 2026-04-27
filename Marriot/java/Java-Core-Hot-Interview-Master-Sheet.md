@@ -1158,31 +1158,243 @@ HashMap/HashSet behavior breaks. Equal objects may go to different buckets and l
 
 ### HashMap Internals
 
-HashMap stores data in buckets.
+HashMap stores key-value pairs in an internal array of buckets.
+
+Mental model:
+
+```text
+HashMap
+  table[0]  -> Node -> Node
+  table[1]  -> null
+  table[2]  -> Node
+  table[3]  -> Node -> Node -> TreeNode
+  ...
+```
+
+In Java, the internal table is an array:
+
+```java
+Node<K, V>[] table;
+```
+
+Each bucket can contain:
+
+- no node
+- one node
+- linked list of nodes
+- red-black tree of nodes, in Java 8+ under heavy collision conditions
+
+---
+
+### HashMap Node Structure
 
 Each entry has:
+
 - key
 - value
 - hash
 - next pointer
 
+Simplified internal node:
+
+```java
+static class Node<K, V> {
+    final int hash;
+    final K key;
+    V value;
+    Node<K, V> next;
+}
+```
+
+Interview line:
+
+```text
+HashMap is an array of buckets. Each bucket stores nodes. Collisions are handled first
+through linked list chaining, and in Java 8+ long chains may become red-black trees.
+```
+
+---
+
+### How HashMap Calculates Bucket Index
+
+HashMap does not directly use:
+
+```java
+key.hashCode()
+```
+
+It applies a spreading function to reduce poor hash distribution.
+
+Simplified:
+
+```java
+int h = key.hashCode();
+int hash = h ^ (h >>> 16);
+```
+
+Then bucket index is calculated using:
+
+```java
+index = (capacity - 1) & hash;
+```
+
+Why this works:
+
+- HashMap capacity is usually a power of 2.
+- Bitwise `&` is faster than modulo.
+- `(capacity - 1) & hash` keeps index inside table range.
+
+Example:
+
+```text
+capacity = 16
+capacity - 1 = 15
+
+index = hash & 15
+```
+
+Strong answer:
+
+```text
+HashMap spreads the key hash and calculates bucket index using `(n - 1) & hash`.
+This works because table capacity is maintained as a power of two.
+```
+
+---
+
+### How `put(key, value)` Works
+
 Flow:
+
 1. Calculate key hash.
-2. Find bucket index.
-3. If bucket empty, insert.
-4. If bucket has entries, compare hash and `equals`.
-5. If same key, replace value.
-6. If different key, add node.
-7. If bucket chain grows beyond threshold, it may treeify.
+2. Calculate bucket index.
+3. If bucket is empty, insert new node.
+4. If bucket is not empty, compare existing node hash and key.
+5. If same key is found, replace old value.
+6. If different key, move through linked list or tree.
+7. If no matching key exists, add new node.
+8. If bucket chain is too long, treeify if capacity is large enough.
+9. If total size crosses threshold, resize table.
+
+Simplified:
+
+```java
+map.put("A", 100);
+```
+
+Internally:
+
+```text
+hash("A") -> bucket index -> table[index]
+
+If table[index] is empty:
+    store new Node("A", 100)
+
+If table[index] has nodes:
+    compare hash and equals
+    replace value if same key
+    otherwise append/tree insert
+```
+
+Important:
+
+HashMap uses both:
+
+- `hashCode()` to find bucket
+- `equals()` to find exact key inside bucket
+
+---
+
+### How `get(key)` Works
+
+Flow:
+
+1. Calculate key hash.
+2. Calculate bucket index.
+3. Go to that bucket.
+4. Compare first node hash and key.
+5. If matched, return value.
+6. Else search linked list or red-black tree.
+7. If no match, return `null`.
+
+Example:
+
+```java
+Integer value = map.get("A");
+```
+
+Internally:
+
+```text
+hash("A") -> index
+table[index] -> check nodes using hash + equals
+```
+
+Strong answer:
+
+```text
+HashMap lookup is fast because hash points directly to a bucket. Within the bucket,
+HashMap uses equals to find the exact key.
+```
+
+---
+
+### Collision Handling
+
+Collision means two different keys land in the same bucket.
+
+Example:
+
+```text
+key1 -> hash -> index 5
+key2 -> hash -> index 5
+```
+
+HashMap handles collisions using chaining.
+
+Before Java 8:
+
+```text
+bucket -> Node -> Node -> Node
+```
+
+Java 8+:
+
+```text
+bucket -> linked list
+if list becomes too long and capacity is enough
+bucket -> red-black tree
+```
+
+Why collision handling matters:
+
+- Good hash distribution gives average `O(1)`.
+- Too many collisions degrade performance.
+- Treeification protects worst-case lookup.
+
+---
 
 ### Java 8 HashMap Treeification
 
 In Java 8, long bucket chains can become red-black trees.
 
 Important thresholds:
+
 - Treeify threshold: 8
 - Untreeify threshold: 6
 - Minimum capacity for treeify: 64
+
+Meaning:
+
+| Threshold | Meaning |
+|---|---|
+| `TREEIFY_THRESHOLD = 8` | Convert long list to tree |
+| `UNTREEIFY_THRESHOLD = 6` | Convert tree back to list when smaller |
+| `MIN_TREEIFY_CAPACITY = 64` | Do not treeify if table is too small |
+
+Important nuance:
+
+If bucket length reaches 8 but table capacity is less than 64, HashMap usually resizes instead of treeifying.
 
 Interview answer:
 
@@ -1194,6 +1406,7 @@ red-black trees under certain conditions, improving worst-case lookup from O(n) 
 ### HashMap Resize
 
 Default:
+
 - Initial capacity: 16
 - Load factor: 0.75
 
@@ -1212,6 +1425,245 @@ For default:
 ```
 
 After 12 entries, resize occurs.
+
+What resize does:
+
+1. Create a new table, usually double the old capacity.
+2. Move existing nodes to the new table.
+3. Recalculate bucket placement based on new capacity.
+
+Important Java 8 optimization:
+
+When capacity doubles, each node either:
+
+- stays at the same index
+- moves to `oldIndex + oldCapacity`
+
+This is based on one extra hash bit.
+
+Example:
+
+```text
+old capacity = 16
+new capacity = 32
+
+old index = 5
+after resize node may stay at 5 or move to 21
+```
+
+Why resizing is expensive:
+
+- it moves many entries
+- it can cause latency spikes
+- avoid frequent resize by giving expected capacity when size is known
+
+Example:
+
+```java
+Map<String, Integer> scores = new HashMap<>(128);
+```
+
+Strong answer:
+
+```text
+HashMap resizes when size exceeds capacity * load factor. Resize usually doubles capacity
+and redistributes nodes, so it is relatively expensive.
+```
+
+---
+
+### Null Key and Null Values
+
+HashMap allows:
+
+- one `null` key
+- multiple `null` values
+
+The `null` key is handled specially.
+
+Conceptually:
+
+```text
+null key -> hash 0 -> bucket 0
+```
+
+Example:
+
+```java
+Map<String, Integer> map = new HashMap<>();
+map.put(null, 10);
+map.put(null, 20);
+
+System.out.println(map.get(null)); // 20
+```
+
+Why only one null key?
+
+Because keys are unique. Second `put(null, 20)` replaces old value.
+
+---
+
+### HashMap Complexity
+
+| Operation | Average | Worst Case |
+|---|---:|---:|
+| `put` | `O(1)` | `O(log n)` with tree bin, `O(n)` without treeification |
+| `get` | `O(1)` | `O(log n)` with tree bin, `O(n)` without treeification |
+| `remove` | `O(1)` | `O(log n)` with tree bin, `O(n)` without treeification |
+
+Interview wording:
+
+```text
+HashMap gives average O(1) put/get/remove. In Java 8+, heavy collision buckets can
+treeify, improving worst-case bucket search to O(log n), but good hashCode design is still important.
+```
+
+---
+
+### Why `equals` And `hashCode` Matter In HashMap
+
+HashMap lookup depends on this contract:
+
+```text
+If a.equals(b) is true, then a.hashCode() must equal b.hashCode().
+```
+
+If this contract breaks:
+
+- object may be stored in one bucket
+- lookup may search another bucket
+- `get` may return `null` even for logically equal key
+
+Bad example:
+
+```java
+class Employee {
+    private final int id;
+
+    Employee(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Employee other)) {
+            return false;
+        }
+        return id == other.id;
+    }
+
+    // hashCode missing - bad for HashMap key
+}
+```
+
+Correct:
+
+```java
+@Override
+public int hashCode() {
+    return Objects.hash(id);
+}
+```
+
+---
+
+### Mutable Key Trap
+
+Never mutate fields used in `equals` or `hashCode` after putting an object into HashMap.
+
+Bad:
+
+```java
+class Employee {
+    int id;
+
+    Employee(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Employee other && id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}
+
+Map<Employee, String> map = new HashMap<>();
+Employee emp = new Employee(1);
+map.put(emp, "A");
+
+emp.id = 2;
+
+System.out.println(map.get(emp)); // may return null
+```
+
+Why?
+
+The object was stored based on old hash, but lookup uses new hash.
+
+Strong answer:
+
+```text
+HashMap keys should be immutable, or at least fields used in equals/hashCode should not
+change while the key is inside the map.
+```
+
+---
+
+### HashMap Is Not Thread-Safe
+
+HashMap is not safe for concurrent modification.
+
+Problems:
+
+- lost updates
+- inconsistent reads
+- data corruption risk
+- fail-fast iterator may throw `ConcurrentModificationException`
+
+Use:
+
+```java
+ConcurrentHashMap
+```
+
+for concurrent access.
+
+Strong answer:
+
+```text
+HashMap is not thread-safe. For concurrent reads and writes, use ConcurrentHashMap or
+external synchronization depending on the use case.
+```
+
+---
+
+### HashMap Interview Flow Answer
+
+If interviewer asks:
+
+> How does HashMap work internally?
+
+Say:
+
+```text
+HashMap stores entries in an internal bucket array. For put/get, it calculates the key's
+hash, spreads it, and finds bucket index using `(capacity - 1) & hash`. If the bucket is
+empty, it inserts directly. If there is a collision, it compares hash and equals to find
+the same key or add a new node. Collisions are handled by linked lists, and in Java 8+
+long chains can become red-black trees. HashMap resizes when size crosses capacity times
+load factor, default 16 * 0.75 = 12. Average get/put is O(1), but bad hash distribution
+can degrade performance.
+```
+
+---
 
 ### ConcurrentHashMap
 
@@ -1270,6 +1722,12 @@ Fail-safe style:
 | HashMap default capacity? | 16 |
 | HashMap load factor? | 0.75 |
 | HashMap allows null? | One null key, multiple null values |
+| How HashMap finds bucket? | It spreads hash and uses `(capacity - 1) & hash` |
+| Why capacity is power of two? | Makes index calculation fast and distribution efficient |
+| How HashMap handles collision? | Linked list first, red-black tree in Java 8+ after thresholds |
+| Treeify threshold? | 8, if table capacity is at least 64 |
+| Why mutable keys are dangerous? | Changing hash fields after insertion can make lookup fail |
+| Is HashMap thread-safe? | No, use `ConcurrentHashMap` for concurrent access |
 | ConcurrentHashMap allows null? | No null key or value |
 | TreeMap allows null key? | Not with natural ordering in modern Java |
 | HashSet internally uses? | HashMap |
@@ -2812,4 +3270,3 @@ unbounded collections, ThreadLocal misuse, or poor resource handling.
 ```
 
 This sounds practical and senior enough for a 4+ year Java backend role.
-
