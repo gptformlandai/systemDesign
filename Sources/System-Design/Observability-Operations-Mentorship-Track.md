@@ -1048,3 +1048,496 @@ Because the service needs about 30 seconds to initialize, I would also add a sta
 - Three keywords: restart, traffic, startup
 - One interview trap: using a remote dependency in liveness and triggering restart storms
 - One memory trick: alive is not the same as ready
+
+---
+
+# Topic 3: SLIs, SLOs, and SLAs
+
+> Track: 1.9 Observability & Operations
+> Scope: user-centric reliability measurement, target setting, error budgets, alerting, and external service commitments
+
+---
+
+## 1. Intuition
+
+Think of an airline.
+
+- The SLI is the measured fact: how many flights actually departed on time this month.
+- The SLO is the internal target: we want 99.5% of flights to depart within 15 minutes of schedule.
+- The SLA is the external promise: if we fail badly enough, customers may get compensation or refunds.
+
+That is the relationship:
+- SLI tells you what is happening
+- SLO tells you what you are aiming for
+- SLA tells customers what you are contractually promising
+
+Short memory trick:
+- indicator = measurement
+- objective = target
+- agreement = contract
+
+---
+
+## 2. Definition
+
+- Definition: An SLI, or service level indicator, is a quantitative measure of service behavior such as availability, latency, correctness, or freshness.
+- Definition: An SLO, or service level objective, is the target value or acceptable threshold for one or more SLIs over a defined time window.
+- Definition: An SLA, or service level agreement, is an external commitment to customers or partners that often includes consequences if the commitment is missed.
+- Category: Reliability measurement and service-governance framework
+- Core idea: Measure user-visible quality, define a target, and separate internal engineering goals from external contractual promises.
+
+Interview shortcut:
+- SLI = what you measure
+- SLO = what you target
+- SLA = what you promise
+
+---
+
+## 3. Why It Exists
+
+Teams need a precise way to answer a deceptively simple question:
+- is the service reliable enough for users?
+
+Without SLI and SLO thinking, teams fall into bad patterns such as:
+- chasing infrastructure metrics like CPU without knowing whether users are actually impacted
+- treating uptime alone as the whole reliability story
+- arguing about priorities without a shared reliability target
+- alerting on noise instead of real user harm
+
+SLAs exist because businesses also need a customer-facing reliability contract.
+
+Without the distinction between SLO and SLA:
+- engineering may over-promise externally
+- product teams may not know how much reliability investment is enough
+- incident response may lack a clear severity lens
+- release decisions may ignore reliability debt until customers complain
+
+These concepts exist to connect operations, engineering, and business language around one measurable reality.
+
+---
+
+## 4. Reality
+
+### SLIs, SLOs, and SLAs are common in:
+
+- public APIs
+- SaaS platforms
+- payments and checkout systems
+- search and booking platforms
+- internal platform teams serving many other teams
+- regulated or enterprise products with contractual reliability expectations
+
+### Common SLI categories
+
+- availability: did the request succeed?
+- latency: was the request fast enough?
+- correctness: was the response valid?
+- freshness: is the data recent enough?
+- durability: was the data preserved?
+
+### Real-world architecture truth
+
+Good teams do not create dozens of vanity SLOs.
+
+They pick a small number of user-meaningful journeys such as:
+- search results returned successfully
+- booking confirmed successfully
+- payment processed within latency target
+- streaming event delivered within freshness window
+
+Another important truth:
+- internal SLOs are usually stricter than external SLAs
+
+If the public SLA is tighter than the internal engineering target, the team is effectively promising customers more than it is managing internally. That is backwards.
+
+Also:
+- uptime alone is often a weak SLI
+
+A service can be technically up while users still suffer from:
+- slow responses
+- stale data
+- partial failures
+- broken write paths
+
+---
+
+## 5. How It Works
+
+At a high level:
+
+1. Pick an important user journey such as search, booking, or payment.
+2. Define what counts as a good event and a bad event.
+3. Emit telemetry that can measure those events accurately.
+4. Compute the SLI over a fixed window such as 5 minutes, 1 hour, or 30 days.
+5. Compare the measured SLI against the SLO target.
+6. Track remaining error budget and use it to guide alerting and release decisions.
+7. Define any customer-facing SLA separately, usually with looser terms and explicit remedies.
+
+### SLI flow
+
+- Choose the behavior that matters to users.
+- Define numerator and denominator clearly.
+- Example:
+  good booking confirmations / total valid booking attempts
+
+SLIs answer:
+- how is the service actually behaving for users?
+
+### SLO flow
+
+- Choose a target and a time window.
+- Example:
+  99.95% of booking confirmations succeed over a rolling 30-day window
+- The allowed failure fraction becomes the error budget.
+
+SLOs answer:
+- what reliability level are we trying to maintain?
+- how much failure can we tolerate before we should slow down or change behavior?
+
+### SLA flow
+
+- Translate customer expectations into a formal commitment.
+- Include scope, exclusions, measurement method, reporting window, and consequences.
+- Example:
+  monthly API availability of 99.9%, otherwise service credits apply
+
+SLAs answer:
+- what are we promising externally, and what happens if we miss it?
+
+### Error budget idea
+
+- If the SLO is 99.9%, the error budget is 0.1% over the window.
+- Teams can spend that budget on failures, risky releases, or known instability.
+- If the budget burns too quickly, the team should reduce risk and prioritize reliability work.
+
+### Failure path
+
+- If the SLI drops below target, the error budget is consumed.
+- Alerting should focus on meaningful burn rate, not every small blip.
+- Teams may pause releases, shift traffic, roll back changes, or fix the highest-impact dependency.
+
+### Recovery path
+
+- Stabilize the failing user journey.
+- Confirm the SLI has recovered.
+- Slow the burn rate back to normal.
+- Use postmortems to refine the SLI definition, SLO target, or alert policy if they were poorly chosen.
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: gives teams a user-centered, measurable way to define and manage reliability
+- Secondary benefits: better alerting, clearer prioritization, healthier release decisions, and stronger business alignment
+- Systems impact: shifts operations from vague uptime discussions to explicit reliability targets with measurable error budgets
+
+This topic answers three different questions:
+- what are users actually experiencing?
+- what target should engineering hold itself to?
+- what promise is the business making outside the company?
+
+---
+
+## 7. When to Rely on It
+
+Use SLIs and SLOs when:
+- the service is user-facing or mission-critical
+- multiple teams need a shared reliability target
+- on-call engineers need clear alerting based on user impact
+- release velocity must be balanced against stability
+- reliability trade-offs need a quantitative framework
+
+Use SLAs when:
+- you have enterprise customers or contractual uptime obligations
+- your API or platform is sold as a managed service
+- the business needs formal terms around reliability and remedies
+
+Especially valuable for:
+- booking platforms
+- payment systems
+- search APIs
+- internal platform teams
+- high-volume microservices
+- multi-tenant SaaS systems
+
+Strong interviewer keywords:
+- error budget
+- rolling window
+- burn rate
+- user journey
+- availability target
+- latency objective
+- contractual commitment
+
+---
+
+## 8. When Not to Use It
+
+Do not create SLOs blindly.
+
+Be careful when:
+- the metric is not user-visible or business-relevant
+- the measurement is too noisy or poorly instrumented to trust
+- the service is small and internal enough that lightweight health checks are sufficient
+- teams are choosing targets without operational history or baseline data
+
+Avoid these patterns:
+- defining an SLO on CPU usage instead of user experience
+- setting dozens of overlapping SLOs nobody acts on
+- making the target 100% with no realistic error budget
+- using the SLA as the primary engineering target
+
+Better framing:
+- choose a few meaningful SLIs
+- make SLOs actionable
+- keep SLAs external and conservative
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| SLIs, SLOs, and SLAs | Create shared reliability language, improve alerting, and make release risk measurable | Poor metric choice leads to false confidence, target setting can become political, and contractual promises add business risk |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Precision vs simplicity:
+  a richer SLI captures reality better, but it is harder to measure and explain.
+- Ambition vs sustainability:
+  stricter SLOs improve user experience, but demand more engineering investment and slower change velocity.
+- Fast alerting vs alert fatigue:
+  very sensitive thresholds detect problems quickly, but noisy policies burn out the on-call team.
+- External trust vs business exposure:
+  a stronger SLA can help sales, but increases financial and reputational downside when incidents happen.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Using infrastructure metrics as the primary SLI | CPU, memory, or pod count are weak proxies for user experience | Define SLIs around success, latency, freshness, or correctness of real requests |
+| Setting the SLO to 100% | Real systems need room for partial failure and controlled risk-taking | Use a realistic target and manage the error budget explicitly |
+| Making the SLA tighter than the SLO | The business promises more than engineering is targeting internally | Keep the internal SLO stricter than the external SLA |
+| Not defining good and bad events clearly | Teams compute different numbers from the same service | Document numerator, denominator, exclusions, and window precisely |
+| Alerting on every breach instantly | Small transient dips create noise without business action | Alert on burn rate and sustained user impact |
+| Choosing too many SLOs | Nobody remembers them or changes behavior because of them | Focus on a few critical user journeys |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- 99.9% availability:
+  about 43.2 minutes of monthly unavailability
+- 99.95% availability:
+  about 21.6 minutes of monthly unavailability
+- 99.99% availability:
+  about 4.32 minutes of monthly unavailability
+- Error budget:
+  if the SLO is 99.9%, the error budget is 0.1% over the chosen window
+- Common windows:
+  28-day or 30-day rolling windows are common because they smooth noise and align with operational review cycles
+- Latency SLO example:
+  95% of search requests under 300 ms or 99% under 800 ms, depending on the product and user expectation
+- Burn rate:
+  current bad-event rate divided by the allowed bad-event rate; high burn rate means the team will exhaust the error budget quickly
+
+Interview shorthand:
+- indicator, objective, agreement, rolling 30 days, error budget, burn rate
+
+---
+
+## 12. Failure Modes
+
+### Wrong SLI definition
+
+Problem:
+- The team measures load balancer success codes, but users actually fail later in the booking workflow.
+
+User impact:
+- dashboards look healthy while customers still cannot complete the journey
+
+Mitigation:
+- define the SLI at the point closest to user-visible success
+- use end-to-end journey metrics for critical flows
+
+### Unrealistic SLO
+
+Problem:
+- Leadership chooses 99.999% reliability without funding the engineering work required to support it.
+
+User impact:
+- teams miss targets continuously, alerts become normal, and the SLO stops guiding decisions
+
+Mitigation:
+- baseline real performance first
+- set targets that are ambitious but achievable
+- raise the target only when the system and organization are ready
+
+### Burn-rate blindness
+
+Problem:
+- The team watches the monthly SLI but ignores the fact that the budget is being exhausted rapidly in the last hour.
+
+User impact:
+- incidents escalate before anyone responds because the average still looks acceptable for a while
+
+Mitigation:
+- alert on short-window and long-window burn rates
+- combine immediate detection with slower trend monitoring
+
+### SLA mismatch
+
+Problem:
+- The public SLA counts only total uptime, while the internal SLO is based on user-facing latency and correctness.
+
+User impact:
+- customers feel pain that is not reflected in the formal commitment
+
+Mitigation:
+- align SLA language with what customers actually experience
+- keep internal SLOs more detailed than the public contract
+
+---
+
+## 13. Scenario
+
+- Product / system: Hotel search and booking platform with search, pricing, reservation, and payment services
+- Requirement:
+  search should stay fast during peak traffic, and booking confirmation should remain highly reliable because failed bookings directly affect revenue
+- Good design:
+  define separate SLIs for search latency and booking success, set 30-day SLOs with explicit error budgets, and keep the public partner SLA looser than the internal engineering targets
+- Why this concept fits:
+  the team needs a shared reliability language that maps directly to user experience and business impact
+- What would go wrong without it:
+  teams would debate reliability based on infrastructure symptoms rather than measured customer-facing outcomes
+
+---
+
+## 14. Code Sample
+
+### Evaluating an availability and latency SLO from service counters
+
+```java
+public record SloStatus(
+        double availabilitySli,
+        double latencySli,
+        double errorBudgetRemaining,
+        boolean withinObjective) {
+}
+
+public class BookingSloEvaluator {
+
+    private static final double AVAILABILITY_TARGET = 0.999;
+    private static final double LATENCY_TARGET = 0.95;
+
+    public SloStatus evaluate(long totalRequests, long failedRequests, long fastRequests) {
+        if (totalRequests == 0) {
+            return new SloStatus(1.0, 1.0, 1.0, true);
+        }
+
+        double availabilitySli = 1.0 - ((double) failedRequests / totalRequests);
+        double latencySli = (double) fastRequests / totalRequests;
+        double errorBudgetRemaining = Math.max(0.0, (availabilitySli - AVAILABILITY_TARGET) / (1.0 - AVAILABILITY_TARGET));
+        boolean withinObjective = availabilitySli >= AVAILABILITY_TARGET && latencySli >= LATENCY_TARGET;
+
+        return new SloStatus(availabilitySli, latencySli, errorBudgetRemaining, withinObjective);
+    }
+}
+```
+
+Key idea:
+- measure real request outcomes first, then compare them against explicit objectives instead of guessing from infrastructure noise
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program simulates request results and shows the difference between measured behavior, an internal target, and an external promise.
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class Event:
+    success: bool
+    latency_ms: int
+
+
+def compute_sli(events: list[Event], latency_threshold_ms: int) -> tuple[float, float]:
+    total = len(events)
+    success_count = sum(1 for event in events if event.success)
+    fast_count = sum(1 for event in events if event.success and event.latency_ms <= latency_threshold_ms)
+
+    availability_sli = success_count / total
+    latency_sli = fast_count / total
+    return availability_sli, latency_sli
+
+
+def main() -> None:
+    events = [
+        Event(True, 180),
+        Event(True, 220),
+        Event(True, 260),
+        Event(False, 900),
+        Event(True, 320),
+        Event(True, 190),
+        Event(False, 700),
+        Event(True, 210),
+        Event(True, 280),
+        Event(True, 240),
+    ]
+
+    availability_sli, latency_sli = compute_sli(events, latency_threshold_ms=300)
+
+    availability_slo = 0.90
+    latency_slo = 0.80
+    availability_sla = 0.85
+
+    print(f"availability SLI: {availability_sli:.2%}")
+    print(f"latency SLI:      {latency_sli:.2%}")
+    print(f"meets SLO:        {availability_sli >= availability_slo and latency_sli >= latency_slo}")
+    print(f"meets SLA:        {availability_sli >= availability_sla}")
+    print(f"error budget used: {(1 - availability_sli) / (1 - availability_slo):.2f}x of allowed budget")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- the SLI is the measured result from actual events
+- the SLO is the internal threshold the team is trying to maintain
+- the SLA is a separate external promise that may be looser than the SLO
+- the error budget shows how quickly reliability risk is being consumed
+
+---
+
+## 16. Practical Question
+
+> You are designing a hotel booking platform. Search traffic is high volume, and booking confirmation failures are revenue critical. How would you define SLIs, SLOs, and any public SLA so the team can alert properly and make sane release decisions?
+
+---
+
+## 17. Strong Answer
+
+I would start from the user journeys, not from server metrics. For this system, I would define at least two core SLIs: booking confirmation success rate and search latency. Those are directly tied to customer experience and revenue.
+
+Then I would set SLOs over a rolling window, for example 99.95% successful booking confirmations over 30 days and a latency objective such as 95% of search requests under a chosen threshold. From those SLOs, I would derive error budgets and use burn-rate based alerting so the team is paged when the budget is being consumed fast, not just when a graph wiggles briefly.
+
+If the platform has external customers or partners, I would define an SLA separately. That SLA would usually be looser and simpler than the internal SLO, with clear scope and remedies such as credits. Internally, the SLO should be the tool that governs engineering behavior: if the error budget is healthy, the team can move faster; if it is being burned aggressively, releases should slow down until reliability recovers.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: SLI measures actual service quality, SLO sets the target, and SLA defines the external promise.
+- Three keywords: error budget, burn rate, user journey
+- One interview trap: using infrastructure health as the primary SLI instead of user-visible outcomes
+- One memory trick: measure, target, promise
