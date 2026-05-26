@@ -1541,3 +1541,487 @@ If the platform has external customers or partners, I would define an SLA separa
 - Three keywords: error budget, burn rate, user journey
 - One interview trap: using infrastructure health as the primary SLI instead of user-visible outcomes
 - One memory trick: measure, target, promise
+
+---
+
+# Topic 4: Canary Deployments
+
+> Track: 1.9 Observability & Operations
+> Scope: progressive traffic shifting, guardrail metrics, rollback safety, cohort selection, and release risk reduction
+
+---
+
+## 1. Intuition
+
+Think of introducing a new menu item in a large hotel restaurant.
+
+- You do not serve it to every guest in every dining room at once.
+- You first offer it to a small table section, watch how it performs, check for complaints, and confirm the kitchen can handle it.
+- If the result is good, you expand to more tables.
+- If the result is bad, you stop quickly before the whole restaurant is affected.
+
+That is what a canary deployment does.
+
+- It sends a small portion of production traffic to the new version.
+- It compares the new version against the stable one using real signals.
+- It expands only if the new version behaves safely.
+
+Short memory trick:
+- small traffic first
+- watch real production behavior
+- promote or rollback fast
+
+---
+
+## 2. Definition
+
+- Definition: A canary deployment is a release strategy in which a new version is exposed to a small subset of production traffic before wider rollout.
+- Category: Progressive delivery and deployment risk-control mechanism
+- Core idea: Limit blast radius by validating a new version under real traffic with measurable guardrails before sending it to everyone.
+
+Interview shortcut:
+- canary means gradual exposure in production
+- rollout decisions depend on observed health, not just on successful deployment
+
+---
+
+## 3. Why It Exists
+
+Many failures only appear under real production conditions.
+
+Examples:
+- a dependency behaves differently under true production concurrency
+- one endpoint has a serialization bug that tests missed
+- a JVM memory pattern looks fine in staging but fails with production data shape
+- one downstream partner API has a subtle compatibility issue with the new version
+
+If you do an all-at-once rollout, the whole fleet inherits the risk immediately.
+
+Without canary deployments:
+- one bad release can become a full outage
+- rollback happens only after broad customer impact
+- operators lose the chance to compare old and new versions side by side
+- deployments become high-stress events instead of controlled experiments
+
+Canary exists because production validation should happen gradually, not all at once.
+
+---
+
+## 4. Reality
+
+### Canary deployments are common in:
+
+- Kubernetes-based microservices
+- service mesh environments such as Istio or Linkerd
+- API gateways and load balancers that support weighted routing
+- high-traffic SaaS platforms
+- mobile and web backends with frequent releases
+- teams practicing progressive delivery
+
+### Common implementation mechanisms
+
+- weighted traffic split at the load balancer
+- service mesh routing rules
+- ingress controller annotations
+- header-based or cookie-based cohort routing
+- feature-flag platforms combined with version routing
+
+### Real-world architecture truth
+
+Canary without observability is mostly theater.
+
+If the team cannot compare:
+- error rate
+- latency distributions
+- saturation
+- business success metrics
+
+then the rollout is gradual, but not actually safe.
+
+Another important truth:
+- canary is strongest when traffic volume is high enough to make results meaningful
+
+If the service gets very low traffic, a 1% canary may produce too little signal. In that case, the team may need longer bake times, synthetic checks, or a different rollout strategy.
+
+Also:
+- stateless services are easier to canary than schema-coupled or stateful changes
+
+If a release changes storage format or request semantics incompatibly, routing only some traffic to the new version may not be enough on its own.
+
+---
+
+## 5. How It Works
+
+At a high level:
+
+1. Deploy the new version alongside the stable version.
+2. Route a small percentage of traffic, such as 1% or 5%, to the new version.
+3. Compare canary behavior against baseline guardrails such as error rate, p95 latency, resource saturation, and key business outcomes.
+4. Keep the canary running for a bake window long enough to observe real behavior.
+5. If the metrics stay healthy, increase traffic gradually.
+6. If the metrics regress, stop promotion and roll back quickly.
+7. Once confidence is high, promote the new version to 100% and retire the old one.
+
+### Traffic-routing flow
+
+- Two versions run at the same time.
+- Routing logic decides what percentage or cohort reaches the canary.
+- Cohorts may be random, geography-based, tenant-based, or employee-only.
+
+Canary routing answers:
+- who should receive the new version first?
+- how much risk are we exposing at this step?
+
+### Guardrail flow
+
+- Measure request success rate, latency, dependency errors, CPU or memory trends, and business KPIs.
+- Compare new version and stable version over the same period.
+- Use thresholds or automated analysis to decide promote, hold, or rollback.
+
+Guardrails answer:
+- is the new version actually safe under real traffic?
+
+### Promotion flow
+
+- Start with a small percentage.
+- Increase gradually only after each bake period passes.
+- Typical steps may look like 1% -> 5% -> 25% -> 50% -> 100%.
+
+Promotion answers:
+- how fast can we expand without hiding regressions?
+
+### Failure path
+
+- If error rate or latency worsens materially, stop increasing traffic.
+- If the regression is clear, shift traffic back to the stable version.
+- If the result is ambiguous, hold the rollout, gather more signal, and investigate before promoting.
+
+### Recovery path
+
+- Route traffic back to the stable release.
+- preserve logs, metrics, and traces for comparison
+- fix the defect and rerun the canary when ready
+
+---
+
+## 6. What Problem It Solves
+
+- Primary problem solved: reduces the blast radius of bad releases by validating the new version under limited production exposure
+- Secondary benefits: safer experimentation, faster rollback, better release confidence, and clearer version-to-version comparison
+- Systems impact: turns deployment from a binary switch into a controlled, observable progression
+
+This topic solves three practical problems:
+- how do we test production behavior safely?
+- how do we detect regressions before the whole fleet is affected?
+- how do we release frequently without treating every deploy like a gamble?
+
+---
+
+## 7. When to Rely on It
+
+Use canary deployments when:
+- the service is user-facing and regressions are expensive
+- the team deploys frequently
+- observability is strong enough to compare versions meaningfully
+- the system can run old and new versions side by side
+- traffic volume is high enough to give the canary real signal
+
+Especially valuable for:
+- booking and payment services
+- search and recommendation APIs
+- gateway or edge services
+- high-throughput Spring Boot microservices
+- systems where rollback speed matters more than absolute deployment simplicity
+
+Strong interviewer keywords:
+- progressive delivery
+- weighted routing
+- guardrail metrics
+- blast radius
+- bake time
+- rollback threshold
+- automated promotion
+
+---
+
+## 8. When Not to Use It
+
+Canary is not always the right tool.
+
+Be careful when:
+- the system gets too little traffic to evaluate a small canary confidently
+- the change is strongly coupled to a non-backward-compatible schema migration
+- running two versions in parallel is too costly or operationally complex
+- the service is internal, low risk, and simple enough that rolling deployment is sufficient
+
+Avoid these patterns:
+- declaring success after only a few requests
+- routing randomly when session stickiness or cache locality matters
+- ignoring business metrics and watching only CPU or memory
+- canarying a stateful protocol change without compatibility planning
+
+Better framing:
+- use canary when real production signal can guide rollout decisions
+- use blue-green when full-environment swap and instant cutover are more important
+- use feature flags when the risk is more about behavior than binary version routing
+
+---
+
+## 9. Pros and Cons
+
+| Pattern | Pros | Cons |
+|---|---|---|
+| Canary deployments | Limit blast radius, enable measured promotion, and provide real production validation before full rollout | Need strong observability, can be statistically weak at low traffic, and add routing plus operational complexity |
+
+---
+
+## 10. Trade-offs and Common Mistakes
+
+### Trade-offs
+
+- Safety vs speed:
+  slower, staged rollout reduces risk, but delays full release.
+- Signal quality vs simplicity:
+  richer comparisons improve confidence, but require better instrumentation and analysis.
+- Cost vs confidence:
+  running two versions simultaneously costs more compute, but gives safer rollout behavior.
+- Automation vs operator judgment:
+  automated rollback is fast and consistent, but poor thresholds can make the pipeline too sensitive or too blind.
+
+### Common Mistakes
+
+| Mistake | Why it is wrong | Better approach |
+|---|---|---|
+| Using only infrastructure metrics | The canary may look healthy on CPU while users are seeing booking failures | Include user-facing SLIs and business KPIs in the rollout guardrails |
+| Promoting too quickly | Short bake time can hide slow memory leaks, cache churn, or time-based failures | Tune rollout steps and bake windows to the service behavior |
+| Ignoring cohort bias | Employee traffic or one geography may not represent the full workload | Choose cohorts deliberately and understand what they do not cover |
+| Canarying incompatible schema changes carelessly | Old and new versions may conflict on reads or writes | Use backward-compatible migrations or decouple rollout stages |
+| Comparing absolute metrics without baseline | Traffic shape can vary over time, making raw values misleading | Compare canary against the stable version over the same window |
+| Treating any small blip as failure | Random noise can trigger unnecessary rollback | Define clear thresholds and use enough sample volume before deciding |
+
+---
+
+## 11. Key Numbers
+
+These are practical heuristics, not universal laws.
+
+- Initial canary size:
+  often 1% to 5% for high-traffic systems
+- Promotion steps:
+  common progressions are 1% -> 5% -> 25% -> 50% -> 100% or similar staged ramps
+- Bake window:
+  often 10 to 30 minutes for high-volume APIs, but much longer for low-traffic or slow-burn failure modes
+- Rollback threshold:
+  commonly based on relative error-rate increase, p95 or p99 latency degradation, or business KPI drop
+- Sample sufficiency:
+  the canary should receive enough requests to make comparison meaningful before promotion
+- Parallel version cost:
+  temporarily higher compute and memory footprint is expected because both versions run concurrently
+
+Interview shorthand:
+- small percentage, bake, compare to baseline, promote gradually, rollback fast
+
+---
+
+## 12. Failure Modes
+
+### Silent low-volume failure
+
+Problem:
+- The canary receives too little traffic, so a serious bug does not appear during the initial stage.
+
+User impact:
+- the issue reaches more users later when traffic is increased
+
+Mitigation:
+- extend bake time
+- increase representative traffic carefully
+- supplement with synthetic or targeted test traffic
+
+### Bad cohort selection
+
+Problem:
+- The canary serves only internal users, but external customer traffic has a different usage pattern.
+
+User impact:
+- rollout looks healthy until broader exposure reveals real regressions
+
+Mitigation:
+- choose cohorts that reflect real workload characteristics
+- understand which user segments are and are not covered
+
+### Metric dilution
+
+Problem:
+- Operators watch fleet-wide dashboards instead of isolating canary metrics.
+
+User impact:
+- canary regressions are buried under healthy baseline traffic
+
+Mitigation:
+- tag telemetry by version
+- compare canary versus stable directly
+- build rollout-specific dashboards
+
+### Data compatibility failure
+
+Problem:
+- The canary writes data in a format the stable version cannot read correctly.
+
+User impact:
+- rollback does not fully restore behavior because mixed-version data is already present
+
+Mitigation:
+- design schema and event changes for backward and forward compatibility
+- separate data migration from traffic migration when needed
+
+---
+
+## 13. Scenario
+
+- Product / system: Hotel search and pricing service running on Kubernetes behind an API gateway
+- Requirement:
+  release a new pricing engine safely during peak booking hours without risking widespread bad prices or slow search responses
+- Good design:
+  route 1% of traffic to the new version, compare canary and stable versions on search latency, pricing error rate, and booking conversion impact, then promote gradually only if guardrails stay healthy
+- Why this concept fits:
+  the pricing logic is business-critical, and the team needs real production validation with limited exposure
+- What would go wrong without it:
+  a pricing bug or latency regression could affect the whole customer base immediately
+
+---
+
+## 14. Code Sample
+
+### Evaluating whether to promote or roll back a canary
+
+```java
+public record RolloutSnapshot(long totalRequests, long failedRequests, long p95LatencyMs) {
+    public double errorRate() {
+        if (totalRequests == 0) {
+            return 0.0;
+        }
+        return (double) failedRequests / totalRequests;
+    }
+}
+
+public enum RolloutDecision {
+    PROMOTE,
+    HOLD,
+    ROLLBACK
+}
+
+public class CanaryGuardrails {
+
+    private static final double MAX_ERROR_RATE_DELTA = 0.005;
+    private static final long MAX_P95_LATENCY_DELTA_MS = 75;
+    private static final long MIN_REQUESTS_FOR_DECISION = 500;
+
+    public RolloutDecision evaluate(RolloutSnapshot stable, RolloutSnapshot canary) {
+        if (canary.totalRequests() < MIN_REQUESTS_FOR_DECISION) {
+            return RolloutDecision.HOLD;
+        }
+
+        boolean errorRegression = canary.errorRate() - stable.errorRate() > MAX_ERROR_RATE_DELTA;
+        boolean latencyRegression = canary.p95LatencyMs() - stable.p95LatencyMs() > MAX_P95_LATENCY_DELTA_MS;
+
+        if (errorRegression || latencyRegression) {
+            return RolloutDecision.ROLLBACK;
+        }
+
+        return RolloutDecision.PROMOTE;
+    }
+}
+```
+
+Key idea:
+- do not promote a canary just because deployment succeeded; promote only when real production guardrails stay within acceptable bounds
+
+---
+
+## 15. Mini Program / Simulation
+
+This mini program simulates a canary rollout with staged traffic increases and automatic rollback when latency regresses too much.
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class Snapshot:
+    requests: int
+    errors: int
+    p95_latency_ms: int
+
+    def error_rate(self) -> float:
+        return self.errors / self.requests
+
+
+def decide(stable: Snapshot, canary: Snapshot) -> str:
+    if canary.requests < 500:
+        return "hold"
+
+    if canary.error_rate() - stable.error_rate() > 0.005:
+        return "rollback"
+
+    if canary.p95_latency_ms - stable.p95_latency_ms > 75:
+        return "rollback"
+
+    return "promote"
+
+
+def main() -> None:
+    stable = Snapshot(requests=10000, errors=20, p95_latency_ms=220)
+
+    rollout = [
+        (1, Snapshot(requests=600, errors=1, p95_latency_ms=230)),
+        (5, Snapshot(requests=900, errors=2, p95_latency_ms=240)),
+        (25, Snapshot(requests=3000, errors=18, p95_latency_ms=340)),
+    ]
+
+    for percent, canary in rollout:
+        decision = decide(stable, canary)
+        print(
+            f"stage={percent}% errorRate={canary.error_rate():.2%} "
+            f"p95={canary.p95_latency_ms}ms decision={decision}"
+        )
+
+        if decision == "rollback":
+            print("traffic returned to stable version")
+            break
+
+
+if __name__ == "__main__":
+    main()
+```
+
+What this demonstrates:
+- rollout happens in stages, not all at once
+- canary traffic is evaluated against the stable baseline
+- latency or error regressions should stop promotion quickly
+- rollback is a normal control path, not a failure of the process
+
+---
+
+## 16. Practical Question
+
+> You are releasing a new search and pricing service for a hotel booking platform. How would you design a canary deployment strategy so you can detect bad prices or latency regressions quickly without risking the whole customer base?
+
+---
+
+## 17. Strong Answer
+
+I would deploy the new version beside the stable one and start with a very small percentage of live traffic, usually something like 1% or 5% depending on request volume. I would make sure telemetry is tagged by version so I can compare the canary directly against the stable baseline rather than looking only at fleet-wide averages.
+
+The guardrails would include both technical and business signals: search error rate, p95 or p99 latency, downstream dependency failures, and a business metric such as booking conversion or pricing validation errors. If those metrics stay within thresholds for a defined bake window, I would gradually increase traffic. If they regress materially, I would stop promotion and route traffic back to the stable version immediately.
+
+I would also check whether the release includes schema or contract changes. If it does, I would make those changes backward compatible first, because canary only works cleanly when old and new versions can coexist safely. The key principle is simple: use small real traffic, compare against a stable baseline, and let observability drive promotion or rollback.
+
+---
+
+## 18. Revision Notes
+
+- One-line summary: Canary deployment reduces rollout risk by sending small production traffic to a new version, measuring real behavior, and promoting only if guardrails stay healthy.
+- Three keywords: weighted routing, bake time, rollback
+- One interview trap: calling it a canary rollout without version-isolated metrics or a clear rollback threshold
+- One memory trick: small traffic, compare, expand
