@@ -2173,3 +2173,167 @@ Useful official references:
 - Spring Security CSRF: https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html
 - Spring Security CORS: https://docs.spring.io/spring-security/reference/servlet/integrations/cors.html
 
+---
+
+# 52. How To Use This Guide By Level
+
+| Level | What To Master |
+|---|---|
+| Starter | authentication vs authorization, 401 vs 403, password hashing, basic config |
+| Intermediate | filter chain, `SecurityContextHolder`, roles/authorities, JWT validation |
+| Senior | OAuth2 resource server, custom claims, CSRF/CORS, method ownership checks |
+| MAANG-ready | threat modeling, token revocation strategy, multi-service auth, production debugging |
+
+Starter target:
+
+```text
+I can secure REST APIs with authenticated and public routes, hashed passwords, and role or
+authority checks.
+```
+
+Senior target:
+
+```text
+I can explain how Spring Security authenticates through filters, stores Authentication in
+SecurityContextHolder, maps JWT claims to authorities, and enforces URL and method security.
+```
+
+---
+
+# 53. Advanced Security Production Scenarios
+
+## Scenario 1: Valid JWT Still Gets 403
+
+Check:
+- token is authenticated but missing required authority
+- scope mapped as `SCOPE_x`
+- role prefix mismatch between `hasRole` and `hasAuthority`
+- custom claim converter not configured
+- method security has stricter rule than URL security
+
+Strong answer:
+
+```text
+For 403, authentication already succeeded. I inspect the Authentication object and granted
+authorities, then compare them with URL and method security rules.
+```
+
+## Scenario 2: Browser Request Fails Before Controller
+
+Check:
+- CORS preflight blocked
+- OPTIONS request requires authentication
+- frontend origin not allowed
+- Authorization header not allowed
+- credentials and wildcard origin misconfigured
+
+Strong answer:
+
+```text
+If the controller is never reached, I check CORS and preflight first. Browsers enforce CORS,
+and Spring Security must allow CORS processing before authentication blocks OPTIONS.
+```
+
+## Scenario 3: Logout In Stateless JWT System
+
+Reality:
+
+```text
+Server cannot simply delete a JWT that is already issued unless it tracks revocation state.
+```
+
+Options:
+- short-lived access tokens
+- refresh token rotation
+- refresh token revocation
+- denylist for high-risk access tokens
+- token version stored server-side
+- opaque tokens with introspection
+
+Strong answer:
+
+```text
+JWT logout is usually handled by expiring access tokens quickly and revoking refresh tokens.
+For high-risk systems, I add denylist or token-version checks.
+```
+
+---
+
+# 54. Capstone Practice Questions
+
+## Capstone 1: Secure Booking API
+
+Prompt:
+
+```text
+Secure booking APIs where customers can view their own bookings, support can view customer
+bookings, and admins can cancel any booking.
+```
+
+Strong answer should mention:
+- OAuth2 resource server
+- JWT issuer/JWK validation
+- scopes like `booking.read`, `booking.write`
+- roles like `ROLE_SUPPORT`, `ROLE_ADMIN`
+- method security for ownership
+- separate 401 and 403 handlers
+- audit sensitive actions
+
+## Capstone 2: Design JWT And Refresh Token Flow
+
+Strong answer should mention:
+- short-lived access token
+- longer-lived refresh token
+- refresh token stored server-side or with rotation tracking
+- refresh token reuse detection
+- logout revokes refresh token
+- no secrets in JWT payload
+- validate signature, expiry, issuer, audience
+
+## Capstone 3: Debug Auth Incident
+
+Prompt:
+
+```text
+After deployment, all frontend API calls fail. Backend logs show no controller hit.
+```
+
+Strong answer should mention:
+- inspect browser network tab
+- check preflight OPTIONS
+- verify CORS config
+- verify allowed origins and headers
+- verify gateway/security filter order
+- test direct API call with token
+- distinguish CORS failure from 401/403
+
+---
+
+# 55. Security Gold Checklist
+
+You are strong in Spring Security if you can explain:
+
+- authentication vs authorization
+- 401 vs 403
+- servlet filter chain
+- `DelegatingFilterProxy`
+- `FilterChainProxy`
+- `SecurityContextHolder`
+- `Authentication`
+- `AuthenticationManager` and provider flow
+- `UserDetailsService`
+- password hashing with `PasswordEncoder`
+- roles vs authorities
+- stateless JWT API setup
+- JWT is signed, not encrypted
+- JWT validation claims
+- OAuth2 roles and grant types
+- resource server config
+- scope-to-authority mapping
+- custom claim converter
+- CSRF and CORS differences
+- method security and ownership checks
+- refresh token rotation
+- token revocation limitations
+- safe token storage trade-offs
+- security testing and debugging

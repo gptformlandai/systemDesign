@@ -1808,3 +1808,201 @@ sides, cascade rules, orphan removal only where appropriate, and optimistic or p
 locking depending on the concurrency requirement.
 ```
 
+---
+
+## 35. How To Use This Guide By Level
+
+| Level | What To Master |
+|---|---|
+| Starter | entity mapping, repository methods, basic relationships, transactions |
+| Intermediate | persistence context, dirty checking, lazy/eager, N+1, fetch joins |
+| Senior | locking, batching, pagination, schema constraints, generated SQL review |
+| MAANG-ready | concurrency correctness, performance diagnosis, migration-safe model design |
+
+Starter target:
+
+```text
+I can map entities, create repositories, write derived queries, and use transactions
+correctly at the service layer.
+```
+
+Senior target:
+
+```text
+I can diagnose N+1 queries, choose fetch strategies, design correct relationships, handle
+concurrent updates, and explain how Hibernate turns entity changes into SQL.
+```
+
+---
+
+## 36. Modern JPA And Hibernate Production Notes
+
+| Area | Expectation |
+|---|---|
+| Jakarta namespace | Spring Boot 3+ uses `jakarta.persistence.*`, not `javax.persistence.*` |
+| DTOs | Prefer DTOs for API responses instead of exposing entities directly |
+| Open Session in View | Avoid relying on it for production API correctness |
+| Fetch strategy | LAZY by default, fetch per use case |
+| Pagination | Avoid deep offset pagination for large datasets |
+| Constraints | Enforce uniqueness and integrity in the database |
+| Generated SQL | Review SQL for important queries |
+| Transactions | Put business transaction boundaries in service layer |
+
+Strong answer:
+
+```text
+I treat JPA as a productivity tool, not magic. I still design database constraints, indexes,
+transaction boundaries, fetch plans, and pagination deliberately.
+```
+
+---
+
+## 37. Production Debugging Scenarios
+
+### Scenario 1: API Suddenly Slow
+
+Check:
+- N+1 queries
+- missing index
+- too many eager relationships
+- large offset pagination
+- slow count query from `Page`
+- connection pool saturation
+- unexpected flush before query
+
+Strong answer:
+
+```text
+I enable SQL logging or use database query monitoring, identify query count and slow queries,
+then fix fetch plans, indexes, projections, pagination, or transaction boundaries based on
+the evidence.
+```
+
+### Scenario 2: `LazyInitializationException`
+
+Cause:
+
+```text
+Lazy association accessed after persistence context is closed.
+```
+
+Fixes:
+- fetch required data inside service transaction
+- use DTO projection
+- use fetch join or EntityGraph
+- avoid returning entities directly from controller
+
+Strong answer:
+
+```text
+I do not fix LazyInitializationException by making everything EAGER. I fetch exactly what
+the use case needs inside the transaction.
+```
+
+### Scenario 3: Double Booking Under Concurrency
+
+Check:
+- missing unique constraint or exclusion logic
+- insufficient isolation
+- no optimistic/pessimistic lock
+- check-then-insert race
+- no idempotency key
+
+Strong answer:
+
+```text
+For booking correctness, I combine application checks with database constraints or locking.
+The database must protect the invariant because concurrent requests can pass application
+checks at the same time.
+```
+
+---
+
+## 38. Capstone Practice Questions
+
+### Capstone 1: Design Booking Entities
+
+Prompt:
+
+```text
+Model Customer, Booking, Room, Payment, and BookingStatusHistory using JPA.
+```
+
+Strong answer should mention:
+- aggregate ownership
+- `ManyToOne` from Booking to Customer
+- avoid careless `ManyToMany`
+- status history as separate child table
+- cascade only parent-owned children
+- indexes on lookup columns
+- unique booking number
+- DTOs for API output
+
+### Capstone 2: Fix N+1 In Booking List API
+
+Prompt:
+
+```text
+GET /bookings loads 100 bookings and then fires 100 customer queries. How do you fix it?
+```
+
+Strong answer should mention:
+- identify generated SQL
+- fetch join if returning entity graph
+- EntityGraph as repository-level option
+- DTO projection for list API
+- batch fetching as broader mitigation
+- pagination to limit result size
+
+### Capstone 3: Handle Concurrent Room Reservation
+
+Prompt:
+
+```text
+Two users try to reserve the same room for overlapping dates. How do you prevent double
+booking?
+```
+
+Strong answer should mention:
+- database-level invariant
+- transaction boundary
+- pessimistic lock or optimistic version depending conflict rate
+- unique or exclusion constraint where supported
+- retry or user-friendly conflict response
+- idempotency for duplicate client retries
+
+---
+
+## 39. JPA Gold Checklist
+
+You are strong in JPA/Hibernate if you can explain:
+
+- JPA vs Hibernate vs Spring Data JPA
+- entity lifecycle states
+- persistence context as first-level cache
+- dirty checking
+- flush timing
+- lazy vs eager defaults
+- N+1 and fixes
+- owning side and `mappedBy`
+- cascade vs orphan removal
+- `ManyToMany` risks
+- DTO projections
+- Page vs Slice
+- optimistic vs pessimistic locking
+- transaction boundary placement
+- Open Session in View trade-off
+- generated SQL review
+- index and constraint design
+
+---
+
+## 40. Official Source Notes
+
+Useful official references:
+
+- Spring Data JPA Reference: https://docs.spring.io/spring-data/jpa/reference/
+- Hibernate ORM Documentation: https://hibernate.org/orm/documentation/
+- Spring Framework ORM Data Access: https://docs.spring.io/spring-framework/reference/data-access/orm.html
+- Spring Transaction Management: https://docs.spring.io/spring-framework/reference/data-access/transaction.html
+- Spring Boot SQL Databases: https://docs.spring.io/spring-boot/reference/data/sql.html

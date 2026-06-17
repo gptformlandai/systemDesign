@@ -2253,3 +2253,200 @@ validation, global exception handling, and production features like Actuator.
 
 This is a strong product-company answer because it connects theory to real backend behavior.
 
+---
+
+## 35. How To Use This Guide By Level
+
+| Level | What To Master |
+|---|---|
+| Starter | IoC, DI, beans, `@Component`, `@Service`, `@Repository`, `@RestController` |
+| Intermediate | bean lifecycle, scopes, auto-configuration, profiles, validation, exception handling |
+| Senior | AOP proxies, `@Transactional` traps, startup debugging, production Actuator usage |
+| MAANG-ready | runtime flow, failure modes, trade-offs, and why Spring behaves that way |
+
+Starter target:
+
+```text
+I can build a clean Spring Boot REST API with controller, service, repository, validation,
+and exception handling.
+```
+
+Senior target:
+
+```text
+I can debug why a bean did not load, why a transaction did not apply, why auto-configuration
+did or did not activate, and how a request flows through the Spring MVC runtime.
+```
+
+---
+
+## 36. Modern Spring Boot 3+ And 4 Readiness Notes
+
+| Area | Modern Expectation |
+|---|---|
+| Java baseline | Know the project version decides the required Java version |
+| Jakarta namespace | Spring Boot 3+ uses `jakarta.*` for Jakarta EE APIs |
+| Security config | Modern Spring Security uses `SecurityFilterChain` beans |
+| Native/AOT | Know AOT/native image support exists, but is not always needed |
+| Observability | Micrometer and Actuator are core production topics |
+| Config binding | Prefer `@ConfigurationProperties` for grouped config |
+| Injection style | Constructor injection is the default for mandatory dependencies |
+
+Interview line:
+
+```text
+I write modern Spring Boot code using constructor injection, configuration properties,
+bean-based security configuration, Actuator/Micrometer for visibility, and Jakarta imports
+in Spring Boot 3+ applications.
+```
+
+Common migration trap:
+
+```text
+Old code using javax.validation or javax.persistence may need jakarta.validation or
+jakarta.persistence in Spring Boot 3+.
+```
+
+---
+
+## 37. Production Debugging Scenarios
+
+### Scenario 1: Application Fails To Start
+
+Check:
+- missing bean
+- duplicate bean
+- wrong profile
+- failed property binding
+- failed database connection
+- circular dependency
+- auto-configuration condition mismatch
+
+Strong answer:
+
+```text
+I start with the root cause, then check bean creation, active profiles, config properties,
+and auto-configuration condition reports. For Boot apps, condition reports and debug logs
+can explain why a bean was or was not created.
+```
+
+### Scenario 2: `@Transactional` Not Working
+
+Check:
+- method called inside same class
+- method is private or not proxied as expected
+- bean not managed by Spring
+- checked exception did not trigger rollback
+- transaction boundary placed at wrong layer
+
+Strong answer:
+
+```text
+Because @Transactional is proxy-based, I check whether the call goes through the Spring
+proxy. Self-invocation, private methods, and checked exception rollback rules are the
+classic causes.
+```
+
+### Scenario 3: REST API Returns Wrong Error Shape
+
+Check:
+- missing `@RestControllerAdvice`
+- exception not mapped
+- validation exception not handled
+- response status not set
+- inconsistent error DTO
+
+Strong answer:
+
+```text
+I centralize API errors with @RestControllerAdvice so clients receive consistent status,
+message, code, timestamp, and trace ID fields.
+```
+
+---
+
+## 38. Capstone Practice Questions
+
+### Capstone 1: Design A Booking REST API
+
+Prompt:
+
+```text
+Build a Spring Boot booking API with validation, exception handling, service layer,
+repository layer, and transaction boundary.
+```
+
+Strong answer should mention:
+- DTOs for request and response
+- controller only handles HTTP
+- service owns business transaction
+- repository owns persistence
+- constructor injection
+- validation annotations
+- `@RestControllerAdvice`
+- `@Transactional` at service layer
+
+### Capstone 2: Debug A Production Startup Failure
+
+Prompt:
+
+```text
+After deployment, the Spring Boot app fails to start because BookingService cannot be
+created. How do you debug?
+```
+
+Strong answer should mention:
+- read root cause, not only top-level exception
+- check missing bean
+- check component scan package
+- check profile-specific config
+- check conditional auto-configuration
+- check circular dependency
+
+### Capstone 3: Explain Spring Boot Internals In 2 Minutes
+
+Strong answer:
+
+```text
+Spring Boot starts through SpringApplication.run, prepares the environment, creates the
+ApplicationContext, scans and registers bean definitions, applies auto-configuration based
+on classpath and properties, creates beans, injects dependencies, applies post-processors
+and proxies, starts the embedded server, and then handles requests through DispatcherServlet.
+```
+
+---
+
+## 39. Core Gold Checklist
+
+You are strong in Spring Boot Core if you can explain:
+
+- what Spring container does
+- why constructor injection is preferred
+- how `@Autowired` resolves beans
+- singleton vs prototype scope
+- bean lifecycle order
+- component scanning boundaries
+- `@Configuration` proxy behavior
+- `@SpringBootApplication` internals
+- auto-configuration conditions
+- external config and profiles
+- circular dependency fixes
+- AOP proxy limitations
+- `@Transactional` rollback rules
+- DispatcherServlet request flow
+- filter vs interceptor vs advice
+- validation and global error handling
+- Actuator production role
+
+---
+
+## 40. Official Source Notes
+
+Useful official references:
+
+- Spring Boot Reference: https://docs.spring.io/spring-boot/reference/index.html
+- Spring Boot Auto-configuration: https://docs.spring.io/spring-boot/reference/using/auto-configuration.html
+- Spring Boot Externalized Configuration: https://docs.spring.io/spring-boot/reference/features/external-config.html
+- Spring Framework IoC Container: https://docs.spring.io/spring-framework/reference/core/beans.html
+- Spring Framework Transaction Management: https://docs.spring.io/spring-framework/reference/data-access/transaction.html
+- Spring Web MVC: https://docs.spring.io/spring-framework/reference/web/webmvc.html

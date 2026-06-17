@@ -39,6 +39,11 @@
 30. [PostgreSQL Features Worth Knowing](#30-postgresql-features-worth-knowing)
 31. [Final SQL Drill Bank](#31-final-sql-drill-bank)
 32. [One-Hour SQL Revision Plan](#32-one-hour-sql-revision-plan)
+33. [Wrong Query Clinic — Mistakes, Why Wrong, Correct Query](#33-wrong-query-clinic--mistakes-why-wrong-correct-query)
+34. [EXPLAIN ANALYZE Walkthroughs](#34-explain-analyze-walkthroughs)
+35. [Schema Design Mini-Cases](#35-schema-design-mini-cases)
+36. [MAANG-Style SQL Capstone Problems](#36-maang-style-sql-capstone-problems)
+37. [Final Master Checklist](#37-final-master-checklist)
 
 ---
 
@@ -62,6 +67,58 @@ Use this section as the first and last revision pass before any SQL interview.
 | Normalization | Medium-high | Schema design fundamentals |
 | DML: INSERT/UPDATE/DELETE/UPSERT | Medium-high | Practical backend SQL |
 | PostgreSQL-specific features | Medium | Useful because JD mentions PostgreSQL |
+
+## How To Use This Guide By Level
+
+This file is intentionally large. Do not try to memorize it line by line on the first pass.
+Use it differently depending on your current level.
+
+| Level | What to focus on first | What to skip temporarily | When you are ready for the next level |
+|---|---|---|---|
+| Beginner | execution order, `WHERE`, `JOIN`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT` | deep indexing, isolation levels, advanced capstones | you can explain what one output row represents before writing SQL |
+| Intermediate | window functions, CTEs, subqueries, `EXISTS`, NULL traps, interview query patterns | advanced PostgreSQL internals | you can solve top-N, latest-row, duplicate, running-total, and missing-relationship queries |
+| Pro backend | indexes, sargability, `EXPLAIN ANALYZE`, transactions, locking, idempotent inserts | only database-internals trivia | you can debug slow queries and defend database constraints under concurrency |
+| MAANG-style | query decomposition, trade-offs, correctness under race conditions, schema design, capstones | memorizing syntax without reasoning | you can discuss grain, correctness, performance, and operational risk in one answer |
+
+Recommended study loop:
+
+```text
+Read concept → write query without looking → explain grain → explain execution order
+→ explain index/transaction impact → rewrite once for clarity/performance.
+```
+
+## What Makes A SQL Answer Senior
+
+A strong SQL interview answer has five parts:
+
+```text
+1. Grain:
+   "The output should be one row per customer per month."
+
+2. Data path:
+   "I start from orders because orders define revenue."
+
+3. Correctness:
+   "I use LEFT JOIN because customers with no orders must still appear."
+
+4. Query shape:
+   "I aggregate monthly revenue first, then use LAG to compare with previous month."
+
+5. Performance:
+   "For production, I would index customer_id and order_date, and validate with EXPLAIN ANALYZE."
+```
+
+If you say these five things before or while writing SQL, you sound controlled and practical.
+
+## Active Study Rules
+
+- Never just read SQL. Type it.
+- For every query, say the output grain out loud.
+- For every join, say whether unmatched rows should survive.
+- For every aggregation, say whether you need `WHERE`, `HAVING`, or both.
+- For every window function, say whether rows should stay uncollapsed.
+- For every slow query, first reduce rows, then check indexes.
+- For every concurrent workflow, ask: "What protects correctness if two requests happen at the same time?"
 
 ## The Query-Solving Framework
 
@@ -311,10 +368,11 @@ WHERE department = 'Sales' OR department = 'HR' -- logical OR
 ## The Critical NULL Rule
 
 ```text
-NULL = NULL   → FALSE (not TRUE!)
-NULL != NULL  → FALSE
-NULL > 5      → NULL (unknown)
+NULL = NULL   → UNKNOWN (not TRUE)
+NULL != NULL  → UNKNOWN
+NULL > 5      → UNKNOWN
 
+In a WHERE filter, only TRUE passes. FALSE and UNKNOWN are both filtered out.
 That is why you must use IS NULL and IS NOT NULL, never = NULL.
 ```
 
@@ -3138,6 +3196,1293 @@ Must say:
 For concurrency-sensitive flows, I do not rely only on application checks. I use database
 transactions, constraints, appropriate locking or optimistic version checks, and retry logic
 where needed.
+```
+
+---
+
+# 33. Wrong Query Clinic — Mistakes, Why Wrong, Correct Query
+
+This section trains interview instincts. Many candidates know syntax but lose points because
+their query is subtly wrong under NULLs, joins, duplicates, ties, or concurrency.
+
+The pattern:
+
+```text
+Wrong query → why it is wrong → corrected query → interview line.
+```
+
+## 33.1 Aggregate In WHERE
+
+Question:
+
+```text
+Find departments with more than 2 employees.
+```
+
+Wrong:
+
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+WHERE COUNT(*) > 2
+GROUP BY department;
+```
+
+Why wrong:
+
+```text
+WHERE runs before GROUP BY. At WHERE time, COUNT(*) does not exist yet.
+```
+
+Correct:
+
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 2;
+```
+
+Interview line:
+
+```text
+Row-level filters go in WHERE. Aggregate/group filters go in HAVING.
+```
+
+## 33.2 LEFT JOIN Accidentally Turned Into INNER JOIN
+
+Question:
+
+```text
+Find all customers and their completed orders if any.
+Customers without completed orders should still appear.
+```
+
+Wrong:
+
+```sql
+SELECT c.id, c.name, o.id AS order_id
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.status = 'completed';
+```
+
+Why wrong:
+
+```text
+The WHERE condition removes rows where o.status is NULL.
+That means customers without orders disappear.
+The LEFT JOIN effectively became an INNER JOIN.
+```
+
+Correct:
+
+```sql
+SELECT c.id, c.name, o.id AS order_id
+FROM customers c
+LEFT JOIN orders o
+    ON o.customer_id = c.id
+   AND o.status = 'completed';
+```
+
+Interview line:
+
+```text
+If I need unmatched left-side rows to survive, filters on the right table often belong in
+the JOIN condition, not WHERE.
+```
+
+## 33.3 NOT IN With NULL
+
+Question:
+
+```text
+Find customers who never ordered.
+```
+
+Dangerous:
+
+```sql
+SELECT *
+FROM customers
+WHERE id NOT IN (SELECT customer_id FROM orders);
+```
+
+Why dangerous:
+
+```text
+If the subquery returns even one NULL customer_id, NOT IN can return no rows because
+comparison with NULL becomes UNKNOWN.
+```
+
+Safer:
+
+```sql
+SELECT c.*
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM orders o
+    WHERE o.customer_id = c.id
+);
+```
+
+Also acceptable if NULLs are explicitly removed:
+
+```sql
+SELECT *
+FROM customers
+WHERE id NOT IN (
+    SELECT customer_id
+    FROM orders
+    WHERE customer_id IS NOT NULL
+);
+```
+
+Interview line:
+
+```text
+For anti-joins, I usually prefer NOT EXISTS because it handles NULLs safely.
+```
+
+## 33.4 Join Multiplication Before Aggregation
+
+Question:
+
+```text
+Find total revenue per customer.
+```
+
+Risky if the query joins many one-to-many tables:
+
+```sql
+SELECT c.id, c.name, SUM(o.amount) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id, c.name;
+```
+
+Why wrong:
+
+```text
+If each order has multiple order_items, the order row is repeated once per item.
+SUM(o.amount) becomes inflated.
+```
+
+Correct option 1: aggregate from the right grain.
+
+```sql
+SELECT c.id, c.name, SUM(oi.quantity * oi.unit_price) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id, c.name;
+```
+
+Correct option 2: pre-aggregate orders before joining to other one-to-many tables.
+
+```sql
+WITH order_revenue AS (
+    SELECT customer_id, SUM(amount) AS revenue
+    FROM orders
+    GROUP BY customer_id
+)
+SELECT c.id, c.name, COALESCE(orv.revenue, 0) AS revenue
+FROM customers c
+LEFT JOIN order_revenue orv ON orv.customer_id = c.id;
+```
+
+Interview line:
+
+```text
+Before aggregating, I check whether joins change the row grain. One-to-many joins can
+multiply rows and inflate sums.
+```
+
+## 33.5 Top N Per Group Using Global LIMIT
+
+Question:
+
+```text
+Find top 3 employees per department by salary.
+```
+
+Wrong:
+
+```sql
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 3;
+```
+
+Why wrong:
+
+```text
+This returns top 3 employees globally, not top 3 inside each department.
+```
+
+Correct:
+
+```sql
+WITH ranked AS (
+    SELECT e.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC, id ASC
+           ) AS rn
+    FROM employees e
+)
+SELECT *
+FROM ranked
+WHERE rn <= 3;
+```
+
+Interview line:
+
+```text
+Top N per group needs a window function with PARTITION BY, not a global LIMIT.
+```
+
+## 33.6 Latest Row Per Group Without Tie-Breaker
+
+Question:
+
+```text
+Find the latest order per customer.
+```
+
+Almost correct:
+
+```sql
+WITH ranked AS (
+    SELECT o.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY customer_id
+               ORDER BY order_date DESC
+           ) AS rn
+    FROM orders o
+)
+SELECT *
+FROM ranked
+WHERE rn = 1;
+```
+
+What can go wrong:
+
+```text
+If two orders have the same order_date, the database can choose either one unless the
+ORDER BY is deterministic.
+```
+
+Better:
+
+```sql
+WITH ranked AS (
+    SELECT o.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY customer_id
+               ORDER BY order_date DESC, id DESC
+           ) AS rn
+    FROM orders o
+)
+SELECT *
+FROM ranked
+WHERE rn = 1;
+```
+
+Interview line:
+
+```text
+For latest-row queries, I include a stable tie-breaker such as id DESC.
+```
+
+## 33.7 Deep Pagination With OFFSET
+
+Problem:
+
+```sql
+SELECT *
+FROM orders
+ORDER BY order_date DESC
+LIMIT 20 OFFSET 100000;
+```
+
+Why bad:
+
+```text
+The database still walks many rows before returning the page. Large OFFSET gets slower
+as the page number grows.
+```
+
+Better cursor pagination:
+
+```sql
+SELECT *
+FROM orders
+WHERE (order_date, id) < (:last_order_date, :last_id)
+ORDER BY order_date DESC, id DESC
+LIMIT 20;
+```
+
+Index:
+
+```sql
+CREATE INDEX idx_orders_order_date_id
+ON orders(order_date DESC, id DESC);
+```
+
+Interview line:
+
+```text
+For deep pagination in APIs, I prefer cursor/keyset pagination over OFFSET.
+```
+
+## 33.8 Non-Sargable Predicate
+
+Problem:
+
+```sql
+SELECT *
+FROM orders
+WHERE EXTRACT(YEAR FROM order_date) = 2026;
+```
+
+Why bad:
+
+```text
+Applying a function to the indexed column can prevent normal index usage.
+```
+
+Better:
+
+```sql
+SELECT *
+FROM orders
+WHERE order_date >= DATE '2026-01-01'
+  AND order_date <  DATE '2027-01-01';
+```
+
+Index:
+
+```sql
+CREATE INDEX idx_orders_order_date
+ON orders(order_date);
+```
+
+Interview line:
+
+```text
+Keep predicates sargable: compare the raw indexed column to computed constants.
+```
+
+## 33.9 COUNT(column) When You Mean COUNT(*)
+
+Question:
+
+```text
+How many employees are there?
+```
+
+Risky:
+
+```sql
+SELECT COUNT(manager_id)
+FROM employees;
+```
+
+Why wrong:
+
+```text
+COUNT(manager_id) skips NULL manager_id values. Employees without managers are not counted.
+```
+
+Correct:
+
+```sql
+SELECT COUNT(*)
+FROM employees;
+```
+
+Interview line:
+
+```text
+COUNT(*) counts rows. COUNT(column) counts non-NULL values in that column.
+```
+
+## 33.10 Application-Only Uniqueness Check
+
+Problem:
+
+```text
+Before creating a customer, application checks whether email already exists.
+```
+
+Race:
+
+```text
+Request A checks email: not found.
+Request B checks email: not found.
+Both insert.
+Duplicate email exists.
+```
+
+Correct protection:
+
+```sql
+CREATE UNIQUE INDEX uk_customers_email
+ON customers(email);
+```
+
+Then:
+
+```sql
+INSERT INTO customers(email, name)
+VALUES (:email, :name)
+ON CONFLICT (email)
+DO UPDATE SET name = EXCLUDED.name;
+```
+
+Interview line:
+
+```text
+Application validation is for user experience. Database constraints protect correctness
+under concurrency.
+```
+
+---
+
+# 34. EXPLAIN ANALYZE Walkthroughs
+
+This is how you sound practical when the interviewer asks:
+
+```text
+This query is slow. What do you do?
+```
+
+Senior answer:
+
+```text
+I do not guess. I run EXPLAIN ANALYZE, inspect scan type, row estimates vs actual rows,
+join strategy, sort/hash operations, and whether predicates can use indexes. Then I change
+one thing at a time and re-measure.
+```
+
+## 34.1 Walkthrough 1: Customer Orders API Is Slow
+
+Query:
+
+```sql
+SELECT id, customer_id, amount, status, order_date
+FROM orders
+WHERE customer_id = 42
+ORDER BY order_date DESC
+LIMIT 20;
+```
+
+Bad plan shape:
+
+```text
+Seq Scan on orders
+  Filter: customer_id = 42
+Sort by order_date DESC
+Limit 20
+```
+
+What it means:
+
+```text
+The database scans many/all orders, filters customer_id, then sorts matching rows.
+For a large orders table, this is wasteful.
+```
+
+Index:
+
+```sql
+CREATE INDEX idx_orders_customer_date
+ON orders(customer_id, order_date DESC);
+```
+
+Expected better plan shape:
+
+```text
+Index Scan using idx_orders_customer_date
+  Index Cond: customer_id = 42
+Limit 20
+```
+
+Why this index works:
+
+```text
+customer_id handles the equality filter.
+order_date DESC already provides the desired order for that customer's rows.
+```
+
+Interview line:
+
+```text
+I match the composite index to the query shape: equality filter first, then sort/range column.
+```
+
+## 34.2 Walkthrough 2: Monthly Revenue Query Is Slow
+
+Query:
+
+```sql
+SELECT DATE_TRUNC('month', order_date) AS month,
+       SUM(amount) AS revenue
+FROM orders
+WHERE status = 'completed'
+GROUP BY DATE_TRUNC('month', order_date)
+ORDER BY month;
+```
+
+Possible issue:
+
+```text
+If the completed orders table is huge, grouping all history is expensive.
+```
+
+First improvement: bound the time range.
+
+```sql
+SELECT DATE_TRUNC('month', order_date) AS month,
+       SUM(amount) AS revenue
+FROM orders
+WHERE status = 'completed'
+  AND order_date >= DATE '2026-01-01'
+  AND order_date <  DATE '2027-01-01'
+GROUP BY DATE_TRUNC('month', order_date)
+ORDER BY month;
+```
+
+Index option:
+
+```sql
+CREATE INDEX idx_orders_completed_date
+ON orders(order_date)
+WHERE status = 'completed';
+```
+
+Why partial index helps:
+
+```text
+If most queries only care about completed orders, the index stores only that subset.
+It is smaller and faster than indexing all orders.
+```
+
+For dashboard scale:
+
+```text
+If this query is hit frequently, consider a daily/monthly revenue summary table updated
+by batch or stream processing instead of aggregating raw orders every time.
+```
+
+Interview line:
+
+```text
+For analytics dashboards, I first optimize the raw query, then consider pre-aggregation
+if the same expensive aggregation is repeatedly requested.
+```
+
+## 34.3 Walkthrough 3: Join Query Explodes
+
+Query:
+
+```sql
+SELECT c.id, c.name, COUNT(*) AS row_count
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id, c.name;
+```
+
+Problem:
+
+```text
+The result counts order_items, not orders or customers.
+The join changes the grain to one row per order item.
+```
+
+If requirement is order count:
+
+```sql
+SELECT c.id, c.name, COUNT(DISTINCT o.id) AS order_count
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id, c.name;
+```
+
+Better if order_items are unnecessary:
+
+```sql
+SELECT c.id, c.name, COUNT(o.id) AS order_count
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+GROUP BY c.id, c.name;
+```
+
+If requirement is revenue:
+
+```sql
+SELECT c.id, c.name, SUM(oi.quantity * oi.unit_price) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+GROUP BY c.id, c.name;
+```
+
+Interview line:
+
+```text
+Before optimizing a join, I verify the grain. A fast wrong query is still wrong.
+```
+
+## 34.4 EXPLAIN Red Flags
+
+| Red flag | What it often means | First thing to check |
+|---|---|---|
+| Seq Scan on huge table | missing/unusable index | predicate and index |
+| rows estimate far from actual | stale stats or skewed data | ANALYZE/statistics |
+| Sort on huge result | missing sort-supporting index | ORDER BY/index |
+| Nested Loop with huge outer rows | bad join strategy or missing index | join cardinality/index |
+| HashAggregate memory spill | large grouping | pre-aggregate/filter/work_mem |
+| Filter after scan removes most rows | predicate not used as index condition | sargability/index |
+
+EXPLAIN answer template:
+
+```text
+I see a sequential scan over a large table and a sort after filtering. I would add a composite
+index that matches the equality filter and ordering, rerun EXPLAIN ANALYZE, and confirm the
+plan changed to an index scan with fewer rows read.
+```
+
+---
+
+# 35. Schema Design Mini-Cases
+
+SQL interviews are not only query writing. Backend interviews often ask:
+
+```text
+How would you model this data?
+What constraints protect correctness?
+What indexes support the APIs?
+```
+
+## 35.1 E-Commerce Orders
+
+Core tables:
+
+```sql
+CREATE TABLE customers (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE orders (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    customer_id BIGINT NOT NULL REFERENCES customers(id),
+    status TEXT NOT NULL,
+    total_amount NUMERIC(12,2) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE TABLE order_items (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id),
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    unit_price NUMERIC(12,2) NOT NULL
+);
+```
+
+Useful indexes:
+
+```sql
+CREATE INDEX idx_orders_customer_created
+ON orders(customer_id, created_at DESC);
+
+CREATE INDEX idx_order_items_order
+ON order_items(order_id);
+```
+
+Design notes:
+
+- `orders` is one row per order.
+- `order_items` is one row per product inside an order.
+- Store `unit_price` on `order_items` because product price may change later.
+- Use status transitions carefully: `created -> paid -> shipped -> delivered/cancelled`.
+
+Interview line:
+
+```text
+I snapshot price into order_items so historical orders remain correct even if product pricing changes.
+```
+
+## 35.2 Hotel Booking Availability
+
+Core tables:
+
+```sql
+CREATE TABLE rooms (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    hotel_id BIGINT NOT NULL,
+    room_number TEXT NOT NULL,
+    UNIQUE (hotel_id, room_number)
+);
+
+CREATE TABLE bookings (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    room_id BIGINT NOT NULL REFERENCES rooms(id),
+    user_id BIGINT NOT NULL,
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
+    status TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    CHECK (check_in < check_out)
+);
+```
+
+Overlap query:
+
+```sql
+SELECT 1
+FROM bookings
+WHERE room_id = :room_id
+  AND check_in < :requested_check_out
+  AND check_out > :requested_check_in
+  AND status IN ('HELD', 'CONFIRMED');
+```
+
+Useful index:
+
+```sql
+CREATE INDEX idx_bookings_room_dates
+ON bookings(room_id, check_in, check_out);
+```
+
+Correctness note:
+
+```text
+The overlap check and insert must happen inside a transaction with appropriate locking
+or a database-level constraint. Otherwise two users can book the same room concurrently.
+```
+
+Interview line:
+
+```text
+For booking systems, database-level correctness matters more than application-only checks.
+```
+
+## 35.3 Audit Log / Status History
+
+Use case:
+
+```text
+Track every order status change.
+```
+
+Schema:
+
+```sql
+CREATE TABLE order_status_history (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id),
+    old_status TEXT,
+    new_status TEXT NOT NULL,
+    changed_by TEXT NOT NULL,
+    changed_at TIMESTAMP NOT NULL DEFAULT now()
+);
+```
+
+Index:
+
+```sql
+CREATE INDEX idx_order_status_history_order_time
+ON order_status_history(order_id, changed_at DESC, id DESC);
+```
+
+Latest status pattern:
+
+```sql
+WITH ranked AS (
+    SELECT h.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY order_id
+               ORDER BY changed_at DESC, id DESC
+           ) AS rn
+    FROM order_status_history h
+)
+SELECT *
+FROM ranked
+WHERE rn = 1;
+```
+
+Interview line:
+
+```text
+For auditability, I append status changes instead of overwriting history.
+```
+
+## 35.4 Idempotency Table For Backend APIs
+
+Use case:
+
+```text
+Client retries payment or booking request. We must not process it twice.
+```
+
+Schema:
+
+```sql
+CREATE TABLE idempotency_keys (
+    key TEXT PRIMARY KEY,
+    request_hash TEXT NOT NULL,
+    response_body JSONB,
+    status TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    expires_at TIMESTAMP NOT NULL
+);
+```
+
+Flow:
+
+```text
+1. Insert key at request start.
+2. If conflict, fetch existing row.
+3. If request_hash differs, reject.
+4. If same request, return stored response or current status.
+```
+
+Interview line:
+
+```text
+Idempotency is usually a unique key plus stored request/response metadata.
+```
+
+## 35.5 Analytics Star Schema
+
+Use case:
+
+```text
+Business wants revenue by date, product category, and customer city.
+```
+
+Fact table:
+
+```sql
+CREATE TABLE fact_order_item_sales (
+    order_item_id BIGINT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    customer_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    date_id INT NOT NULL,
+    quantity INT NOT NULL,
+    gross_amount NUMERIC(12,2) NOT NULL
+);
+```
+
+Dimensions:
+
+```text
+dim_date(date_id, date, month, quarter, year)
+dim_customer(customer_id, city, segment)
+dim_product(product_id, category, brand)
+```
+
+Interview line:
+
+```text
+OLTP schemas optimize transactions. Star schemas optimize analytical reads and dashboard queries.
+```
+
+---
+
+# 36. MAANG-Style SQL Capstone Problems
+
+These problems combine grain, joins, windows, CTEs, performance, and correctness.
+
+For each capstone, use this answer shape:
+
+```text
+1. State the output grain.
+2. Pick the source table that defines that grain.
+3. Join only what is needed.
+4. Use CTEs to name steps.
+5. Use window functions when rows must stay uncollapsed.
+6. Mention indexes or constraints.
+```
+
+## 36.1 Top 3 Products By Revenue Per Category In Last 30 Days
+
+Output grain:
+
+```text
+One row per product within category rank.
+```
+
+Query:
+
+```sql
+WITH product_revenue AS (
+    SELECT
+        p.category,
+        p.id AS product_id,
+        p.name AS product_name,
+        SUM(oi.quantity * oi.unit_price) AS revenue
+    FROM order_items oi
+    JOIN orders o ON o.id = oi.order_id
+    JOIN products p ON p.id = oi.product_id
+    WHERE o.status = 'completed'
+      AND o.order_date >= CURRENT_DATE - INTERVAL '30 days'
+    GROUP BY p.category, p.id, p.name
+),
+ranked AS (
+    SELECT *,
+           DENSE_RANK() OVER (
+               PARTITION BY category
+               ORDER BY revenue DESC, product_id ASC
+           ) AS rnk
+    FROM product_revenue
+)
+SELECT category, product_id, product_name, revenue, rnk
+FROM ranked
+WHERE rnk <= 3
+ORDER BY category, rnk, product_id;
+```
+
+Index thoughts:
+
+```sql
+CREATE INDEX idx_orders_status_date
+ON orders(status, order_date);
+
+CREATE INDEX idx_order_items_order_product
+ON order_items(order_id, product_id);
+```
+
+Interview line:
+
+```text
+I aggregate revenue at product-category grain first, then rank within each category.
+```
+
+## 36.2 Monthly Customer Retention
+
+Question:
+
+```text
+Find customers who ordered in January and also ordered in February.
+```
+
+Output grain:
+
+```text
+One row per retained customer.
+```
+
+Query:
+
+```sql
+WITH jan_customers AS (
+    SELECT DISTINCT customer_id
+    FROM orders
+    WHERE order_date >= DATE '2026-01-01'
+      AND order_date <  DATE '2026-02-01'
+      AND status = 'completed'
+),
+feb_customers AS (
+    SELECT DISTINCT customer_id
+    FROM orders
+    WHERE order_date >= DATE '2026-02-01'
+      AND order_date <  DATE '2026-03-01'
+      AND status = 'completed'
+)
+SELECT j.customer_id
+FROM jan_customers j
+JOIN feb_customers f ON f.customer_id = j.customer_id;
+```
+
+Retention count:
+
+```sql
+WITH monthly AS (
+    SELECT DISTINCT
+        customer_id,
+        DATE_TRUNC('month', order_date)::DATE AS month
+    FROM orders
+    WHERE status = 'completed'
+),
+pairs AS (
+    SELECT
+        current_month.month,
+        current_month.customer_id
+    FROM monthly current_month
+    JOIN monthly next_month
+      ON next_month.customer_id = current_month.customer_id
+     AND next_month.month = (current_month.month + INTERVAL '1 month')::DATE
+)
+SELECT month, COUNT(*) AS retained_customers
+FROM pairs
+GROUP BY month
+ORDER BY month;
+```
+
+Interview line:
+
+```text
+Retention is usually a self-join over user activity by time bucket.
+```
+
+## 36.3 Latest Order Status Per Order
+
+Schema:
+
+```text
+order_status_history(order_id, status, changed_at, id)
+```
+
+Query:
+
+```sql
+WITH ranked AS (
+    SELECT h.*,
+           ROW_NUMBER() OVER (
+               PARTITION BY order_id
+               ORDER BY changed_at DESC, id DESC
+           ) AS rn
+    FROM order_status_history h
+)
+SELECT order_id, status, changed_at
+FROM ranked
+WHERE rn = 1;
+```
+
+PostgreSQL-specific alternative:
+
+```sql
+SELECT DISTINCT ON (order_id)
+       order_id, status, changed_at
+FROM order_status_history
+ORDER BY order_id, changed_at DESC, id DESC;
+```
+
+Index:
+
+```sql
+CREATE INDEX idx_status_history_order_changed
+ON order_status_history(order_id, changed_at DESC, id DESC);
+```
+
+Interview line:
+
+```text
+ROW_NUMBER is portable. DISTINCT ON is concise in PostgreSQL.
+```
+
+## 36.4 Prevent Double Booking
+
+Question:
+
+```text
+Two users try to book the same room for overlapping dates. How do you prevent this?
+```
+
+Strong transaction answer:
+
+```sql
+BEGIN;
+
+SELECT id
+FROM rooms
+WHERE id = :room_id
+FOR UPDATE;
+
+SELECT 1
+FROM bookings
+WHERE room_id = :room_id
+  AND check_in < :requested_check_out
+  AND check_out > :requested_check_in
+  AND status IN ('HELD', 'CONFIRMED');
+
+-- If no overlap exists:
+INSERT INTO bookings(room_id, user_id, check_in, check_out, status)
+VALUES (:room_id, :user_id, :requested_check_in, :requested_check_out, 'CONFIRMED');
+
+COMMIT;
+```
+
+Interview line:
+
+```text
+I lock the room or availability row so two transactions cannot both pass the overlap check.
+For PostgreSQL, I would also consider an exclusion constraint for date-range overlap.
+```
+
+## 36.5 Payment Idempotency
+
+Question:
+
+```text
+A payment API request times out and the client retries. How do we prevent double charge?
+```
+
+Schema idea:
+
+```sql
+CREATE TABLE payments (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    idempotency_key TEXT NOT NULL UNIQUE,
+    order_id BIGINT NOT NULL,
+    amount NUMERIC(12,2) NOT NULL,
+    status TEXT NOT NULL,
+    provider_reference TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+```
+
+Insert pattern:
+
+```sql
+INSERT INTO payments(idempotency_key, order_id, amount, status)
+VALUES (:key, :order_id, :amount, 'INITIATED')
+ON CONFLICT (idempotency_key)
+DO NOTHING;
+```
+
+Then:
+
+```sql
+SELECT *
+FROM payments
+WHERE idempotency_key = :key;
+```
+
+Interview line:
+
+```text
+The unique idempotency key ensures repeated requests map to one payment record.
+The application can return the existing payment state instead of creating a new charge.
+```
+
+## 36.6 Customer Whose Current Month Spend Is Above Their Own Average
+
+Output grain:
+
+```text
+One row per customer per month where monthly spend is above that customer's average monthly spend.
+```
+
+Query:
+
+```sql
+WITH monthly AS (
+    SELECT
+        customer_id,
+        DATE_TRUNC('month', order_date)::DATE AS month,
+        SUM(amount) AS monthly_spend
+    FROM orders
+    WHERE status = 'completed'
+    GROUP BY customer_id, DATE_TRUNC('month', order_date)::DATE
+),
+with_avg AS (
+    SELECT
+        customer_id,
+        month,
+        monthly_spend,
+        AVG(monthly_spend) OVER (PARTITION BY customer_id) AS avg_monthly_spend
+    FROM monthly
+)
+SELECT customer_id, month, monthly_spend, avg_monthly_spend
+FROM with_avg
+WHERE monthly_spend > avg_monthly_spend
+ORDER BY customer_id, month;
+```
+
+Interview line:
+
+```text
+I first aggregate to monthly grain, then use a window function to compare each month
+against the customer's own average without losing monthly rows.
+```
+
+---
+
+# 37. Final Master Checklist
+
+Use this as the final SQL readiness checklist.
+
+## Query Writing Checklist
+
+- Did I state the output grain?
+- Did I start from the table that defines that grain?
+- Did I choose the correct join type?
+- Did I avoid accidental row multiplication?
+- Did I put row filters in `WHERE`?
+- Did I put aggregate filters in `HAVING`?
+- Did I use window functions when rows should not collapse?
+- Did I handle NULLs intentionally?
+- Did I add deterministic tie-breakers for latest/top queries?
+
+## Performance Checklist
+
+- Am I reading fewer rows than necessary?
+- Are filters sargable?
+- Do joins use indexed keys?
+- Does `ORDER BY` match an index when needed?
+- Is deep pagination using cursor/keyset pagination?
+- Did I avoid `SELECT *` in production paths?
+- Did I validate with `EXPLAIN ANALYZE`?
+- Did I compare estimated rows vs actual rows?
+
+## Correctness Checklist
+
+- Are uniqueness rules enforced by database constraints?
+- Are multi-step writes inside a transaction?
+- Could concurrent requests race?
+- Do I need optimistic or pessimistic locking?
+- Is idempotency required for retries?
+- Do I need to retry deadlocks or serialization failures?
+- Are historical values snapshotted where business history matters?
+
+## PostgreSQL Checklist
+
+- Can `DISTINCT ON` simplify latest-row-per-group?
+- Can `FILTER` simplify conditional aggregation?
+- Can `RETURNING` avoid an extra round trip?
+- Can `ON CONFLICT` protect idempotent insert/upsert?
+- Would a partial index make a common filtered query faster?
+- Would a functional index help a deliberate function predicate?
+- Is JSONB appropriate, or should this be relational?
+
+## MAANG Interview Bar
+
+You are SQL-interview ready when you can do this without notes:
+
+```text
+1. Solve top-N-per-group with ROW_NUMBER.
+2. Solve latest-row-per-group with deterministic ordering.
+3. Explain WHERE vs HAVING and GROUP BY vs window functions.
+4. Explain INNER JOIN, LEFT JOIN, anti-join, and join multiplication.
+5. Debug a slow query with EXPLAIN ANALYZE.
+6. Design indexes for filters, joins, sorts, and pagination.
+7. Explain transactions, isolation anomalies, locks, and deadlocks.
+8. Prevent double booking or duplicate payment under concurrency.
+9. Map SQL patterns to backend APIs and Spring @Transactional.
+10. State trade-offs clearly instead of only writing syntax.
+```
+
+Final memory line:
+
+```text
+SQL mastery is grain + correctness + performance.
+Grain tells me what one row means.
+Correctness protects data under edge cases and concurrency.
+Performance makes the right answer fast enough for production.
 ```
 
 ---
