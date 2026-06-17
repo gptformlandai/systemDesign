@@ -1,5 +1,19 @@
 🏆 The Definitive MAANG System Design Master Canon
+
+📚 Organized Study Library
+    • [0. Core Foundations](00-Core-Foundations/README.md)
+    • [1. High-Level Design (HLD)](01-High-Level-Design-HLD/README.md)
+    • [2. Low-Level Design (LLD)](02-Low-Level-Design-LLD/README.md)
+    • [3. End-to-End System Design Practice](03-End-to-End-System-Design-Practice/README.md)
+    • [4. Architect-Level Thinking](04-Architect-Level-Thinking/README.md)
+    • [5. Interview Execution Framework](05-Interview-Execution-Framework/README.md)
+    • [6. Elite MAANG Appendices](06-Elite-MAANG-Appendices/README.md)
+    • [7. Staff / Principal-Level Additions](07-Staff-Principal-Level-Additions/README.md)
+    • [PDF exports](PDFs/README.md)
+    • [Utility scripts](scripts/README.md)
+
 0️⃣ Core Foundations (Non-Negotiable)
+    • [Core foundations notes](00-Core-Foundations/README.md)
 Computer Science Fundamentals
     • Time & space complexity (incl. amortized analysis)
     • Memory hierarchy (CPU cache → RAM → Disk/SSD)
@@ -19,6 +33,7 @@ Networking
     • Latency vs bandwidth
     • Connection pooling
 1️⃣ High-Level Design (HLD)
+    • [HLD mentorship tracks](01-High-Level-Design-HLD/README.md)
 1.1 Requirements & Estimation
     • Functional vs non-functional requirements   
     • Latency targets
@@ -81,12 +96,13 @@ Networking
     • Blue-green deployments
 1.10 Security
     • Authentication vs authorization
-    • OAuth / JWT (conceptual)
+    • OAuth / JWT 
     • Rate limiting
     • DDoS protection
     • Encryption in transit & at rest
     • Secrets management
 2️⃣ Low-Level Design (LLD)
+    • [LLD mentorship tracks](02-Low-Level-Design-LLD/README.md)
 2.1 Object-Oriented Design
     • SOLID principles (applied)
     • Encapsulation, abstraction
@@ -109,14 +125,73 @@ Networking
     • Profiling, Memory leaks, GC basics
     • Object lifecycle, Lazy loading, Batching
 3️⃣ End-to-End System Design Practice
-    • URL shortener
-    • News feed
-    • Chat system (WebSockets at scale)
-    • Notification system
-    • Payment workflow
-    • File storage system
+    • [Problem bank by category](03-End-to-End-System-Design-Practice/README.md)
+
+    Core Infrastructure
+    • [URL shortener](03-End-to-End-System-Design-Practice/01-Core-Infrastructure/URL-Shortener-End-to-End-System-Design.md)
+    • [API gateway](03-End-to-End-System-Design-Practice/01-Core-Infrastructure/API-Gateway-End-to-End-System-Design.md)
+    • [Notification system](03-End-to-End-System-Design-Practice/01-Core-Infrastructure/Notification-System-End-to-End-System-Design.md)
+
+    Caching Systems
+    • [LRU cache](03-End-to-End-System-Design-Practice/02-Caching-Systems/LRU-Cache-End-to-End-System-Design.md)
+    • [LFU cache](03-End-to-End-System-Design-Practice/02-Caching-Systems/LFU-Cache-End-to-End-System-Design.md)
+    • [CDN cache](03-End-to-End-System-Design-Practice/02-Caching-Systems/CDN-Cache-End-to-End-System-Design.md)
+    • [Distributed cache](03-End-to-End-System-Design-Practice/02-Caching-Systems/Distributed-Cache-End-to-End-System-Design.md)
+
+    Feeds / Social Systems
+    • [News feed](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/News-Feed-End-to-End-System-Design.md)
+    • [Instagram / Facebook feed](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/Instagram-Facebook-Feed-End-to-End-System-Design.md)
+    • [Twitter (X) feed](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/Twitter-X-Feed-End-to-End-System-Design.md)
+    • [TikTok video feed and recommendations](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/TikTok-Video-Feed-Recommendations-End-to-End-System-Design.md)
+    • [LinkedIn feed](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/LinkedIn-Feed-End-to-End-System-Design.md)
+    • [Reddit / discussion forum](03-End-to-End-System-Design-Practice/03-Feeds-Social-Systems/Reddit-Discussion-Forum-End-to-End-System-Design.md)
+
+    Media Streaming Systems
+    • [YouTube](03-End-to-End-System-Design-Practice/04-Media-Streaming-Systems/YouTube-End-to-End-System-Design.md)
+    • [Netflix](03-End-to-End-System-Design-Practice/04-Media-Streaming-Systems/Netflix-End-to-End-System-Design.md)
+    • [Spotify](03-End-to-End-System-Design-Practice/04-Media-Streaming-Systems/Spotify-End-to-End-System-Design.md)
+
+    Messaging / Realtime Systems
+    • [Chat system (WebSockets at scale)](03-End-to-End-System-Design-Practice/05-Messaging-Realtime-Systems/Chat-System-End-to-End-System-Design.md)
+    • [WhatsApp](03-End-to-End-System-Design-Practice/05-Messaging-Realtime-Systems/WhatsApp-End-to-End-System-Design.md)
+    • [Messenger](03-End-to-End-System-Design-Practice/05-Messaging-Realtime-Systems/Messenger-End-to-End-System-Design.md)
+    • [Slack](03-End-to-End-System-Design-Practice/05-Messaging-Realtime-Systems/Slack-End-to-End-System-Design.md)
+    • [Discord](03-End-to-End-System-Design-Practice/05-Messaging-Realtime-Systems/Discord-End-to-End-System-Design.md)
+
+    Transaction / Booking Systems
+    • [Uber / Ola](03-End-to-End-System-Design-Practice/06-Transaction-Booking-Systems/Uber-Ola-End-to-End-System-Design.md)
+    • [BookMyShow](03-End-to-End-System-Design-Practice/06-Transaction-Booking-Systems/BookMyShow-End-to-End-System-Design.md)
+    • [Airline booking system](03-End-to-End-System-Design-Practice/06-Transaction-Booking-Systems/Airline-Booking-System-End-to-End-System-Design.md)
+    • [Food delivery (Swiggy / Zomato)](03-End-to-End-System-Design-Practice/06-Transaction-Booking-Systems/Food-Delivery-Swiggy-Zomato-End-to-End-System-Design.md)
+
+    Storage / Database Systems
+    • [Dropbox / Google Drive](03-End-to-End-System-Design-Practice/07-Storage-Database-Systems/Dropbox-Google-Drive-End-to-End-System-Design.md)
+    • [File storage system](03-End-to-End-System-Design-Practice/07-Storage-Database-Systems/File-Storage-System-End-to-End-System-Design.md)
+    • [Key-value store (Redis-like)](03-End-to-End-System-Design-Practice/07-Storage-Database-Systems/Key-Value-Store-Redis-Like-End-to-End-System-Design.md)
+    • [Log storage system](03-End-to-End-System-Design-Practice/07-Storage-Database-Systems/Log-Storage-System-End-to-End-System-Design.md)
+
+    Concurrency / Machine Coding Classics
+    • [Rate limiter](03-End-to-End-System-Design-Practice/08-Concurrency-Machine-Coding-Classics/Rate-Limiter-End-to-End-System-Design.md)
+    • [Producer-Consumer](03-End-to-End-System-Design-Practice/08-Concurrency-Machine-Coding-Classics/Producer-Consumer-End-to-End-System-Design.md)
+    • [Thread pool](03-End-to-End-System-Design-Practice/08-Concurrency-Machine-Coding-Classics/Thread-Pool-End-to-End-System-Design.md)
+    • [Blocking queue](03-End-to-End-System-Design-Practice/08-Concurrency-Machine-Coding-Classics/Blocking-Queue-End-to-End-System-Design.md)
+    • [Logger system](03-End-to-End-System-Design-Practice/08-Concurrency-Machine-Coding-Classics/Logger-System-End-to-End-System-Design.md)
+
+    E-Commerce / Product Systems
+    • [Amazon e-commerce system](03-End-to-End-System-Design-Practice/09-Ecommerce-Product-Systems/Amazon-E-Commerce-System-End-to-End-System-Design.md)
+    • [Shopping cart](03-End-to-End-System-Design-Practice/09-Ecommerce-Product-Systems/Shopping-Cart-End-to-End-System-Design.md)
+    • [Payment system](03-End-to-End-System-Design-Practice/09-Ecommerce-Product-Systems/Payment-System-End-to-End-System-Design.md)
+    • [Coupon / discount engine](03-End-to-End-System-Design-Practice/09-Ecommerce-Product-Systems/Coupon-Discount-Engine-End-to-End-System-Design.md)
+    • [Payment workflow](03-End-to-End-System-Design-Practice/09-Ecommerce-Product-Systems/Payment-Workflow-End-to-End-System-Design.md)
+
+    Graph / Search / Recommendation Systems
+    • [Search autocomplete](03-End-to-End-System-Design-Practice/10-Graph-Search-Recommendation-Systems/Search-Autocomplete-End-to-End-System-Design.md)
+    • [Google Search](03-End-to-End-System-Design-Practice/10-Graph-Search-Recommendation-Systems/Google-Search-End-to-End-System-Design.md)
+    • [Search engine (ElasticSearch-like)](03-End-to-End-System-Design-Practice/10-Graph-Search-Recommendation-Systems/Search-Engine-ElasticSearch-Like-End-to-End-System-Design.md)
+    • [Recommendation system](03-End-to-End-System-Design-Practice/10-Graph-Search-Recommendation-Systems/Recommendation-System-End-to-End-System-Design.md)
     • For each: APIs, Data model, Caching, Scaling, Failures, Trade-offs
 4️⃣ Architect-Level Thinking (The Real Differentiator)
+    • [Architect-level thinking track](04-Architect-Level-Thinking/README.md)
     • Latency vs consistency
     • Cost vs reliability
     • Simplicity vs extensibility
@@ -127,15 +202,18 @@ Networking
     • Failure-first design
     • Rollbacks & recovery
 5️⃣ Interview Execution Framework
+    • [Interview execution guide](05-Interview-Execution-Framework/README.md)
     • HLD Flow: Clarify requirements, Define assumptions, Estimate scale, Define APIs, Design data model, High-level architecture, Bottlenecks, Failure handling, Trade-offs
     • LLD Flow: Clarify use cases, Identify entities, Design classes, Define relationships, Handle concurrency, Ensure extensibility
 🌟 6️⃣️⃣ Elite MAANG Appendices
+    • [Elite MAANG appendices track](06-Elite-MAANG-Appendices/README.md)
     • 6.1 Advanced Distributed Data & Engines: LSM-Trees vs B-Trees, SSTables & Memtables, Compaction strategies, Online schema changes at scale
     • 6.2 Time & Ordering in Distributed Systems: Clock drift, Lamport clocks, Vector clocks, TrueTime
     • 6.3 Advanced Networking & Infrastructure: TCP BBR vs Cubic, Anycast & BGP, Edge computing, Service mesh concepts, Sidecar pattern, Control plane vs data plane
     • 6.4 Probabilistic & Specialized Data Structures: Bloom filters, HyperLogLog, Quad-trees, Geohashing
     • 6.5 High-Scale Data Engineering: Batch vs stream processing, Change Data Capture (CDC), Backpressure & load shedding
 🆕 7️⃣️⃣ Staff / Principal-Level Additions
+    • [Staff / principal-level additions track](07-Staff-Principal-Level-Additions/README.md)
     • 7.1 Edge, Gateway & Traffic Management: API gateways, Global load balancing, Request shaping, Throttling, WAF concepts, Edge authentication, Multi-layer rate limiting
     • 7.2 Multi-Region & Disaster Recovery: Active-active vs active-passive, RPO & RTO, Cross-region replication lag, Geo-fencing & data residency, Region failover strategies, Split-brain avoidance
     • 7.3 Data Lifecycle & Storage Economics: Hot / warm / cold storage tiers, Tiered storage policies, Archival pipelines, Data retention strategies, GDPR-style deletions, Cost-aware storage design
