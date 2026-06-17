@@ -2,6 +2,8 @@
 
 > Goal: remove the confusion around `producer -> topic -> partitions -> consumer groups -> consumers` and reach senior-architect clarity.
 
+> Kafka track map: start here, then continue with [Kafka Interview Track Index](Kafka-Interview-Track-Index.md) for broker internals, delivery guarantees, transactions, schema design, topic design, Streams, Connect, operations, security, and FAANG scenario drills.
+
 ---
 
 ## The One Mental Model
