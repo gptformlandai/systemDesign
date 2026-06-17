@@ -700,3 +700,457 @@ streaming, and workflow orchestration so each failure mode stays explicit
 and manageable.
 ```
 
+---
+
+# 16. Real-World Console Runbook: Security + Messaging + Integration
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section turns the concepts into practical production actions.
+
+---
+
+## 16.1 IAM Role For An Application
+
+Console path:
+
+```text
+AWS Console -> Search "IAM" -> Roles -> Create role
+```
+
+Important clicks:
+
+```text
+Trusted entity:
+  who can assume this role. Example: EC2, ECS tasks, Lambda, EKS OIDC provider.
+
+Permissions policy:
+  what the role can do.
+
+Tags:
+  owner, app, environment, cost center.
+```
+
+Production example:
+
+```text
+ECS backend task role:
+  allow s3:GetObject/PutObject only on uploads bucket
+  allow secretsmanager:GetSecretValue only on app secrets
+  allow sqs:SendMessage only to app queue
+```
+
+Common mistake:
+
+```text
+Attach AdministratorAccess because the app "needs AWS."
+```
+
+Better:
+
+```text
+Start least privilege.
+Use Access Analyzer / CloudTrail to refine.
+```
+
+---
+
+## 16.2 KMS Key For Application Data
+
+Console path:
+
+```text
+AWS Console -> Search "KMS" -> Customer managed keys -> Create key
+```
+
+Important clicks:
+
+```text
+Key type:
+  symmetric for most encryption use cases.
+
+Alias:
+  human-readable key name like alias/orders-prod.
+
+Key administrators:
+  who can manage the key.
+
+Key users:
+  which roles can encrypt/decrypt.
+
+Rotation:
+  automatic key rotation where appropriate.
+```
+
+Impact:
+
+```text
+S3, RDS, EBS, Secrets Manager, and application encryption can use the key.
+KMS usage is visible in CloudTrail.
+```
+
+Common mistake:
+
+```text
+Allowing "*" key usage or locking out admins with a bad key policy.
+```
+
+---
+
+## 16.3 Secrets Manager
+
+Console path:
+
+```text
+AWS Console -> Search "Secrets Manager" -> Store a new secret
+```
+
+Important clicks:
+
+```text
+Secret type:
+  database credentials, API key, custom secret.
+
+KMS key:
+  encryption key.
+
+Secret name:
+  stable path such as /prod/orders/db.
+
+Rotation:
+  automatic rotation where supported.
+
+Resource permissions:
+  which IAM roles can read it.
+```
+
+Production check:
+
+```text
+No secrets in Git.
+No secrets in Docker image.
+No secrets in plain logs.
+Only app role can read app secret.
+Rotation tested before enabling.
+```
+
+---
+
+## 16.4 Cognito For User Login
+
+Console path:
+
+```text
+AWS Console -> Search "Cognito" -> User pools -> Create user pool
+```
+
+Important clicks:
+
+```text
+Sign-in options:
+  email, username, phone, federated identity.
+
+Password policy / MFA:
+  user authentication strength.
+
+App client:
+  application identity used by frontend/backend.
+
+Hosted UI / domain:
+  optional managed login UI.
+
+Token settings:
+  access/ID/refresh token behavior.
+```
+
+Spring Boot impact:
+
+```text
+Backend validates JWT from Cognito issuer/JWKS.
+Authorization still belongs in application logic.
+```
+
+Common mistake:
+
+```text
+Confusing Cognito with IAM.
+```
+
+Correct:
+
+```text
+Cognito authenticates app users.
+IAM authorizes AWS service access.
+```
+
+---
+
+## 16.5 SQS Queue With DLQ
+
+Console path:
+
+```text
+AWS Console -> Search "SQS" -> Queues -> Create queue
+```
+
+Important clicks:
+
+```text
+Standard vs FIFO:
+  ordering/deduplication vs high throughput.
+
+Visibility timeout:
+  how long a message is hidden while processing.
+
+Message retention:
+  how long messages can wait.
+
+Dead-letter queue:
+  poison message destination.
+
+Redrive policy:
+  max receives before DLQ.
+```
+
+Production check:
+
+```text
+Visibility timeout > max processing time.
+DLQ exists.
+Alarm on DLQ messages > 0.
+Consumer is idempotent.
+Queue depth and message age monitored.
+```
+
+---
+
+## 16.6 SNS + SQS Fan-Out
+
+Console path:
+
+```text
+AWS Console -> Search "SNS" -> Topics -> Create topic
+SNS -> Topic -> Create subscription -> Protocol: Amazon SQS
+```
+
+Important clicks:
+
+```text
+Topic:
+  event broadcast channel.
+
+Subscription:
+  target that receives messages.
+
+Filter policy:
+  controls which messages each subscriber receives.
+
+Raw message delivery:
+  changes message envelope format for SQS subscribers.
+```
+
+Real-world pattern:
+
+```text
+Order service publishes order-created to SNS.
+Email queue receives it.
+Inventory queue receives it.
+Analytics queue receives it.
+Each consumer retries independently.
+```
+
+Common mistake:
+
+```text
+Direct SNS -> HTTP endpoint for critical flow.
+```
+
+Better:
+
+```text
+SNS -> SQS -> consumer, so messages wait durably.
+```
+
+---
+
+## 16.7 EventBridge Event Bus
+
+Console path:
+
+```text
+AWS Console -> Search "EventBridge" -> Event buses -> Rules -> Create rule
+```
+
+Important clicks:
+
+```text
+Event bus:
+  domain boundary for events.
+
+Event pattern:
+  content-based matching.
+
+Target:
+  Lambda, SQS, Step Functions, API destination, etc.
+
+Retry policy / DLQ:
+  failure handling.
+```
+
+Use EventBridge when:
+
+```text
+Routing depends on event content.
+You need SaaS/AWS service event integration.
+You want event bus semantics instead of simple pub/sub.
+```
+
+---
+
+## 16.8 Step Functions
+
+Console path:
+
+```text
+AWS Console -> Search "Step Functions" -> State machines -> Create state machine
+```
+
+Important clicks:
+
+```text
+Standard vs Express:
+  long-running/auditable vs high-volume short workflows.
+
+Workflow definition:
+  states, branches, retries, catches.
+
+IAM role:
+  what services the state machine can call.
+
+Logging/tracing:
+  CloudWatch logs and X-Ray visibility.
+```
+
+Real-world use:
+
+```text
+Payment -> Reserve inventory -> Ship order.
+If inventory fails after payment, run refund compensation step.
+```
+
+Common mistake:
+
+```text
+Hiding a complex saga inside chained Lambdas.
+```
+
+Better:
+
+```text
+Use Step Functions when state, retry, branch, and compensation matter.
+```
+
+---
+
+## 16.9 Kinesis Streaming
+
+Console path:
+
+```text
+AWS Console -> Search "Kinesis" -> Data streams -> Create data stream
+```
+
+Important clicks:
+
+```text
+Capacity mode:
+  on-demand or provisioned shards.
+
+Shard count:
+  controls throughput in provisioned mode.
+
+Retention:
+  how long records are replayable.
+
+Consumers:
+  apps/Lambda/Firehose reading stream.
+```
+
+Use Kinesis when:
+
+```text
+You need ordered stream processing, replay, and high-throughput event ingestion.
+```
+
+Use SQS when:
+
+```text
+You need task queue semantics, not stream analytics.
+```
+
+---
+
+## 16.10 WAF For Public Apps
+
+Console path:
+
+```text
+AWS Console -> Search "WAF" -> Web ACLs -> Create web ACL
+```
+
+Attach to:
+
+```text
+CloudFront
+ALB
+API Gateway
+AppSync
+```
+
+Important clicks:
+
+```text
+Managed rule groups:
+  common protections like SQLi/XSS/bad bots.
+
+Rate-based rule:
+  throttles abusive IPs.
+
+Scope:
+  regional or CloudFront global.
+
+Default action:
+  allow or block when no rule matches.
+```
+
+Production check:
+
+```text
+Start with count mode for risky rules.
+Review logs.
+Then block.
+Alarm on blocked spikes.
+```
+
+---
+
+## 16.11 Real-World Debug: "Messages Are Not Processing"
+
+Check:
+
+```text
+SQS -> queue depth and age
+SQS -> DLQ messages
+CloudWatch Logs -> consumer errors
+Lambda/ECS -> consumer health
+IAM -> consumer permissions
+Visibility timeout vs processing time
+```
+
+Strong answer:
+
+```text
+I verify producer send success, queue receive count, consumer polling,
+processing errors, DLQ movement, and idempotency. Then I fix the exact
+breakpoint rather than randomly increasing concurrency.
+```

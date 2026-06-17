@@ -579,3 +579,372 @@ complexity—and includes observability (CloudWatch, X-Ray) and
 auditability (CloudTrail) from day one.
 ```
 
+---
+
+# 7. Real-World Console Runbook: DevOps + Monitoring + Architecture
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section is for practical production operation:
+
+```text
+deploy
+observe
+debug
+rollback
+audit
+review architecture
+```
+
+---
+
+## 7.1 CI/CD Pipeline On AWS
+
+Console path:
+
+```text
+AWS Console -> Search "CodePipeline" -> Pipelines -> Create pipeline
+```
+
+Common pipeline stages:
+
+```text
+Source:
+  GitHub, CodeCommit, S3, or other source.
+
+Build:
+  CodeBuild compiles/tests/builds Docker image.
+
+Deploy:
+  ECS, Lambda, EC2/CodeDeploy, CloudFormation, or custom action.
+```
+
+Impact:
+
+```text
+Source stage:
+  controls what code starts a release.
+
+Build stage:
+  creates the deployable artifact.
+
+Deploy stage:
+  changes production/stage resources.
+```
+
+Production check:
+
+```text
+Immutable artifact.
+Separate dev/stage/prod pipelines or approvals.
+Rollback path documented.
+Secrets not stored in build logs.
+```
+
+---
+
+## 7.2 GitHub Actions To AWS With OIDC
+
+Console path:
+
+```text
+IAM -> Identity providers -> Add provider -> OpenID Connect
+```
+
+Use:
+
+```text
+Provider URL: https://token.actions.githubusercontent.com
+Audience: sts.amazonaws.com
+```
+
+Then:
+
+```text
+IAM -> Roles -> Create role -> Web identity -> GitHub provider
+```
+
+Impact:
+
+```text
+GitHub workflow can assume AWS role with temporary credentials.
+No long-lived AWS access keys stored in GitHub secrets.
+```
+
+Production check:
+
+```text
+Trust policy restricts org/repo/branch/environment.
+Prod deploy role is separate from dev deploy role.
+GitHub production environment requires approval.
+```
+
+---
+
+## 7.3 CloudWatch Metrics And Alarms
+
+Console path:
+
+```text
+AWS Console -> Search "CloudWatch" -> Alarms -> Create alarm
+```
+
+Important clicks:
+
+```text
+Metric:
+  what signal is watched.
+
+Statistic:
+  average, p95, sum, max, etc.
+
+Period:
+  evaluation window.
+
+Threshold:
+  when alarm fires.
+
+Notification:
+  SNS topic, incident system, or automation.
+```
+
+Production alarms:
+
+```text
+ALB 5xx
+ALB target response time
+ECS running task count below desired
+RDS CPU/connections/free storage
+SQS ApproximateAgeOfOldestMessage
+DLQ visible messages > 0
+Lambda errors/throttles
+Bedrock app token/cost/error custom metrics if used
+```
+
+Common mistake:
+
+```text
+Only alarming on CPU.
+```
+
+Better:
+
+```text
+Alarm on user-visible symptoms: errors, latency, saturation, queue age.
+```
+
+---
+
+## 7.4 CloudWatch Logs Insights
+
+Console path:
+
+```text
+CloudWatch -> Logs Insights -> Select log group -> Run query
+```
+
+Useful queries:
+
+```sql
+fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc
+| limit 50
+```
+
+```sql
+fields @timestamp, requestId, latencyMs, path
+| filter latencyMs > 1000
+| sort latencyMs desc
+| limit 20
+```
+
+Impact:
+
+```text
+Logs Insights lets you debug without SSH into servers.
+```
+
+Production check:
+
+```text
+Structured JSON logs.
+Correlation/request IDs.
+No secrets in logs.
+Retention period intentional.
+```
+
+---
+
+## 7.5 X-Ray Distributed Tracing
+
+Console path:
+
+```text
+AWS Console -> Search "X-Ray" -> Service map / Traces
+```
+
+Enable from services:
+
+```text
+Lambda -> Configuration -> Monitoring and operations tools -> Active tracing
+API Gateway -> Stage -> X-Ray tracing
+ECS/EKS/EC2 -> instrument app with SDK/ADOT collector
+```
+
+Impact:
+
+```text
+Traces show where request time is spent across services.
+```
+
+Use when:
+
+```text
+API is slow but logs do not show whether ALB, app, DB, downstream API,
+or queue processing is the bottleneck.
+```
+
+---
+
+## 7.6 CloudTrail Audit Investigation
+
+Console path:
+
+```text
+AWS Console -> Search "CloudTrail" -> Event history
+```
+
+Filter by:
+
+```text
+event name
+username/role
+resource name
+access key
+event source
+time range
+```
+
+Impact:
+
+```text
+CloudTrail answers who did what, when, from where, and using which identity.
+```
+
+Real scenario:
+
+```text
+RDS security group suddenly opened to 0.0.0.0/0.
+Use CloudTrail event history to find AuthorizeSecurityGroupIngress event.
+```
+
+Production check:
+
+```text
+Organization trail.
+Multi-region.
+Delivered to log archive account.
+Log file validation enabled where required.
+```
+
+---
+
+## 7.7 Rollback A Bad ECS Release
+
+Console path:
+
+```text
+ECS -> Clusters -> Select cluster -> Services -> Select service -> Deployments
+```
+
+If rolling deployment:
+
+```text
+Service -> Update service -> choose previous task definition revision
+```
+
+CLI:
+
+```bash
+aws ecs update-service \
+  --cluster myapp-prod \
+  --service backend \
+  --task-definition myapp-backend:42
+```
+
+If CodeDeploy blue-green:
+
+```text
+CodeDeploy -> Deployments -> Stop deployment -> Roll back
+```
+
+Production check:
+
+```text
+Rollback tested before incident.
+Previous task definition/image still exists.
+Database migration is backward compatible.
+```
+
+---
+
+## 7.8 Well-Architected Review
+
+Console path:
+
+```text
+AWS Console -> Search "Well-Architected Tool" -> Define workload -> Start review
+```
+
+Pillars:
+
+```text
+Operational Excellence
+Security
+Reliability
+Performance Efficiency
+Cost Optimization
+Sustainability
+```
+
+Impact:
+
+```text
+The review finds architectural risks and improvement areas.
+```
+
+Use it when:
+
+```text
+before production launch
+after major architecture change
+after incident
+before compliance review
+before cost optimization cycle
+```
+
+---
+
+## 7.9 Real-World Debug: "Production Is Slow"
+
+Check in order:
+
+```text
+1. CloudWatch ALB latency and 5xx.
+2. ECS/EKS/EC2 CPU, memory, restart/task health.
+3. RDS Performance Insights and connections.
+4. ElastiCache hit rate and evictions.
+5. SQS queue age/depth if async path.
+6. X-Ray traces for downstream bottlenecks.
+7. Recent deployments in pipeline/ECS.
+8. CloudTrail for config changes.
+```
+
+Strong answer:
+
+```text
+I start from user-visible symptoms, then walk downstream through compute,
+database, cache, queues, and external dependencies. I correlate with recent
+deployments and CloudTrail changes before scaling anything blindly.
+```

@@ -1268,3 +1268,316 @@ steps that can fail independently. CloudWatch gives me metrics, logs, and
 alarms so I know what is happening, and X-Ray traces requests across service
 boundaries."
 ```
+
+---
+
+# 17. Real-World Console Runbook: Messaging + Observability
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section maps async patterns and monitoring to actual console actions.
+
+---
+
+## 17.1 Create SQS Queue With DLQ
+
+Console path:
+
+```text
+SQS -> Queues -> Create queue
+```
+
+Important clicks:
+
+```text
+Queue type:
+  Standard for high throughput, FIFO for ordering/deduplication.
+
+Visibility timeout:
+  must be longer than normal processing time.
+
+Message retention:
+  how long messages can wait.
+
+Dead-letter queue:
+  stores messages that repeatedly fail.
+
+Maximum receives:
+  number of failed receives before DLQ.
+```
+
+Production check:
+
+```text
+DLQ configured.
+Alarm on DLQ visible messages > 0.
+Alarm on message age.
+Consumer idempotent.
+```
+
+---
+
+## 17.2 Create SNS Fan-Out
+
+Console path:
+
+```text
+SNS -> Topics -> Create topic
+SNS -> Topic -> Create subscription -> Amazon SQS
+```
+
+Impact:
+
+```text
+Producer publishes once to SNS.
+Each SQS subscriber receives its own durable copy.
+Consumers fail/retry independently.
+```
+
+Production check:
+
+```text
+Each critical subscriber has its own SQS queue.
+Filter policies are tested.
+DLQs exist on queues.
+Message schema/version documented.
+```
+
+---
+
+## 17.3 Create EventBridge Rule
+
+Console path:
+
+```text
+EventBridge -> Event buses -> Rules -> Create rule
+```
+
+Important clicks:
+
+```text
+Event pattern:
+  which events match.
+
+Target:
+  where matching event goes.
+
+Retry policy:
+  retry behavior on delivery failure.
+
+DLQ:
+  where failed deliveries go.
+```
+
+Use when:
+
+```text
+You need routing by event content or AWS/SaaS event integration.
+```
+
+Production check:
+
+```text
+Pattern is not too broad.
+Target role has permissions.
+DLQ configured for important rules.
+```
+
+---
+
+## 17.4 Lambda Trigger From SQS
+
+Console path:
+
+```text
+Lambda -> Functions -> Select function -> Add trigger -> SQS
+```
+
+Important clicks:
+
+```text
+Batch size:
+  number of messages per invocation.
+
+Batch window:
+  wait time to accumulate batch.
+
+Report batch item failures:
+  lets partial batch success avoid retrying all messages.
+
+Concurrency:
+  controls parallel processing pressure.
+```
+
+Production check:
+
+```text
+Function timeout less than SQS visibility timeout.
+Idempotency implemented.
+DLQ monitored.
+Database can handle concurrency.
+```
+
+---
+
+## 17.5 Step Functions For Saga
+
+Console path:
+
+```text
+Step Functions -> State machines -> Create state machine
+```
+
+Important clicks:
+
+```text
+Standard workflow:
+  long-running, auditable, exactly-once workflow execution semantics.
+
+Express workflow:
+  high-volume short workflows.
+
+Retry:
+  automatic retry for transient failures.
+
+Catch:
+  error handling path.
+
+Choice:
+  branch based on state.
+```
+
+Real-world order saga:
+
+```text
+Charge payment
+Reserve inventory
+Create shipment
+If reserve fails, refund payment
+If shipment fails, release inventory and refund
+```
+
+Production check:
+
+```text
+Compensation steps are explicit.
+Execution history visible.
+Alarms on failed executions.
+Idempotency keys used for external actions.
+```
+
+---
+
+## 17.6 CloudWatch Dashboard And Alarms
+
+Console path:
+
+```text
+CloudWatch -> Dashboards -> Create dashboard
+CloudWatch -> Alarms -> Create alarm
+```
+
+Dashboard widgets:
+
+```text
+ALB 5xx and latency
+ECS task count and CPU/memory
+RDS CPU/connections
+SQS queue depth and age
+DLQ count
+Lambda errors/throttles/duration
+Step Functions failed executions
+```
+
+Alarm principle:
+
+```text
+Alert on user impact and queue buildup, not just infrastructure noise.
+```
+
+---
+
+## 17.7 Logs Insights During Incident
+
+Console path:
+
+```text
+CloudWatch -> Logs Insights -> Select log groups
+```
+
+Find errors:
+
+```sql
+fields @timestamp, @message
+| filter @message like /ERROR/
+| sort @timestamp desc
+| limit 50
+```
+
+Find slow requests:
+
+```sql
+fields @timestamp, requestId, path, latencyMs
+| filter latencyMs > 1000
+| sort latencyMs desc
+| limit 50
+```
+
+Production check:
+
+```text
+Logs include request ID / correlation ID.
+No secrets or full tokens in logs.
+Retention matches compliance/cost requirements.
+```
+
+---
+
+## 17.8 X-Ray Trace Debug
+
+Console path:
+
+```text
+X-Ray -> Service map
+X-Ray -> Traces
+```
+
+Use when:
+
+```text
+Request crosses API, service, DB, queue, Lambda, or external API
+and you need to know where latency/error was introduced.
+```
+
+Production check:
+
+```text
+Tracing enabled on API Gateway/Lambda where used.
+App instrumentation added for ECS/EKS/EC2.
+Trace IDs correlated with logs.
+```
+
+---
+
+## 17.9 Real-World Debug: "Message Disappeared"
+
+Check in order:
+
+```text
+1. Producer logs: did it publish/send?
+2. SNS metrics: did publish count increase?
+3. Subscription filter policy: did event match?
+4. SQS visible/not visible messages.
+5. Consumer logs.
+6. DLQ messages.
+7. Visibility timeout vs processing time.
+8. IAM permissions for producer/consumer.
+9. CloudTrail for permission/config changes.
+```
+
+Strong answer:
+
+```text
+I trace the message path from producer to broker to queue to consumer to DLQ.
+I do not assume the queue lost it; I verify each hop with metrics and logs.
+```

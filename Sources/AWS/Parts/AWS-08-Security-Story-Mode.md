@@ -409,7 +409,7 @@ spring:
     password: postgres
 app:
   jwt-secret: my-dev-secret
-  stripe-key: sk_test_xxxxxxxxxxxx
+  stripe-key: sk_test_example_dev_only
 ```
 
 If this file ends up in a Docker image, a Git repo, or a log, those secrets are compromised.
@@ -1166,4 +1166,314 @@ for network isolation, Secrets Manager for credentials and KMS for
 encryption at rest and in transit, and Cognito or JWT-based authentication 
 with Spring Security for user identity and authorization. Each layer is 
 independent — compromising one does not automatically compromise the others."
+```
+
+---
+
+# 15. Real-World Console Runbook: Security Story
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section maps security concepts to console actions and incident response.
+
+---
+
+## 15.1 Give App AWS Permissions Without Access Keys
+
+Console path:
+
+```text
+IAM -> Roles -> Create role
+```
+
+Choose trusted entity:
+
+```text
+EC2:
+  instance profile.
+
+ECS:
+  task role.
+
+Lambda:
+  execution role.
+
+EKS:
+  OIDC/IRSA or EKS Pod Identity.
+```
+
+Impact:
+
+```text
+The workload receives temporary AWS credentials automatically.
+No access keys are hardcoded in code, Docker images, or env files.
+```
+
+Production check:
+
+```text
+Role policy allows exact actions/resources only.
+CloudTrail shows role usage.
+No IAM users for application runtime.
+```
+
+---
+
+## 15.2 Store DB Password In Secrets Manager
+
+Console path:
+
+```text
+Secrets Manager -> Store a new secret
+```
+
+Important clicks:
+
+```text
+Secret type:
+  database credentials or custom secret.
+
+KMS key:
+  encryption key.
+
+Secret name:
+  path-like name such as /prod/app/db.
+
+Rotation:
+  automatic rotation if app/database supports it.
+```
+
+Impact:
+
+```text
+The secret is encrypted, access-controlled, and auditable.
+ECS/Lambda/app role can retrieve it without storing it in code.
+```
+
+Production check:
+
+```text
+Only app role can read secret.
+No secret values in CloudWatch logs.
+Rotation tested before enabling.
+```
+
+---
+
+## 15.3 Encrypt Data With KMS
+
+Console path:
+
+```text
+KMS -> Customer managed keys -> Create key
+```
+
+Use key with:
+
+```text
+S3 bucket encryption
+RDS encryption
+EBS encryption
+Secrets Manager
+application envelope encryption
+```
+
+Impact:
+
+```text
+Key policy decides who can use or administer the key.
+Key usage is auditable in CloudTrail.
+```
+
+Production check:
+
+```text
+Key admins separate from key users.
+No wildcard principals.
+Break-glass admin path exists.
+```
+
+---
+
+## 15.4 Cognito User Pool For Login
+
+Console path:
+
+```text
+Cognito -> User pools -> Create user pool
+```
+
+Important clicks:
+
+```text
+Sign-in method:
+  email/username/federation.
+
+MFA:
+  stronger account protection.
+
+App client:
+  client ID used by frontend/backend.
+
+Domain/Hosted UI:
+  managed login page if used.
+
+Token expiration:
+  access and refresh token lifetime.
+```
+
+Impact:
+
+```text
+Cognito authenticates users and issues JWT tokens.
+Spring Security validates those JWTs.
+```
+
+Production check:
+
+```text
+JWT issuer/audience validated.
+Authorization enforced in backend.
+Sensitive apps avoid storing tokens in localStorage.
+```
+
+---
+
+## 15.5 WAF For Public Entry Points
+
+Console path:
+
+```text
+WAF -> Web ACLs -> Create web ACL
+```
+
+Attach to:
+
+```text
+CloudFront
+ALB
+API Gateway
+```
+
+Important clicks:
+
+```text
+Managed rule groups:
+  common web attack protection.
+
+Rate-based rule:
+  throttles abusive clients.
+
+Count mode:
+  observe before blocking.
+
+Logging:
+  inspect blocked/allowed requests.
+```
+
+Production check:
+
+```text
+Start risky rules in count mode.
+Review false positives.
+Then move to block.
+Alarm on sudden spike in blocked requests.
+```
+
+---
+
+## 15.6 CloudTrail Security Investigation
+
+Console path:
+
+```text
+CloudTrail -> Event history
+```
+
+Filter by:
+
+```text
+username/role
+event name
+resource
+access key
+source IP
+time range
+```
+
+Use when:
+
+```text
+security group changed
+bucket became public
+IAM policy modified
+KMS key policy changed
+secret was read unexpectedly
+```
+
+Production check:
+
+```text
+Organization trail in log archive account.
+Multi-region enabled.
+Logs protected from deletion.
+```
+
+---
+
+## 15.7 Incident: Secret Was Committed Or Exposed
+
+Immediate actions:
+
+```text
+1. Rotate/revoke the secret.
+2. Remove it from current code/config.
+3. Check CloudTrail/provider logs for use.
+4. Move secret to Secrets Manager.
+5. Add scanning/prevention in CI.
+```
+
+Console paths:
+
+```text
+Secrets Manager -> Rotate secret / update value
+IAM -> Access keys -> Deactivate key if AWS key leaked
+CloudTrail -> Event history -> filter access key or role
+```
+
+Important:
+
+```text
+Removing the secret from Git latest commit is not enough.
+Assume it is compromised and rotate it.
+```
+
+---
+
+## 15.8 Incident: RDS Publicly Exposed
+
+Console path:
+
+```text
+RDS -> Database -> Connectivity & security
+EC2 -> Security Groups -> RDS security group
+CloudTrail -> Event history
+```
+
+Fix:
+
+```text
+Set public access to No if possible.
+Move DB to private subnet through proper migration if needed.
+Restrict SG inbound to backend SG only.
+Rotate DB password if exposure is suspicious.
+Review CloudTrail for modification and access attempts.
+```
+
+Prevention:
+
+```text
+AWS Config rule.
+Security Hub finding.
+IaC module that defaults to private DB.
 ```

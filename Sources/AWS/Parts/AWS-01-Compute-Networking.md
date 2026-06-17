@@ -1205,3 +1205,595 @@ boundaries, cost implications, and whether we need caching, routing,
 or private connectivity.
 ```
 
+---
+
+# 19. Real-World Console Runbook: Compute + Networking
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section is for practical AWS work:
+
+```text
+I know the concept, but where do I click?
+What does the click change?
+What can go wrong?
+How do I verify production readiness?
+```
+
+---
+
+## 19.1 EC2: Launching A Production-Style App Server
+
+Console path:
+
+```text
+AWS Console -> Search "EC2" -> Instances -> Launch instances
+```
+
+Important clicks:
+
+```text
+AMI:
+  selects the OS and base machine image.
+
+Instance type:
+  controls CPU, memory, network performance, and cost.
+
+Key pair:
+  controls SSH access. Prefer SSM Session Manager for production where possible.
+
+Network settings:
+  chooses VPC, subnet, public IP, and security group.
+
+Storage:
+  configures EBS root volume size, type, and encryption.
+
+IAM instance profile:
+  gives the EC2 instance temporary AWS permissions.
+
+User data:
+  bootstraps software during first launch.
+```
+
+Real-world production pattern:
+
+```text
+ALB in public subnets
+EC2 instances in private subnets
+RDS in private subnets
+EC2 security group allows inbound only from ALB security group
+```
+
+Common mistake:
+
+```text
+Putting EC2 app servers in public subnets and opening SSH to 0.0.0.0/0.
+```
+
+Better:
+
+```text
+Private subnet + ALB + SSM Session Manager + least-privilege instance role.
+```
+
+### Choosing The Correct Subnet For EC2
+
+Important clarification:
+
+```text
+You do not attach a subnet to EC2 later like an EBS volume.
+You choose the subnet when launching the EC2 instance.
+```
+
+Console path:
+
+```text
+EC2 -> Instances -> Launch instances -> Network settings -> Edit
+```
+
+Important clicks:
+
+```text
+VPC:
+  chooses the isolated network where the instance will live.
+
+Subnet:
+  chooses the AZ and public/private network segment for the instance.
+
+Auto-assign public IP:
+  gives direct internet-reachable public IP when enabled in a public subnet.
+
+Security group:
+  controls inbound/outbound traffic for the instance.
+```
+
+Impact:
+
+```text
+Private subnet:
+  instance cannot be reached directly from internet.
+  inbound should come through ALB, VPN, Direct Connect, bastion, or SSM.
+
+Public subnet:
+  instance can be internet reachable if it has public IP and route to Internet Gateway.
+
+Subnet AZ:
+  decides which Availability Zone the instance runs in.
+```
+
+If EC2 is already in the wrong subnet:
+
+```text
+Preferred fix:
+  create AMI or launch template and launch a replacement instance in the correct subnet.
+
+Advanced option:
+  attach a secondary ENI from another subnet in the same AZ only when the design truly needs it.
+
+Not possible:
+  move the primary network interface to a different subnet/AZ while keeping the same running instance.
+```
+
+Production check:
+
+```text
+App server subnet is private.
+ALB subnet is public.
+Route table matches subnet purpose.
+Security group source is ALB SG or trusted private path, not 0.0.0.0/0 for app ports.
+```
+
+---
+
+## 19.2 ECS: Deploying A Container Service
+
+Console path:
+
+```text
+AWS Console -> Search "ECS" -> Clusters -> Create cluster
+ECS -> Task definitions -> Create new task definition
+ECS -> Cluster -> Services -> Create service
+```
+
+Important clicks:
+
+```text
+Cluster:
+  logical home for ECS services and tasks.
+
+Task definition:
+  defines image, CPU, memory, ports, environment, secrets, and logging.
+
+Execution role:
+  lets ECS pull from ECR and write logs.
+
+Task role:
+  lets the application inside the container call AWS services.
+
+Service desired count:
+  number of tasks ECS keeps running.
+
+Subnets:
+  where tasks run. Use private subnets for backend tasks.
+
+Security group:
+  what can reach the task.
+
+Load balancer:
+  connects ALB target group to ECS tasks.
+```
+
+Production check:
+
+```text
+Tasks private.
+ALB public.
+CloudWatch logs enabled.
+Secrets injected from Secrets Manager.
+Health check path is readiness-aware.
+Deployment circuit breaker enabled.
+```
+
+---
+
+## 19.3 EKS: Creating A Kubernetes Platform
+
+Console path:
+
+```text
+AWS Console -> Search "EKS" -> Clusters -> Create cluster
+```
+
+Important clicks:
+
+```text
+Cluster role:
+  IAM role used by EKS control plane.
+
+VPC/subnets:
+  where worker nodes and load balancers live.
+
+Endpoint access:
+  controls public/private access to Kubernetes API server.
+
+Node group:
+  worker compute capacity.
+
+Add-ons:
+  VPC CNI, CoreDNS, kube-proxy, EBS CSI, and other cluster components.
+```
+
+Production check:
+
+```text
+IRSA or EKS Pod Identity for pod-level AWS permissions.
+ALB Ingress Controller installed.
+Cluster autoscaling/Karpenter planned.
+Pod IP capacity planned.
+Observability installed.
+```
+
+Common mistake:
+
+```text
+Choosing EKS only because "containers need Kubernetes."
+```
+
+Better:
+
+```text
+Use EKS when Kubernetes APIs, ecosystem, portability, or platform standardization justify the operational overhead.
+Use ECS when the team wants AWS-native containers with less platform burden.
+```
+
+---
+
+## 19.4 Lambda: Creating An Event-Driven Function
+
+Console path:
+
+```text
+AWS Console -> Search "Lambda" -> Functions -> Create function
+```
+
+Important clicks:
+
+```text
+Runtime:
+  language runtime.
+
+Execution role:
+  permissions available to the function.
+
+Memory:
+  affects CPU allocation and cost.
+
+Timeout:
+  max duration before Lambda stops execution.
+
+Trigger:
+  event source such as API Gateway, SQS, S3, or EventBridge.
+
+VPC:
+  only needed when Lambda must reach private VPC resources.
+```
+
+Production check:
+
+```text
+Timeout matches workload.
+Role is least privilege.
+DLQ or failure destination exists for async workloads.
+Concurrency limits are intentional.
+VPC Lambda has NAT or VPC endpoints if it needs outbound access.
+```
+
+---
+
+## 19.5 VPC: Building The Network
+
+Console path:
+
+```text
+AWS Console -> Search "VPC" -> Your VPCs -> Create VPC
+```
+
+Choose `VPC and more` when learning because it can create:
+
+```text
+VPC
+public subnets
+private subnets
+route tables
+internet gateway
+NAT gateways
+```
+
+Important clicks:
+
+```text
+CIDR:
+  IP range. Hard to change later. Avoid overlap with other VPCs/on-prem.
+
+AZ count:
+  resilience boundary.
+
+Public subnet:
+  route to Internet Gateway.
+
+Private subnet:
+  no direct inbound internet route.
+
+NAT Gateway:
+  outbound internet for private subnets.
+
+VPC endpoint:
+  private path to AWS services like S3/DynamoDB.
+```
+
+Production check:
+
+```text
+At least 2 AZs.
+Public subnets for ALB/NAT only.
+Private subnets for app and data.
+S3 gateway endpoint added for private workloads.
+NAT cost understood.
+```
+
+---
+
+## 19.6 ALB / NLB: Exposing Services
+
+ALB console path:
+
+```text
+EC2 -> Load Balancers -> Create load balancer -> Application Load Balancer
+```
+
+NLB console path:
+
+```text
+EC2 -> Load Balancers -> Create load balancer -> Network Load Balancer
+```
+
+Important clicks:
+
+```text
+Internet-facing vs internal:
+  decides public vs private load balancer.
+
+Listener:
+  port/protocol accepted by load balancer.
+
+Certificate:
+  ACM certificate for HTTPS.
+
+Target group:
+  backend instances, IPs, or Lambda targets.
+
+Health check:
+  decides which targets receive traffic.
+```
+
+Use:
+
+```text
+ALB:
+  HTTP/HTTPS routing, path/host rules, normal web apps.
+
+NLB:
+  TCP/UDP, static IP, extreme performance, PrivateLink producer.
+```
+
+---
+
+## 19.7 Route 53 + CloudFront + API Gateway
+
+Route 53 path:
+
+```text
+AWS Console -> Search "Route 53" -> Hosted zones -> Create record
+```
+
+CloudFront path:
+
+```text
+AWS Console -> Search "CloudFront" -> Distributions -> Create distribution
+```
+
+API Gateway path:
+
+```text
+AWS Console -> Search "API Gateway" -> Create API
+```
+
+Impact:
+
+```text
+Route 53 record:
+  maps user-friendly domain to ALB, CloudFront, API Gateway, or another target.
+
+CloudFront distribution:
+  caches and accelerates content at edge locations.
+
+API Gateway:
+  creates managed API front door with auth, throttling, stages, and API controls.
+```
+
+Production check:
+
+```text
+TLS with ACM.
+CloudFront origin access control for private S3.
+API Gateway throttling and auth.
+Route 53 health checks for failover where needed.
+```
+
+---
+
+## 19.8 Transit Gateway, Peering, PrivateLink
+
+Console paths:
+
+```text
+VPC -> Transit Gateways -> Create transit gateway
+VPC -> Peering connections -> Create peering connection
+VPC -> Endpoint services / Endpoints -> PrivateLink setup
+```
+
+Decision:
+
+```text
+Few VPCs, simple direct routing:
+  VPC Peering.
+
+Many VPCs or hybrid hub-spoke:
+  Transit Gateway.
+
+Expose one service privately without full network connectivity:
+  PrivateLink.
+```
+
+Production check:
+
+```text
+Route tables are explicit.
+No accidental full mesh.
+CIDR overlap reviewed.
+Security groups still required.
+```
+
+---
+
+## 19.9 Site-to-Site VPN: Encrypted Data Tunnel To On-Prem
+
+Use when:
+
+```text
+You need encrypted private connectivity between AWS VPCs and an on-prem/customer network over the internet.
+```
+
+Console path:
+
+```text
+VPC -> Customer gateways -> Create customer gateway
+VPC -> Virtual private gateways -> Create virtual private gateway
+VPC -> Virtual private gateways -> Attach to VPC
+VPC -> Site-to-Site VPN connections -> Create VPN connection
+```
+
+Important clicks:
+
+```text
+Customer gateway:
+  represents the on-prem VPN device public IP and routing type.
+
+Virtual private gateway:
+  AWS-side VPN gateway attached to one VPC.
+
+Transit Gateway option:
+  AWS-side hub when VPN must reach many VPCs.
+
+Routing type:
+  static routes or BGP dynamic routing.
+
+Tunnel options:
+  inside CIDRs, pre-shared keys, IKE/IPsec settings.
+
+Route tables:
+  decide which subnet traffic goes through the VPN.
+```
+
+Impact:
+
+```text
+VPN connection:
+  creates two encrypted IPsec tunnels for redundancy.
+
+Route propagation/static routes:
+  tells AWS which on-prem CIDRs are reachable through VPN.
+
+On-prem device config:
+  must match AWS tunnel settings or tunnel stays down.
+```
+
+Production check:
+
+```text
+Both tunnels up.
+Routes exist on AWS and on-prem.
+Security groups allow required private traffic.
+NACLs do not block return traffic.
+CloudWatch tunnel state alarms configured.
+No overlapping CIDRs.
+```
+
+Common mistake:
+
+```text
+VPN tunnel is up, but no route table entry sends subnet traffic to the VPN.
+```
+
+Better:
+
+```text
+After tunnel creation, always verify routing in both directions:
+AWS subnet route table and on-prem router/firewall.
+```
+
+---
+
+## 19.10 Direct Connect: Dedicated Private Network Path
+
+Use when:
+
+```text
+You need predictable private connectivity, higher bandwidth, lower jitter,
+or enterprise hybrid networking beyond internet VPN.
+```
+
+Console path:
+
+```text
+Direct Connect -> Connections -> Create connection
+Direct Connect -> Virtual interfaces -> Create virtual interface
+```
+
+Important clicks:
+
+```text
+Connection:
+  physical dedicated network connection at a Direct Connect location.
+
+Hosted connection:
+  connection delivered through a Direct Connect partner.
+
+Private virtual interface:
+  connects to VPC through virtual private gateway or Direct Connect gateway.
+
+Transit virtual interface:
+  connects to Transit Gateway through Direct Connect gateway.
+
+Public virtual interface:
+  reaches public AWS services privately, not your VPC private IPs.
+
+BGP settings:
+  exchange routes between on-prem and AWS.
+```
+
+Impact:
+
+```text
+Direct Connect improves network predictability but does not encrypt traffic by default.
+For encryption, run VPN over Direct Connect or use application-layer TLS.
+```
+
+Production check:
+
+```text
+Redundant connections in separate locations/devices when required.
+BGP routes received as expected.
+Failover to VPN or second Direct Connect tested.
+Security groups and route tables allow only intended traffic.
+```

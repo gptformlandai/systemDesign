@@ -847,3 +847,437 @@ with proper zones and use the right query engine for each use case.
 I choose AWS persistence services by matching the data model, access pattern, consistency needs, latency target, and operational burden rather than by chasing whichever service scales the most on paper.
 ```
 
+---
+
+# 17. Real-World Console Runbook: Storage + Database
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section maps storage/database decisions to actual console actions and production impact.
+
+---
+
+## 17.1 S3: Create A Bucket For Uploads Or Static Assets
+
+Console path:
+
+```text
+AWS Console -> Search "S3" -> Buckets -> Create bucket
+```
+
+Important clicks:
+
+```text
+Bucket name:
+  globally unique resource name.
+
+Region:
+  where data physically lives and where latency/compliance applies.
+
+Block Public Access:
+  prevents accidental public bucket/object exposure.
+
+Versioning:
+  keeps old object versions after overwrite/delete.
+
+Default encryption:
+  encrypts objects at rest using SSE-S3 or SSE-KMS.
+
+Lifecycle rules:
+  move old data to cheaper storage or expire it.
+```
+
+Real-world upload pattern:
+
+```text
+React asks backend for pre-signed upload URL.
+Backend verifies user permission.
+Backend returns pre-signed S3 URL.
+Browser uploads directly to S3.
+Backend stores metadata in RDS.
+```
+
+Production check:
+
+```text
+Block Public Access on.
+Encryption enabled.
+Bucket policy least privilege.
+Versioning for critical documents.
+Lifecycle for logs/old files.
+Metadata stored in DB, not only object names.
+```
+
+---
+
+## 17.2 EBS: Create Or Attach Block Storage
+
+Console path:
+
+```text
+AWS Console -> Search "EC2" -> Elastic Block Store -> Volumes -> Create volume
+```
+
+Important clicks:
+
+```text
+Volume type:
+  gp3/io2/st1/etc. Controls IOPS, throughput, and cost.
+
+Size:
+  storage capacity.
+
+Availability Zone:
+  EBS volume can attach only to EC2 in same AZ.
+
+Encryption:
+  protects data at rest.
+
+Snapshot:
+  backup point for restore/new volume.
+```
+
+Common mistake:
+
+```text
+Treating EBS as shared storage across many app servers.
+```
+
+Better:
+
+```text
+EBS is a disk for one EC2 instance.
+Use S3 for object storage and EFS when shared filesystem semantics are required.
+```
+
+---
+
+## 17.3 EFS: Shared Filesystem
+
+Console path:
+
+```text
+AWS Console -> Search "EFS" -> File systems -> Create file system
+```
+
+Important clicks:
+
+```text
+VPC:
+  network where mount targets live.
+
+Mount targets:
+  ENIs in subnets/AZs that clients mount.
+
+Performance mode:
+  latency/throughput behavior.
+
+Throughput mode:
+  bursting, provisioned, or elastic throughput.
+
+Security group:
+  controls NFS access, usually port 2049.
+```
+
+Use EFS when:
+
+```text
+Multiple EC2/ECS/EKS workloads need mounted filesystem semantics.
+```
+
+Avoid EFS when:
+
+```text
+You only need upload/download object storage. Use S3.
+```
+
+---
+
+## 17.4 RDS: Create Production Relational Database
+
+Console path:
+
+```text
+AWS Console -> Search "RDS" -> Databases -> Create database
+```
+
+Important clicks:
+
+```text
+Engine:
+  PostgreSQL, MySQL, MariaDB, Oracle, SQL Server, Aurora.
+
+Template:
+  production template enables stronger defaults.
+
+Multi-AZ:
+  creates failover capability across AZs.
+
+Storage autoscaling:
+  reduces storage-full risk.
+
+Public access:
+  should usually be No for production.
+
+VPC/subnet group:
+  places DB in private subnets.
+
+Security group:
+  should allow only app security group on DB port.
+
+Backup retention:
+  point-in-time recovery window.
+
+Deletion protection:
+  prevents accidental deletion.
+```
+
+Production check:
+
+```text
+Private subnets.
+No public access.
+Encryption enabled.
+Automated backups enabled.
+Performance Insights enabled.
+Security group source is app SG, not 0.0.0.0/0.
+```
+
+---
+
+## 17.5 Aurora: Relational Scale And HA
+
+Console path:
+
+```text
+RDS -> Databases -> Create database -> Engine type: Amazon Aurora
+```
+
+Important clicks:
+
+```text
+Cluster:
+  Aurora separates compute instances from distributed storage.
+
+Writer instance:
+  handles writes.
+
+Reader instances:
+  scale read traffic.
+
+Reader endpoint:
+  load balances reads across readers.
+
+Global database:
+  supports cross-region read and DR pattern.
+```
+
+Common mistake:
+
+```text
+Assuming Aurora automatically solves bad schema/query design.
+```
+
+Better:
+
+```text
+Use Aurora when you need managed relational scale/availability,
+but still design indexes, queries, connection pools, and migrations properly.
+```
+
+---
+
+## 17.6 DynamoDB: Create Table Around Access Pattern
+
+Console path:
+
+```text
+AWS Console -> Search "DynamoDB" -> Tables -> Create table
+```
+
+Important clicks:
+
+```text
+Partition key:
+  primary distribution and lookup key. Most important design choice.
+
+Sort key:
+  supports range/order queries within partition.
+
+Capacity mode:
+  on-demand for variable traffic, provisioned for predictable traffic.
+
+PITR:
+  point-in-time recovery.
+
+Global secondary index:
+  alternate query path.
+
+Streams:
+  change events for Lambda/Kinesis-style processing.
+```
+
+Production check:
+
+```text
+Access patterns listed before table design.
+Partition key avoids hot partitions.
+No production scans for user-facing APIs.
+PITR enabled for important data.
+Alarms for throttles and consumed capacity.
+```
+
+---
+
+## 17.7 ElastiCache Redis: Add Cache Layer
+
+Console path:
+
+```text
+AWS Console -> Search "ElastiCache" -> Redis caches -> Create
+```
+
+Important clicks:
+
+```text
+Cluster mode:
+  single shard vs sharded scale-out.
+
+Node type:
+  memory/network capacity and cost.
+
+Multi-AZ:
+  failover resilience.
+
+Subnet group:
+  private network placement.
+
+Security group:
+  allow only app SG.
+
+Encryption/auth:
+  protect data in transit/at rest and require auth token where appropriate.
+```
+
+Production check:
+
+```text
+Cache is not source of truth.
+TTL strategy exists.
+DB can survive cache miss storm.
+Eviction policy understood.
+```
+
+---
+
+## 17.8 Redshift And Athena: Analytics Decision
+
+Redshift path:
+
+```text
+AWS Console -> Search "Redshift" -> Serverless or Clusters -> Create
+```
+
+Athena path:
+
+```text
+AWS Console -> Search "Athena" -> Query editor
+```
+
+Glue catalog path:
+
+```text
+AWS Console -> Search "Glue" -> Data Catalog -> Databases / Crawlers
+```
+
+Use:
+
+```text
+Redshift:
+  warehouse, repeated analytics, BI dashboards, performance tuning.
+
+Athena:
+  ad-hoc SQL on S3, serverless querying, pay per data scanned.
+
+Glue:
+  catalog tables and run ETL jobs/crawlers.
+```
+
+Production check:
+
+```text
+Data in columnar formats like Parquet for analytics.
+Partitions planned.
+Athena query cost controlled by scanning less data.
+Redshift distribution/sort choices reviewed.
+```
+
+---
+
+## 17.9 AWS Backup: Central Backup Plan
+
+Console path:
+
+```text
+AWS Console -> Search "AWS Backup" -> Backup plans -> Create backup plan
+```
+
+Important clicks:
+
+```text
+Backup frequency:
+  how often recovery points are created.
+
+Retention:
+  how long backups survive.
+
+Resource assignment:
+  resources selected by tags or IDs.
+
+Backup vault:
+  protected backup storage boundary.
+
+Cross-region/cross-account copy:
+  stronger DR and account-level protection.
+```
+
+Production check:
+
+```text
+Backups are restore-tested.
+KMS permissions allow restore.
+RTO/RPO measured.
+Critical resources selected by tags automatically.
+```
+
+---
+
+## 17.10 Real-World Debug: "My Data Is Gone"
+
+Ask:
+
+```text
+Was it S3 object data, RDS rows, EBS disk, or cache?
+Was it deleted, overwritten, corrupted, or hidden by permissions?
+Do we need restore, failover, or application fix?
+```
+
+Console checks:
+
+```text
+S3 -> Object versions
+RDS -> Automated backups / snapshots / PITR
+EBS -> Snapshots
+DynamoDB -> PITR
+CloudTrail -> Who deleted/modified resource?
+AWS Backup -> Recovery points
+```
+
+Strong answer:
+
+```text
+I first identify the data system and failure type.
+Then I use the recovery mechanism designed for that system:
+S3 versioning, RDS PITR, EBS snapshot, DynamoDB PITR, or backup vault.
+After recovery, I use CloudTrail to identify the change source and add controls.
+```

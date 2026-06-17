@@ -378,7 +378,7 @@ User types: https://app.yourcompany.com
 
 Step 1: DNS Resolution
    Browser asks: "What is the IP of app.yourcompany.com?"
-   Route 53 answers: "It's a CloudFront distribution at d123xxx.cloudfront.net"
+   Route 53 answers: "It's a CloudFront distribution at d123example.cloudfront.net"
 
 Step 2: CloudFront
    The request hits a CloudFront edge location near the user.
@@ -1135,4 +1135,276 @@ Outbound internet access uses a NAT Gateway, and AWS service calls use VPC
 endpoints to stay private and save costs. Security groups enforce least-privilege 
 at every layer, and Route 53 handles DNS for both external users and internal 
 service discovery."
+```
+
+---
+
+# 15. Real-World Console Runbook: Networking
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section is for "my app cannot connect" moments.
+
+---
+
+## 15.1 Build The VPC Layout
+
+Console path:
+
+```text
+VPC -> Your VPCs -> Create VPC -> VPC and more
+```
+
+Important clicks:
+
+```text
+CIDR:
+  entire private IP range.
+
+Number of AZs:
+  availability boundary.
+
+Public subnets:
+  for ALB and NAT Gateway.
+
+Private subnets:
+  for backend, database, cache.
+
+NAT Gateway:
+  outbound internet for private subnets.
+
+VPC endpoints:
+  private access to AWS services.
+```
+
+Impact:
+
+```text
+AWS creates route tables, subnets, internet gateway, and optional NAT.
+```
+
+Production check:
+
+```text
+No backend/database in public subnet.
+Route tables match subnet purpose.
+CIDR does not overlap with future VPC/on-prem ranges.
+```
+
+---
+
+## 15.2 Debug Backend Cannot Reach RDS
+
+Console path:
+
+```text
+RDS -> Databases -> Select DB -> Connectivity & security
+EC2 -> Security Groups -> Backend SG and RDS SG
+VPC -> Route tables
+```
+
+Check:
+
+```text
+RDS is in private subnets.
+RDS security group allows inbound DB port from backend security group.
+Backend security group allows outbound to RDS.
+NACLs do not block ephemeral return traffic.
+DB endpoint/port are correct.
+Credentials are correct.
+```
+
+Strong answer:
+
+```text
+For private VPC resources, routing usually exists inside the VPC.
+Most failures are security group, NACL, DNS, port, or credentials.
+```
+
+---
+
+## 15.3 Debug Backend Cannot Call Internet
+
+Console path:
+
+```text
+VPC -> Route tables -> Private subnet route table
+VPC -> NAT Gateways
+EC2 -> Security Groups -> Backend SG
+```
+
+Check:
+
+```text
+Private subnet route table has 0.0.0.0/0 -> NAT Gateway.
+NAT Gateway is in a public subnet.
+Public subnet route table has 0.0.0.0/0 -> Internet Gateway.
+NAT Gateway has Elastic IP.
+Security group allows outbound.
+NACLs allow ephemeral ports.
+```
+
+Cost note:
+
+```text
+If private workloads call S3/ECR/CloudWatch/Secrets heavily through NAT,
+add VPC endpoints to reduce NAT data processing and improve private access.
+```
+
+---
+
+## 15.4 Create VPC Endpoint For S3
+
+Console path:
+
+```text
+VPC -> Endpoints -> Create endpoint
+```
+
+Choose:
+
+```text
+Service category: AWS services
+Service: S3 Gateway endpoint
+VPC
+Route tables for private subnets
+Endpoint policy
+```
+
+Impact:
+
+```text
+Private subnet traffic to S3 uses gateway endpoint route instead of NAT/internet.
+```
+
+Production check:
+
+```text
+Private route tables selected.
+Endpoint policy scoped if needed.
+S3 bucket policy can require access through specific endpoint for stronger control.
+```
+
+---
+
+## 15.5 DNS With Route 53
+
+Console path:
+
+```text
+Route 53 -> Hosted zones -> Create hosted zone / Create record
+```
+
+Important clicks:
+
+```text
+Public hosted zone:
+  internet DNS for your domain.
+
+Private hosted zone:
+  DNS visible only inside associated VPCs.
+
+Alias record:
+  maps domain to ALB, CloudFront, API Gateway, etc.
+
+TTL:
+  how long clients/cache resolvers keep DNS answer.
+```
+
+Common mistake:
+
+```text
+Setting very long TTL before migration/failover testing.
+```
+
+Better:
+
+```text
+Lower TTL before planned cutover.
+Use Route 53 health checks/failover where appropriate.
+```
+
+---
+
+## 15.6 TLS With ACM And ALB
+
+Console path:
+
+```text
+ACM -> Request certificate
+EC2 -> Load Balancers -> Select ALB -> Listeners -> Add HTTPS listener
+```
+
+Important clicks:
+
+```text
+Certificate domain:
+  domain covered by TLS cert.
+
+DNS validation:
+  proves domain ownership through Route 53/CNAME record.
+
+HTTPS listener:
+  terminates TLS at ALB.
+
+Security policy:
+  controls TLS versions/ciphers.
+```
+
+Production check:
+
+```text
+HTTP redirects to HTTPS.
+Certificate auto-renewing.
+Backend SG allows traffic only from ALB SG.
+```
+
+---
+
+## 15.7 Security Group vs NACL Debug
+
+Security group path:
+
+```text
+EC2 -> Security Groups -> Select group -> Inbound/Outbound rules
+```
+
+NACL path:
+
+```text
+VPC -> Network ACLs -> Select NACL -> Inbound/Outbound rules
+```
+
+Rule of thumb:
+
+```text
+Security group:
+  stateful, attached to resource, primary tool.
+
+NACL:
+  stateless, attached to subnet, broad network guardrail.
+```
+
+Debug:
+
+```text
+If SG allows but traffic still fails, check NACL, route table, DNS, and target health.
+```
+
+---
+
+## 15.8 Quick Networking Triage
+
+When anything cannot connect:
+
+```text
+1. Source subnet and route table.
+2. Destination subnet and route table.
+3. Source security group outbound.
+4. Destination security group inbound.
+5. NACL inbound and outbound both directions.
+6. DNS name resolves to expected private/public IP.
+7. Target service is listening on expected port.
+8. Load balancer target health.
+9. CloudWatch/VPC Flow Logs if still unclear.
 ```

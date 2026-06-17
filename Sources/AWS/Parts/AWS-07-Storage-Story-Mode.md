@@ -1040,3 +1040,276 @@ server's disk and EFS only when multiple servers genuinely need a shared
 filesystem. I choose DynamoDB only when the workload is naturally key-value
 or document-driven and the access patterns are well understood."
 ```
+
+---
+
+# 16. Real-World Console Runbook: Storage Story
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section maps the storage story to actual AWS Console actions.
+
+---
+
+## 16.1 Host React Static Files
+
+Console path:
+
+```text
+S3 -> Create bucket
+CloudFront -> Create distribution
+Route 53 -> Create alias record
+```
+
+Important clicks:
+
+```text
+S3 Block Public Access:
+  keep bucket private.
+
+CloudFront origin access control:
+  lets CloudFront read private bucket.
+
+Default root object:
+  index.html.
+
+Custom error response:
+  maps SPA routes back to index.html.
+
+Route 53 alias:
+  maps your domain to CloudFront.
+```
+
+Production check:
+
+```text
+No public S3 bucket.
+HTTPS enabled.
+Cache invalidation strategy exists.
+Build artifacts versioned in CI/CD.
+```
+
+---
+
+## 16.2 Store Uploaded Files In S3
+
+Console path:
+
+```text
+S3 -> Buckets -> Create bucket
+```
+
+Important clicks:
+
+```text
+Encryption:
+  protect objects at rest.
+
+Versioning:
+  recover overwritten/deleted files.
+
+Lifecycle rules:
+  archive or delete old objects.
+
+CORS:
+  required if browser uploads directly using pre-signed URL.
+
+Bucket policy:
+  restrict access to app role / CloudFront / VPC endpoint as needed.
+```
+
+Real flow:
+
+```text
+Frontend requests upload URL.
+Backend checks user authorization.
+Backend creates pre-signed S3 URL.
+Browser uploads to S3.
+Backend stores metadata in RDS.
+```
+
+Production check:
+
+```text
+File metadata in DB.
+Object key includes tenant/user-safe partitioning.
+Content type and size validated.
+Virus/malware scanning considered for risky uploads.
+```
+
+---
+
+## 16.3 Create RDS For Business Data
+
+Console path:
+
+```text
+RDS -> Databases -> Create database
+```
+
+Important clicks:
+
+```text
+Engine:
+  PostgreSQL/MySQL/Aurora.
+
+Multi-AZ:
+  failover availability.
+
+Public access:
+  No for production.
+
+Subnet group:
+  private DB subnets.
+
+Security group:
+  allow only backend SG.
+
+Backups:
+  point-in-time recovery.
+
+Deletion protection:
+  prevents accidental deletion.
+```
+
+Production check:
+
+```text
+Performance Insights enabled.
+Storage autoscaling enabled.
+Connection pool sized.
+Slow query visibility planned.
+```
+
+---
+
+## 16.4 Create DynamoDB Table
+
+Console path:
+
+```text
+DynamoDB -> Tables -> Create table
+```
+
+Important clicks:
+
+```text
+Partition key:
+  primary access and distribution.
+
+Sort key:
+  range/order inside partition.
+
+Capacity mode:
+  on-demand or provisioned.
+
+PITR:
+  point-in-time restore.
+
+Streams:
+  change events for async processing.
+```
+
+Before clicking create:
+
+```text
+Write the access patterns first.
+If you cannot list queries, you are not ready to design the table.
+```
+
+---
+
+## 16.5 Create ElastiCache Redis
+
+Console path:
+
+```text
+ElastiCache -> Redis caches -> Create
+```
+
+Important clicks:
+
+```text
+Node type:
+  memory and network capacity.
+
+Multi-AZ:
+  failover behavior.
+
+Subnet group:
+  private subnets.
+
+Security group:
+  backend-only access.
+
+Encryption/auth:
+  secure cache access.
+```
+
+Production check:
+
+```text
+Cache TTLs defined.
+Eviction policy understood.
+Cache loss does not lose business truth.
+Alarms on memory, evictions, CPU, connections.
+```
+
+---
+
+## 16.6 Restore Data
+
+S3:
+
+```text
+S3 -> Bucket -> Object -> Versions -> Restore previous version
+```
+
+RDS:
+
+```text
+RDS -> Automated backups -> Restore to point in time
+```
+
+DynamoDB:
+
+```text
+DynamoDB -> Backups / Point-in-time recovery -> Restore table
+```
+
+EBS:
+
+```text
+EC2 -> Snapshots -> Create volume from snapshot
+```
+
+AWS Backup:
+
+```text
+AWS Backup -> Protected resources -> Recovery points -> Restore
+```
+
+Production rule:
+
+```text
+Backups are not real until restore is tested.
+```
+
+---
+
+## 16.7 Real-World Debug: "One Server Has File, Another Does Not"
+
+Cause:
+
+```text
+Uploads were stored on local EC2/EBS disk.
+```
+
+Fix:
+
+```text
+Move uploaded files to S3.
+Store metadata in RDS.
+Return pre-signed URLs for upload/download.
+Use EFS only if mounted filesystem semantics are truly required.
+```

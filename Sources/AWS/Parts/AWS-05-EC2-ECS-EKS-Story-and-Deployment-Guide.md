@@ -746,7 +746,7 @@ The `/opt/myapp/.env` file holds runtime config:
 
 ```text
 SPRING_PROFILES_ACTIVE=prod
-DB_HOST=myapp-db.xxxx.us-east-1.rds.amazonaws.com
+DB_HOST=myapp-db.cluster-example.us-east-1.rds.amazonaws.com
 DB_PORT=5432
 DB_NAME=myapp
 DB_USERNAME=myapp_user
@@ -1095,7 +1095,7 @@ For Spring Boot, define:
       ],
       "environment": [
         { "name": "SPRING_PROFILES_ACTIVE", "value": "prod" },
-        { "name": "DB_HOST", "value": "myapp-db.xxxx.us-east-1.rds.amazonaws.com" },
+        { "name": "DB_HOST", "value": "myapp-db.cluster-example.us-east-1.rds.amazonaws.com" },
         { "name": "DB_PORT", "value": "5432" },
         { "name": "DB_NAME", "value": "myapp" }
       ],
@@ -1362,7 +1362,7 @@ metadata:
   namespace: myapp
 data:
   SPRING_PROFILES_ACTIVE: "prod"
-  DB_HOST: "myapp-db.xxxx.us-east-1.rds.amazonaws.com"
+  DB_HOST: "myapp-db.cluster-example.us-east-1.rds.amazonaws.com"
   DB_PORT: "5432"
   DB_NAME: "myapp"
 ```
@@ -1473,7 +1473,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/xxxxx
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/example-cert-id
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
 spec:
   rules:
@@ -2086,4 +2086,271 @@ DNS -> Route 53
 
 ```text
 I choose EC2 when I need machine-level control, ECS when I want the most pragmatic AWS container platform, and EKS when Kubernetes capabilities are strategically necessary. For a standard Spring Boot API with a React SPA, my default would usually be React on S3/CloudFront and the backend on ECS Fargate unless a strong constraint pushes me toward EC2 or EKS.
+```
+
+---
+
+# 15. Real-World Console Runbook: Deploying Spring Boot + React
+
+Use `https://console.aws.amazon.com`, not retail `amazon.com`.
+
+This section maps the story into concrete AWS Console actions.
+
+---
+
+## 15.1 Push Backend Image To ECR
+
+Console path:
+
+```text
+AWS Console -> Search "ECR" -> Repositories -> Create repository
+```
+
+Important clicks:
+
+```text
+Repository name:
+  private container image location.
+
+Image tag mutability:
+  immutable is safer for production because tags cannot be overwritten.
+
+Scan on push:
+  vulnerability scan when image is pushed.
+
+Encryption:
+  protects image layers at rest.
+```
+
+Impact:
+
+```text
+ECR becomes the source of deployable container artifacts.
+ECS/EKS pulls images from here.
+```
+
+Production check:
+
+```text
+Use Git SHA or semantic version tags.
+Avoid relying only on latest.
+Enable image scanning.
+Apply lifecycle rules for old images.
+```
+
+---
+
+## 15.2 Deploy Backend On ECS Fargate
+
+Console path:
+
+```text
+ECS -> Clusters -> Create cluster
+ECS -> Task definitions -> Create new task definition
+ECS -> Cluster -> Services -> Create service
+```
+
+Important clicks:
+
+```text
+Task CPU/memory:
+  container resource boundary and cost.
+
+Container image:
+  ECR image version being deployed.
+
+Port mapping:
+  container port ALB forwards to, usually 8080 for Spring Boot.
+
+Environment variables:
+  non-secret runtime config.
+
+Secrets:
+  values pulled from Secrets Manager.
+
+Log configuration:
+  sends app logs to CloudWatch.
+
+Task role:
+  app permissions to S3/SQS/Secrets/etc.
+
+Execution role:
+  ECS permissions to pull image and write logs.
+
+Desired count:
+  number of backend replicas.
+
+Subnets:
+  private subnets for backend tasks.
+
+Security group:
+  allow inbound only from ALB security group.
+```
+
+Production check:
+
+```text
+ALB target group health is healthy.
+CloudWatch logs show startup success.
+Service desired count equals running count.
+Deployment circuit breaker enabled.
+Autoscaling configured if needed.
+```
+
+---
+
+## 15.3 Deploy Backend On EC2
+
+Console path:
+
+```text
+EC2 -> Instances -> Launch instances
+EC2 -> Target Groups -> Create target group
+EC2 -> Load Balancers -> Create Application Load Balancer
+```
+
+Important clicks:
+
+```text
+AMI:
+  OS image for the server.
+
+IAM role:
+  lets server read Secrets Manager, S3, CloudWatch, etc.
+
+User data:
+  installs Java/app agent or pulls deployment artifact.
+
+Target group:
+  registers EC2 instances behind ALB.
+
+Health check:
+  tells ALB whether instance should receive traffic.
+```
+
+Production check:
+
+```text
+App runs as systemd service.
+No manual SSH-only deployment process.
+ALB health checks pass.
+CloudWatch agent/logs configured.
+Auto Scaling Group used for production.
+```
+
+---
+
+## 15.4 Deploy Backend On EKS
+
+Console path:
+
+```text
+EKS -> Clusters -> Create cluster
+EKS -> Compute -> Add node group
+EKS -> Add-ons -> Install required add-ons
+```
+
+Then deploy through `kubectl`, Helm, or GitOps.
+
+Important clicks:
+
+```text
+Cluster VPC/subnets:
+  where pods and load balancers live.
+
+Endpoint access:
+  who can reach Kubernetes API.
+
+Node group:
+  EC2 worker capacity for pods.
+
+Add-ons:
+  networking, DNS, storage, and ingress integrations.
+```
+
+Production check:
+
+```text
+IRSA or EKS Pod Identity configured.
+ALB Ingress Controller installed.
+Pod readiness/liveness probes exist.
+Horizontal Pod Autoscaler configured.
+Logs/metrics/tracing installed.
+```
+
+---
+
+## 15.5 Deploy React SPA On S3 + CloudFront
+
+Console path:
+
+```text
+S3 -> Buckets -> Create bucket
+CloudFront -> Distributions -> Create distribution
+Route 53 -> Hosted zones -> Create record
+```
+
+Important clicks:
+
+```text
+S3 bucket:
+  stores built static files.
+
+Block Public Access:
+  keep bucket private.
+
+CloudFront origin access control:
+  lets CloudFront read private S3 objects.
+
+Default root object:
+  usually index.html.
+
+Custom error response:
+  route SPA paths back to index.html.
+
+Route 53 alias:
+  maps app domain to CloudFront distribution.
+```
+
+Production check:
+
+```text
+S3 bucket not public.
+CloudFront HTTPS enabled.
+Cache invalidation strategy exists.
+API base URL configured per environment.
+```
+
+---
+
+## 15.6 Roll Back A Bad Deployment
+
+ECS console path:
+
+```text
+ECS -> Cluster -> Service -> Update service -> Previous task definition revision
+```
+
+EKS rollback:
+
+```text
+kubectl rollout undo deployment/backend
+```
+
+EC2 rollback:
+
+```text
+Auto Scaling Group / CodeDeploy -> deploy previous artifact or AMI
+```
+
+React rollback:
+
+```text
+S3/CloudFront -> restore previous build artifact -> invalidate cache
+```
+
+Strong production rule:
+
+```text
+Rollback only works if old artifacts still exist and database changes are backward compatible.
 ```

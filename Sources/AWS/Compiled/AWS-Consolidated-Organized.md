@@ -22,6 +22,44 @@ Total source files: 9
 
 ---
 
+# Index
+
+| Section | Focus |
+|---|---|
+| [Part 01: AWS Interview Notes - Part 1: Compute + Networking](#part-01-aws-interview-notes-part-1-compute-networking) | AWS Interview Notes - Part 1: Compute + Networking |
+| [1. Create IAM role with trust policy for EKS OIDC provider](#1-create-iam-role-with-trust-policy-for-eks-oidc-provider) | Create IAM role with trust policy for EKS OIDC provider |
+| [Trust policy allows the specific ServiceAccount to assume this role](#trust-policy-allows-the-specific-serviceaccount-to-assume-this-role) | Trust policy allows the specific ServiceAccount to assume this role |
+| [2. Create Kubernetes ServiceAccount with annotation](#2-create-kubernetes-serviceaccount-with-annotation) | Create Kubernetes ServiceAccount with annotation |
+| [3. Use ServiceAccount in Pod/Deployment](#3-use-serviceaccount-in-poddeployment) | Use ServiceAccount in Pod/Deployment |
+| [Part 02: AWS Interview Notes - Part 2: Storage + Database](#part-02-aws-interview-notes-part-2-storage-database) | AWS Interview Notes - Part 2: Storage + Database |
+| [Part 03: AWS Interview Notes - Part 3: Security + Messaging + Integration](#part-03-aws-interview-notes-part-3-security-messaging-integration) | AWS Interview Notes - Part 3: Security + Messaging + Integration |
+| [Part 04: AWS Interview Notes - Part 4: DevOps + Monitoring + Architecture + Interview Q&A](#part-04-aws-interview-notes-part-4-devops-monitoring-architecture-interview-qa) | AWS Interview Notes - Part 4: DevOps + Monitoring + Architecture + Interview Q&A |
+| [Part 05: AWS Deep Dive: EC2, ECS, EKS Through Story Mode + Spring Boot/React Deployment Journey](#part-05-aws-deep-dive-ec2-ecs-eks-through-story-mode-spring-bootreact-deployment-journey) | AWS Deep Dive: EC2, ECS, EKS Through Story Mode + Spring Boot/React Deployment Journey |
+| [application.yml — single file, environment-driven](#applicationyml-single-file-environment-driven) | application.yml — single file, environment-driven |
+| [---- Build Stage ----](#-build-stage-) | ---- Build Stage ---- |
+| [---- Runtime Stage ----](#-runtime-stage-) | ---- Runtime Stage ---- |
+| [Non-root user for security](#non-root-user-for-security) | Non-root user for security |
+| [---- Build Stage ----](#-build-stage-) | ---- Build Stage ---- |
+| [---- Serve Stage ----](#-serve-stage-) | ---- Serve Stage ---- |
+| [/etc/systemd/system/myapp.service](#etcsystemdsystemmyappservice) | /etc/systemd/system/myapp.service |
+| [View logs](#view-logs) | View logs |
+| [1. Authenticate Docker to ECR](#1-authenticate-docker-to-ecr) | Authenticate Docker to ECR |
+| [2. Create repository (first time only)](#2-create-repository-first-time-only) | Create repository (first time only) |
+| [3. Build the image](#3-build-the-image) | Build the image |
+| [4. Tag for ECR](#4-tag-for-ecr) | Tag for ECR |
+| [5. Push](#5-push) | Push |
+| [application.yml](#applicationyml) | application.yml |
+| [Part 06: AWS Networking Through Story Mode: How Your App Actually Talks](#part-06-aws-networking-through-story-mode-how-your-app-actually-talks) | AWS Networking Through Story Mode: How Your App Actually Talks |
+| [Part 07: AWS Storage Through Story Mode: Where Your App's Data Actually Lives](#part-07-aws-storage-through-story-mode-where-your-apps-data-actually-lives) | AWS Storage Through Story Mode: Where Your App's Data Actually Lives |
+| [Part 08: AWS Security Through Story Mode: Who Can Do What and How Nothing Leaks](#part-08-aws-security-through-story-mode-who-can-do-what-and-how-nothing-leaks) | AWS Security Through Story Mode: Who Can Do What and How Nothing Leaks |
+| [application.yml — this is fine locally, dangerous in production](#applicationyml-this-is-fine-locally-dangerous-in-production) | application.yml — this is fine locally, dangerous in production |
+| [application.yml — point to token issuer](#applicationyml-point-to-token-issuer) | application.yml — point to token issuer |
+| [Part 09: AWS Messaging, Integration, and Observability Through Story Mode](#part-09-aws-messaging-integration-and-observability-through-story-mode) | AWS Messaging, Integration, and Observability Through Story Mode |
+| [Find all errors in the last hour](#find-all-errors-in-the-last-hour) | Find all errors in the last hour |
+| [Find slow API calls](#find-slow-api-calls) | Find slow API calls |
+
+---
+
 # Part 01: AWS Interview Notes - Part 1: Compute + Networking
 
 Source file: `AWS-01-Compute-Networking.md`
