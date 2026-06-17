@@ -2223,3 +2223,88 @@ Observe            = logs, metrics, traces, health checks
 Deploy safely      = rolling, blue-green, canary, contract tests
 ```
 
+---
+
+# 46. How To Use This Sheet With The Microservices Track
+
+This master sheet is the pattern map.
+
+Use the supporting deep-dive sheets when you need FAANG-level depth:
+
+| Need | Read |
+|---|---|
+| Full study order | `Microservices-Interview-Track-Index.md` |
+| REST/gRPC/events/contracts | `Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` |
+| Data ownership and consistency | `Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` |
+| Kafka and event-driven systems | `Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` |
+| Resilience and capacity | `Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` |
+| Security and zero trust | `Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` |
+| Observability and multi-region | `Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` |
+| Testing, governance, migration | `Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` |
+
+---
+
+# 47. Level-Wise Mastery Path
+
+| Level | What To Master |
+|---|---|
+| Starter | monolith vs microservices, decomposition, gateway, sync vs async |
+| Intermediate | database per service, Saga, Outbox, idempotency, CQRS |
+| Senior | Kafka ordering, consistency UX, resilience, observability, contract testing |
+| FAANG-ready | multi-region, zero trust, capacity planning, incident playbooks, migration strategy |
+
+Starter goal:
+
+```text
+I can explain what microservices are, when not to use them, and how services communicate.
+```
+
+Senior goal:
+
+```text
+I can design a workflow that stays correct during partial failures, retries, duplicate
+messages, deployments, schema changes, and downstream outages.
+```
+
+---
+
+# 48. FAANG Gold Checklist
+
+You are strong in microservices if you can explain:
+
+- when a modular monolith is better
+- service decomposition by business capability
+- database per service
+- why shared DB creates distributed monolith
+- REST vs gRPC vs events
+- API Gateway vs BFF
+- API versioning and contract testing
+- Saga choreography vs orchestration
+- Outbox and CDC
+- idempotent producer and consumer behavior
+- Kafka partitions, ordering, lag, and rebalancing
+- eventual consistency UX and read-your-writes
+- timeout, retry, backoff, circuit breaker, bulkhead
+- rate limiting, load shedding, and backpressure
+- logs, metrics, traces, correlation IDs
+- liveness vs readiness
+- mTLS, service identity, secrets rotation
+- canary, blue-green, rollback, feature flags
+- RTO/RPO and multi-region trade-offs
+- strangler fig migration
+- anti-corruption layer
+- service ownership and governance
+
+---
+
+# 49. Official Source Notes
+
+Useful references:
+
+- Microservices Patterns: https://microservices.io/patterns/
+- Apache Kafka Documentation: https://kafka.apache.org/documentation/
+- Kubernetes Documentation: https://kubernetes.io/docs/home/
+- OpenTelemetry Documentation: https://opentelemetry.io/docs/
+- Google SRE Books: https://sre.google/books/
+- OWASP API Security: https://owasp.org/API-Security/
+- Pact Contract Testing: https://docs.pact.io/

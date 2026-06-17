@@ -2,6 +2,12 @@
 
 > You have a Spring Boot app with PostgreSQL. Every feature you build eventually turns into a SQL query. This guide explains SQL through real queries — what each clause actually does to your rows, how operators like GROUP BY, HAVING, RANK, DENSE_RANK change the result, and how indexing and optimization make things fast. Built for interview query-solving, not textbook theory.
 
+Track companion:
+
+- Start with `SQL-Interview-Track-Index.md` for the recommended order and platinum revision path.
+- Use this file as the main story-mode master sheet.
+- Use the platinum companion sheets for focused revision on advanced queries, performance, concurrency, and schema design.
+
 ---
 
 # Table of Contents

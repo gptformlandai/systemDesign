@@ -32,6 +32,14 @@ This file intentionally pulls ideas from all batches:
 - Batch 5: blocking traps, cleanup, R2DBC, WebClient, SSE/WebSocket, when WebFlux loses
 - Batch 6: gateway, Kafka, resilience, observability, architecture trade-offs
 
+Platinum add-ons complete the production and latest-feature surface:
+
+- Platinum 1: security, validation, error responses, API versioning, CORS, HTTP caching
+- Platinum 2: codecs, DataBuffer, memory limits, upload/download streaming
+- Platinum 3: HTTP interfaces, RSocket, HTTP/2, WebTestClient
+- Platinum 4: modern Reactor context propagation, virtual-thread boundedElastic, debugging
+- Drill Bank: tricky scenario questions, output/thread prediction, and spoken answers
+
 ---
 
 ## 3. Story Mode — One End-To-End Hospitality Request Travel
@@ -704,9 +712,30 @@ It is about making waiting cheap, keeping the stack non-blocking, coordinating m
 - resilience patterns are mandatory in distributed flows
 - observability must be async-aware
 
+### Platinum Add-Ons — Production Surface
+
+- SecurityWebFilterChain protects reactive routes
+- structured error responses are part of the API contract
+- API versioning protects clients from breaking changes
+- codecs convert HTTP bytes to Java objects and back
+- DataBuffer must be handled carefully in low-level byte streaming
+- large uploads/downloads should stream, not aggregate
+- HTTP interface clients give typed declarative WebClient proxies
+- RSocket fits internal bidirectional/backpressure-aware streaming
+- WebTestClient verifies reactive endpoints and streams
+- Reactor Context beats ThreadLocal assumptions
+- virtual-thread boundedElastic helps unavoidable blocking bridges
+- debugging tools include checkpoint, ReactorDebugAgent, Hooks, and BlockHound
+
 ### The One Paragraph To Remember Everything
 
 In WebFlux, a request enters a non-blocking runtime, the controller assembles a publisher graph, Spring subscribes, signals flow through operators, schedulers move the right work to the right execution pools, Context carries request metadata across thread hops, backpressure protects long-lived streams, reactive persistence and WebClient keep the path non-blocking, Kafka decouples side effects, resilience handles failures, and observability makes the whole async system operable.
+
+The platinum layer completes the production picture: reactive security protects the route,
+validation and structured errors protect the API contract, versioning protects clients,
+codecs and DataBuffers protect memory, streaming protects large payload paths, WebTestClient
+proves behavior, protocol choices like HTTP/2 or RSocket are made deliberately, and modern
+Reactor debugging/context tools make the system supportable.
 
 ---
 
@@ -804,7 +833,35 @@ If you only remember one mental movie, remember this:
 10. Kafka moves side effects off the synchronous request path
 11. resilience patterns protect against slow or failing downstreams
 12. observability makes the async system debuggable
-13. WebFlux is excellent for the right shape of I/O-heavy, concurrent, streaming, fan-out systems
-14. WebFlux is the wrong choice when the system is mostly blocking CRUD and the complexity is not justified
+13. security, error responses, and versioning make the API safe to evolve
+14. codecs and DataBuffer handling keep body processing memory-safe
+15. WebTestClient and StepVerifier prove reactive behavior
+16. modern Reactor context/debugging tools keep production incidents diagnosable
+17. WebFlux is excellent for the right shape of I/O-heavy, concurrent, streaming, fan-out systems
+18. WebFlux is the wrong choice when the system is mostly blocking CRUD and the complexity is not justified
 
 That is the senior WebFlux answer.
+
+---
+
+## 8. Platinum Add-On Reading Order
+
+After the six batches and this all-in-one story, read:
+
+1. `Platinum-1-Security-Errors-Versioning.md`
+2. `Platinum-2-Codecs-DataBuffer-Memory-Uploads.md`
+3. `Platinum-3-HTTP-Interfaces-RSocket-HTTP2-WebTestClient.md`
+4. `Platinum-4-Modern-Reactor-Context-VirtualThreads-Debugging.md`
+5. `WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md`
+
+Final memory line:
+
+```text
+Core WebFlux teaches signal flow. Platinum WebFlux teaches production ownership.
+```
+
+Then use the drill bank to pressure-test recall:
+
+```text
+Learn -> connect -> operate -> drill.
+```

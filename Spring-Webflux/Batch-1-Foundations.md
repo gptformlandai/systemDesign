@@ -144,7 +144,7 @@ This sample matters because it shows the real reactive contract: subscription ha
 
 That is wrong. In Reactive Streams, demand is part of the contract through `request(n)`.
 
-### Quick Revision Notesn
+### Quick Revision Notes
 
 - Reactive = signal-driven, not step-by-step blocking execution.
 - Main value = better concurrency under I/O wait.

@@ -92,13 +92,37 @@ Each topic is a standalone section inside a single file per batch. Every section
 
 ---
 
-## Quick Reference — Interview Cheat Sheet (built as we go)
+## Platinum Add-Ons — Latest Production Surface
 
-Will be appended at the end after all batches are complete:
-- One-liner per concept
-- Top 10 tricky interview questions with short answers
-- "When to use WebFlux" decision flowchart
-- Common mistakes that instantly fail candidates
+> These complete the official WebFlux surface area for senior and FAANG-style interviews.
+
+| # | Document | Core Focus |
+|---|---|---|
+| P1 | **Platinum-1-Security-Errors-Versioning.md** | Reactive security, 401/403, validation, structured errors, API versioning, CORS, HTTP caching. |
+| P2 | **Platinum-2-Codecs-DataBuffer-Memory-Uploads.md** | Codecs, `DataBuffer`, memory limits, file upload/download, NDJSON/SSE body streaming, large-body protection. |
+| P3 | **Platinum-3-HTTP-Interfaces-RSocket-HTTP2-WebTestClient.md** | HTTP interface clients, deeper WebClient, filters, timeouts, RSocket, HTTP/2, WebTestClient, streaming tests. |
+| P4 | **Platinum-4-Modern-Reactor-Context-VirtualThreads-Debugging.md** | Modern Reactor context propagation, Java 21 virtual-thread boundedElastic, debugging, BlockHound, cancellation, production playbooks. |
+
+---
+
+## Final Drill Bank — Interview Pressure Practice
+
+| Document | Core Focus |
+|---|---|
+| **WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md** | Tricky scenario questions, output/thread prediction, cancellation, WebClient traps, R2DBC, DataBuffer, security, and short spoken answers. |
+
+Use this after all batches and platinum add-ons. It is the 30-minute pre-interview sheet.
+
+---
+
+## Quick Reference — Interview Cheat Sheet
+
+Available in:
+
+- [All-In-One-Version.md](Spring-Webflux/All-In-One-Version.md)
+- the final revision section of each batch
+- the final revision section of each platinum add-on
+- [WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md](Spring-Webflux/WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md)
 
 ---
 
@@ -111,7 +135,12 @@ Will be appended at the end after all batches are complete:
 5. Batch 4 → Backpressure & Advanced file
 6. Batch 5 → Interview Killers file
 7. Batch 6 → Architecture file
-8. Cheat Sheet → appended to index
+8. Platinum 1 → Security, errors, versioning
+9. Platinum 2 → Codecs, DataBuffer, memory, uploads/downloads
+10. Platinum 3 → HTTP interfaces, RSocket, HTTP/2, WebTestClient
+11. Platinum 4 → Modern Reactor, virtual threads, debugging
+12. All-In-One → final story-mode revision
+13. Drill Bank → final interview pressure practice
 
 Each batch targets **one sitting of focused reading**. Code samples in Java throughout.
 
@@ -120,6 +149,11 @@ Each batch targets **one sitting of focused reading**. Code samples in Java thro
 ## Final Review Assets
 
 - [All-In-One-Version.md](Spring-Webflux/All-In-One-Version.md) — story-mode end-to-end request travel using all six batches, cheat sheet, ultra-short revision, and Marriott-style interview questions with spoken answers.
+- [Platinum-1-Security-Errors-Versioning.md](Spring-Webflux/Platinum-1-Security-Errors-Versioning.md) — production API safety and evolution.
+- [Platinum-2-Codecs-DataBuffer-Memory-Uploads.md](Spring-Webflux/Platinum-2-Codecs-DataBuffer-Memory-Uploads.md) — byte/body/memory handling.
+- [Platinum-3-HTTP-Interfaces-RSocket-HTTP2-WebTestClient.md](Spring-Webflux/Platinum-3-HTTP-Interfaces-RSocket-HTTP2-WebTestClient.md) — clients, protocols, and tests.
+- [Platinum-4-Modern-Reactor-Context-VirtualThreads-Debugging.md](Spring-Webflux/Platinum-4-Modern-Reactor-Context-VirtualThreads-Debugging.md) — modern Reactor operations and debugging.
+- [WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md](Spring-Webflux/WebFlux-Interview-Drill-Bank-Tricky-Scenarios-Gold-Sheet.md) — final scenario drills and spoken answers.
 
 ### Quick Decision Snapshot
 
@@ -143,3 +177,8 @@ Prefer MVC when the service is:
 
 WebFlux is about making waiting cheap, not making slow dependencies magically fast.
 
+### Final Platinum Memory Line
+
+WebFlux mastery is not only `Mono`, `Flux`, and operators. It is also security, error
+contracts, API evolution, codecs, byte streaming, protocol choice, testing, context
+propagation, virtual-thread awareness, and production debugging.

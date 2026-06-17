@@ -1,4 +1,4 @@
-# Java Collectors Terminal Operators Simple Sheet
+# Java Collectors Terminal Operators Gold Sheet
 
 > Goal: remove confusion around `collect(...)` and `Collectors`.
 
@@ -726,3 +726,179 @@ collect(groupingBy(counting())) -> Map<K, Long>
 collect(joining())             -> String
 ```
 
+---
+
+# 22. Gold Layer: What Interviewers Really Test
+
+They are usually not testing whether you memorized collector names.
+
+They are testing whether you understand this shape:
+
+```text
+Stream<T>
+    -> intermediate transformations
+    -> terminal operation
+    -> final result type
+```
+
+For collectors:
+
+```text
+collect(collector)
+```
+
+means:
+
+```text
+collect = terminal operation
+collector = strategy for building final result
+```
+
+Strong line:
+
+```text
+collect is the terminal operation. Collectors.toList, groupingBy, toMap, and joining are
+collector strategies passed into collect.
+```
+
+---
+
+# 23. Beginner, Intermediate, Senior Levels
+
+## Beginner Level
+
+Know these:
+
+| Need | Collector |
+|---|---|
+| List | `Collectors.toList()` |
+| Set | `Collectors.toSet()` |
+| Map | `Collectors.toMap()` |
+| Group | `Collectors.groupingBy()` |
+| Join strings | `Collectors.joining()` |
+
+## Intermediate Level
+
+Know these:
+
+| Need | Pattern |
+|---|---|
+| Count by key | `groupingBy(key, counting())` |
+| Names by department | `groupingBy(dept, mapping(name, toList()))` |
+| Average by key | `groupingBy(key, averagingInt(...))` |
+| Duplicate key handling | `toMap(key, value, mergeFunction)` |
+| Preserve set order | `toCollection(LinkedHashSet::new)` |
+
+## Senior Level
+
+Know these:
+
+- `Collectors.toList()` may return a mutable list, but do not design APIs around that assumption.
+- `Stream.toList()` returns an unmodifiable list in modern Java.
+- `toMap` throws on duplicate key unless a merge function is provided.
+- `groupingByConcurrent` can help parallel grouping, but only when the downstream collector and data pattern fit.
+- Avoid side effects inside stream pipelines.
+- Use loops when a stream becomes unreadable.
+
+---
+
+# 24. `Collectors.toList()` vs `Stream.toList()`
+
+Java 8 style:
+
+```java
+List<String> names = employees.stream()
+    .map(Employee::name)
+    .collect(Collectors.toList());
+```
+
+Modern Java style:
+
+```java
+List<String> names = employees.stream()
+    .map(Employee::name)
+    .toList();
+```
+
+Important difference:
+
+```text
+Stream.toList() returns an unmodifiable list.
+Collectors.toList() does not guarantee a specific list implementation.
+```
+
+Interview answer:
+
+```text
+In Java 8 interviews, I use collect(Collectors.toList()). In modern Java, stream().toList()
+is concise, but I remember it returns an unmodifiable list.
+```
+
+---
+
+# 25. `groupingBy` vs `groupingByConcurrent`
+
+Normal grouping:
+
+```java
+Map<String, List<Employee>> byDepartment = employees.stream()
+    .collect(Collectors.groupingBy(Employee::department));
+```
+
+Concurrent grouping:
+
+```java
+ConcurrentMap<String, List<Employee>> byDepartment = employees.parallelStream()
+    .collect(Collectors.groupingByConcurrent(Employee::department));
+```
+
+Senior caution:
+
+```text
+groupingByConcurrent is not automatically faster. It is useful mainly with parallel streams
+and suitable concurrent downstream accumulation. Always measure before using it for performance.
+```
+
+---
+
+# 26. Collector Decision Table
+
+| Interview Requirement | Best Collector |
+|---|---|
+| Get all names | `map(...).collect(toList())` |
+| Unique departments | `map(...).collect(toSet())` |
+| Preserve unique department order | `toCollection(LinkedHashSet::new)` |
+| ID to employee | `toMap(Employee::id, Function.identity())` |
+| Duplicate key, keep first | `toMap(k, v, (oldVal, newVal) -> oldVal)` |
+| Duplicate key, keep latest | `toMap(k, v, (oldVal, newVal) -> newVal)` |
+| Group employees by department | `groupingBy(Employee::department)` |
+| Count by department | `groupingBy(Employee::department, counting())` |
+| Names by department | `groupingBy(dept, mapping(name, toList()))` |
+| Average salary by department | `groupingBy(dept, averagingInt(salary))` |
+| High salary vs others | `partitioningBy(predicate)` |
+| Join names | `joining(", ")` |
+
+---
+
+# 27. Final Strong Answer
+
+If interviewer asks:
+
+> Explain collectors in Java streams.
+
+Say:
+
+```text
+collect is a terminal stream operation. A Collector tells collect how to accumulate stream
+elements into a final result, such as a List, Set, Map, grouped Map, partitioned Map, count,
+average, or joined String. I use toMap carefully because duplicate keys throw unless I give
+a merge function. For complex grouping, I use downstream collectors like counting, mapping,
+averagingInt, maxBy, or collectingAndThen.
+```
+
+Memory trick:
+
+```text
+collect ends the stream.
+Collectors shape the result.
+```

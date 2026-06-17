@@ -554,7 +554,7 @@ public class MethodReferenceExample {
 Streams are covered deeply in:
 
 ```text
-Marriot/java/Java-Streams-Interview-Prep.md
+Marriot/Java/Java-Streams-Interview-Prep.md
 ```
 
 ### Most Asked Stream Concepts

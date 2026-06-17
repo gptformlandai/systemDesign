@@ -22,6 +22,9 @@ tested, secured, deployed, observed, and operated in production.
 | 8 | `Spring-Boot-Messaging-Kafka-RabbitMQ-Interview-Master-Sheet.md` | Learn event-driven systems and async reliability |
 | 9 | `Spring-Boot-Observability-Actuator-Micrometer-Interview-Master-Sheet.md` | Learn production monitoring and debugging |
 | 10 | `Spring-Cloud-Microservices-Interview-Master-Sheet.md` | Learn distributed Spring Boot architecture |
+| 11 | `Spring-Boot-Internals-AutoConfiguration-Proxies-Transactions-Platinum-Sheet.md` | Learn Boot internals, conditions, proxies, transaction traps |
+| 12 | `Spring-Boot-Production-Debugging-Case-Studies-Platinum-Sheet.md` | Learn incident debugging from startup to memory, DB, cache, security |
+| 13 | `Spring-Boot-MAANG-Scenario-Based-Architecture-Questions-Platinum-Sheet.md` | Learn scenario answers for booking, payment, cache, batch, security |
 
 ---
 
@@ -207,6 +210,8 @@ Add:
 3. WebFlux trade-offs
 4. Spring Cloud
 5. Deep observability
+6. Boot internals and proxy behavior
+7. Production debugging case studies
 
 Senior goal:
 
@@ -222,10 +227,12 @@ For every topic, practice explaining:
 - when not to use it
 - failure modes
 - trade-offs
+- internal runtime behavior
 - production debugging
 - scaling path
 - security concerns
 - testing strategy
+- scenario-based architecture answer
 
 MAANG goal:
 
@@ -291,6 +298,12 @@ external calls inside a transaction.
 | Gateway | Spring Cloud sheet |
 | OpenFeign | Spring Cloud sheet |
 | Service discovery | Spring Cloud sheet |
+| Boot internals | Internals platinum sheet |
+| Auto-configuration diagnostics | Internals platinum sheet |
+| Proxy/self-invocation traps | Internals platinum sheet |
+| Transaction debugging | Internals and production debugging sheets |
+| Production incidents | Production debugging platinum sheet |
+| Scenario answers | MAANG scenario platinum sheet |
 
 ---
 
@@ -307,9 +320,10 @@ Answer:
 ```text
 This track covers the Spring Boot interview journey from fundamentals to production systems:
 core container, MVC, JPA, security, testing, migrations, cache, async, scheduling, events,
-batch, REST clients, WebFlux, resilience, messaging, observability, and Spring Cloud. It is
-designed to help a learner explain not just annotations, but runtime behavior, trade-offs,
-failure modes, and production debugging.
+batch, REST clients, WebFlux, resilience, messaging, observability, Spring Cloud, Boot
+internals, production debugging, and MAANG-style scenario answers. It is designed to help a
+learner explain not just annotations, but runtime behavior, trade-offs, failure modes, and
+production ownership.
 ```
 
 ---
@@ -362,6 +376,9 @@ Use each document like this:
 | Messaging | BookingCreated events, Kafka/Rabbit, outbox, DLQ |
 | Observability | health, metrics, logs, traces, dashboards, alerts |
 | Spring Cloud | gateway, config, Feign, discovery/load balancing |
+| Internals | auto-configuration, proxies, transactions, self-invocation |
+| Production Debugging | startup failures, slow APIs, DB pools, memory, security, cache |
+| Scenario Sheet | crisp design answers for hybrid coding/design rounds |
 
 Final capstone interview prompt:
 
@@ -403,8 +420,8 @@ Optional future add-ons, only if a role explicitly needs them:
 - gRPC with Spring Boot
 - Spring Modulith
 - Spring Integration deep dive
-- Native image/AOT deep dive
 - R2DBC deep dive
 
 These are intentionally optional because the current track already covers the core and
-high-frequency Spring Boot interview surface.
+high-frequency Spring Boot interview surface, including internals, production debugging,
+and scenario-based architecture rounds.
