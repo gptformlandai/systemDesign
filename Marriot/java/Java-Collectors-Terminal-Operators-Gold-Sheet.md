@@ -4,7 +4,7 @@
 
 ---
 
-# 1. First Understand This
+## 1. First Understand This
 
 `collect(...)` is a terminal operation.
 
@@ -34,7 +34,7 @@ Collectors.toList() tells collect how to collect.
 
 ---
 
-# 2. Sample Data
+## 2. Sample Data
 
 Use this for all examples:
 
@@ -61,7 +61,7 @@ List<Employee> employees = List.of(
 
 ---
 
-# 3. `Collectors.toList()`
+## 3. `Collectors.toList()`
 
 Use when you want final result as a `List`.
 
@@ -89,7 +89,7 @@ toList means collect stream elements into a List.
 
 ---
 
-# 4. `Collectors.toSet()`
+## 4. `Collectors.toSet()`
 
 Use when you want unique values.
 
@@ -125,7 +125,7 @@ Set<String> departments = employees.stream()
 
 ---
 
-# 5. `Collectors.toMap()`
+## 5. `Collectors.toMap()`
 
 Use when you want a `Map`.
 
@@ -158,7 +158,7 @@ value mapper = Function.identity()
 
 ---
 
-# 6. `toMap()` With Duplicate Key
+## 6. `toMap()` With Duplicate Key
 
 If duplicate keys come, normal `toMap` throws exception.
 
@@ -206,7 +206,7 @@ means keep latest.
 
 ---
 
-# 7. `Collectors.groupingBy()`
+## 7. `Collectors.groupingBy()`
 
 Use when you want SQL-like `GROUP BY`.
 
@@ -235,7 +235,7 @@ groupingBy creates Map<groupKey, List<itemsInThatGroup>> by default.
 
 ---
 
-# 8. `groupingBy()` With `counting()`
+## 8. `groupingBy()` With `counting()`
 
 Question:
 
@@ -265,7 +265,7 @@ groupingBy(key, counting())
 
 ---
 
-# 9. `groupingBy()` With `mapping()`
+## 9. `groupingBy()` With `mapping()`
 
 Question:
 
@@ -296,7 +296,7 @@ Inside each group, store only employee names.
 
 ---
 
-# 10. `groupingBy()` With `averagingInt()`
+## 10. `groupingBy()` With `averagingInt()`
 
 Question:
 
@@ -328,7 +328,7 @@ Collectors.averagingDouble(...)
 
 ---
 
-# 11. `groupingBy()` With `summingInt()`
+## 11. `groupingBy()` With `summingInt()`
 
 Question:
 
@@ -360,7 +360,7 @@ Collectors.summingDouble(...)
 
 ---
 
-# 12. `groupingBy()` With `maxBy()`
+## 12. `groupingBy()` With `maxBy()`
 
 Question:
 
@@ -397,7 +397,7 @@ maxBy returns Optional because it is a reduction operation.
 
 ---
 
-# 13. `Collectors.partitioningBy()`
+## 13. `Collectors.partitioningBy()`
 
 Use when you want two groups:
 
@@ -431,7 +431,7 @@ partitioningBy always creates true/false groups.
 
 ---
 
-# 14. `Collectors.joining()`
+## 14. `Collectors.joining()`
 
 Use for joining strings.
 
@@ -467,7 +467,7 @@ Output:
 
 ---
 
-# 15. `Collectors.counting()`
+## 15. `Collectors.counting()`
 
 Use when you want count as collector.
 
@@ -498,7 +498,7 @@ Collectors.counting() is a collector used inside collect.
 
 ---
 
-# 16. `Collectors.collectingAndThen()`
+## 16. `Collectors.collectingAndThen()`
 
 Use when you want to collect first, then transform final result.
 
@@ -524,7 +524,7 @@ Then convert list to unmodifiable list.
 
 ---
 
-# 17. `Collectors.toCollection()`
+## 17. `Collectors.toCollection()`
 
 Use when you want a specific collection type.
 
@@ -547,7 +547,7 @@ toCollection lets us choose LinkedHashSet.
 
 ---
 
-# 18. `flatMap` + `collect`
+## 18. `flatMap` + `collect`
 
 Question:
 
@@ -577,9 +577,9 @@ List<String> sortedSkills = employees.stream()
 
 ---
 
-# 19. Most Important Patterns
+## 19. Most Important Patterns
 
-## Pattern 1: List
+### Pattern 1: List
 
 ```java
 list.stream()
@@ -587,7 +587,7 @@ list.stream()
     .collect(Collectors.toList());
 ```
 
-## Pattern 2: Set
+### Pattern 2: Set
 
 ```java
 list.stream()
@@ -595,7 +595,7 @@ list.stream()
     .collect(Collectors.toSet());
 ```
 
-## Pattern 3: Map
+### Pattern 3: Map
 
 ```java
 list.stream()
@@ -605,7 +605,7 @@ list.stream()
     ));
 ```
 
-## Pattern 4: Group
+### Pattern 4: Group
 
 ```java
 list.stream()
@@ -614,7 +614,7 @@ list.stream()
     ));
 ```
 
-## Pattern 5: Group + Count
+### Pattern 5: Group + Count
 
 ```java
 list.stream()
@@ -624,7 +624,7 @@ list.stream()
     ));
 ```
 
-## Pattern 6: Group + Average
+### Pattern 6: Group + Average
 
 ```java
 list.stream()
@@ -634,7 +634,7 @@ list.stream()
     ));
 ```
 
-## Pattern 7: Group + Names
+### Pattern 7: Group + Names
 
 ```java
 list.stream()
@@ -646,9 +646,9 @@ list.stream()
 
 ---
 
-# 20. Quick Interview Answers
+## 20. Quick Interview Answers
 
-## Q1. Is `Collectors.toList()` terminal?
+### Q1. Is `Collectors.toList()` terminal?
 
 No.
 
@@ -658,7 +658,7 @@ No.
 
 ---
 
-## Q2. What is `groupingBy`?
+### Q2. What is `groupingBy`?
 
 `groupingBy` collects stream elements into a `Map` based on a classifier function.
 
@@ -669,7 +669,7 @@ Map<String, List<Employee>> map = employees.stream()
 
 ---
 
-## Q3. `groupingBy` vs `partitioningBy`?
+### Q3. `groupingBy` vs `partitioningBy`?
 
 ```text
 groupingBy can create many groups based on key.
@@ -678,7 +678,7 @@ partitioningBy creates only two groups: true and false.
 
 ---
 
-## Q4. Why does `toMap` fail?
+### Q4. Why does `toMap` fail?
 
 Because duplicate keys appeared and no merge function was provided.
 
@@ -690,7 +690,7 @@ Collectors.toMap(key, value, (oldValue, newValue) -> oldValue)
 
 ---
 
-## Q5. When to use `mapping`?
+### Q5. When to use `mapping`?
 
 Use `mapping` inside `groupingBy` when you want to store transformed values inside each group.
 
@@ -706,7 +706,7 @@ Map<String, List<String>> namesByDepartment = employees.stream()
 
 ---
 
-# 21. Final Memory Trick
+## 21. Final Memory Trick
 
 Remember:
 
@@ -728,7 +728,7 @@ collect(joining())             -> String
 
 ---
 
-# 22. Gold Layer: What Interviewers Really Test
+## 22. Gold Layer: What Interviewers Really Test
 
 They are usually not testing whether you memorized collector names.
 
@@ -763,9 +763,9 @@ collector strategies passed into collect.
 
 ---
 
-# 23. Beginner, Intermediate, Senior Levels
+## 23. Beginner, Intermediate, Senior Levels
 
-## Beginner Level
+### Beginner Level
 
 Know these:
 
@@ -777,7 +777,7 @@ Know these:
 | Group | `Collectors.groupingBy()` |
 | Join strings | `Collectors.joining()` |
 
-## Intermediate Level
+### Intermediate Level
 
 Know these:
 
@@ -789,7 +789,7 @@ Know these:
 | Duplicate key handling | `toMap(key, value, mergeFunction)` |
 | Preserve set order | `toCollection(LinkedHashSet::new)` |
 
-## Senior Level
+### Senior Level
 
 Know these:
 
@@ -802,7 +802,7 @@ Know these:
 
 ---
 
-# 24. `Collectors.toList()` vs `Stream.toList()`
+## 24. `Collectors.toList()` vs `Stream.toList()`
 
 Java 8 style:
 
@@ -836,7 +836,7 @@ is concise, but I remember it returns an unmodifiable list.
 
 ---
 
-# 25. `groupingBy` vs `groupingByConcurrent`
+## 25. `groupingBy` vs `groupingByConcurrent`
 
 Normal grouping:
 
@@ -861,7 +861,7 @@ and suitable concurrent downstream accumulation. Always measure before using it 
 
 ---
 
-# 26. Collector Decision Table
+## 26. Collector Decision Table
 
 | Interview Requirement | Best Collector |
 |---|---|
@@ -880,7 +880,7 @@ and suitable concurrent downstream accumulation. Always measure before using it 
 
 ---
 
-# 27. Final Strong Answer
+## 27. Final Strong Answer
 
 If interviewer asks:
 

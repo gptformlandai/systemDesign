@@ -673,7 +673,420 @@ I inject time, randomness, and external dependencies when deterministic tests ma
 
 ---
 
-## 18. Thread-Safety Choices In Machine Coding
+## 18. Complete Example: Hotel Booking
+
+What this tests:
+
+- Domain modeling.
+- Repository boundary.
+- Atomic check-and-insert.
+- Date overlap logic.
+- Simple pricing.
+- Clear failure handling.
+
+Single-file runnable shape:
+
+```java
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
+public class HotelBookingDemo {
+    enum RoomType {
+        STANDARD,
+        DELUXE
+    }
+
+    record Room(String roomId, RoomType type, int nightlyPrice) {
+    }
+
+    record BookingCommand(String roomId, String guestId, LocalDate checkIn, LocalDate checkOut) {
+        BookingCommand {
+            if (roomId == null || roomId.isBlank()) {
+                throw new IllegalArgumentException("roomId is required");
+            }
+            if (guestId == null || guestId.isBlank()) {
+                throw new IllegalArgumentException("guestId is required");
+            }
+            if (!checkOut.isAfter(checkIn)) {
+                throw new IllegalArgumentException("checkOut must be after checkIn");
+            }
+        }
+    }
+
+    record Booking(
+        String bookingId,
+        String roomId,
+        String guestId,
+        LocalDate checkIn,
+        LocalDate checkOut,
+        int totalPrice
+    ) {
+    }
+
+    static class RoomUnavailableException extends RuntimeException {
+        RoomUnavailableException(String message) {
+            super(message);
+        }
+    }
+
+    interface RoomRepository {
+        Optional<Room> findById(String roomId);
+    }
+
+    static class InMemoryRoomRepository implements RoomRepository {
+        private final Map<String, Room> roomsById = new HashMap<>();
+
+        InMemoryRoomRepository(List<Room> rooms) {
+            for (Room room : rooms) {
+                roomsById.put(room.roomId(), room);
+            }
+        }
+
+        public Optional<Room> findById(String roomId) {
+            return Optional.ofNullable(roomsById.get(roomId));
+        }
+    }
+
+    interface BookingRepository {
+        Booking saveIfAvailable(Room room, BookingCommand command, String bookingId);
+
+        List<Booking> findByRoom(String roomId);
+    }
+
+    static class InMemoryBookingRepository implements BookingRepository {
+        private final Map<String, List<Booking>> bookingsByRoom = new HashMap<>();
+
+        public synchronized Booking saveIfAvailable(Room room, BookingCommand command, String bookingId) {
+            List<Booking> bookings = bookingsByRoom.computeIfAbsent(
+                room.roomId(),
+                ignored -> new ArrayList<>()
+            );
+
+            boolean overlap = bookings.stream().anyMatch(existing -> overlaps(existing, command));
+            if (overlap) {
+                throw new RoomUnavailableException("room unavailable for selected dates");
+            }
+
+            long nights = ChronoUnit.DAYS.between(command.checkIn(), command.checkOut());
+            Booking booking = new Booking(
+                bookingId,
+                room.roomId(),
+                command.guestId(),
+                command.checkIn(),
+                command.checkOut(),
+                Math.toIntExact(nights * room.nightlyPrice())
+            );
+
+            bookings.add(booking);
+            return booking;
+        }
+
+        public synchronized List<Booking> findByRoom(String roomId) {
+            return List.copyOf(bookingsByRoom.getOrDefault(roomId, List.of()));
+        }
+
+        private boolean overlaps(Booking existing, BookingCommand command) {
+            return command.checkIn().isBefore(existing.checkOut())
+                && command.checkOut().isAfter(existing.checkIn());
+        }
+    }
+
+    static class HotelBookingService {
+        private final RoomRepository roomRepository;
+        private final BookingRepository bookingRepository;
+        private final Supplier<String> idGenerator;
+
+        HotelBookingService(
+            RoomRepository roomRepository,
+            BookingRepository bookingRepository,
+            Supplier<String> idGenerator
+        ) {
+            this.roomRepository = roomRepository;
+            this.bookingRepository = bookingRepository;
+            this.idGenerator = idGenerator;
+        }
+
+        Booking book(BookingCommand command) {
+            Room room = roomRepository.findById(command.roomId())
+                .orElseThrow(() -> new IllegalArgumentException("room not found"));
+
+            return bookingRepository.saveIfAvailable(room, command, idGenerator.get());
+        }
+    }
+
+    public static void main(String[] args) {
+        RoomRepository roomRepository = new InMemoryRoomRepository(List.of(
+            new Room("R101", RoomType.STANDARD, 100),
+            new Room("R205", RoomType.DELUXE, 180)
+        ));
+        BookingRepository bookingRepository = new InMemoryBookingRepository();
+        AtomicInteger sequence = new AtomicInteger(1);
+
+        HotelBookingService service = new HotelBookingService(
+            roomRepository,
+            bookingRepository,
+            () -> "B" + sequence.getAndIncrement()
+        );
+
+        Booking first = service.book(new BookingCommand(
+            "R101",
+            "U1",
+            LocalDate.of(2026, 7, 1),
+            LocalDate.of(2026, 7, 3)
+        ));
+
+        System.out.println(first);
+
+        try {
+            service.book(new BookingCommand(
+                "R101",
+                "U2",
+                LocalDate.of(2026, 7, 2),
+                LocalDate.of(2026, 7, 4)
+            ));
+        } catch (RoomUnavailableException exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+}
+```
+
+Strong interview line:
+
+```text
+The important invariant is that availability check and booking insert happen atomically.
+For a single-JVM machine-coding round, synchronized repository logic is acceptable. In a real
+distributed system, the database transaction and unique constraint must provide the final guarantee.
+```
+
+---
+
+## 19. Complete Example: Parking Lot
+
+What this tests:
+
+- Entity modeling.
+- Strategy selection.
+- State transition.
+- In-memory repository thinking.
+- Simple synchronized critical section.
+
+Single-file runnable shape:
+
+```java
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+public class ParkingLotDemo {
+    enum VehicleType {
+        BIKE,
+        CAR
+    }
+
+    record Vehicle(String number, VehicleType type) {
+    }
+
+    record ParkingSpot(String spotId, VehicleType spotType, boolean occupied) {
+        boolean fits(Vehicle vehicle) {
+            if (spotType == vehicle.type()) {
+                return true;
+            }
+            return spotType == VehicleType.CAR && vehicle.type() == VehicleType.BIKE;
+        }
+
+        ParkingSpot occupy() {
+            return new ParkingSpot(spotId, spotType, true);
+        }
+
+        ParkingSpot release() {
+            return new ParkingSpot(spotId, spotType, false);
+        }
+    }
+
+    record ParkingTicket(String ticketId, String vehicleNumber, String spotId) {
+    }
+
+    interface SpotSelectionStrategy {
+        Optional<ParkingSpot> select(List<ParkingSpot> spots, Vehicle vehicle);
+    }
+
+    static class NearestSpotStrategy implements SpotSelectionStrategy {
+        public Optional<ParkingSpot> select(List<ParkingSpot> spots, Vehicle vehicle) {
+            return spots.stream()
+                .filter(spot -> !spot.occupied())
+                .filter(spot -> spot.fits(vehicle))
+                .sorted(Comparator.comparing(ParkingSpot::spotId))
+                .findFirst();
+        }
+    }
+
+    static class ParkingLot {
+        private final Map<String, ParkingSpot> spotsById = new HashMap<>();
+        private final Map<String, ParkingTicket> activeTicketsByVehicle = new HashMap<>();
+        private final SpotSelectionStrategy selectionStrategy;
+        private int ticketSequence = 1;
+
+        ParkingLot(List<ParkingSpot> spots, SpotSelectionStrategy selectionStrategy) {
+            for (ParkingSpot spot : spots) {
+                spotsById.put(spot.spotId(), spot);
+            }
+            this.selectionStrategy = selectionStrategy;
+        }
+
+        synchronized ParkingTicket park(Vehicle vehicle) {
+            if (activeTicketsByVehicle.containsKey(vehicle.number())) {
+                throw new IllegalStateException("vehicle already parked");
+            }
+
+            ParkingSpot spot = selectionStrategy
+                .select(new ArrayList<>(spotsById.values()), vehicle)
+                .orElseThrow(() -> new IllegalStateException("no spot available"));
+
+            spotsById.put(spot.spotId(), spot.occupy());
+            ParkingTicket ticket = new ParkingTicket(
+                "T" + ticketSequence++,
+                vehicle.number(),
+                spot.spotId()
+            );
+            activeTicketsByVehicle.put(vehicle.number(), ticket);
+            return ticket;
+        }
+
+        synchronized ParkingTicket unpark(String vehicleNumber) {
+            ParkingTicket ticket = activeTicketsByVehicle.remove(vehicleNumber);
+            if (ticket == null) {
+                throw new IllegalArgumentException("vehicle is not parked");
+            }
+
+            ParkingSpot occupiedSpot = spotsById.get(ticket.spotId());
+            spotsById.put(ticket.spotId(), occupiedSpot.release());
+            return ticket;
+        }
+    }
+
+    public static void main(String[] args) {
+        ParkingLot lot = new ParkingLot(List.of(
+            new ParkingSpot("B1", VehicleType.BIKE, false),
+            new ParkingSpot("C1", VehicleType.CAR, false),
+            new ParkingSpot("C2", VehicleType.CAR, false)
+        ), new NearestSpotStrategy());
+
+        ParkingTicket bikeTicket = lot.park(new Vehicle("KA-01-BIKE", VehicleType.BIKE));
+        ParkingTicket carTicket = lot.park(new Vehicle("KA-01-CAR", VehicleType.CAR));
+
+        System.out.println(bikeTicket);
+        System.out.println(carTicket);
+        System.out.println(lot.unpark("KA-01-BIKE"));
+    }
+}
+```
+
+Strong interview line:
+
+```text
+I keep spot selection as a strategy so nearest, cheapest, or floor-based allocation can change
+without rewriting parking state logic. The park and unpark methods are synchronized because
+spot assignment and ticket creation must be one atomic state transition.
+```
+
+---
+
+## 20. Complete Example: LRU Cache
+
+What this tests:
+
+- Choosing the right standard library data structure.
+- Capacity invariant.
+- Access-order behavior.
+- Thread-safety assumption.
+- Small clean API.
+
+Single-file runnable shape:
+
+```java
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public class LruCacheDemo {
+    static class LruCache<K, V> {
+        private final int capacity;
+        private final LinkedHashMap<K, V> values;
+
+        LruCache(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be positive");
+            }
+
+            this.capacity = capacity;
+            this.values = new LinkedHashMap<>(capacity, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+                    return size() > LruCache.this.capacity;
+                }
+            };
+        }
+
+        synchronized Optional<V> get(K key) {
+            return Optional.ofNullable(values.get(key));
+        }
+
+        synchronized void put(K key, V value) {
+            values.put(key, value);
+        }
+
+        synchronized Map<K, V> snapshot() {
+            return new LinkedHashMap<>(values);
+        }
+    }
+
+    public static void main(String[] args) {
+        LruCache<String, String> cache = new LruCache<>(2);
+
+        cache.put("A", "alpha");
+        cache.put("B", "bravo");
+        cache.get("A");
+        cache.put("C", "charlie");
+
+        System.out.println(cache.snapshot());
+    }
+}
+```
+
+Output idea:
+
+```text
+{A=alpha, C=charlie}
+```
+
+Strong interview line:
+
+```text
+LinkedHashMap with accessOrder=true already models LRU order. I only need to enforce capacity
+with removeEldestEntry and decide whether synchronization is required for the expected access pattern.
+```
+
+Production caution:
+
+```text
+For real production caching, I would usually use Caffeine because it handles eviction,
+concurrency, metrics, expiry, and tuning better than a hand-rolled interview cache.
+```
+
+---
+
+## 21. Thread-Safety Choices In Machine Coding
 
 | Need | Simple Choice |
 |---|---|
@@ -695,7 +1108,7 @@ still need a lock or transaction.
 
 ---
 
-## 19. Common Machine Coding Mistakes
+## 22. Common Machine Coding Mistakes
 
 | Mistake | Better Approach |
 |---|---|
@@ -711,7 +1124,7 @@ still need a lock or transaction.
 
 ---
 
-## 20. Strong Closing Answer
+## 23. Strong Closing Answer
 
 If interviewer asks:
 
@@ -729,7 +1142,7 @@ few demo/test cases. I avoid overengineering but leave the design extensible.
 
 ---
 
-## 21. Final Memory Trick
+## 24. Final Memory Trick
 
 ```text
 Model the nouns.

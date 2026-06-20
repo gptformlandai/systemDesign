@@ -4,7 +4,7 @@
 
 ---
 
-# 1. Simple Mental Model
+## 1. Simple Mental Model
 
 Think of `ConcurrentHashMap` like a hotel booking desk with many counters, not one single counter.
 
@@ -24,7 +24,7 @@ ConcurrentHashMap allows these to happen concurrently when they touch different 
 
 ---
 
-# 2. How It Works Internally
+## 2. How It Works Internally
 
 `ConcurrentHashMap` stores data in buckets, similar to `HashMap`.
 
@@ -55,7 +55,7 @@ Java roughly does:
 
 ---
 
-# 3. What CAS Means
+## 3. What CAS Means
 
 CAS means compare-and-swap.
 
@@ -72,7 +72,7 @@ So for empty buckets, `ConcurrentHashMap` may not need a heavy lock.
 
 ---
 
-# 4. Bucket-Level Locking
+## 4. Bucket-Level Locking
 
 If two requests update the same bucket, only that bucket is locked.
 
@@ -95,7 +95,7 @@ That is the main difference from `Hashtable`.
 
 ---
 
-# 5. Real Request Scenario
+## 5. Real Request Scenario
 
 Imagine a service keeps booking status in memory:
 
@@ -123,7 +123,7 @@ Two updates to B101 are coordinated safely.
 
 ---
 
-# 6. Why It Is Faster Than Hashtable
+## 6. Why It Is Faster Than Hashtable
 
 `Hashtable`:
 
@@ -145,11 +145,11 @@ That is why `ConcurrentHashMap` scales better for many concurrent requests.
 
 ---
 
-# 7. Important Atomic Methods
+## 7. Important Atomic Methods
 
 Use atomic methods for request-safe logic.
 
-## `putIfAbsent`
+### `putIfAbsent`
 
 ```java
 bookingStatusMap.putIfAbsent("B101", BookingStatus.PENDING);
@@ -165,7 +165,7 @@ This is useful for idempotency-style logic.
 
 ---
 
-## `compute`
+### `compute`
 
 ```java
 bookingStatusMap.compute("B101", (bookingId, oldStatus) -> {
@@ -184,7 +184,7 @@ Lock/update the value for this key atomically.
 
 ---
 
-## `computeIfAbsent`
+### `computeIfAbsent`
 
 ```java
 List<Booking> bookings = bookingsByRoom.computeIfAbsent(
@@ -201,7 +201,7 @@ Create value only if key is missing.
 
 ---
 
-# 8. Common Race Condition Trap
+## 8. Common Race Condition Trap
 
 Avoid this:
 
@@ -237,7 +237,7 @@ bookingStatusMap.compute("B101", (id, oldStatus) -> {
 
 ---
 
-# 9. Important Production Caution
+## 9. Important Production Caution
 
 `ConcurrentHashMap` makes individual map operations thread-safe.
 
@@ -271,7 +271,7 @@ Database constraints protect the whole system.
 
 ---
 
-# 10. Strong Interview Answer
+## 10. Strong Interview Answer
 
 If interviewer asks:
 
@@ -291,7 +291,7 @@ instead of check-then-put patterns, because those methods avoid race conditions.
 
 ---
 
-# 11. One-Line Memory Trick
+## 11. One-Line Memory Trick
 
 ```text
 Hashtable locks the building.
@@ -307,9 +307,9 @@ Same key/bucket -> coordinated update.
 
 ---
 
-# 12. Gold Layer: Beginner To Senior Understanding
+## 12. Gold Layer: Beginner To Senior Understanding
 
-## Beginner Level
+### Beginner Level
 
 Say:
 
@@ -324,7 +324,7 @@ Know:
 - Hashtable is thread-safe but coarse-grained.
 - ConcurrentHashMap is designed for concurrent access.
 
-## Intermediate Level
+### Intermediate Level
 
 Say:
 
@@ -341,7 +341,7 @@ Know:
 - `compute` is useful for atomic per-key updates.
 - `merge` is useful for counters and aggregation.
 
-## Senior Level
+### Senior Level
 
 Say:
 
@@ -361,7 +361,7 @@ Know:
 
 ---
 
-# 13. The Most Important Trap: Thread-Safe Map vs Thread-Safe Value
+## 13. The Most Important Trap: Thread-Safe Map vs Thread-Safe Value
 
 This is safe at the map level:
 
@@ -413,7 +413,7 @@ inside the map.
 
 ---
 
-# 14. Counter Pattern With LongAdder
+## 14. Counter Pattern With LongAdder
 
 For high-concurrency counters:
 
@@ -444,7 +444,7 @@ for frequent increments.
 
 ---
 
-# 15. When Not To Use ConcurrentHashMap
+## 15. When Not To Use ConcurrentHashMap
 
 Do not use it as a magic solution for:
 
@@ -467,7 +467,7 @@ Better choices:
 
 ---
 
-# 16. Final FAANG-Level Answer
+## 16. Final FAANG-Level Answer
 
 If interviewer asks:
 

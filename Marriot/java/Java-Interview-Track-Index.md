@@ -59,6 +59,7 @@ These are the pro sheets.
 | 12 | `Java-Modern-LTS-17-21-25-FAANG-Master-Sheet.md` | Java 17, 21, 25 LTS features, preview safety, interview-ready modern Java |
 | 13 | `Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` | Production coding judgment, API design, validation, logging, timeouts, retries, testing |
 | 14 | `Java-Platform-Tooling-Testing-Security-FAANG-Master-Sheet.md` | JPMS, classpath, Maven/Gradle, JUnit, JMH, GraalVM, Java security |
+| 15 | `Java-Testing-Patterns-Best-Practices-Gold-Sheet.md` | Test pyramid, JUnit 5, Mockito, Testcontainers, flaky tests, JMH boundaries |
 
 Senior target:
 - You can discuss Java not just as syntax, but as a runtime.
@@ -75,10 +76,10 @@ Use these after the concept sheets. They train fast spoken answers for actual in
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 15 | `Java-Collectors-Terminal-Operators-Gold-Sheet.md` | Collector clarity, `collect` vs `Collectors`, grouping, `toMap` traps |
-| 16 | `Java-ConcurrentHashMap-Request-Scenario-Gold-Sheet.md` | Request-level ConcurrentHashMap explanation, atomic methods, mutable-value trap |
-| 17 | `Java-Intervue-Round-2-Concurrency-Streams-Booking-Scenario-Gold-Sheet.md` | Full mock Round 2 flow: streams, concurrency, booking, JVM, CHM |
-| 18 | `Java-Scenario-Based-Quick-Revision-Gold-Sheet.md` | Rapid scenario answers across core Java, streams, concurrency, JVM, modern Java |
+| 16 | `Java-Collectors-Terminal-Operators-Gold-Sheet.md` | Collector clarity, `collect` vs `Collectors`, grouping, `toMap` traps |
+| 17 | `Java-ConcurrentHashMap-Request-Scenario-Gold-Sheet.md` | Request-level ConcurrentHashMap explanation, atomic methods, mutable-value trap |
+| 18 | `Java-Intervue-Round-2-Concurrency-Streams-Booking-Scenario-Gold-Sheet.md` | Full mock Round 2 flow: streams, concurrency, booking, JVM, CHM |
+| 19 | `Java-Scenario-Based-Quick-Revision-Gold-Sheet.md` | Rapid scenario answers across core Java, streams, concurrency, JVM, modern Java |
 
 Scenario target:
 - You can answer quickly under pressure.
@@ -94,10 +95,10 @@ Use these when preparing for targeted interview formats: tricky output rounds, d
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 19 | `Java-Tricky-Output-Questions-Gold-Sheet.md` | Output prediction traps: String, static, overloading, finally, boxing, streams, generics |
-| 20 | `Java-Generics-Reflection-Annotations-Deep-Dive-Gold-Sheet.md` | Type erasure, PECS, wildcards, reflection, annotations, proxies, Spring internals |
-| 21 | `Java-LLD-Machine-Coding-Patterns-Gold-Sheet.md` | Machine-coding structure, entities, services, repositories, patterns, thread safety |
-| 22 | `Java-Production-Debugging-Case-Studies-Gold-Sheet.md` | High CPU, memory leak, deadlock, GC spikes, pool starvation, classpath issues |
+| 20 | `Java-Tricky-Output-Questions-Gold-Sheet.md` | Output prediction traps: String, static, overloading, finally, boxing, streams, generics |
+| 21 | `Java-Generics-Reflection-Annotations-Deep-Dive-Gold-Sheet.md` | Type erasure, PECS, wildcards, reflection, annotations, proxies, Spring internals |
+| 22 | `Java-LLD-Machine-Coding-Patterns-Gold-Sheet.md` | Machine-coding structure, complete examples, repositories, patterns, thread safety |
+| 23 | `Java-Production-Debugging-Case-Studies-Gold-Sheet.md` | High CPU, memory leak, deadlock, GC spikes, pool starvation, classpath issues |
 
 Special-round target:
 - You can solve tricky output questions by rule, not guesswork.
@@ -191,6 +192,17 @@ state, but not as a replacement for a database or distributed cache.
 - GraalVM Native Image trade-offs.
 - Java security basics and dependency hygiene.
 
+### Testing
+
+- Test pyramid judgment.
+- JUnit 5 assertions and parameterized tests.
+- Mockito vs fakes and common mocking traps.
+- Test data builders.
+- Integration tests and Testcontainers.
+- Contract testing awareness.
+- Flaky test diagnosis.
+- JMH vs naive timing.
+
 ### Special Interview Skills
 
 - Tricky output reasoning.
@@ -230,6 +242,7 @@ state, but not as a replacement for a database or distributed cache.
 - Modern Java LTS.
 - Production engineering best practices.
 - Platform, tooling, testing, and security.
+- Testing patterns and best practices.
 - Scenario practice sheets.
 - Special interview rounds.
 - Practice strong answers aloud.
@@ -259,6 +272,10 @@ You are ready when you can answer these without notes:
 - What are records, sealed classes, and pattern matching?
 - How do you talk about preview features safely?
 - How do you debug a dependency conflict?
+- How do you design a Java testing strategy?
+- How do you choose unit vs integration vs contract tests?
+- When should you use Mockito, and when is a fake better?
+- Why do Testcontainers help backend integration tests?
 - Why is JMH better than naive timing?
 - When would you consider GraalVM Native Image?
 - What is the difference between hashing and encryption?
@@ -289,7 +306,8 @@ What makes this one-stop:
 - The index gives a learning order instead of random notes.
 - Each advanced topic includes traps, trade-offs, and production judgment.
 - The modern Java section separates stable LTS features from preview/incubator/EA features.
-- The platform sheet adds build, testing, benchmarking, security, and GraalVM awareness.
+- The platform sheet adds build, benchmarking, security, and GraalVM awareness.
+- The dedicated testing sheet adds JUnit, Mockito, Testcontainers, builders, flaky tests, and test strategy.
 - The special-round sheets cover output traps, framework internals, machine coding, and production debugging.
 
 ---
@@ -305,6 +323,8 @@ Use these sources when refreshing modern Java details:
 - Java Language Specification: `https://docs.oracle.com/javase/specs/`
 - Java API documentation: `https://docs.oracle.com/en/java/javase/`
 - JUnit User Guide: `https://docs.junit.org/`
+- Mockito documentation: `https://site.mockito.org/`
+- Testcontainers documentation: `https://testcontainers.com/`
 - OpenJDK JMH: `https://openjdk.org/projects/code-tools/jmh/`
 - GraalVM Native Image: `https://www.graalvm.org/latest/reference-manual/native-image/`
 
