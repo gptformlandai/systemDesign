@@ -97,12 +97,14 @@ Use these after the concept sheets. They train fast spoken answers and hands-on 
 | 17 | `JavaScript-Tricky-Output-Questions.md` | Coercion, hoisting, closure loops, `this`, async order, equality, prototype traps |
 | 18 | `JavaScript-Machine-Coding-Patterns.md` | Debounce, throttle, promise pool, event emitter, retry, memoize, LRU cache, pub-sub |
 | 19 | `JavaScript-Quick-Revision-And-Answer-Templates.md` | 30-60 second answers, scenario templates, final revision tables, confidence checklist |
+| 20 | `JavaScript-MAANG-Mock-Interview-Question-Bank.md` | Full mock rounds, follow-up ladders, scoring rubrics, production depth checks, final drills |
 
 Scenario target:
 - You can solve output questions by execution rules.
 - You can implement common JavaScript machine-coding utilities from scratch.
 - You can answer quickly under pressure without losing production judgment.
 - You can move from beginner wording to senior wording for the same topic.
+- You can handle realistic mock rounds with follow-ups across language, browser, Node.js, security, testing, performance, and system design.
 
 ---
 
@@ -299,6 +301,7 @@ shared mutable state when it makes behavior hard to reason about.
 - Tricky output questions.
 - Machine-coding patterns.
 - Quick revision and answer templates.
+- MAANG mock interview question bank.
 - Practice strong answers aloud.
 
 ---
