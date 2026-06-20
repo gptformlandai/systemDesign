@@ -17,12 +17,12 @@ Read these first if you want the base language to feel clear.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 1 | `Java-Core-Hot-Interview-Master-Sheet.md` | JVM basics, memory, OOP, collections, exceptions, generics, threads, GC |
-| 2 | `Java-String-Deep-Dive.md` | String pool, immutability, literals, concatenation, `intern()` |
-| 3 | `Java-8-Plus-Concepts-Interview-Prep.md` | Lambdas, functional interfaces, Optional, Date-Time, CompletableFuture, modern Java awareness |
-| 4 | `Java-Streams-Interview-Prep.md` | Stream chains, collectors, grouping, map/flatMap/reduce, interview coding |
-| 5 | `Java-Streams-Collectors-End-to-End-Examples-Gold-Sheet.md` | Complete stream and collector examples from question to answer |
-| 6 | `Java-Design-Patterns-Interview-Prep.md` | Patterns, when to use, Spring mapping, design judgment |
+| 1 | `01-Starter-Path/Java-Core-Hot-Interview-Master-Sheet.md` | JVM basics, memory, OOP, collections, exceptions, generics, threads, GC |
+| 2 | `01-Starter-Path/Java-String-Deep-Dive.md` | String pool, immutability, literals, concatenation, `intern()` |
+| 3 | `01-Starter-Path/Java-8-Plus-Concepts-Interview-Prep.md` | Lambdas, functional interfaces, Optional, Date-Time, CompletableFuture, modern Java awareness |
+| 4 | `01-Starter-Path/Java-Streams-Interview-Prep.md` | Stream chains, collectors, grouping, map/flatMap/reduce, interview coding |
+| 5 | `01-Starter-Path/Java-Streams-Collectors-End-to-End-Examples-Gold-Sheet.md` | Complete stream and collector examples from question to answer |
+| 6 | `01-Starter-Path/Java-Design-Patterns-Interview-Prep.md` | Patterns, when to use, Spring mapping, design judgment |
 
 Starter target:
 - You can explain Java execution.
@@ -37,9 +37,9 @@ After the starter path, read these.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 7 | `Java-Collections-Internals-Concurrent-Collections-FAANG-Master-Sheet.md` | HashMap, ConcurrentHashMap, TreeMap, PriorityQueue, iterator behavior |
-| 8 | `Java-Concurrency-Deep-Dive-FAANG-Master-Sheet.md` | JMM, locks, CAS, atomics, AQS, thread pools, synchronizers |
-| 9 | `Java-IO-NIO-Serialization-FAANG-Master-Sheet.md` | IO streams, NIO buffers/channels/selectors, files, serialization safety |
+| 7 | `02-Intermediate-Backend/Java-Collections-Internals-Concurrent-Collections-FAANG-Master-Sheet.md` | HashMap, ConcurrentHashMap, TreeMap, PriorityQueue, iterator behavior |
+| 8 | `02-Intermediate-Backend/Java-Concurrency-Deep-Dive-FAANG-Master-Sheet.md` | JMM, locks, CAS, atomics, AQS, thread pools, synchronizers |
+| 9 | `02-Intermediate-Backend/Java-IO-NIO-Serialization-FAANG-Master-Sheet.md` | IO streams, NIO buffers/channels/selectors, files, serialization safety |
 
 Intermediate target:
 - You can explain how core Java data structures behave internally.
@@ -54,12 +54,12 @@ These are the pro sheets.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 10 | `Java-Virtual-Threads-Modern-Concurrency-FAANG-Master-Sheet.md` | Virtual threads, pinning, structured concurrency, scoped values, migration judgment |
-| 11 | `Java-JVM-GC-Performance-Debugging-FAANG-Master-Sheet.md` | JIT, GC, memory leaks, thread dumps, heap dumps, JFR/JMC, production debugging |
-| 12 | `Java-Modern-LTS-17-21-25-FAANG-Master-Sheet.md` | Java 17, 21, 25 LTS features, preview safety, interview-ready modern Java |
-| 13 | `Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` | Production coding judgment, API design, validation, logging, timeouts, retries, testing |
-| 14 | `Java-Platform-Tooling-Testing-Security-FAANG-Master-Sheet.md` | JPMS, classpath, Maven/Gradle, JUnit, JMH, GraalVM, Java security |
-| 15 | `Java-Testing-Patterns-Best-Practices-Gold-Sheet.md` | Test pyramid, JUnit 5, Mockito, Testcontainers, flaky tests, JMH boundaries |
+| 10 | `03-Senior-FAANG/Java-Virtual-Threads-Modern-Concurrency-FAANG-Master-Sheet.md` | Virtual threads, pinning, structured concurrency, scoped values, migration judgment |
+| 11 | `03-Senior-FAANG/Java-JVM-GC-Performance-Debugging-FAANG-Master-Sheet.md` | JIT, GC, memory leaks, thread dumps, heap dumps, JFR/JMC, production debugging |
+| 12 | `03-Senior-FAANG/Java-Modern-LTS-17-21-25-FAANG-Master-Sheet.md` | Java 17, 21, 25 LTS features, preview safety, interview-ready modern Java |
+| 13 | `03-Senior-FAANG/Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` | Production coding judgment, API design, validation, logging, timeouts, retries, testing |
+| 14 | `03-Senior-FAANG/Java-Platform-Tooling-Testing-Security-FAANG-Master-Sheet.md` | JPMS, classpath, Maven/Gradle, JUnit, JMH, GraalVM, Java security |
+| 15 | `03-Senior-FAANG/Java-Testing-Patterns-Best-Practices-Gold-Sheet.md` | Test pyramid, JUnit 5, Mockito, Testcontainers, flaky tests, JMH boundaries |
 
 Senior target:
 - You can discuss Java not just as syntax, but as a runtime.
@@ -76,10 +76,10 @@ Use these after the concept sheets. They train fast spoken answers for actual in
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 16 | `Java-Collectors-Terminal-Operators-Gold-Sheet.md` | Collector clarity, `collect` vs `Collectors`, grouping, `toMap` traps |
-| 17 | `Java-ConcurrentHashMap-Request-Scenario-Gold-Sheet.md` | Request-level ConcurrentHashMap explanation, atomic methods, mutable-value trap |
-| 18 | `Java-Intervue-Round-2-Concurrency-Streams-Booking-Scenario-Gold-Sheet.md` | Full mock Round 2 flow: streams, concurrency, booking, JVM, CHM |
-| 19 | `Java-Scenario-Based-Quick-Revision-Gold-Sheet.md` | Rapid scenario answers across core Java, streams, concurrency, JVM, modern Java |
+| 16 | `04-Scenario-Practice/Java-Collectors-Terminal-Operators-Gold-Sheet.md` | Collector clarity, `collect` vs `Collectors`, grouping, `toMap` traps |
+| 17 | `04-Scenario-Practice/Java-ConcurrentHashMap-Request-Scenario-Gold-Sheet.md` | Request-level ConcurrentHashMap explanation, atomic methods, mutable-value trap |
+| 18 | `04-Scenario-Practice/Java-Intervue-Round-2-Concurrency-Streams-Booking-Scenario-Gold-Sheet.md` | Full mock Round 2 flow: streams, concurrency, booking, JVM, CHM |
+| 19 | `04-Scenario-Practice/Java-Scenario-Based-Quick-Revision-Gold-Sheet.md` | Rapid scenario answers across core Java, streams, concurrency, JVM, modern Java |
 
 Scenario target:
 - You can answer quickly under pressure.
@@ -95,10 +95,10 @@ Use these when preparing for targeted interview formats: tricky output rounds, d
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 20 | `Java-Tricky-Output-Questions-Gold-Sheet.md` | Output prediction traps: String, static, overloading, finally, boxing, streams, generics |
-| 21 | `Java-Generics-Reflection-Annotations-Deep-Dive-Gold-Sheet.md` | Type erasure, PECS, wildcards, reflection, annotations, proxies, Spring internals |
-| 22 | `Java-LLD-Machine-Coding-Patterns-Gold-Sheet.md` | Machine-coding structure, complete examples, repositories, patterns, thread safety |
-| 23 | `Java-Production-Debugging-Case-Studies-Gold-Sheet.md` | High CPU, memory leak, deadlock, GC spikes, pool starvation, classpath issues |
+| 20 | `05-Special-Interview-Rounds/Java-Tricky-Output-Questions-Gold-Sheet.md` | Output prediction traps: String, static, overloading, finally, boxing, streams, generics |
+| 21 | `05-Special-Interview-Rounds/Java-Generics-Reflection-Annotations-Deep-Dive-Gold-Sheet.md` | Type erasure, PECS, wildcards, reflection, annotations, proxies, Spring internals |
+| 22 | `05-Special-Interview-Rounds/Java-LLD-Machine-Coding-Patterns-Gold-Sheet.md` | Machine-coding structure, complete examples, repositories, patterns, thread safety |
+| 23 | `05-Special-Interview-Rounds/Java-Production-Debugging-Case-Studies-Gold-Sheet.md` | High CPU, memory leak, deadlock, GC spikes, pool starvation, classpath issues |
 
 Special-round target:
 - You can solve tricky output questions by rule, not guesswork.
@@ -108,7 +108,27 @@ Special-round target:
 
 ---
 
-## 6. Interview Answer Pattern
+## 6. Practice Upgrade Path
+
+Use these after or alongside the concept sheets. They convert the Java track from passive reading into active recall, runnable labs, timed mocks, and measurable readiness.
+
+| Order | File | What It Builds |
+|---:|---|---|
+| 24 | `06-Practice-Upgrade/Java-Active-Recall-Question-Bank.md` | Topic-by-topic recall questions mapped to every Java sheet |
+| 25 | `06-Practice-Upgrade/Java-Runnable-Mini-Labs.md` | Hands-on Java labs for strings, collections, concurrency, streams, JVM, debugging, serialization, and LLD |
+| 26 | `06-Practice-Upgrade/Java-Mock-Interview-Scripts.md` | Timed mock rounds for core Java, streams, concurrency, JVM, modern Java, LLD, tricky output, and senior scenarios |
+| 27 | `06-Practice-Upgrade/Java-Interview-Scoring-Rubrics.md` | 1-5 scoring rubrics for concepts, coding, scenarios, production debugging, and readiness gates |
+| 28 | `06-Practice-Upgrade/Java-2-Week-4-Week-Mastery-Roadmaps.md` | Realistic 2-week and 4-week study plans with daily practice and score checkpoints |
+
+Practice target:
+- You can answer from memory, not just recognize notes.
+- You can run small Java programs that expose the traps.
+- You can score your answers honestly and retest weak areas.
+- You can handle timed interview pressure with follow-up questions.
+
+---
+
+## 7. Interview Answer Pattern
 
 Use this structure for most Java answers:
 
@@ -132,7 +152,7 @@ state, but not as a replacement for a database or distributed cache.
 
 ---
 
-## 7. What A Gold-Level Java Learner Should Master
+## 8. What A Gold-Level Java Learner Should Master
 
 ### Language Fundamentals
 
@@ -216,7 +236,7 @@ state, but not as a replacement for a database or distributed cache.
 
 ---
 
-## 8. One-Day Revision Plan
+## 9. One-Day Revision Plan
 
 ### Hours 1-2
 
@@ -245,11 +265,12 @@ state, but not as a replacement for a database or distributed cache.
 - Testing patterns and best practices.
 - Scenario practice sheets.
 - Special interview rounds.
+- Practice upgrade recall/mocks for weakest areas.
 - Practice strong answers aloud.
 
 ---
 
-## 9. Final Confidence Checklist
+## 10. Final Confidence Checklist
 
 You are ready when you can answer these without notes:
 
@@ -288,10 +309,14 @@ You are ready when you can answer these without notes:
 - How do Java dynamic proxies relate to Spring AOP?
 - How do you structure a Java machine-coding solution?
 - How do you debug high CPU, memory leak, deadlock, and GC pause spikes?
+- Can you answer active-recall questions without reading the source sheet?
+- Can you complete runnable labs and explain the observed behavior?
+- Can you score yourself with the rubrics and identify red/yellow topics?
+- Can you pass timed mock rounds without memorized wording?
 
 ---
 
-## 10. Gold Standard Coverage Map
+## 11. Gold Standard Coverage Map
 
 | Level | What This Track Covers | Status |
 |---|---|---|
@@ -299,6 +324,7 @@ You are ready when you can answer these without notes:
 | Intermediate | Java 8, streams, exceptions, generics, design patterns, IO, serialization | Gold |
 | Senior | concurrency, JMM, locks, executors, JVM, GC, diagnostics, production coding | Gold |
 | FAANG | runtime trade-offs, virtual threads, JFR/JMC, low-latency GC, platform tooling, security, modern LTS, scenario delivery, special rounds | Gold |
+| Practice | active recall, runnable labs, timed mocks, rubrics, 2-week and 4-week roadmaps | Gold |
 
 What makes this one-stop:
 
@@ -309,10 +335,11 @@ What makes this one-stop:
 - The platform sheet adds build, benchmarking, security, and GraalVM awareness.
 - The dedicated testing sheet adds JUnit, Mockito, Testcontainers, builders, flaky tests, and test strategy.
 - The special-round sheets cover output traps, framework internals, machine coding, and production debugging.
+- The practice upgrade path adds active recall, hands-on labs, mock interviews, scoring rubrics, and realistic mastery plans.
 
 ---
 
-## 11. Official Source Notes
+## 12. Official Source Notes
 
 Use these sources when refreshing modern Java details:
 

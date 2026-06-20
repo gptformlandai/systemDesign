@@ -13,11 +13,11 @@ design.
 
 | Order | Document | Why This Order |
 |---:|---|---|
-| 1 | `SQL-Query-Mastery-Story-Mode.md` | End-to-end SQL fundamentals, joins, aggregation, windows, indexes, transactions |
-| 2 | `SQL-Advanced-Query-Drills-Windows-CTE-Analytics-Platinum-Sheet.md` | Fast practice for windows, CTEs, analytics, gaps/islands, latest row, top-N |
-| 3 | `SQL-Performance-Indexing-Explain-Platinum-Sheet.md` | EXPLAIN, indexes, sargability, pagination, slow-query debugging |
-| 4 | `SQL-Transactions-Locking-Concurrency-Platinum-Sheet.md` | ACID, isolation, locks, deadlocks, idempotency, backend correctness |
-| 5 | `SQL-Data-Modeling-Backend-Analytics-Case-Studies-Platinum-Sheet.md` | OLTP schema design, constraints, audit history, star schema, backend cases |
+| 1 | `01-Starter-Path/SQL-Query-Mastery-Story-Mode.md` | End-to-end SQL fundamentals, joins, aggregation, windows, indexes, transactions |
+| 2 | `02-Intermediate-Query-Drills/SQL-Advanced-Query-Drills-Windows-CTE-Analytics-Platinum-Sheet.md` | Fast practice for windows, CTEs, analytics, gaps/islands, latest row, top-N |
+| 3 | `03-Senior-Performance-Concurrency/SQL-Performance-Indexing-Explain-Platinum-Sheet.md` | EXPLAIN, indexes, sargability, pagination, slow-query debugging |
+| 4 | `03-Senior-Performance-Concurrency/SQL-Transactions-Locking-Concurrency-Platinum-Sheet.md` | ACID, isolation, locks, deadlocks, idempotency, backend correctness |
+| 5 | `04-MAANG-Data-Modeling-Case-Studies/SQL-Data-Modeling-Backend-Analytics-Case-Studies-Platinum-Sheet.md` | OLTP schema design, constraints, audit history, star schema, backend cases |
 
 ---
 

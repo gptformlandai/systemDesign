@@ -2010,12 +2010,12 @@ Use it after reading:
 
 | Concept Area | Main Java Track Sheet |
 |---|---|
-| Streams and collectors | `Java-Streams-Interview-Prep.md` and `Java-Collectors-Terminal-Operators-Gold-Sheet.md` |
-| Java 8+ and modern Java | `Java-8-Plus-Concepts-Interview-Prep.md` and `Java-Modern-LTS-17-21-25-FAANG-Master-Sheet.md` |
-| Concurrency | `Java-Concurrency-Deep-Dive-FAANG-Master-Sheet.md` |
-| Virtual threads | `Java-Virtual-Threads-Modern-Concurrency-FAANG-Master-Sheet.md` |
-| JVM and GC | `Java-JVM-GC-Performance-Debugging-FAANG-Master-Sheet.md` |
-| Production coding | `Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` |
+| Streams and collectors | `../01-Starter-Path/Java-Streams-Interview-Prep.md` and `Java-Collectors-Terminal-Operators-Gold-Sheet.md` |
+| Java 8+ and modern Java | `../01-Starter-Path/Java-8-Plus-Concepts-Interview-Prep.md` and `../03-Senior-FAANG/Java-Modern-LTS-17-21-25-FAANG-Master-Sheet.md` |
+| Concurrency | `../02-Intermediate-Backend/Java-Concurrency-Deep-Dive-FAANG-Master-Sheet.md` |
+| Virtual threads | `../03-Senior-FAANG/Java-Virtual-Threads-Modern-Concurrency-FAANG-Master-Sheet.md` |
+| JVM and GC | `../03-Senior-FAANG/Java-JVM-GC-Performance-Debugging-FAANG-Master-Sheet.md` |
+| Production coding | `../03-Senior-FAANG/Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` |
 
 Purpose:
 

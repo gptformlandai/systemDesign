@@ -12,19 +12,19 @@ tested, secured, deployed, observed, and operated in production.
 
 | Order | Document | Why This Order |
 |---:|---|---|
-| 1 | `Spring-Boot-Core-Interview-Master-Sheet.md` | Learn container, beans, DI, MVC, AOP, transactions |
-| 2 | `Spring-Data-JPA-Hibernate-Interview-Master-Sheet.md` | Learn persistence, mappings, transactions, performance |
-| 3 | `Spring-Security-JWT-OAuth-Interview-Sheet.md` | Learn authentication, authorization, JWT, OAuth2 |
-| 4 | `Spring-Boot-Testing-Testcontainers-Migrations-Interview-Master-Sheet.md` | Learn testing and database migration confidence |
-| 5 | `Spring-Boot-Cache-Async-Scheduling-Events-Startup-Interview-Master-Sheet.md` | Learn runtime/background features |
-| 6 | `Spring-Batch-Interview-Master-Sheet.md` | Learn large-data offline processing |
-| 7 | `Spring-Boot-REST-Clients-WebFlux-Resilience-Interview-Master-Sheet.md` | Learn outbound calls, reactive basics, resilience |
-| 8 | `Spring-Boot-Messaging-Kafka-RabbitMQ-Interview-Master-Sheet.md` | Learn event-driven systems and async reliability |
-| 9 | `Spring-Boot-Observability-Actuator-Micrometer-Interview-Master-Sheet.md` | Learn production monitoring and debugging |
-| 10 | `Spring-Cloud-Microservices-Interview-Master-Sheet.md` | Learn distributed Spring Boot architecture |
-| 11 | `Spring-Boot-Internals-AutoConfiguration-Proxies-Transactions-Platinum-Sheet.md` | Learn Boot internals, conditions, proxies, transaction traps |
-| 12 | `Spring-Boot-Production-Debugging-Case-Studies-Platinum-Sheet.md` | Learn incident debugging from startup to memory, DB, cache, security |
-| 13 | `Spring-Boot-MAANG-Scenario-Based-Architecture-Questions-Platinum-Sheet.md` | Learn scenario answers for booking, payment, cache, batch, security |
+| 1 | `01-Starter-Path/Spring-Boot-Core-Interview-Master-Sheet.md` | Learn container, beans, DI, MVC, AOP, transactions |
+| 2 | `01-Starter-Path/Spring-Data-JPA-Hibernate-Interview-Master-Sheet.md` | Learn persistence, mappings, transactions, performance |
+| 3 | `01-Starter-Path/Spring-Security-JWT-OAuth-Interview-Sheet.md` | Learn authentication, authorization, JWT, OAuth2 |
+| 4 | `01-Starter-Path/Spring-Boot-Testing-Testcontainers-Migrations-Interview-Master-Sheet.md` | Learn testing and database migration confidence |
+| 5 | `02-Intermediate-Production-Features/Spring-Boot-Cache-Async-Scheduling-Events-Startup-Interview-Master-Sheet.md` | Learn runtime/background features |
+| 6 | `03-Senior-Distributed-Workloads/Spring-Batch-Interview-Master-Sheet.md` | Learn large-data offline processing |
+| 7 | `02-Intermediate-Production-Features/Spring-Boot-REST-Clients-WebFlux-Resilience-Interview-Master-Sheet.md` | Learn outbound calls, reactive basics, resilience |
+| 8 | `03-Senior-Distributed-Workloads/Spring-Boot-Messaging-Kafka-RabbitMQ-Interview-Master-Sheet.md` | Learn event-driven systems and async reliability |
+| 9 | `02-Intermediate-Production-Features/Spring-Boot-Observability-Actuator-Micrometer-Interview-Master-Sheet.md` | Learn production monitoring and debugging |
+| 10 | `03-Senior-Distributed-Workloads/Spring-Cloud-Microservices-Interview-Master-Sheet.md` | Learn distributed Spring Boot architecture |
+| 11 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Internals-AutoConfiguration-Proxies-Transactions-Platinum-Sheet.md` | Learn Boot internals, conditions, proxies, transaction traps |
+| 12 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Production-Debugging-Case-Studies-Platinum-Sheet.md` | Learn incident debugging from startup to memory, DB, cache, security |
+| 13 | `04-MAANG-Platinum-Scenarios/Spring-Boot-MAANG-Scenario-Based-Architecture-Questions-Platinum-Sheet.md` | Learn scenario answers for booking, payment, cache, batch, security |
 
 ---
 

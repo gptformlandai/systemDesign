@@ -18,11 +18,11 @@ Read these first if you want JavaScript fundamentals to feel clear instead of ma
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 1 | `JavaScript-Core-Interview-Master-Sheet.md` | Types, variables, equality, coercion, functions, objects, arrays, errors |
-| 2 | `JavaScript-Execution-Context-Scope-Closures-Deep-Dive.md` | Execution context, call stack, lexical environment, hoisting, closures, memory retention |
-| 3 | `JavaScript-This-Prototypes-Classes-Deep-Dive.md` | `this`, binding rules, prototype chain, `new`, classes, inheritance, descriptors |
-| 4 | `JavaScript-Arrays-Objects-Functional-Patterns.md` | `map`, `filter`, `reduce`, grouping, cloning, immutability, object transforms |
-| 5 | `JavaScript-Modern-ES-Features-Master-Sheet.md` | ES6+ features, modules, destructuring, spread/rest, optional chaining, nullish coalescing |
+| 1 | `01-Starter-Path/JavaScript-Core-Interview-Master-Sheet.md` | Types, variables, equality, coercion, functions, objects, arrays, errors |
+| 2 | `01-Starter-Path/JavaScript-Execution-Context-Scope-Closures-Deep-Dive.md` | Execution context, call stack, lexical environment, hoisting, closures, memory retention |
+| 3 | `01-Starter-Path/JavaScript-This-Prototypes-Classes-Deep-Dive.md` | `this`, binding rules, prototype chain, `new`, classes, inheritance, descriptors |
+| 4 | `01-Starter-Path/JavaScript-Arrays-Objects-Functional-Patterns.md` | `map`, `filter`, `reduce`, grouping, cloning, immutability, object transforms |
+| 5 | `01-Starter-Path/JavaScript-Modern-ES-Features-Master-Sheet.md` | ES6+ features, modules, destructuring, spread/rest, optional chaining, nullish coalescing |
 
 Starter target:
 - You can explain JavaScript types, scope, closures, `this`, prototypes, and basic async behavior without guessing.
@@ -38,10 +38,10 @@ After the starter path, read these.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 6 | `JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` | Event loop, microtasks, macrotasks, Promises, async/await, timers, output order |
-| 7 | `TypeScript-For-JavaScript-Engineers-Master-Sheet.md` | Types, interfaces, generics, narrowing, utility types, production safety |
-| 8 | `JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` | DOM, events, bubbling/capturing, storage, fetch, CORS, rendering basics |
-| 9 | `JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
+| 6 | `02-Intermediate-Frontend-FullStack/JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` | Event loop, microtasks, macrotasks, Promises, async/await, timers, output order |
+| 7 | `02-Intermediate-Frontend-FullStack/TypeScript-For-JavaScript-Engineers-Master-Sheet.md` | Types, interfaces, generics, narrowing, utility types, production safety |
+| 8 | `02-Intermediate-Frontend-FullStack/JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` | DOM, events, bubbling/capturing, storage, fetch, CORS, rendering basics |
+| 9 | `02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
 
 Intermediate target:
 - You can explain how browser JavaScript responds to user events, network calls, timers, and rendering work.
@@ -57,10 +57,10 @@ Use this path if you are preparing for Node.js backend, full-stack, platform, or
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 10 | `JavaScript-NodeJS-Backend-Production-Master-Sheet.md` | Node runtime, CommonJS/ESM, APIs, streams, buffers, event-loop blocking, worker threads |
-| 11 | `JavaScript-NodeJS-Interview-Scenarios.md` | API latency, blocked event loop, retries, queues, streams, backpressure, memory leaks |
-| 12 | `JavaScript-Security-Best-Practices-Master-Sheet.md` | XSS, CSRF, prototype pollution, JWT/storage, npm supply chain, injection risks |
-| 13 | `JavaScript-Testing-Patterns-Master-Sheet.md` | Jest/Vitest, mocks, fake timers, integration tests, Playwright, contract tests |
+| 10 | `03-Backend-NodeJS/JavaScript-NodeJS-Backend-Production-Master-Sheet.md` | Node runtime, CommonJS/ESM, APIs, streams, buffers, event-loop blocking, worker threads |
+| 11 | `03-Backend-NodeJS/JavaScript-NodeJS-Interview-Scenarios.md` | API latency, blocked event loop, retries, queues, streams, backpressure, memory leaks |
+| 12 | `03-Backend-NodeJS/JavaScript-Security-Best-Practices-Master-Sheet.md` | XSS, CSRF, prototype pollution, JWT/storage, npm supply chain, injection risks |
+| 13 | `03-Backend-NodeJS/JavaScript-Testing-Patterns-Master-Sheet.md` | Jest/Vitest, mocks, fake timers, integration tests, Playwright, contract tests |
 
 Backend target:
 - You can explain why Node.js is efficient for IO-heavy workloads and weak for CPU-heavy work unless designed carefully.
@@ -76,9 +76,9 @@ These are the pro sheets.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 14 | `JavaScript-Performance-Memory-Debugging-Master-Sheet.md` | Memory leaks, profiling, DevTools, heap snapshots, event-loop lag, bundle/runtime cost |
-| 15 | `JavaScript-Production-Debugging-Case-Studies.md` | High CPU, memory leak, blocked event loop, API storm, bad bundle, async failures |
-| 16 | `JavaScript-System-Design-For-Frontend-And-Node.md` | Client/server JS architecture, SSR/CSR, caching, API gateway patterns, scalability |
+| 14 | `04-Senior-MAANG/JavaScript-Performance-Memory-Debugging-Master-Sheet.md` | Memory leaks, profiling, DevTools, heap snapshots, event-loop lag, bundle/runtime cost |
+| 15 | `04-Senior-MAANG/JavaScript-Production-Debugging-Case-Studies.md` | High CPU, memory leak, blocked event loop, API storm, bad bundle, async failures |
+| 16 | `04-Senior-MAANG/JavaScript-System-Design-For-Frontend-And-Node.md` | Client/server JS architecture, SSR/CSR, caching, API gateway patterns, scalability |
 
 Senior target:
 - You can debug JavaScript as a runtime, not just write syntax.
@@ -94,10 +94,10 @@ Use these after the concept sheets. They train fast spoken answers and hands-on 
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 17 | `JavaScript-Tricky-Output-Questions.md` | Coercion, hoisting, closure loops, `this`, async order, equality, prototype traps |
-| 18 | `JavaScript-Machine-Coding-Patterns.md` | Debounce, throttle, promise pool, event emitter, retry, memoize, LRU cache, pub-sub |
-| 19 | `JavaScript-Quick-Revision-And-Answer-Templates.md` | 30-60 second answers, scenario templates, final revision tables, confidence checklist |
-| 20 | `JavaScript-MAANG-Mock-Interview-Question-Bank.md` | Full mock rounds, follow-up ladders, scoring rubrics, production depth checks, final drills |
+| 17 | `05-Scenario-Practice/JavaScript-Tricky-Output-Questions.md` | Coercion, hoisting, closure loops, `this`, async order, equality, prototype traps |
+| 18 | `05-Scenario-Practice/JavaScript-Machine-Coding-Patterns.md` | Debounce, throttle, promise pool, event emitter, retry, memoize, LRU cache, pub-sub |
+| 19 | `05-Scenario-Practice/JavaScript-Quick-Revision-And-Answer-Templates.md` | 30-60 second answers, scenario templates, final revision tables, confidence checklist |
+| 20 | `05-Scenario-Practice/JavaScript-MAANG-Mock-Interview-Question-Bank.md` | Full mock rounds, follow-up ladders, scoring rubrics, production depth checks, final drills |
 
 Scenario target:
 - You can solve output questions by execution rules.

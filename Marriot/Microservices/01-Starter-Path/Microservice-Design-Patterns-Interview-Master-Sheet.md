@@ -2233,14 +2233,14 @@ Use the supporting deep-dive sheets when you need FAANG-level depth:
 
 | Need | Read |
 |---|---|
-| Full study order | `Microservices-Interview-Track-Index.md` |
+| Full study order | `../Microservices-Interview-Track-Index.md` |
 | REST/gRPC/events/contracts | `Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` |
-| Data ownership and consistency | `Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` |
-| Kafka and event-driven systems | `Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` |
-| Resilience and capacity | `Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` |
-| Security and zero trust | `Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` |
-| Observability and multi-region | `Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` |
-| Testing, governance, migration | `Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` |
+| Data ownership and consistency | `../02-Intermediate-Path/Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` |
+| Kafka and event-driven systems | `../02-Intermediate-Path/Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` |
+| Resilience and capacity | `../02-Intermediate-Path/Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` |
+| Security and zero trust | `../03-Senior-Path/Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` |
+| Observability and multi-region | `../03-Senior-Path/Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` |
+| Testing, governance, migration | `../03-Senior-Path/Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` |
 
 ---
 

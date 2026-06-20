@@ -5,7 +5,7 @@ Target: complete stream + collector practice for interviews.
 Use this after:
 
 - `Java-Streams-Interview-Prep.md`
-- `Java-Collectors-Terminal-Operators-Gold-Sheet.md`
+- `../04-Scenario-Practice/Java-Collectors-Terminal-Operators-Gold-Sheet.md`
 
 Goal:
 

@@ -4,7 +4,7 @@
 
 Track companion:
 
-- Start with `SQL-Interview-Track-Index.md` for the recommended order and platinum revision path.
+- Start with `../SQL-Interview-Track-Index.md` for the recommended order and platinum revision path.
 - Use this file as the main story-mode master sheet.
 - Use the platinum companion sheets for focused revision on advanced queries, performance, concurrency, and schema design.
 

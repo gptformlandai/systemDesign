@@ -12,17 +12,17 @@ explain them clearly in interviews.
 
 | Order | Document | Why This Order |
 |---:|---|---|
-| 1 | `Microservice-Design-Patterns-Interview-Master-Sheet.md` | Core pattern map and interview vocabulary |
-| 2 | `Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` | REST/gRPC/events, API versioning, contracts |
-| 3 | `Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` | DB ownership, joins, saga, outbox, consistency |
-| 4 | `Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` | Kafka, ordering, consumer lag, DLQ, schemas |
-| 5 | `Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` | timeout, retry, circuit breaker, scaling math |
-| 6 | `Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` | OAuth2, mTLS, service identity, secrets |
-| 7 | `Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` | logs, metrics, traces, incidents, DR, multi-region |
-| 8 | `Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` | contract tests, rollout, strangler, governance |
-| 9 | `Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | service boundaries, DDD, data/team ownership |
-| 10 | `Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | incident response, production debugging, RCA |
-| 11 | `Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Kubernetes runtime, probes, mesh, platform readiness |
+| 1 | `01-Starter-Path/Microservice-Design-Patterns-Interview-Master-Sheet.md` | Core pattern map and interview vocabulary |
+| 2 | `01-Starter-Path/Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` | REST/gRPC/events, API versioning, contracts |
+| 3 | `02-Intermediate-Path/Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` | DB ownership, joins, saga, outbox, consistency |
+| 4 | `02-Intermediate-Path/Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` | Kafka, ordering, consumer lag, DLQ, schemas |
+| 5 | `02-Intermediate-Path/Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` | timeout, retry, circuit breaker, scaling math |
+| 6 | `03-Senior-Path/Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` | OAuth2, mTLS, service identity, secrets |
+| 7 | `03-Senior-Path/Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` | logs, metrics, traces, incidents, DR, multi-region |
+| 8 | `03-Senior-Path/Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` | contract tests, rollout, strangler, governance |
+| 9 | `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | service boundaries, DDD, data/team ownership |
+| 10 | `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | incident response, production debugging, RCA |
+| 11 | `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Kubernetes runtime, probes, mesh, platform readiness |
 
 ---
 
@@ -211,9 +211,9 @@ Use these after the core eight sheets:
 
 | Supplement | Why It Matters |
 |---|---|
-| `Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | Prevents wrong service splits and distributed monoliths |
-| `Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | Builds senior-level incident/debugging confidence |
-| `Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Connects design to real production runtime |
+| `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | Prevents wrong service splits and distributed monoliths |
+| `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | Builds senior-level incident/debugging confidence |
+| `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Connects design to real production runtime |
 
 Platinum rule:
 

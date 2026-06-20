@@ -1688,22 +1688,22 @@ Use this to jump back into deep notes:
 
 | Need | File |
 |---|---|
-| fundamentals | `JavaScript-Core-Interview-Master-Sheet.md` |
-| scope/closure | `JavaScript-Execution-Context-Scope-Closures-Deep-Dive.md` |
-| this/prototype/class | `JavaScript-This-Prototypes-Classes-Deep-Dive.md` |
-| arrays/objects | `JavaScript-Arrays-Objects-Functional-Patterns.md` |
-| ES features | `JavaScript-Modern-ES-Features-Master-Sheet.md` |
-| async/event loop | `JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` |
-| TypeScript | `TypeScript-For-JavaScript-Engineers-Master-Sheet.md` |
-| browser APIs | `JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` |
-| frontend scenarios | `JavaScript-Frontend-Interview-Scenarios.md` |
-| Node backend | `JavaScript-NodeJS-Backend-Production-Master-Sheet.md` |
-| Node scenarios | `JavaScript-NodeJS-Interview-Scenarios.md` |
-| security | `JavaScript-Security-Best-Practices-Master-Sheet.md` |
-| testing | `JavaScript-Testing-Patterns-Master-Sheet.md` |
-| performance | `JavaScript-Performance-Memory-Debugging-Master-Sheet.md` |
-| case studies | `JavaScript-Production-Debugging-Case-Studies.md` |
-| system design | `JavaScript-System-Design-For-Frontend-And-Node.md` |
+| fundamentals | `../01-Starter-Path/JavaScript-Core-Interview-Master-Sheet.md` |
+| scope/closure | `../01-Starter-Path/JavaScript-Execution-Context-Scope-Closures-Deep-Dive.md` |
+| this/prototype/class | `../01-Starter-Path/JavaScript-This-Prototypes-Classes-Deep-Dive.md` |
+| arrays/objects | `../01-Starter-Path/JavaScript-Arrays-Objects-Functional-Patterns.md` |
+| ES features | `../01-Starter-Path/JavaScript-Modern-ES-Features-Master-Sheet.md` |
+| async/event loop | `../02-Intermediate-Frontend-FullStack/JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` |
+| TypeScript | `../02-Intermediate-Frontend-FullStack/TypeScript-For-JavaScript-Engineers-Master-Sheet.md` |
+| browser APIs | `../02-Intermediate-Frontend-FullStack/JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` |
+| frontend scenarios | `../02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` |
+| Node backend | `../03-Backend-NodeJS/JavaScript-NodeJS-Backend-Production-Master-Sheet.md` |
+| Node scenarios | `../03-Backend-NodeJS/JavaScript-NodeJS-Interview-Scenarios.md` |
+| security | `../03-Backend-NodeJS/JavaScript-Security-Best-Practices-Master-Sheet.md` |
+| testing | `../03-Backend-NodeJS/JavaScript-Testing-Patterns-Master-Sheet.md` |
+| performance | `../04-Senior-MAANG/JavaScript-Performance-Memory-Debugging-Master-Sheet.md` |
+| case studies | `../04-Senior-MAANG/JavaScript-Production-Debugging-Case-Studies.md` |
+| system design | `../04-Senior-MAANG/JavaScript-System-Design-For-Frontend-And-Node.md` |
 | output questions | `JavaScript-Tricky-Output-Questions.md` |
 | machine coding | `JavaScript-Machine-Coding-Patterns.md` |
 
