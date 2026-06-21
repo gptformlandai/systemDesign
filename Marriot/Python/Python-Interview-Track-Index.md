@@ -295,6 +295,8 @@ developers who expect something analogous to Java's local variable initializatio
 
 - FastAPI/Flask request lifecycle and validation.
 - Dependency injection patterns.
+- MVC-style FastAPI architecture: router/controller, Pydantic schemas, service layer, repository layer, domain model, and infrastructure wiring.
+- Enterprise persistence with SQLAlchemy session lifecycle, repository pattern, and Alembic migrations.
 - Logging, configuration, and secrets handling.
 - Retries, timeouts, and circuit breaker patterns.
 - Containerization and startup/health check patterns.
