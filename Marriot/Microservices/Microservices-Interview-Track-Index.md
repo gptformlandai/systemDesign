@@ -6,23 +6,45 @@ This folder is a complete microservices learning track. The goal is to understan
 patterns, but when to use them, when to avoid them, how they fail in production, and how to
 explain them clearly in interviews.
 
+The upgraded track follows the same learner-quality bar as the Python and Java tracks:
+
+- concept sheets for understanding
+- implementation sheets for mechanics
+- senior sheets for production ownership
+- platinum sheets for architecture review
+- practice upgrade sheets for recall, labs, mocks, scoring, and roadmaps
+
 ---
 
 ## 1. Recommended Study Order
 
 | Order | Document | Why This Order |
 |---:|---|---|
-| 1 | `01-Starter-Path/Microservice-Design-Patterns-Interview-Master-Sheet.md` | Core pattern map and interview vocabulary |
-| 2 | `01-Starter-Path/Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` | REST/gRPC/events, API versioning, contracts |
-| 3 | `02-Intermediate-Path/Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` | DB ownership, joins, saga, outbox, consistency |
-| 4 | `02-Intermediate-Path/Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` | Kafka, ordering, consumer lag, DLQ, schemas |
-| 5 | `02-Intermediate-Path/Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` | timeout, retry, circuit breaker, scaling math |
-| 6 | `03-Senior-Path/Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` | OAuth2, mTLS, service identity, secrets |
-| 7 | `03-Senior-Path/Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` | logs, metrics, traces, incidents, DR, multi-region |
-| 8 | `03-Senior-Path/Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` | contract tests, rollout, strangler, governance |
-| 9 | `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | service boundaries, DDD, data/team ownership |
-| 10 | `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | incident response, production debugging, RCA |
-| 11 | `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Kubernetes runtime, probes, mesh, platform readiness |
+| 1 | `01-Starter-Path/Microservices-Distributed-Systems-Foundations-Gold-Sheet.md` | Builds the distributed-systems mental model before pattern vocabulary |
+| 2 | `01-Starter-Path/Microservice-Design-Patterns-Interview-Master-Sheet.md` | Core pattern map and interview vocabulary |
+| 3 | `01-Starter-Path/Microservices-Hotel-Booking-End-to-End-Walkthrough-Gold-Sheet.md` | Connects all patterns to one concrete capstone flow |
+| 4 | `01-Starter-Path/Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` | REST/gRPC/events, API Gateway, BFF, API contracts |
+| 5 | `02-Intermediate-Path/Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` | DB ownership, joins, saga, outbox, consistency |
+| 6 | `02-Intermediate-Path/Microservices-Saga-Outbox-Idempotency-Implementation-Gold-Sheet.md` | Tables, flows, retries, relay, idempotent consumers, workflow recovery |
+| 7 | `02-Intermediate-Path/Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` | Kafka, ordering, consumer lag, DLQ, schemas |
+| 8 | `02-Intermediate-Path/Microservices-Contracts-Testing-Schema-Evolution-Implementation-Gold-Sheet.md` | OpenAPI, contract tests, schema evolution, CDC implementation depth |
+| 9 | `02-Intermediate-Path/Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` | timeout, retry, circuit breaker, backpressure, scaling math |
+| 10 | `03-Senior-Path/Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` | OAuth2, JWT, mTLS, service identity, secrets |
+| 11 | `03-Senior-Path/Microservices-Security-Service-Identity-Policy-Secrets-Deep-Dive-Gold-Sheet.md` | JWKS, policy-as-code, tenant isolation, audit, rotation incidents |
+| 12 | `03-Senior-Path/Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` | logs, metrics, traces, incidents, DR, multi-region |
+| 13 | `03-Senior-Path/Microservices-Observability-SLO-OpenTelemetry-Deep-Dive-Gold-Sheet.md` | OpenTelemetry, SLOs, burn-rate alerts, dashboards, chaos, load, cost |
+| 14 | `03-Senior-Path/Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` | contract tests, rollout, strangler, governance |
+| 15 | `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | service boundaries, DDD, data/team ownership |
+| 16 | `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | incident response, production debugging, RCA |
+| 17 | `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Kubernetes runtime, probes, mesh, platform readiness |
+| 18 | `04-FAANG-Platinum-Path/Microservices-Kubernetes-Advanced-Operations-Platinum-Sheet.md` | CPU throttling, OOM, PDBs, HPA limits, mesh retry amplification |
+| 19 | `04-FAANG-Platinum-Path/Microservices-Architecture-Review-Capstone-Case-Studies-Platinum-Sheet.md` | owner-level architecture review and case-study defense |
+| 20 | `05-Practice-Upgrade/Microservices-Active-Recall-Question-Bank.md` | Topic-by-topic retrieval practice |
+| 21 | `05-Practice-Upgrade/Microservices-Scenario-Drill-Bank.md` | Interview scenario drills across design, incidents, security, platform |
+| 22 | `05-Practice-Upgrade/Microservices-Design-Mini-Labs.md` | Hands-on design labs for outbox, idempotency, SLOs, contracts, Kubernetes |
+| 23 | `05-Practice-Upgrade/Microservices-Mock-Interview-Scripts.md` | Timed mock rounds with follow-up pressure |
+| 24 | `05-Practice-Upgrade/Microservices-Interview-Scoring-Rubrics.md` | 1-5 rubrics for every major skill |
+| 25 | `05-Practice-Upgrade/Microservices-2-Week-4-Week-Mastery-Roadmaps.md` | Realistic fast-track and mastery study plans |
 
 ---
 
@@ -31,54 +53,82 @@ explain them clearly in interviews.
 ### Starter Path
 
 Focus:
-- monolith vs microservices
+
+- microservices as distributed systems
+- monolith vs modular monolith vs microservices
+- method call vs network call
 - service decomposition
 - sync vs async communication
-- API Gateway
+- API Gateway and BFF
 - database per service
 - timeout, retry, circuit breaker
 - basic logs, metrics, health checks
+- hotel booking capstone walkthrough
 
 Starter goal:
 
 ```text
 I can explain what microservices are, when not to use them, how services communicate,
-and why each service should own its data.
+why each service owns its data, and how one hotel booking request flows through the system.
 ```
+
+Starter files:
+
+| File | What It Builds |
+|---|---|
+| `01-Starter-Path/Microservices-Distributed-Systems-Foundations-Gold-Sheet.md` | network, failure, latency, ownership mental model |
+| `01-Starter-Path/Microservice-Design-Patterns-Interview-Master-Sheet.md` | complete pattern vocabulary |
+| `01-Starter-Path/Microservices-Hotel-Booking-End-to-End-Walkthrough-Gold-Sheet.md` | concrete capstone flow |
+| `01-Starter-Path/Microservices-Communication-API-Contracts-FAANG-Master-Sheet.md` | communication choices and contracts |
 
 ### Intermediate Path
 
 Add:
+
 - Saga
 - Outbox
 - Idempotency
-- DLQ
+- DLQ and replay
+- Kafka partitioning, ordering, lag, rebalancing
 - CQRS/read models
-- API versioning
-- contract testing
-- blue-green/canary deployment
+- API compatibility and contract testing
+- schema evolution and schema registry
+- CDC/Debezium and outbox relay thinking
+- timeout/retry/circuit breaker/backpressure/load shedding
+- capacity and retry-amplification reasoning
 
 Intermediate goal:
 
 ```text
-I can design a realistic microservice workflow that handles failures, retries, eventual
-consistency, and safe deployment.
+I can design a realistic microservice workflow that handles failures, retries, duplicate
+messages, eventual consistency, contract compatibility, and safe deployment.
 ```
+
+Intermediate files:
+
+| File | What It Builds |
+|---|---|
+| `02-Intermediate-Path/Microservices-Data-Consistency-Transactions-FAANG-Master-Sheet.md` | consistency patterns and workflow correctness |
+| `02-Intermediate-Path/Microservices-Saga-Outbox-Idempotency-Implementation-Gold-Sheet.md` | implementation-level reliability details |
+| `02-Intermediate-Path/Microservices-Event-Driven-Kafka-Messaging-FAANG-Master-Sheet.md` | event-driven Kafka design and operations |
+| `02-Intermediate-Path/Microservices-Contracts-Testing-Schema-Evolution-Implementation-Gold-Sheet.md` | contract/schema/CDC/testing implementation depth |
+| `02-Intermediate-Path/Microservices-Resilience-Scalability-Capacity-FAANG-Master-Sheet.md` | resilience and scaling judgment |
 
 ### Senior Path
 
 Add:
+
 - service boundaries and bounded contexts
-- DDD decomposition and ownership matrices
-- schema evolution
-- Kafka partitioning and ordering
-- consumer lag and rebalancing
-- read-your-writes UX
-- compensation failure handling
-- multi-region DR
-- service identity and zero trust
-- production debugging
-- Kubernetes runtime behavior and rollout safety
+- schema evolution governance
+- OpenTelemetry and trace propagation
+- SLI/SLO/error budget/burn-rate alerts
+- incident response and runbooks
+- multi-region DR and RTO/RPO
+- zero trust, service identity, mTLS
+- JWT/JWKS validation and key rotation
+- secrets rotation and tenant isolation
+- contract/component/integration testing strategy
+- strangler migration and service ownership
 
 Senior goal:
 
@@ -87,24 +137,69 @@ I can reason about correctness, scale, security, observability, and operational 
 across many independently deployed services.
 ```
 
-### FAANG-Ready Path
+Senior files:
 
-For every topic, practice:
-- why this pattern exists
-- what breaks without it
-- when not to use it
-- failure modes
-- latency, throughput, consistency, cost trade-offs
-- testing strategy
-- migration path
-- strong 2-minute explanation
+| File | What It Builds |
+|---|---|
+| `03-Senior-Path/Microservices-Security-Zero-Trust-FAANG-Master-Sheet.md` | zero-trust security foundation |
+| `03-Senior-Path/Microservices-Security-Service-Identity-Policy-Secrets-Deep-Dive-Gold-Sheet.md` | service identity, policy, secrets, audit depth |
+| `03-Senior-Path/Microservices-Observability-Operations-MultiRegion-FAANG-Master-Sheet.md` | operations, incidents, DR, multi-region |
+| `03-Senior-Path/Microservices-Observability-SLO-OpenTelemetry-Deep-Dive-Gold-Sheet.md` | instrumentation, SLOs, dashboards, burn alerts |
+| `03-Senior-Path/Microservices-Testing-Governance-Migration-FAANG-Master-Sheet.md` | testing, governance, migration |
+
+### FAANG / Platinum Path
+
+Add:
+
+- DDD decomposition and service boundary scoring
+- ownership matrix and boundary smells
+- production incident playbooks
+- Kubernetes probes, shutdown, resource sizing, autoscaling
+- service mesh readiness and retry policy ownership
+- CPU throttling, OOM, PDBs, topology spread, rollout metrics
+- full case studies and architecture review scorecards
+- multi-region and migration trade-off defense
 
 FAANG goal:
 
 ```text
 I can design microservices like an owner: clear boundaries, safe data flows, resilient
-communication, observable operations, secure identity, and controlled deployment risk.
+communication, observable operations, secure identity, controlled deployment risk, and
+defensible migration paths.
 ```
+
+Platinum files:
+
+| File | What It Builds |
+|---|---|
+| `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | boundary and DDD judgment |
+| `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | incident/debugging confidence |
+| `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | runtime/platform readiness |
+| `04-FAANG-Platinum-Path/Microservices-Kubernetes-Advanced-Operations-Platinum-Sheet.md` | advanced Kubernetes failure modes |
+| `04-FAANG-Platinum-Path/Microservices-Architecture-Review-Capstone-Case-Studies-Platinum-Sheet.md` | architecture owner-level review |
+
+### Practice Upgrade Path
+
+Use these after or alongside the concept sheets. They convert the track from passive reading
+into active recall, design drills, timed mocks, and measurable readiness.
+
+Practice goal:
+
+```text
+I can answer from memory, draw the architecture, debug incidents, defend trade-offs, and
+score my readiness honestly before the interview.
+```
+
+Practice files:
+
+| File | What It Builds |
+|---|---|
+| `05-Practice-Upgrade/Microservices-Active-Recall-Question-Bank.md` | topic-by-topic recall questions |
+| `05-Practice-Upgrade/Microservices-Scenario-Drill-Bank.md` | scenario-based design/debug/security/platform drills |
+| `05-Practice-Upgrade/Microservices-Design-Mini-Labs.md` | hands-on diagrams, SQL tables, dashboards, runbooks |
+| `05-Practice-Upgrade/Microservices-Mock-Interview-Scripts.md` | timed mock rounds with follow-ups |
+| `05-Practice-Upgrade/Microservices-Interview-Scoring-Rubrics.md` | 1-5 rubrics for every major skill |
+| `05-Practice-Upgrade/Microservices-2-Week-4-Week-Mastery-Roadmaps.md` | study plans and readiness gates |
 
 ---
 
@@ -117,6 +212,7 @@ Hotel Booking Platform
 ```
 
 Core services:
+
 - Search Service
 - Availability Service
 - Booking Service
@@ -149,6 +245,8 @@ Patterns used:
 | Downstream failure | timeout, retry, circuit breaker, bulkhead |
 | Poison messages | DLQ |
 | Request debugging | correlation ID, logs, traces |
+| User-impacting reliability | SLI, SLO, error budget, burn-rate alert |
+| Service-to-service trust | mTLS / workload identity / network policy |
 | Safe rollout | canary / blue-green / contract testing |
 | Multi-region continuity | RTO/RPO, failover, data replication |
 
@@ -166,7 +264,8 @@ Use this formula for almost every microservices answer:
 5. Add failure handling.
 6. Add observability.
 7. Add security.
-8. Mention trade-offs and an alternative.
+8. Mention testing and deployment safety.
+9. Mention trade-offs and an alternative.
 ```
 
 Example:
@@ -175,8 +274,8 @@ Example:
 For booking, I keep inventory ownership in Availability Service and booking lifecycle in
 Booking Service. The user-facing reserve call can be synchronous, but downstream notification
 and loyalty are async. Since the workflow spans services, I use Saga with compensation,
-Outbox for reliable events, idempotency keys for retries, and traces/logs/metrics to debug
-failures.
+Outbox for reliable events, idempotency keys for retries, traces/logs/metrics to debug
+failures, service-level authorization, and contract tests/canary rollout to deploy safely.
 ```
 
 ---
@@ -195,46 +294,36 @@ failures.
 | Scalability | Can reason about limits and growth |
 | Testing | Can verify contracts and workflows |
 | Migration | Can evolve safely from current state |
+| Platform readiness | Can explain Kubernetes/runtime behavior |
+| Practice readiness | Can answer under timed follow-up pressure |
 
 Gold rule:
 
 ```text
 A topic is gold-level only when the learner can explain definition, runtime flow, trade-offs,
-failure modes, debugging, testing, security, and migration path.
+failure modes, debugging, testing, security, migration path, and at least one concrete hotel
+booking example.
 ```
 
 ---
 
-## 6. Platinum Supplements
+## 6. Final Completeness Statement
 
-Use these after the core eight sheets:
+This microservices track now covers:
 
-| Supplement | Why It Matters |
-|---|---|
-| `04-FAANG-Platinum-Path/Microservices-DDD-Service-Decomposition-Boundaries-Platinum-Sheet.md` | Prevents wrong service splits and distributed monoliths |
-| `04-FAANG-Platinum-Path/Microservices-Production-Debugging-Incident-Playbook-Platinum-Sheet.md` | Builds senior-level incident/debugging confidence |
-| `04-FAANG-Platinum-Path/Microservices-Kubernetes-Service-Mesh-Platform-Readiness-Platinum-Sheet.md` | Connects design to real production runtime |
-
-Platinum rule:
-
-```text
-A microservice answer becomes senior only when you can defend boundaries, runtime behavior,
-failure handling, observability, security, and operational ownership.
-```
-
----
-
-## 7. Final Completeness Statement
-
-This microservices track covers:
+- distributed-systems foundations
 - communication
 - database ownership
 - consistency
-- messaging
+- saga/outbox/idempotency implementation
+- messaging and Kafka
+- contract testing and schema evolution
+- CDC/Debezium and workflow-engine awareness
 - resilience
-- scale
-- security
-- observability
+- scale and capacity reasoning
+- security and zero trust
+- service identity, JWT/JWKS, policy, secrets, tenant isolation
+- observability, OpenTelemetry, SLOs, burn-rate alerts
 - deployment
 - testing
 - migration
@@ -243,10 +332,18 @@ This microservices track covers:
 - DDD service decomposition
 - production incident debugging
 - Kubernetes and service mesh readiness
+- advanced Kubernetes operations
+- architecture review case studies
+- active recall
+- scenario drills
+- design mini-labs
+- mock interviews
+- scoring rubrics
+- 2-week and 4-week mastery roadmaps
 
-Optional future deep dives:
-- event sourcing implementation details
-- cloud-specific AWS/Azure/GCP microservice stacks
+Final standard:
 
-These are optional because the current track now covers the high-frequency interview surface
-for backend, system design, senior ownership, and production operations rounds.
+```text
+The track is no longer only a concept overview. It is now a full learner guide: read,
+retrieve, design, debug, defend, score, and retest.
+```
