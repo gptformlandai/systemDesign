@@ -43,8 +43,38 @@ working tree
 | 5 | [Inspection, Debugging, and History Pro Commands](Git-Inspection-Debugging-History-Pro-Commands-Gold-Sheet.md) | `log`, `show`, `diff`, `blame`, `bisect`, `grep`, `tag`, `describe`, `range-diff` |
 | 6 | [GitHub CLI Command Mastery](GitHub-CLI-Command-Mastery-Gold-Sheet.md) | `gh auth`, `gh repo`, `gh pr`, `gh issue`, `gh release`, checks, reviews, merge commands |
 | 7 | [Advanced Repository Workflows](Git-Advanced-Repository-Workflows-Gold-Sheet.md) | `worktree`, `submodule`, `sparse-checkout`, hooks, `.gitignore`, attributes, LFS, aliases |
-| 8 | [Production and Interview Scenario Playbook](Git-GitHub-Production-Interview-Scenario-Playbook.md) | wrong branch, bad merge, lost commit, conflict, force push, hotfix, release, protected branch scenarios |
-| 9 | [Golden Command Cheat Sheet](Git-GitHub-Golden-Command-Cheat-Sheet.md) | fast command recipes for daily use and interview revision |
+| 8 | [Git Internals, Object Model, Refs, and Packfiles](Git-Internals-Object-Model-Refs-Packfiles-Gold-Sheet.md) | Senior internals: objects, refs, HEAD, index, DAG, merge/rebase mechanics, reflog, packfiles, GC |
+| 9 | [GitHub Enterprise Governance, Security, and Branch Protection](GitHub-Enterprise-Governance-Security-Branch-Protection-Gold-Sheet.md) | Enterprise layer: rulesets, branch protection, CODEOWNERS, checks, permissions, tokens, secrets, audit |
+| 10 | [Git Release Engineering, Versioning, Tags, and Backports](Git-Release-Engineering-Versioning-Tags-Backports-Gold-Sheet.md) | Release layer: annotated tags, semver, release branches, hotfixes, backports, changelogs, rollback, traceability |
+| 11 | [Production and Interview Scenario Playbook](Git-GitHub-Production-Interview-Scenario-Playbook.md) | wrong branch, bad merge, lost commit, conflict, force push, hotfix, release, protected branch scenarios |
+| 12 | [Golden Command Cheat Sheet](Git-GitHub-Golden-Command-Cheat-Sheet.md) | fast command recipes for daily use and interview revision |
+| 13 | [Git-GitHub Active Recall Question Bank](05-Practice-Upgrade/Git-GitHub-Active-Recall-Question-Bank.md) | Retrieval practice across daily commands, recovery, internals, governance, and release engineering |
+| 14 | [Git-GitHub Scenario Drill Bank](05-Practice-Upgrade/Git-GitHub-Scenario-Drill-Bank.md) | Production and interview scenario drills for local, remote, recovery, governance, and release workflows |
+| 15 | [Git-GitHub Hands-On Labs](05-Practice-Upgrade/Git-GitHub-Hands-On-Labs.md) | Throwaway-repo labs for staging, conflicts, reset, reflog, bisect, tags, backports, CODEOWNERS, and PR flow |
+| 16 | [Git-GitHub Mock Interview Scripts](05-Practice-Upgrade/Git-GitHub-Mock-Interview-Scripts.md) | Timed mock rounds from foundations through MAANG Git/GitHub operating-model capstone |
+| 17 | [Git-GitHub Interview Scoring Rubrics](05-Practice-Upgrade/Git-GitHub-Interview-Scoring-Rubrics.md) | Measurable scoring for command safety, internals, governance, release, and capstone readiness |
+| 18 | [Git-GitHub 2 Week 4 Week Mastery Roadmaps](05-Practice-Upgrade/Git-GitHub-2-Week-4-Week-Mastery-Roadmaps.md) | Structured fast prep and deeper mastery plans |
+
+---
+
+## Practice Upgrade Layer
+
+Use the `05-Practice-Upgrade` folder after the command and senior concept sheets. It turns command knowledge into production reflexes.
+
+| Practice File | Use It For |
+|---|---|
+| [Git-GitHub Active Recall Question Bank](05-Practice-Upgrade/Git-GitHub-Active-Recall-Question-Bank.md) | Daily recall and weak-spot detection |
+| [Git-GitHub Scenario Drill Bank](05-Practice-Upgrade/Git-GitHub-Scenario-Drill-Bank.md) | Production incident and interview scenario practice |
+| [Git-GitHub Hands-On Labs](05-Practice-Upgrade/Git-GitHub-Hands-On-Labs.md) | Safe command practice in throwaway repositories |
+| [Git-GitHub Mock Interview Scripts](05-Practice-Upgrade/Git-GitHub-Mock-Interview-Scripts.md) | Timed spoken interview rehearsals |
+| [Git-GitHub Interview Scoring Rubrics](05-Practice-Upgrade/Git-GitHub-Interview-Scoring-Rubrics.md) | Objective readiness scoring after labs and mocks |
+| [Git-GitHub 2 Week 4 Week Mastery Roadmaps](05-Practice-Upgrade/Git-GitHub-2-Week-4-Week-Mastery-Roadmaps.md) | Fast and deep study plans |
+
+Recommended loop:
+
+```text
+read one sheet -> practice commands in throwaway repo -> answer recall -> solve scenario -> speak mock answer -> score with rubric
+```
 
 ---
 
@@ -91,6 +121,10 @@ You should be able to explain and use:
 - `worktree`
 - fork/upstream flow
 - protected branches and PR review flow
+- Git object model: blob, tree, commit, tag
+- refs, HEAD, index, remote-tracking branches, and merge bases
+- branch protection, rulesets, CODEOWNERS, required checks, token safety, and audit
+- release tags, semantic versioning, hotfixes, backports, changelogs, and artifact traceability
 
 ---
 
@@ -144,7 +178,55 @@ GitHub work:
   gh issue
   gh release
   gh workflow
+
+Internals work:
+  objects
+  refs
+  HEAD
+  index
+  merge base
+  reflog
+  packfiles
+  garbage collection
+
+Governance work:
+  branch protection
+  rulesets
+  CODEOWNERS
+  required checks
+  permissions
+  token scopes
+  secret scanning
+  audit
+
+Release work:
+  annotated tags
+  semantic versioning
+  release branches
+  hotfixes
+  backports
+  changelogs
+  GitHub releases
+  rollback vs revert
 ```
+
+---
+
+## MAANG Completion Definition
+
+This track is complete only when you can do all of the following without notes:
+
+1. Explain every Git command by what it changes in the working tree, index, HEAD, refs, or remote.
+2. Distinguish local/private history from pushed/shared/protected history before undoing or rewriting anything.
+3. Recover local mistakes with reflog, restore, reset, revert, stash, and rescue branches.
+4. Resolve merge and rebase conflicts and explain merge base, fast-forward, and hash changes.
+5. Collaborate through GitHub Flow, forks, upstreams, PR checks, reviews, and safe branch updates.
+6. Debug history with `log`, `show`, `diff`, `blame`, `bisect`, `range-diff`, and exact two-dot/three-dot ranges.
+7. Explain Git internals: object database, blob/tree/commit/tag, refs, HEAD, index, DAG, packfiles, reflog, and garbage collection.
+8. Use GitHub CLI for PRs, checks, reviews, workflow inspection, issues, and releases.
+9. Design enterprise GitHub governance using branch protection/rulesets, CODEOWNERS, required checks, permissions, token safety, secret scanning, and audit.
+10. Run release engineering workflows with annotated tags, semantic versioning, release branches, hotfixes, backports, changelogs, GitHub Releases, and artifact traceability.
+11. Deliver a full Git/GitHub operating-model capstone and score at least 4/5 on the rubric.
 
 ---
 
