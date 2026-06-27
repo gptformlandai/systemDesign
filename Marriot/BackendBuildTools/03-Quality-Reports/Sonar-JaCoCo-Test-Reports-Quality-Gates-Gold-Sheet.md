@@ -309,7 +309,127 @@ deploy artifact only if:
 
 ---
 
-## 12. Interview Insight
+## 12. Quality Profile vs Quality Gate
+
+**Quality Profile** = which rules are active and at which severity.
+**Quality Gate** = thresholds on metrics that must pass for promotion.
+
+```
+Quality Profile: "Company Java Profile"
+  - rule: S1135 (TODO comments) → MAJOR
+  - rule: S2095 (resource leaks) → CRITICAL
+  - rule: S3776 (cognitive complexity) → MAJOR
+  [300+ rules configured]
+
+Quality Gate: "Company Standard"
+  - Coverage on new code ≥ 80%
+  - Bugs on new code = 0 (blocking severity only)
+  - Critical vulnerabilities = 0
+  - Technical debt ratio ≤ 5%
+```
+
+Multiple projects can share Quality Profiles and Gates — change the profile once, all projects use the new rules on next scan.
+
+---
+
+## 13. PR Decoration / Branch Analysis
+
+Sonar shows coverage diff only for changed lines in a pull request:
+
+```bash
+# GitHub Actions PR analysis
+mvn -B clean verify sonar:sonar \
+  -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+  -Dsonar.pullrequest.branch=${{ github.head_ref }} \
+  -Dsonar.pullrequest.base=${{ github.base_ref }} \
+  -Dsonar.token=$SONAR_TOKEN
+```
+
+**PR decoration shows:**
+- New issues introduced by this PR (not existing issues)
+- Coverage delta on changed files
+- Status check posted back to GitHub (passes/fails based on Quality Gate)
+- Inline comments on lines with issues
+
+**Branch analysis:** Each branch has its own analysis history. The main branch tracks long-term metrics; feature branches show only the delta from the base branch.
+
+---
+
+## 14. SonarLint — IDE Integration
+
+SonarLint is the IDE plugin that catches issues before CI:
+
+```
+VS Code: install SonarLint extension
+IntelliJ: install SonarLint plugin
+
+Connected mode: link to SonarQube/SonarCloud server
+  → syncs your project's Quality Profile rules to IDE
+  → same rules in IDE as in CI — no surprises
+```
+
+Benefits:
+- Issues flagged in editor as you type (before commit)
+- "Quick fix" suggestions for common rules
+- No CI round-trip required for rule feedback
+
+---
+
+## 15. OWASP Dependency Check Integration
+
+```xml
+<!-- pom.xml — OWASP Dependency Check plugin -->
+<plugin>
+  <groupId>org.owasp</groupId>
+  <artifactId>dependency-check-maven</artifactId>
+  <version>11.1.0</version>
+  <configuration>
+    <failBuildOnCVSS>7</failBuildOnCVSS>  <!-- fail on HIGH/CRITICAL (CVSS ≥ 7) -->
+    <formats>XML,HTML</formats>
+    <outputDirectory>${project.build.directory}/owasp-reports</outputDirectory>
+  </configuration>
+  <executions>
+    <execution>
+      <goals><goal>check</goal></goals>
+    </execution>
+  </executions>
+</plugin>
+```
+
+```bash
+# Run separately (slow — downloads NVD database)
+mvn dependency-check:check
+
+# Import report into Sonar (via sonar-dependency-check-plugin)
+mvn sonar:sonar -Dsonar.dependencyCheck.xmlReportPath=target/owasp-reports/dependency-check-report.xml
+```
+
+OWASP check complements Sonar: Sonar focuses on code quality/static analysis, OWASP checks dependency CVEs.
+
+---
+
+## 16. Interview Insight
+
+Strong answer:
+
+> I treat quality reporting as part of the build contract. Tests create behavior evidence. JaCoCo creates Java coverage evidence. Sonar imports source and reports, then applies quality gates. The important implementation detail is ordering: coverage reports must exist before Sonar runs, and gates should focus strongly on new code to improve quality without freezing legacy delivery.
+
+Follow-up trap:
+
+> Sonar shows 0% coverage, but tests ran. What do you check?
+
+Good answer:
+
+> I check whether the coverage report was generated, whether XML output is enabled, whether Sonar's report path matches the file, whether the scanner ran after tests, and whether modules/source paths match the analysis scope.
+
+---
+
+## 17. Revision Notes
+
+- One-line summary: JaCoCo measures Java coverage; Sonar evaluates broader code quality and imports reports.
+- Three keywords: report, gate, order.
+- One interview trap: coverage must be generated before analysis.
+- Memory trick: Tests create evidence; Sonar judges the evidence.
 
 Strong answer:
 

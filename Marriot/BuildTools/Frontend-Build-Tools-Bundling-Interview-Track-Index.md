@@ -1,6 +1,8 @@
 # Frontend Build Tools and Bundling Mastery Track
 
 > Goal: master how React, Next.js, and React Native code becomes executable production software, from beginner intuition to MAANG-level interview and architecture clarity.
+> 
+> **Track size: 27 content files across 6 groups** (7 new topic files + 6 practice files added; all 14 original files expanded to 2× depth)
 
 ---
 
@@ -81,33 +83,51 @@ You learn why build tools exist, what happens from source to served app, and why
 2. [Transpilation: Babel, SWC, esbuild, TypeScript](./02-Transpilation-Modules-Bundling/Transpilation-Babel-SWC-esbuild-TypeScript-Gold-Sheet.md)
 3. [Bundling Core: Dependency Graph, Entry Points, Chunking](./02-Transpilation-Modules-Bundling/Bundling-Core-Dependency-Graph-Chunking-Gold-Sheet.md)
 4. [Module Systems: ES Modules, CommonJS, Tree Shaking](./02-Transpilation-Modules-Bundling/Module-Systems-ESM-CommonJS-Tree-Shaking-Gold-Sheet.md)
+5. [TypeScript Config Deep Dive](./02-Transpilation-Modules-Bundling/TypeScript-Config-Deep-Dive-Gold-Sheet.md) ★ New
+6. [CSS and PostCSS Processing Build Pipeline](./02-Transpilation-Modules-Bundling/CSS-PostCSS-Processing-Build-Pipeline-Gold-Sheet.md) ★ New
 
-You learn how modern syntax becomes compatible JavaScript, how imports form a graph, and why module format affects optimization.
+You learn how modern syntax becomes compatible JavaScript, how imports form a graph, how module format affects optimization, how TypeScript config drives bundler compatibility, and how CSS flows through the build pipeline.
 
 ### Phase 3: Optimization, Dev Server, and HMR
 
-5. [Code Optimization: Tree Shaking, Minification, Splitting](./03-Optimization-DevServer-HMR/Code-Optimization-Tree-Shaking-Minification-Splitting-Gold-Sheet.md)
-6. [Dev Server: npm run dev, File Watching, HMR Pipeline](./03-Optimization-DevServer-HMR/Dev-Server-File-Watching-HMR-Pipeline-Gold-Sheet.md)
-7. [HMR: Hot Reload Internals and State Preservation](./03-Optimization-DevServer-HMR/HMR-Hot-Reload-Internals-State-Preservation-Gold-Sheet.md)
+7. [Code Optimization: Tree Shaking, Minification, Splitting](./03-Optimization-DevServer-HMR/Code-Optimization-Tree-Shaking-Minification-Splitting-Gold-Sheet.md)
+8. [Dev Server: npm run dev, File Watching, HMR Pipeline](./03-Optimization-DevServer-HMR/Dev-Server-File-Watching-HMR-Pipeline-Gold-Sheet.md)
+9. [HMR: Hot Reload Internals and State Preservation](./03-Optimization-DevServer-HMR/HMR-Hot-Reload-Internals-State-Preservation-Gold-Sheet.md)
+10. [Asset Handling: Images, Fonts, SVG](./03-Optimization-DevServer-HMR/Asset-Handling-Images-Fonts-SVG-Gold-Sheet.md) ★ New
+11. [Environment Variables and Feature Flags Build](./03-Optimization-DevServer-HMR/Environment-Variables-Feature-Flags-Build-Gold-Sheet.md) ★ New
 
-You learn how development stays fast, how hot updates are delivered, and why production bundles are optimized differently.
+You learn how development stays fast, how hot updates are delivered, how assets flow through the pipeline, and how environment variables are securely injected at build time.
 
 ### Phase 4: Bundler Deep Dives
 
-8. [Webpack Deep Dive](./04-Bundler-Deep-Dives/Webpack-Deep-Dive-Loaders-Plugins-DevServer-Gold-Sheet.md)
-9. [Vite Modern Dev Server and Production Bundling](./04-Bundler-Deep-Dives/Vite-Modern-Dev-Server-Rollup-Production-Gold-Sheet.md)
-10. [Parcel Zero-Config Pipeline](./04-Bundler-Deep-Dives/Parcel-Zero-Config-Auto-Optimization-Gold-Sheet.md)
-11. [Modern Tools: esbuild, Rollup, Turbopack, Metro](./04-Bundler-Deep-Dives/Modern-Build-Tools-esbuild-Rollup-Turbopack-Metro-Gold-Sheet.md)
+12. [Webpack Deep Dive](./04-Bundler-Deep-Dives/Webpack-Deep-Dive-Loaders-Plugins-DevServer-Gold-Sheet.md)
+13. [Vite Modern Dev Server and Production Bundling](./04-Bundler-Deep-Dives/Vite-Modern-Dev-Server-Rollup-Production-Gold-Sheet.md)
+14. [Parcel Zero-Config Pipeline](./04-Bundler-Deep-Dives/Parcel-Zero-Config-Auto-Optimization-Gold-Sheet.md)
+15. [Modern Tools: esbuild, Rollup, Turbopack, Metro](./04-Bundler-Deep-Dives/Modern-Build-Tools-esbuild-Rollup-Turbopack-Metro-Gold-Sheet.md)
+16. [Library Publishing Pipeline: tsup and Rollup](./04-Bundler-Deep-Dives/Library-Publishing-Pipeline-tsup-Rollup-Gold-Sheet.md) ★ New
+17. [Webpack Module Federation and Micro-Frontends](./04-Bundler-Deep-Dives/Webpack-Module-Federation-Micro-Frontends-Gold-Sheet.md) ★ New
 
-You learn the philosophy and internal pipeline of the major tools used in React, Next.js, React Native, libraries, and enterprise apps.
+You learn the philosophy and internal pipeline of the major tools, how to publish tree-shakeable libraries, and how to architect micro-frontend systems with Module Federation.
 
 ### Phase 5: Performance, Debugging, and Architecture
 
-12. [Build Performance Pipeline](./05-Performance-Debugging-Architecture/Build-Performance-Pipeline-Cold-Start-Hot-Updates-Gold-Sheet.md)
-13. [Debugging Builds: Source Maps and Bundle Issues](./05-Performance-Debugging-Architecture/Debugging-Builds-Source-Maps-Bundle-Issues-Gold-Sheet.md)
-14. [Real-World Pipeline Design and CI/CD](./05-Performance-Debugging-Architecture/Real-World-Build-Pipeline-Design-CICD-Gold-Sheet.md)
+18. [Build Performance Pipeline](./05-Performance-Debugging-Architecture/Build-Performance-Pipeline-Cold-Start-Hot-Updates-Gold-Sheet.md)
+19. [Debugging Builds: Source Maps and Bundle Issues](./05-Performance-Debugging-Architecture/Debugging-Builds-Source-Maps-Bundle-Issues-Gold-Sheet.md)
+20. [Real-World Pipeline Design and CI/CD](./05-Performance-Debugging-Architecture/Real-World-Build-Pipeline-Design-CICD-Gold-Sheet.md)
+21. [Monorepo Build: Turborepo, Nx, and Workspaces](./05-Performance-Debugging-Architecture/Monorepo-Build-Turborepo-Nx-Workspaces-Gold-Sheet.md) ★ New
 
-You learn how to choose tools, debug production build failures, and design scalable pipelines for large teams.
+You learn how to choose tools, debug production build failures, design scalable CI/CD pipelines, and orchestrate monorepo builds efficiently.
+
+### Phase 6: Practice Upgrade
+
+22. [Tricky Scenario Questions](./06-Practice-Upgrade/BuildTools-Tricky-Scenario-Questions-Gold-Sheet.md) ★ New
+23. [Production Debugging Case Studies](./06-Practice-Upgrade/BuildTools-Production-Debugging-Case-Studies-Gold-Sheet.md) ★ New
+24. [Active Recall Question Bank](./06-Practice-Upgrade/BuildTools-Active-Recall-Question-Bank.md) ★ New
+25. [Mock Interview Scripts](./06-Practice-Upgrade/BuildTools-Mock-Interview-Scripts.md) ★ New
+26. [Interview Scoring Rubrics](./06-Practice-Upgrade/BuildTools-Interview-Scoring-Rubrics.md) ★ New
+27. [Mastery Roadmap](./06-Practice-Upgrade/BuildTools-Mastery-Roadmap.md) ★ New
+
+Practice infrastructure: diagnose broken configs, walk through production incidents, do spaced repetition, time yourself on mock interviews, self-score with rubrics, and follow a structured 7- or 14-day mastery plan.
 
 ---
 
@@ -128,6 +148,7 @@ You learn how to choose tools, debug production build failures, and design scala
 | Dev server internals | Yes |
 | File watching | Yes |
 | HMR internals | Yes |
+| React Fast Refresh internals | Yes |
 | Webpack | Yes |
 | Vite | Yes |
 | Parcel | Yes |
@@ -136,9 +157,18 @@ You learn how to choose tools, debug production build failures, and design scala
 | Turbopack | Yes |
 | Metro for React Native | Yes |
 | Expo CLI, Expo Go, development builds, EAS | Yes |
+| TypeScript tsconfig deep dive | Yes |
+| CSS and PostCSS pipeline | Yes |
+| Asset handling (images, fonts, SVG) | Yes |
+| Environment variables and feature flags | Yes |
+| Library publishing (tsup, dual CJS/ESM) | Yes |
+| Module Federation micro-frontends | Yes |
+| Monorepo build (Turborepo, Nx) | Yes |
 | Reading frontend startup logs | Yes |
 | Source maps | Yes |
-| CI/CD build design | Yes |
+| CI/CD build design + bundle budgets | Yes |
+| Practice scenarios and case studies | Yes |
+| Mock interviews and scoring rubrics | Yes |
 | MAANG interview framing | Yes |
 
 ---

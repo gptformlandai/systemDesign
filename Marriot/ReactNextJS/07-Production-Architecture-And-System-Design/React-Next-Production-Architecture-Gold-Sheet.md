@@ -175,3 +175,105 @@ the tool.
 - One interview trap: Monorepo does not automatically mean good architecture.
 - One memory trick: Shared code must be more stable than feature code.
 
+---
+
+## 10. Feature-Based Folder Structure — Reference
+
+```
+src/
+  app/                    ← Next.js routes (thin — delegate to features)
+    (marketing)/
+      page.tsx
+    (app)/
+      dashboard/
+        page.tsx
+  
+  features/               ← Feature modules — own their state, API, UI
+    auth/
+      components/
+        LoginForm.tsx
+        SignUpForm.tsx
+      hooks/
+        useAuth.ts
+      actions/
+        login.ts          ← Server Action
+      api.ts              ← API calls
+      types.ts
+    
+    products/
+      components/
+        ProductCard.tsx
+        ProductGrid.tsx
+      hooks/
+        useCart.ts
+      store/
+        cartStore.ts      ← Zustand
+      actions/
+        addToCart.ts
+      types.ts
+  
+  shared/                 ← Cross-feature — business-agnostic
+    ui/
+      Button.tsx
+      Input.tsx
+      Modal.tsx
+    hooks/
+      useDebounce.ts
+      useLocalStorage.ts
+    lib/
+      analytics.ts
+      logger.ts
+      fetcher.ts
+  
+  core/                   ← Infrastructure — env, auth session, DB client
+    auth/
+      session.ts
+    db/
+      client.ts
+    env.ts
+```
+
+**Dependency rule:** `features/` can import from `shared/` and `core/`. Features cannot import from other features. `app/` routes import from features only.
+
+---
+
+## 11. Monorepo with Turborepo
+
+```
+apps/
+  web/          ← Next.js main app
+  admin/        ← Separate Next.js app for admin
+  mobile/       ← React Native (optional)
+
+packages/
+  ui/           ← Shared design system components
+  config/       ← Shared ESLint, TypeScript, Tailwind configs
+  db/           ← Prisma schema + client
+  auth/         ← Auth utilities shared across apps
+```
+
+```json
+// turbo.json — build pipeline
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],   // build dependencies first
+      "outputs": [".next/**", "dist/**"]
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
+    }
+  }
+}
+```
+
+**When Turborepo pays off:**
+- Multiple apps sharing significant code
+- Team wants workspace-level caching (Vercel remote cache)
+- Need to run tests/builds only for changed packages
+
+**When it's over-engineering:**
+- Single app — just use feature-based folder structure
+- Two apps with minimal shared code — two separate repos is simpler
+

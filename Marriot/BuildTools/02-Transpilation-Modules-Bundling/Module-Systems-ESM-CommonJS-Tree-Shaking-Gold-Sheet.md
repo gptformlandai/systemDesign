@@ -296,7 +296,68 @@ Good answer:
 
 ---
 
-## 14. Revision Notes
+## 14. The `package.json` exports Field and Conditional Exports
+
+```json
+// Modern package.json with full exports definition
+{
+  "name": "@company/utils",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",      // ESM build (Vite, Rollup, modern Node)
+      "require": "./dist/index.cjs",     // CJS build (webpack, Jest, old Node)
+      "types": "./dist/index.d.ts"       // TypeScript types
+    },
+    "./format": {
+      "import": "./dist/format.mjs",
+      "require": "./dist/format.cjs",
+      "types": "./dist/format.d.ts"
+    }
+  },
+  "type": "module"                       // .js files are ESM by default
+}
+```
+
+**Conditional exports** allow the same import path to resolve differently based on the consumer's environment. A bundler using `import` gets the ESM build; a test runner using `require` gets the CJS build.
+
+**What `moduleResolution: "Node"` misses:** The old `"Node"` algorithm reads `main` and `module` fields but ignores `exports`. Packages like `date-fns` v3 expose subpaths (`date-fns/format`) only via `exports`. TypeScript and bundlers with old resolution settings cannot find them.
+
+Fix:
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "Bundler"   // or "Node16" / "NodeNext"
+  }
+}
+```
+
+---
+
+## 15. The `"type": "module"` Flag
+
+```json
+{
+  "name": "my-lib",
+  "type": "module"        // .js files in this package are ESM
+}
+```
+
+Without `"type": "module"`:
+- `.js` = CommonJS
+- `.mjs` = ESM
+- `.cjs` = CommonJS (explicit)
+
+With `"type": "module"`:
+- `.js` = ESM
+- `.cjs` = CommonJS (explicit)
+
+**Impact on Jest:** Jest's default transformer does not handle ESM. Setting `"type": "module"` requires either `ts-jest` with ESM mode or Vitest (which natively supports ESM).
+
+**Impact on Node.js scripts:** `require()` does not work in an ESM module. Must use `import`. Top-level `await` is allowed.
+
+---
+
+## 16. Revision Notes
 
 - One-line summary: Static ESM structure gives bundlers better optimization power.
 - Three keywords: import, require, side effects.

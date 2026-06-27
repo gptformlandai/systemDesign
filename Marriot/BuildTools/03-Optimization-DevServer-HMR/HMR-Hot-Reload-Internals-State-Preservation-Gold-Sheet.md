@@ -264,7 +264,73 @@ Good answer:
 
 ---
 
-## 15. Revision Notes
+## 15. React Fast Refresh Internals
+
+React Fast Refresh (shipped in React 17+, used by Vite and Next.js) is React-aware HMR:
+
+**How it works:**
+1. Babel/SWC transform wraps every component export with a `register()` call
+2. On file change, the new component is registered with the same key
+3. React compares old and new component — if it's a "safe" update, it re-renders preserving state
+
+```typescript
+// React Fast Refresh transform output (simplified)
+// Original:
+export function Counter() { ... }
+
+// After Fast Refresh transform:
+import { register } from 'react-refresh/runtime';
+export function Counter() { ... }
+register(Counter, 'Counter');  // key = component name in source
+```
+
+**Update tiers:**
+1. **Hot swap (state preserved)**: Component code changed, hook order same, no runtime error
+2. **Module replacement (state lost, no page reload)**: Incompatible changes detected
+3. **Full page reload**: Runtime error during re-render
+
+**The "safe" update check:** If the signature of hooks changed (different count, different hook calls), Fast Refresh drops component state for that component and re-renders with initial state. This prevents stale state from invalid hook assumptions.
+
+---
+
+## 16. Vite HMR API (`import.meta.hot`)
+
+```typescript
+// A Redux store that supports HMR cleanup
+import { configureStore } from '@reduxjs/toolkit';
+import rootReducer from './rootReducer';
+
+export const store = configureStore({ reducer: rootReducer });
+
+// HMR for the store — replace reducer without losing state
+if (import.meta.hot) {
+  import.meta.hot.accept('./rootReducer', (newModule) => {
+    if (newModule) {
+      store.replaceReducer(newModule.default);
+    }
+  });
+
+  // Cleanup when this module is replaced (called before new version loads)
+  import.meta.hot.dispose((data) => {
+    // Save state across HMR boundary
+    data.savedState = store.getState();
+  });
+}
+
+// Restore state from previous HMR version
+if (import.meta.hot?.data?.savedState) {
+  store.dispatch({ type: 'RESTORE_STATE', payload: import.meta.hot.data.savedState });
+}
+```
+
+**When to use the Vite HMR API:**
+- Redux/Zustand stores that should survive module hot-swaps
+- WebSocket connections that should close and reconnect on file change
+- Long-polling intervals that should be cleared between HMR updates
+
+---
+
+## 17. Revision Notes
 
 - One-line summary: HMR replaces changed modules at runtime during development.
 - Three keywords: boundary, socket, refresh.

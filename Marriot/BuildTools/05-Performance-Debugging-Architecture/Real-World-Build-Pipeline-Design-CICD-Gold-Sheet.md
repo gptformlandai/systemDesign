@@ -367,7 +367,131 @@ Good answer:
 
 ---
 
-## 15. Revision Notes
+## 15. Bundle Budget Enforcement in CI
+
+Prevent bundle regressions by failing CI when bundle size exceeds a threshold.
+
+**Using `bundlesize`:**
+
+```bash
+npm install --save-dev bundlesize
+```
+
+```json
+// package.json
+{
+  "bundlesize": [
+    { "path": "./dist/main.*.js",     "maxSize": "200 kB" },
+    { "path": "./dist/vendor.*.js",   "maxSize": "300 kB" },
+    { "path": "./dist/main.*.css",    "maxSize": "50 kB" }
+  ],
+  "scripts": {
+    "size": "bundlesize"
+  }
+}
+```
+
+```yaml
+# .github/workflows/ci.yml
+- name: Build
+  run: npm run build
+
+- name: Bundle size check
+  run: npm run size
+  # Fails CI if any bundle exceeds maxSize
+```
+
+**Using Next.js `@next/bundle-analyzer` with size limits:**
+
+```javascript
+// scripts/check-bundle-size.js
+const { readFileSync } = require('fs');
+const path = require('path');
+
+const stats = JSON.parse(readFileSync('.next/build-manifest.json', 'utf8'));
+const MAX_PAGE_KB = 150;
+
+Object.entries(stats.pages).forEach(([page, files]) => {
+  const totalSize = files.reduce((sum, f) => {
+    try {
+      return sum + readFileSync(path.join('.next', f)).length;
+    } catch { return sum; }
+  }, 0);
+  const kbs = totalSize / 1024;
+  if (kbs > MAX_PAGE_KB) {
+    console.error(`Page ${page}: ${kbs.toFixed(0)}KB exceeds ${MAX_PAGE_KB}KB limit`);
+    process.exit(1);
+  }
+});
+```
+
+---
+
+## 16. GitHub Actions Build Pipeline — Complete Pattern
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Run type-check and lint in parallel with build
+      - name: Type check
+        run: pnpm tsc --noEmit
+        
+      - name: Lint
+        run: pnpm eslint src --ext .ts,.tsx
+
+      - name: Test
+        run: pnpm vitest run --coverage
+
+      - name: Build
+        run: pnpm build
+        env:
+          NODE_ENV: production
+
+      - name: Bundle size check
+        run: pnpm bundlesize
+
+      - name: Upload source maps to Sentry
+        run: npx @sentry/cli sourcemaps upload ./dist
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+
+      - name: Remove source maps from artifact
+        run: find ./dist -name "*.map" -delete
+
+      - name: Deploy
+        run: pnpm deploy:production
+        if: github.ref == 'refs/heads/main'
+```
+
+---
+
+## 17. Revision Notes
 
 - One-line summary: Real build architecture starts from runtime and product constraints.
 - Three keywords: runtime, cache, deploy.

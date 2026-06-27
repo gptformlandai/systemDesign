@@ -382,7 +382,100 @@ Good answer:
 
 ---
 
-## 13. Revision Notes
+## 13. Turbopack Incremental Model
+
+Turbopack uses a function-level memoization engine called **Turbo engine**:
+
+- Every computation (parse file, resolve module, run transform) is a pure function
+- Inputs are tracked; if inputs haven't changed, output is reused without re-running
+- Granularity: per function, not per file — partial file changes re-run only the affected computation
+
+**vs Webpack 5 persistent cache:**
+- Webpack: serialize entire module graph to disk → deserialize → check changed files → rebuild changed modules
+- Turbopack: only re-execute the minimal computation path affected by the change
+
+**Current state (2025):**
+- Turbopack production builds: in development (not released)
+- Turbopack dev server: production-ready in Next.js 15 (opt-in via `--turbopack`)
+
+```bash
+# Enable Turbopack dev server in Next.js 15
+npx next dev --turbopack
+```
+
+---
+
+## 14. tsup — TypeScript Universal Packager
+
+tsup wraps esbuild with a library-friendly API:
+
+```typescript
+// tsup.config.ts
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  entry: ['src/index.ts', 'src/cli.ts'],
+  format: ['cjs', 'esm'],               // dual output
+  dts: true,                            // generate .d.ts
+  splitting: true,                      // split shared code into chunks
+  sourcemap: true,
+  clean: true,                          // clean dist/ before build
+  external: ['react', 'react-dom'],     // don't bundle peer deps
+  minify: false,                        // libraries shouldn't minify (let consumer decide)
+  treeshake: true,
+  outDir: 'dist',
+});
+```
+
+```bash
+tsup                  # build
+tsup --watch          # watch mode
+tsup --no-dts         # skip type declarations
+```
+
+tsup is preferred over raw Rollup for most library use cases — simpler config, good defaults, TypeScript built-in.
+
+---
+
+## 15. Rollup Plugins Deep Dive
+
+```javascript
+// rollup.config.mjs — production library with full plugin chain
+import { defineConfig } from 'rollup';
+import typescript from '@rollup/plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import terser from '@rollup/plugin-terser';
+import dts from 'rollup-plugin-dts';
+
+export default [
+  // Main bundle
+  defineConfig({
+    input: 'src/index.ts',
+    output: [
+      { file: 'dist/index.cjs', format: 'cjs', sourcemap: true },
+      { file: 'dist/index.mjs', format: 'esm', sourcemap: true },
+    ],
+    external: ['react', 'react-dom'],
+    plugins: [
+      resolve({ preferBuiltins: true }),    // resolve node_modules
+      commonjs(),                            // convert CJS deps to ESM
+      typescript({ tsconfig: './tsconfig.build.json' }),
+      terser({ compress: { drop_console: true } }),
+    ],
+  }),
+  // Type declarations bundle
+  defineConfig({
+    input: 'dist/types/index.d.ts',
+    output: [{ file: 'dist/index.d.ts', format: 'esm' }],
+    plugins: [dts()],
+  }),
+];
+```
+
+---
+
+## 16. Revision Notes
 
 - One-line summary: Modern build tools are specialized around speed, output quality, framework integration, native runtime needs, or Expo's RN workflow.
 - Three keywords: speed, output, runtime.

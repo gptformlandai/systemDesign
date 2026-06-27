@@ -314,7 +314,142 @@ SNAPSHOT for development, immutable release for production
 
 ---
 
-## 12. Interview Insight
+## 12. Version Catalogs — libs.versions.toml
+
+Version catalogs are the Gradle-native way to manage dependency versions in one place:
+
+```toml
+# gradle/libs.versions.toml
+[versions]
+spring-boot = "3.4.0"
+testcontainers = "1.20.4"
+jackson = "2.18.2"
+junit = "5.11.4"
+
+[libraries]
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+
+[bundles]
+testing = ["spring-boot-starter-test", "testcontainers-postgresql", "junit-api"]
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+```
+
+```kotlin
+// build.gradle.kts — use catalog references
+dependencies {
+    implementation(libs.spring.boot.starter.web)
+    testImplementation(libs.bundles.testing)   // entire testing bundle in one line
+}
+
+plugins {
+    alias(libs.plugins.spring.boot)
+}
+```
+
+**Benefits:** Single source of truth for all versions. Refactoring-safe (rename in one file). IDE auto-completion. Supported by Renovate/Dependabot for automated updates.
+
+---
+
+## 13. Configuration Cache
+
+Configuration cache serializes the configuration phase (build scripts + task graph) to disk. Subsequent builds skip the entire configuration phase if nothing changed.
+
+```properties
+# gradle.properties
+org.gradle.configuration-cache=true
+org.gradle.configuration-cache.problems=warn   # use 'warn' during migration, 'fail' after
+```
+
+**What is cached:** task graph, task inputs, build script state
+**When invalidated:** any build script changes, `settings.gradle.kts` changes, task input changes
+
+Compatibility check:
+```bash
+# Verify configuration cache compatibility
+./gradlew :app:build --configuration-cache
+# First run: "Configuration cache entry stored"
+# Subsequent run: "Configuration cache entry reused — 0s configuration time"
+```
+
+Not all plugins support it yet. Check plugin release notes. Use `problems=warn` to see violations without breaking the build.
+
+---
+
+## 14. Convention Plugins
+
+Convention plugins move shared build logic from `allprojects {}` / `subprojects {}` into reusable plugins:
+
+```kotlin
+// buildSrc/src/main/kotlin/java-library-conventions.gradle.kts
+plugins {
+    `java-library`
+    id("org.springframework.boot")
+    checkstyle
+    jacoco
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+    }
+}
+```
+
+Apply to any module:
+```kotlin
+// modules/payments-service/build.gradle.kts
+plugins {
+    id("java-library-conventions")  // one line applies all conventions
+}
+
+dependencies {
+    implementation(libs.spring.boot.starter.data.jpa)
+}
+```
+
+**Benefits:** DRY build logic. All modules consistently configured. Changing JaCoCo config in one convention plugin updates all 20 modules.
+
+---
+
+## 15. Interview Insight
+
+Strong answer:
+
+> Gradle builds a task DAG from requested tasks and their dependencies. It can skip work through incremental build checks and reuse outputs through build cache when task inputs match. This makes it powerful for large multi-project builds, but only if tasks are deterministic and build logic is structured well.
+
+Follow-up trap:
+
+> Why did Gradle skip my task?
+
+Good answer:
+
+> I check the task outcome. `UP-TO-DATE` means local inputs/outputs matched. `FROM-CACHE` means outputs were restored. `NO-SOURCE` means no inputs. If skipping is wrong, the task probably has undeclared inputs or outputs.
+
+---
+
+## 16. Revision Notes
+
+- One-line summary: Gradle is a task DAG engine optimized by inputs, outputs, and cache.
+- Three keywords: task, cache, incremental.
+- One interview trap: Gradle speed depends on correct task modeling.
+- Memory trick: Maven is a timetable; Gradle is a map.
 
 Strong answer:
 

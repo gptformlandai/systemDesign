@@ -216,3 +216,206 @@ single library as the default for all state.
 - One interview trap: Context is not optimized global state by default.
 - One memory trick: Server owns server state; URL owns shareable state; component owns local state.
 
+---
+
+## 12. Zustand — Internals and Selector Optimization
+
+### Zustand Store Internals
+
+Zustand uses a closure to store state outside React. Subscribers are notified when state changes.
+
+```tsx
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+type CartStore = {
+  items: CartItem[];
+  total: number;
+  addItem: (item: CartItem) => void;
+  removeItem: (id: string) => void;
+  clearCart: () => void;
+};
+
+const useCartStore = create<CartStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        items: [],
+        total: 0,
+
+        addItem: (item) => set((state) => {
+          const existing = state.items.find(i => i.id === item.id);
+          if (existing) {
+            return {
+              items: state.items.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i),
+              total: state.total + item.price,
+            };
+          }
+          return { items: [...state.items, { ...item, qty: 1 }], total: state.total + item.price };
+        }),
+
+        removeItem: (id) => set((state) => {
+          const item = state.items.find(i => i.id === id);
+          return {
+            items: state.items.filter(i => i.id !== id),
+            total: state.total - (item ? item.price * item.qty : 0),
+          };
+        }),
+
+        clearCart: () => set({ items: [], total: 0 }),
+      }),
+      { name: 'cart-storage' }  // persists to localStorage
+    )
+  )
+);
+```
+
+### Selector Optimization — Preventing Unnecessary Re-renders
+
+```tsx
+// BAD: subscribes to entire store — re-renders on ANY store change
+function CartBadge() {
+  const store = useCartStore();  // full store subscription
+  return <span>{store.items.length}</span>;
+}
+
+// GOOD: selector subscribes only to items.length
+function CartBadge() {
+  const count = useCartStore(state => state.items.length);
+  // Re-renders ONLY when items.length changes (Zustand does shallow compare)
+  return <span>{count}</span>;
+}
+
+// GOOD: multiple selectors with shallow — one re-render if either changes
+import { useShallow } from 'zustand/react/shallow';
+function CartSummary() {
+  const { count, total } = useCartStore(
+    useShallow(state => ({ count: state.items.length, total: state.total }))
+  );
+  return <p>{count} items — ${total}</p>;
+}
+```
+
+---
+
+## 13. Redux Toolkit — When and How
+
+**When RTK makes sense:**
+- Team > 5 engineers, complex shared state with many interaction paths
+- Need strict conventions, action replay, time-travel debugging
+- Backend team already thinks in actions/events (CQRS-style)
+
+```tsx
+// store/userSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+
+type UserState = { user: User | null; status: 'idle' | 'loading' | 'success' | 'error'; error: string | null };
+
+export const fetchUser = createAsyncThunk('user/fetch', async (id: string) => {
+  const res = await fetch(`/api/users/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.json() as Promise<User>;
+});
+
+const userSlice = createSlice({
+  name: 'user',
+  initialState: { user: null, status: 'idle', error: null } as UserState,
+  reducers: {
+    logout: (state) => { state.user = null; state.status = 'idle'; },
+    updateName: (state, action: PayloadAction<string>) => {
+      if (state.user) state.user.name = action.payload;  // Immer allows mutation syntax
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUser.pending, (state) => { state.status = 'loading'; })
+      .addCase(fetchUser.fulfilled, (state, action) => { state.status = 'success'; state.user = action.payload; })
+      .addCase(fetchUser.rejected, (state, action) => { state.status = 'error'; state.error = action.error.message ?? null; });
+  },
+});
+```
+
+### RTK Query — Replaces Manual Data Fetching
+
+```tsx
+// store/api.ts
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const api = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  tagTypes: ['Product', 'Cart'],
+  endpoints: (builder) => ({
+    getProduct: builder.query<Product, string>({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Product', id }],
+    }),
+    updateProduct: builder.mutation<Product, Partial<Product> & { id: string }>({
+      query: ({ id, ...body }) => ({ url: `/products/${id}`, method: 'PATCH', body }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }],  // auto-revalidate
+    }),
+  }),
+});
+
+// Usage in component — loading/error/data handled automatically
+const { data: product, isLoading } = api.useGetProductQuery(productId);
+const [updateProduct] = api.useUpdateProductMutation();
+```
+
+---
+
+## 14. Jotai — Atomic State
+
+Jotai atoms are the smallest unit of state. Derived atoms recompute automatically.
+
+```tsx
+import { atom, useAtom, useAtomValue } from 'jotai';
+
+// Primitive atoms
+const countAtom = atom(0);
+const nameAtom = atom('');
+
+// Derived atom — recomputes when countAtom changes
+const doubleCountAtom = atom(get => get(countAtom) * 2);
+
+// Async derived atom
+const userAtom = atom(async (get) => {
+  const id = get(userIdAtom);
+  const res = await fetch(`/api/users/${id}`);
+  return res.json();
+});
+
+// In component
+function Counter() {
+  const [count, setCount] = useAtom(countAtom);
+  const double = useAtomValue(doubleCountAtom);  // read-only
+  return <button onClick={() => setCount(c => c + 1)}>{count} (×2 = {double})</button>;
+}
+```
+
+**Jotai vs Zustand:**
+- Jotai: fine-grained atoms, natural for derived/computed state, great for feature-local state
+- Zustand: whole-store model, better for cross-feature state with clear actions
+
+---
+
+## 15. Context — When It's Fine and When It Hurts
+
+```tsx
+// FINE: Static or rarely-changing values
+const ThemeContext = createContext<'light' | 'dark'>('light');
+// All consumers re-render only when the provider's value changes
+
+// PROBLEM: Frequent updates
+const NotificationsContext = createContext<Notification[]>([]);
+// Every new notification → ALL consumers of this context re-render
+// Fix: Separate context for the notification list from the notification actions
+
+// PATTERN: Split value context from dispatch context
+const CartStateContext = createContext<CartState | undefined>(undefined);
+const CartDispatchContext = createContext<CartDispatch | undefined>(undefined);
+// Components that only dispatch never re-render on state changes
+```
+
+**Rule:** If more than 10 components subscribe to a context that updates frequently, consider Zustand.
+

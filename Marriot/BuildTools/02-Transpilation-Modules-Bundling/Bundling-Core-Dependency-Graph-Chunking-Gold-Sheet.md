@@ -332,7 +332,66 @@ Good answer:
 
 ---
 
-## 15. Revision Notes
+## 15. Dynamic Import Internals and webpackChunkName
+
+```typescript
+// Dynamic import creates a separate chunk
+const AdminPage = React.lazy(() => import('./pages/Admin'));
+
+// webpackChunkName sets the output filename (Webpack magic comment)
+const AdminPage = React.lazy(
+  () => import(/* webpackChunkName: "admin-page" */ './pages/Admin')
+);
+// Output: admin-page.[hash].js instead of 3.[hash].js
+
+// Vite equivalent (Rollup comment)
+const AdminPage = React.lazy(
+  () => import(/* @vite-ignore */ './pages/Admin')
+  // or use rollupOptions.output.chunkFileNames for naming
+);
+```
+
+**Prefetch and Preload hints:**
+
+```typescript
+// webpackPrefetch: browser downloads after main thread is idle
+// Use for: routes the user might navigate to next
+const SettingsPage = lazy(
+  () => import(/* webpackPrefetch: true */ './pages/Settings')
+);
+// Injects: <link rel="prefetch" href="/settings.[hash].js">
+
+// webpackPreload: browser downloads in parallel with current chunk
+// Use for: resources definitely needed for the current route
+const HeavyChart = lazy(
+  () => import(/* webpackPreload: true */ './components/HeavyChart')
+);
+// Injects: <link rel="preload" href="/heavy-chart.[hash].js" as="script">
+```
+
+---
+
+## 16. Chunk Naming Strategy
+
+```javascript
+// webpack.config.js — consistent chunk naming
+module.exports = {
+  output: {
+    filename: '[name].[contenthash:8].js',       // entry chunks
+    chunkFilename: '[name].[contenthash:8].js',  // async chunks
+  },
+  optimization: {
+    moduleIds: 'deterministic',    // stable module IDs across builds (Webpack 5 default)
+    chunkIds: 'deterministic',     // stable chunk IDs
+  },
+};
+```
+
+**Why `deterministic` IDs matter:** Without deterministic IDs, adding a new module changes the numeric IDs of existing modules — causing the vendors chunk hash to change even when vendor code didn't change, busting long-term caches unnecessarily.
+
+---
+
+## 16. Revision Notes
 
 - One-line summary: Bundling turns an import graph into runtime-loadable chunks.
 - Three keywords: entry, graph, chunk.

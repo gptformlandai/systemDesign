@@ -272,7 +272,38 @@ Good answer:
 
 ---
 
-## 14. Revision Notes
+## 14. Per-File-Type Transform Table
+
+| File Type | Dev Transform | Prod Transform | Tool |
+|---|---|---|---|
+| `.tsx` / `.ts` | Type strip + JSX → JS | Same + minify dead code | SWC / esbuild / Babel |
+| `.js` / `.jsx` | JSX → JS | Same + minify | SWC / Babel |
+| `.css` | Inject via `<style>` | Extract to `.css` file | css-loader + MiniCssExtractPlugin / Vite |
+| `.scss` / `.less` | Sass/Less → CSS → inject | Sass/Less → CSS → extract | sass-loader / vite built-in |
+| `.module.css` | CSS Modules → scoped class names | Same | css-loader modules |
+| `.png/.jpg` | Inline if < threshold, else URL | Content-hashed URL | Webpack asset modules / Vite |
+| `.svg` | URL or SVGR component | Same | @svgr/webpack / vite-plugin-svgr |
+| `.json` | Import as object | Same (tree-shaken by key) | Built-in to all bundlers |
+| `.wasm` | Import as async module | Same | Built-in Webpack 5 / Vite |
+| `.env` | Replace at compile time | Replace at compile time | DefinePlugin / Vite define |
+
+---
+
+## 15. Tool Comparison by Project Type
+
+| Project Type | Recommended Tool | Why |
+|---|---|---|
+| React SPA | Vite | Fast dev, easy config, Rollup prod |
+| Next.js app | Next.js (webpack/Turbopack) | Framework handles all build config |
+| React Native | Metro | Native module resolution required |
+| Component library | tsup + Rollup | Dual CJS/ESM, tree-shakeable output |
+| Enterprise micro-frontends | Webpack 5 + MF Plugin | Module Federation only in Webpack |
+| Monorepo | Turborepo + pnpm | Task caching, affected builds |
+| Quick prototype | Parcel | Zero config |
+
+---
+
+## 16. Revision Notes
 
 - One-line summary: Build tools convert developer-friendly source into runtime-friendly, optimized output.
 - Three keywords: transform, graph, optimize.

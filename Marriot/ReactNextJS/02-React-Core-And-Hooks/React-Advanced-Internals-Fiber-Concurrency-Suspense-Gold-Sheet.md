@@ -212,3 +212,184 @@ transitions, and lazy loading help control what users see while work is pending.
 - One interview trap: Concurrent rendering does not mean parallel DOM mutation.
 - One memory trick: Render work can be interrupted; commit is where UI changes become real.
 
+---
+
+## 12. Fiber Node Structure
+
+Each React element in the tree corresponds to a **Fiber node** — a JavaScript object tracking component state, effects, and connections.
+
+```
+Fiber node (simplified):
+{
+  type: 'div' | FunctionComponent | ClassComponent,
+  key: string | null,
+  
+  // Tree structure
+  return: Fiber,       // parent
+  child: Fiber,        // first child
+  sibling: Fiber,      // next sibling
+  
+  // State and effects
+  pendingProps: {},
+  memoizedProps: {},
+  memoizedState: Hook, // linked list of hooks
+  updateQueue: Update[],
+  flags: number,       // bitmask: Placement | Update | Deletion
+  
+  // Work tracking
+  lanes: Lanes,        // priority of pending work
+  alternate: Fiber,    // double buffer — current or work-in-progress
+}
+```
+
+**Double buffering:** React maintains two trees — the current tree (committed to DOM) and the work-in-progress tree. React builds the work-in-progress tree incrementally. On commit, the trees swap.
+
+---
+
+## 13. The Render Phase Work Loop
+
+```
+Root of tree
+    │
+    ▼ beginWork(fiber)
+    │  ← renders component, computes next children
+    │  ← can be interrupted (concurrent mode)
+    │
+    ▼ completeWork(fiber)
+    │  ← creates DOM nodes, collects effect flags
+    │  ← bubbles up to parent
+    │
+    ▼ (recursion using sibling/return links, not the call stack)
+```
+
+```ts
+// Simplified work loop — calls workUnitOfWork repeatedly
+function workLoop(shouldYield: () => boolean) {
+  while (workInProgress !== null && !shouldYield()) {
+    workInProgress = performUnitOfWork(workInProgress);
+  }
+}
+
+function performUnitOfWork(unitOfWork: Fiber): Fiber | null {
+  const next = beginWork(unitOfWork);  // render the component
+  if (next === null) {
+    completeUnitOfWork(unitOfWork);   // no children left — complete up
+  }
+  return next;
+}
+```
+
+**Why Fiber uses iteration instead of recursion:** Recursive call stacks cannot be interrupted. Iterating over a linked list of Fiber nodes can be paused at any `shouldYield()` check and resumed by storing `workInProgress`.
+
+---
+
+## 14. Concurrent Lanes — Priority Model
+
+React 18's scheduler assigns **lanes** to update requests, determining processing order.
+
+```
+Lane Priority (high → low):
+  SyncLane            ← flushSync, browser event handlers (urgent)
+  InputContinuousLane ← continuous input (mouse move, scroll)
+  DefaultLane         ← normal setState (deferred events)
+  TransitionLane      ← startTransition (user-marked as non-urgent)
+  IdleLane            ← background work
+```
+
+```tsx
+// Assigning transition priority
+const [isPending, startTransition] = useTransition();
+startTransition(() => {
+  setFilter(newValue);  // This update gets TransitionLane — can be interrupted
+});
+
+// SyncLane — cannot be interrupted, runs to completion
+import { flushSync } from 'react-dom';
+flushSync(() => setCount(c => c + 1));
+```
+
+**Practical implication for interviews:** `useTransition` tells React that the wrapped update has low priority (TransitionLane). If a high-priority update (user typing) arrives, React can abandon the in-progress TransitionLane render and start fresh with the new input value — keeping the UI responsive.
+
+---
+
+## 15. Suspense Internals — How it Works
+
+```tsx
+// When a component throws a Promise, React catches it at the nearest Suspense boundary
+async function SuspendingComponent() {
+  const data = await fetchData();  // in React 19, use() hook does this
+  return <div>{data.name}</div>;
+}
+
+// Internally, React checks if thrown value is a Promise (thenable):
+function beginWork(fiber) {
+  try {
+    return renderComponent(fiber);
+  } catch (thrownValue) {
+    if (typeof thrownValue.then === 'function') {
+      // It's a Promise — attach a callback to retry when it resolves
+      thrownValue.then(() => scheduleRerender(fiber));
+      // Show the nearest Suspense fallback
+      return findNearestSuspenseBoundary(fiber).fallback;
+    }
+    throw thrownValue;  // not a Promise — propagate as error
+  }
+}
+```
+
+**Suspense boundary in the tree:**
+```
+<Suspense fallback={<Spinner />}>      ← catches thrown Promises from subtree
+  <UserProfile />                      ← might throw a Promise
+</Suspense>
+```
+
+When `UserProfile` throws a Promise:
+1. React shows `<Spinner />` fallback immediately
+2. When Promise resolves, React re-renders `<UserProfile />`
+3. If resolved data is now available, render completes → fallback replaced with content
+
+---
+
+## 16. Why Render Must Be Pure — Concurrent Mode Implication
+
+In concurrent mode, React may:
+- Render a component multiple times before committing (abandoned renders)
+- Render components "out of order" based on priority
+- Pause and resume mid-render
+
+**Consequence:** Any side effect in the render function runs multiple times, at unpredictable times, possibly with stale data.
+
+```tsx
+// DANGEROUS: Modifying external state during render
+let renderCount = 0;
+function Counter() {
+  renderCount++;  // BAD: incremented on abandoned renders too
+  return <p>{renderCount}</p>;
+}
+
+// SAFE: Only read during render, mutate in effects
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <p>{count}</p>;  // pure — just reads and returns
+}
+```
+
+**Strict Mode double-invoke exposes this:** Strict Mode intentionally renders twice to flush out render-phase side effects. If your component behaves differently on the second render, you have a purity violation.
+
+---
+
+## 17. React Scheduler — `MessageChannel` Trick
+
+React's scheduler uses `MessageChannel` to schedule work between frames without blocking the browser.
+
+```
+Frame N: user interaction → React queues work
+React posts a message to MessageChannel
+Browser handles paints, layout, other events
+Browser delivers the message → React processes the work queue
+Frame N+1: React commits changes if done, or continues next frame
+```
+
+This is why React's concurrent work doesn't block 60fps scrolling — it yields between frames. The scheduler has a 5ms budget per task by default; if work exceeds 5ms, it yields and resumes in the next message loop iteration.
+

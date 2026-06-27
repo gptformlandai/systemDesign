@@ -240,7 +240,107 @@ Good answer:
 
 ---
 
-## 14. Revision Notes
+## 14. Parcel 2 .parcelrc Configuration
+
+Parcel 2 uses `.parcelrc` to customize the pipeline without full config:
+
+```json
+// .parcelrc — extend Parcel's default pipeline
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.{ts,tsx}": ["@parcel/transformer-typescript-tsc"],  // use tsc instead of SWC
+    "*.{vue}": ["@parcel/transformer-vue"]                 // add Vue support
+  },
+  "bundler": "@parcel/bundler-default",
+  "namers": ["@parcel/namer-default"],
+  "packagers": {
+    "*.html": "@parcel/packager-html",
+    "*.css": "@parcel/packager-css",
+    "*.js": "@parcel/packager-js"
+  },
+  "optimizers": {
+    "*.js": ["@parcel/optimizer-swc"],
+    "*.css": ["@parcel/optimizer-cssnano"]
+  }
+}
+```
+
+---
+
+## 15. Parcel Workspaces (Monorepo)
+
+```json
+// package.json at monorepo root
+{
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "parcel build apps/web/src/index.html"
+  }
+}
+```
+
+Parcel automatically resolves workspace packages using `package.json` `source` field:
+
+```json
+// packages/ui/package.json
+{
+  "name": "@company/ui",
+  "source": "src/index.ts",         // tells Parcel to build from source in dev
+  "main": "dist/index.js",
+  "module": "dist/index.mjs"
+}
+```
+
+In the monorepo, when `apps/web` imports `@company/ui`, Parcel reads the `source` field and transpiles the TypeScript source directly — no pre-build step required in development.
+
+---
+
+## 16. Custom Transformer (Plugin) Pattern
+
+```javascript
+// parcel-transformer-custom.js
+const { Transformer } = require('@parcel/plugin');
+
+module.exports = new Transformer({
+  async transform({ asset }) {
+    const code = await asset.getCode();
+    // modify the code
+    const transformed = code.replace('__BUILD_TIME__', Date.now().toString());
+    asset.setCode(transformed);
+    return [asset];
+  },
+});
+```
+
+```json
+// .parcelrc
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.js": ["parcel-transformer-custom", "..."]  // "..." appends default transformers
+  }
+}
+```
+
+---
+
+## 17. Parcel vs Webpack vs Vite Summary
+
+| Feature | Parcel 2 | Webpack 5 | Vite |
+|---|---|---|---|
+| Config required | Minimal (.parcelrc optional) | High (webpack.config.js) | Medium (vite.config.ts) |
+| Dev server | Yes (HMR) | Yes (HMR) | Yes (native ESM, fast) |
+| Production build | Rollup-like optimizer | Built-in optimizer | Rollup |
+| Code splitting | Auto | Manual (splitChunks) | Auto (Rollup) |
+| Module Federation | No | Yes | No (use vite-plugin-federation) |
+| CSS handling | Automatic | Manual (loaders) | Automatic |
+| TypeScript | Automatic (SWC) | Manual (ts-loader/babel) | Automatic (esbuild) |
+| Best for | Small/medium projects, prototypes | Large enterprise apps | React/Vue SPAs |
+
+---
+
+## 18. Revision Notes
 
 - One-line summary: Parcel automates common build pipelines with minimal config.
 - Three keywords: infer, transform, package.

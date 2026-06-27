@@ -289,7 +289,142 @@ Cache:
 
 ---
 
-## 12. Interview Insight
+## 12. Yarn Berry (Yarn 2+) — PnP Mode
+
+Yarn Berry's Plug'n'Play eliminates `node_modules` entirely:
+
+```bash
+# Enable Yarn Berry in an existing project
+corepack enable
+yarn set version stable
+
+# .yarnrc.yml
+nodeLinker: pnp   # Plug'n'Play — no node_modules
+```
+
+How PnP works:
+- Dependencies stored in `.yarn/cache/` as zip archives
+- A `.pnp.cjs` file generated — maps package names to locations
+- Node.js patched at startup to resolve from zip files instead of `node_modules`
+
+**Benefits:** Faster install (no I/O write to node_modules), strict resolution (no phantom dependencies), smaller CI cache.
+**Tradeoffs:** Some packages incompatible with PnP (need `patchedDependencies`); IDE setup more complex (needs SDKs for TypeScript, ESLint).
+
+---
+
+## 13. Corepack — Pinning Package Manager Version
+
+Corepack (bundled with Node.js 16+) manages package manager versions per project:
+
+```json
+// package.json
+{
+  "packageManager": "pnpm@9.15.4+sha512.abc123..."
+}
+```
+
+```bash
+# Enable Corepack globally
+corepack enable
+
+# Run pnpm — Corepack auto-installs the pinned version if not present
+pnpm install
+```
+
+**Why this matters:** Without `packageManager` pinning, different developers/CI runners may use different pnpm/yarn versions with different behavior. The `packageManager` field is the Node.js-native way to enforce a specific version.
+
+```bash
+# In CI, always enable Corepack first:
+- run: corepack enable
+- run: pnpm install --frozen-lockfile
+```
+
+---
+
+## 14. pnpm Workspace Catalogs
+
+pnpm workspaces + catalogs pin shared dependencies across all packages in a monorepo:
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - "packages/*"
+  - "apps/*"
+
+catalog:
+  react: ^18.3.0
+  typescript: ^5.7.2
+  "@types/node": ^22.0.0
+```
+
+```json
+// packages/ui/package.json
+{
+  "dependencies": {
+    "react": "catalog:"   // resolves to react@^18.3.0 from catalog
+  }
+}
+```
+
+**Benefit:** When you want to upgrade React across 20 packages, change one line in `pnpm-workspace.yaml` instead of 20 `package.json` files.
+
+---
+
+## 15. npm Workspaces
+
+npm native monorepo support (since npm v7):
+
+```json
+// root package.json
+{
+  "name": "my-monorepo",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
+```
+
+```bash
+# Install all packages
+npm install
+
+# Run command in specific workspace
+npm run build -w @company/payments-ui
+
+# Run in all workspaces
+npm run test --workspaces
+
+# Filter workspaces
+npm run build --workspace packages/shared-api --workspace packages/auth-lib
+```
+
+**Hoisting:** npm hoists shared dependencies to root `node_modules`. This means `packages/ui/node_modules/` is nearly empty — React is in `node_modules/` at root. Risk: phantom dependencies can still be imported accidentally.
+
+---
+
+## 16. Interview Insight
+
+Strong answer:
+
+> Node package managers resolve dependency graphs, create lockfiles, manage `node_modules`, and run scripts. npm is the default, Yarn is common in workspace-heavy environments, and pnpm is attractive for monorepos because of disk efficiency and stricter dependency linking. In CI, I use frozen installs and pin Node/package-manager versions.
+
+Follow-up trap:
+
+> Why does the app work locally but fail after `npm ci --omit=dev`?
+
+Good answer:
+
+> A package needed at runtime was probably placed in `devDependencies`, or the build output depends on a tool/package that is not included in the runtime image. I would inspect imports, production install flags, and the Docker multi-stage copy.
+
+---
+
+## 17. Revision Notes
+
+- One-line summary: Node package managers resolve, lock, install, and run scripts.
+- Three keywords: manifest, lockfile, scripts.
+- One interview trap: `dependencies` vs `devDependencies` affects production runtime.
+- Memory trick: Manifest is the wish list; lockfile is the receipt.
 
 Strong answer:
 

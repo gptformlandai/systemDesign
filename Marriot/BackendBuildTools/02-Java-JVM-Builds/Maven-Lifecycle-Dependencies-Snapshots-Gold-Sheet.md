@@ -299,7 +299,201 @@ Why:
 
 ---
 
-## 11. Interview Insight
+## 11. BOM and dependencyManagement Deep Dive
+
+```xml
+<!-- Parent POM: define versions once, children inherit -->
+<dependencyManagement>
+  <dependencies>
+    <!-- Import Spring Boot BOM — pins all Spring/Micrometer/Logback versions -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-dependencies</artifactId>
+      <version>3.4.0</version>
+      <type>pom</type>
+      <scope>import</scope>   <!-- copies all entries into this management section -->
+    </dependency>
+
+    <!-- Import Spring Cloud BOM -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-dependencies</artifactId>
+      <version>2023.0.3</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+
+    <!-- Override a transitive dependency version -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.18.2</version>   <!-- force version across all modules -->
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+```
+
+Child module — no version specified (inherits from parent):
+```xml
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>  <!-- version comes from BOM -->
+  </dependency>
+</dependencies>
+```
+
+---
+
+## 12. Maven Multi-Module Builds
+
+```xml
+<!-- parent/pom.xml -->
+<groupId>com.example</groupId>
+<artifactId>platform</artifactId>
+<version>2.3.0-SNAPSHOT</version>
+<packaging>pom</packaging>
+
+<modules>
+  <module>shared-domain</module>
+  <module>payments-service</module>
+  <module>orders-service</module>
+</modules>
+```
+
+```bash
+# Build only changed modules + their dependents
+mvn clean install -pl shared-domain -am   # -am = also build dependencies
+mvn clean install -pl payments-service    # builds only payments-service (shared-domain already in .m2)
+
+# Build all modules in parallel
+mvn clean install -T 4   # 4 threads
+
+# Run tests only for specific module
+mvn test -pl orders-service
+```
+
+**Dependency between modules:**
+```xml
+<!-- payments-service/pom.xml -->
+<dependency>
+  <groupId>com.example</groupId>
+  <artifactId>shared-domain</artifactId>
+  <version>${project.version}</version>  <!-- same version as parent -->
+</dependency>
+```
+
+---
+
+## 13. Maven Profiles
+
+Profiles customize the build for different environments or purposes.
+
+```xml
+<profiles>
+  <!-- Integration test profile — disabled by default -->
+  <profile>
+    <id>integration-tests</id>
+    <activation>
+      <property>
+        <name>runITs</name>
+      </property>
+    </activation>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+  </profile>
+
+  <!-- Release profile — adds GPG signing, sources JAR, javadoc JAR -->
+  <profile>
+    <id>release</id>
+    <build>
+      <plugins>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <executions>
+            <execution>
+              <goals><goal>jar-no-fork</goal></goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+  </profile>
+</profiles>
+```
+
+```bash
+# Activate profile
+mvn verify -P integration-tests
+mvn deploy -P release
+```
+
+---
+
+## 14. Maven Wrapper
+
+The Maven Wrapper (`./mvnw`) pins the Maven version at the project level — no Maven installation required.
+
+```bash
+# Generate Maven Wrapper (run once, commit the output)
+mvn wrapper:wrapper -Dmaven=3.9.9
+
+# Generated files:
+# .mvn/wrapper/maven-wrapper.properties   ← pins Maven version
+# mvnw                                    ← Linux/macOS launcher
+# mvnw.cmd                                ← Windows launcher
+```
+
+```properties
+# .mvn/wrapper/maven-wrapper.properties
+distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.9/apache-maven-3.9.9-bin.zip
+wrapperVersion=3.3.2
+```
+
+**Why important:** All developers and CI runners use the exact same Maven version. No "works on my machine" Maven version drift.
+
+```bash
+# Use in CI instead of 'mvn':
+./mvnw clean verify
+```
+
+---
+
+## 15. Interview Insight
+
+Strong answer:
+
+> Maven is lifecycle-based. I call a phase such as `verify`, and Maven runs all prior phases in order. The actual work is done by plugin goals bound to phases. Dependencies are resolved from repositories using coordinates and scopes. SNAPSHOT versions are mutable development artifacts, while release versions should be immutable and promoted through environments.
+
+Follow-up trap:
+
+> What is the difference between `package`, `install`, and `deploy`?
+
+Good answer:
+
+> `package` creates the artifact under `target`. `install` copies it to the local Maven repository for local reuse. `deploy` publishes it to a remote repository like Nexus or Artifactory for other builds and environments.
+
+---
+
+## 16. Revision Notes
+
+- One-line summary: Maven is a standard lifecycle that creates and publishes repository artifacts.
+- Three keywords: POM, phase, snapshot.
+- One interview trap: `install` is local; `deploy` is remote.
+- Memory trick: Maven runs a train route; plugins do the work at each station.
 
 Strong answer:
 

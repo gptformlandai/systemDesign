@@ -313,7 +313,102 @@ Good answer:
 
 ---
 
-## 15. Revision Notes
+## 15. Differential Serving
+
+```html
+<!-- serve modern JS to modern browsers, legacy to old browsers -->
+<script type="module" src="app.modern.[hash].js"></script>    <!-- ES2020+ -->
+<script nomodule src="app.legacy.[hash].js"></script>          <!-- ES5 + polyfills -->
+```
+
+Modern browsers: download `app.modern.js` (smaller — no polyfills, minimal transpilation).
+IE11/old browsers: download `app.legacy.js` (larger — ES5, polyfills included).
+
+**With Vite (`@vitejs/plugin-legacy`):**
+
+```javascript
+// vite.config.ts
+import legacy from '@vitejs/plugin-legacy';
+
+export default defineConfig({
+  plugins: [
+    legacy({
+      targets: ['defaults', 'not IE 11'],
+      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+    }),
+  ],
+});
+```
+
+**Bundle size impact:** Modern bundle is typically 15-30% smaller than a legacy bundle. For apps with mostly modern-browser users, this directly improves LCP.
+
+---
+
+## 16. HTTP/2 and Chunk Strategy
+
+HTTP/1.1: each request occupies a connection slot. More chunks = more blocking.
+HTTP/2: multiplexed — all requests run over one connection in parallel.
+
+**HTTP/2 changes the chunk calculus:**
+- HTTP/1.1: fewer, larger chunks preferred (reduce request overhead)
+- HTTP/2: more, granular chunks can improve cache efficiency (only invalidate changed chunk)
+
+**Practical implication with Webpack:**
+
+```javascript
+// HTTP/2 project — finer chunks for better cache granularity
+splitChunks: {
+  maxInitialRequests: 30,     // allow many parallel initial requests
+  maxAsyncRequests: 30,
+  minSize: 10000,             // allow smaller chunks (10KB vs 30KB default)
+  cacheGroups: {
+    reactVendors: { test: /react/, name: 'react', chunks: 'all', priority: 30 },
+    routerVendors: { test: /react-router/, name: 'router', chunks: 'all', priority: 20 },
+    // Each stays cached independently when the other updates
+  }
+}
+```
+
+---
+
+## 17. `sideEffects: false` — The Full Explanation
+
+```json
+// package.json
+{
+  "sideEffects": false
+}
+// means: every JS file in this package is a pure module —
+// importing it without using any export is safe to remove entirely
+```
+
+**Without `sideEffects: false`:**
+```
+import { Button } from '@company/ui';
+// Bundler must include ALL code from ui/index.ts (might re-export many things)
+// because any of them could have side effects
+```
+
+**With `sideEffects: false`:**
+```
+import { Button } from '@company/ui';
+// Bundler only includes Button.ts and its deps — everything else is dropped
+```
+
+**The CSS trap:**
+```json
+// WRONG — breaks CSS imports:
+{ "sideEffects": false }
+
+// CORRECT:
+{ "sideEffects": ["**/*.css", "**/*.scss", "./src/polyfills.js"] }
+```
+
+CSS imports (`import './button.css'`) are side effects — they modify styles when imported even if they export nothing.
+
+---
+
+## 18. Revision Notes
 
 - One-line summary: Production optimization removes unused code, compresses output, and splits loading work.
 - Three keywords: shake, minify, split.

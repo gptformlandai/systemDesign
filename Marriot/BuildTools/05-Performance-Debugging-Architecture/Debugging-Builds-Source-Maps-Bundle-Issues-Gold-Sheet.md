@@ -327,7 +327,71 @@ Good answer:
 
 ---
 
-## 14. Revision Notes
+## 14. webpack-bundle-analyzer Step-by-Step
+
+```bash
+# Install
+npm install --save-dev webpack-bundle-analyzer
+
+# Option 1: add to webpack config
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+plugins: [new BundleAnalyzerPlugin()]
+
+# Option 2: analyze stats.json (recommended for CI)
+# webpack.config.js:
+module.exports = { /* config */ };
+
+# Generate stats:
+npx webpack --profile --json > stats.json
+
+# Analyze stats file:
+npx webpack-bundle-analyzer stats.json
+```
+
+**What to look for in the treemap:**
+1. **Duplicate packages** — same library under two different paths (often different versions)
+2. **Unexpectedly large libraries** — moment locale files, AWS SDK, full Lodash
+3. **Pages included in initial bundle** — admin pages should be async chunks
+4. **Dev-only code** — test helpers, mock data accidentally bundled
+
+**For Vite, use `rollup-plugin-visualizer`:**
+
+```typescript
+// vite.config.ts
+import { visualizer } from 'rollup-plugin-visualizer';
+
+export default defineConfig({
+  plugins: [
+    visualizer({
+      open: true,         // auto-open browser
+      gzipSize: true,     // show gzipped sizes
+      brotliSize: true,
+    }),
+  ],
+});
+```
+
+---
+
+## 15. Chrome DevTools Network — Reading Bundle Performance
+
+1. Open Network tab → Disable cache → Hard reload
+2. Filter by `JS` type
+3. Check:
+   - **Size** column: wire size (compressed)
+   - **Time** column: download + parse + execute
+   - **Initiator**: what triggered each request (initial or lazy)
+4. Look for: large initial bundle, unnecessary synchronous scripts, missing `preload` hints
+
+**Lighthouse bundle audit:**
+```bash
+npx lighthouse https://your-app.com --only-categories=performance --output=json
+# Look for: "Reduce unused JavaScript" + "Eliminate render-blocking resources"
+```
+
+---
+
+## 16. Revision Notes
 
 - One-line summary: Build debugging means identifying the failing pipeline stage.
 - Three keywords: phase, map, reproduce.

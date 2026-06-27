@@ -321,7 +321,87 @@ Button.tsx
 
 ---
 
-## 15. Revision Notes
+## 15. Babel Plugin Authoring — Visitor Pattern
+
+Babel plugins use the **visitor pattern** to traverse the AST and transform nodes:
+
+```javascript
+// babel-plugin-add-console-log.js
+// Adds console.log at the start of every function body
+module.exports = function({ types: t }) {
+  return {
+    visitor: {
+      FunctionDeclaration(path) {
+        const logStatement = t.expressionStatement(
+          t.callExpression(
+            t.memberExpression(t.identifier('console'), t.identifier('log')),
+            [t.stringLiteral(`Called: ${path.node.id.name}`)]
+          )
+        );
+        path.get('body').unshiftContainer('body', logStatement);
+      },
+    },
+  };
+};
+```
+
+```json
+// babel.config.json
+{
+  "plugins": ["./babel-plugin-add-console-log.js"]
+}
+```
+
+**When to write a Babel plugin:** Compile-time code generation, polyfill injection, removing debug-only code, transforming non-standard syntax.
+
+**SWC limitation:** SWC does not support arbitrary Babel plugins. If your project has custom Babel plugins, you cannot switch to SWC without porting the plugin to SWC's Rust API (rare) or keeping Babel.
+
+---
+
+## 16. SWC Config for Next.js
+
+Next.js 12+ uses SWC by default. SWC config goes in `next.config.js`:
+
+```javascript
+// next.config.js
+module.exports = {
+  swcMinify: true,            // use SWC for minification (default in Next.js 13+)
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production',
+    // Emotion CSS-in-JS support
+    emotion: true,
+    // styled-components support
+    styledComponents: {
+      displayName: true,
+      ssr: true,
+    },
+    // Remove React prop-types (production optimization)
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+  },
+};
+```
+
+**When Next.js falls back to Babel:** If a `babel.config.js` or `.babelrc` file exists in the project root, Next.js uses Babel instead of SWC. Remove custom Babel config to get SWC's speed benefit.
+
+---
+
+## 17. Performance Benchmarks
+
+| Tool | Transform 1000 files | Notes |
+|---|---|---|
+| Babel (JS) | ~8s | Full plugin ecosystem |
+| SWC (Rust) | ~0.3s | 20-70× faster, less plugins |
+| esbuild (Go) | ~0.15s | Fastest, minimal transforms |
+| tsc | ~15s | Full type check, not just strip |
+
+**Key insight:** SWC and esbuild are transformers (syntax conversion + type stripping), not type checkers. Run `tsc --noEmit` separately for type safety. The build pipeline splits into:
+1. **Bundler** (esbuild/SWC) → fast transform → bundle
+2. **Type checker** (`tsc --noEmit`) → parallel, slow but required for CI safety
+
+---
+
+## 18. Revision Notes
 
 - One-line summary: Transpilation converts modern or extended syntax into executable JavaScript.
 - Three keywords: AST, syntax, sourcemap.

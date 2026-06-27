@@ -295,7 +295,130 @@ Good answer:
 
 ---
 
-## 15. Revision Notes
+## 15. Webpack 5 Persistent Cache
+
+Webpack 5 introduced filesystem caching — the compiled module graph is serialized to disk and reused on subsequent builds.
+
+```javascript
+// webpack.config.js
+module.exports = {
+  cache: {
+    type: 'filesystem',                    // persist to disk (not memory-only)
+    buildDependencies: {
+      config: [__filename],                // invalidate if this config file changes
+    },
+    cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
+    compression: 'gzip',
+  },
+};
+```
+
+**What triggers cache invalidation:**
+- Source file changed (watched by webpack)
+- Build dependencies changed (webpack.config.js, babel.config.js, .browserslistrc)
+- webpack version changed
+- Node.js version changed
+
+**Real-world impact:** Cold build 60s → warm build 8s (modules unchanged). CI benefit: cache `.webpack-cache` directory between runs.
+
+---
+
+## 16. splitChunks Deep Dive
+
+```javascript
+// webpack.config.js
+module.exports = {
+  optimization: {
+    runtimeChunk: 'single',           // extract webpack runtime into its own chunk
+    splitChunks: {
+      chunks: 'all',                  // split both sync and async
+      minSize: 20000,                 // min size to create a chunk (20KB)
+      maxInitialRequests: 30,         // max parallel requests on entry page
+      maxAsyncRequests: 30,           // max parallel requests for async loading
+      cacheGroups: {
+        defaultVendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+          reuseExistingChunk: true,
+          name: false,                // use content hash, not static name
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+          name: 'react-vendor',
+          chunks: 'all',
+          priority: 20,              // higher priority = matched first
+        },
+        commons: {
+          name: 'commons',
+          minChunks: 2,             // module used by 2+ chunks → extract
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+  },
+};
+```
+
+**`runtimeChunk: 'single'`**: The webpack runtime (module registry, lazy loading logic) is tiny but changes whenever ANY chunk hash changes. Extracting it prevents the vendors chunk hash from changing just because a new async chunk was added.
+
+---
+
+## 17. Module Federation Basics
+
+```javascript
+// Shell (host) webpack config
+const { ModuleFederationPlugin } = require('webpack').container;
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'shell',
+      remotes: {
+        // format: name@remoteEntryURL
+        checkout: 'checkout@https://checkout.example.com/remoteEntry.js',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+      },
+    }),
+  ],
+};
+```
+
+```javascript
+// Remote (checkout) webpack config
+module.exports = {
+  output: {
+    publicPath: 'https://checkout.example.com/',  // must be absolute
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'checkout',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './CheckoutPage': './src/pages/CheckoutPage',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+      },
+    }),
+  ],
+};
+```
+
+```typescript
+// Using a remote component in the shell
+const CheckoutPage = lazy(() => import('checkout/CheckoutPage'));
+```
+
+See the full Module Federation gold sheet for in-depth coverage.
+
+---
+
+## 18. Revision Notes
 
 - One-line summary: Webpack is a configurable dependency-graph compiler for frontend assets.
 - Three keywords: entry, loader, plugin.

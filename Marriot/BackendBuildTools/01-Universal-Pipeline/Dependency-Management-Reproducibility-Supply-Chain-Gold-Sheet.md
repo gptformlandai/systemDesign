@@ -254,7 +254,165 @@ Fix:
 
 ---
 
-## 11. Interview Insight
+## 11. SBOM Generation
+
+A Software Bill of Materials is a machine-readable inventory of every component in your artifact.
+
+```bash
+# Generate SBOM for a container image (Syft)
+syft payments-service:1.2.3 -o spdx-json > sbom.spdx.json
+syft payments-service:1.2.3 -o cyclonedx-json > sbom.cyclonedx.json
+
+# Scan the SBOM for vulnerabilities (Grype)
+grype sbom:sbom.spdx.json --fail-on high
+
+# Docker 24+ native SBOM via BuildKit
+docker build --sbom=true -t payments-service:1.2.3 .
+docker buildx imagetools inspect payments-service:1.2.3 --format "{{json .SBOM}}"
+```
+
+**SBOM use cases:**
+- Incident response: when log4shell was announced, teams with SBOMs found affected services in minutes
+- License compliance: identify GPL code in commercial products
+- Regulatory: US EO 14028 (federal suppliers), EU Cyber Resilience Act require SBOMs
+
+---
+
+## 12. Automated Dependency Updates — Renovate vs Dependabot
+
+**Dependabot (GitHub native):**
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      spring-boot:
+        patterns:
+          - "org.springframework.boot:*"   # group Spring Boot updates into one PR
+    reviewers:
+      - "platform-team"
+```
+
+**Renovate (more powerful, self-hosted or Mend cloud):**
+```json
+// renovate.json
+{
+  "extends": ["config:base"],
+  "automerge": true,
+  "automergeType": "pr",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true          // auto-merge patch updates if CI passes
+    },
+    {
+      "matchDepNames": ["org.springframework.boot:*"],
+      "groupName": "Spring Boot"  // one PR for all Spring Boot updates
+    }
+  ]
+}
+```
+
+**Renovate advantages over Dependabot:** PR grouping, smarter scheduling, monorepo awareness, lockfile maintenance, configuration-as-code.
+
+---
+
+## 13. Dependency Confusion Attack
+
+**How it works:**
+1. Your internal registry has `@company/auth-lib` at version 1.0.0
+2. Attacker publishes `@company/auth-lib` to public npm at version 99.0.0
+3. If npm checks the public registry and finds a higher version, it downloads the attacker's version
+4. The attacker's package runs `install` scripts with malicious code
+
+**Prevention:**
+```ini
+# .npmrc — pin @company scope to private registry only
+@company:registry=https://registry.company.com/
+//registry.company.com/:_authToken=${REGISTRY_TOKEN}
+
+# Block public resolution for private scopes
+```
+
+```xml
+<!-- Maven settings.xml — mirror all resolution through Nexus -->
+<mirrors>
+  <mirror>
+    <id>nexus-central</id>
+    <mirrorOf>central</mirrorOf>
+    <url>https://nexus.company.com/repository/maven-central/</url>
+  </mirror>
+</mirrors>
+```
+
+```toml
+# Python pip.conf — use private index
+[global]
+index-url = https://pypi.company.com/simple/
+extra-index-url = https://pypi.org/simple/
+trusted-host = pypi.company.com
+```
+
+Additional: use scoped packages (`@company/` prefix for internal npm packages), enable Sigstore attestations, npm provenance.
+
+---
+
+## 14. npm audit / pip-audit Resolution Workflow
+
+```bash
+# npm — find vulnerabilities in lockfile
+npm audit
+# Output: 3 moderate, 1 high, 1 critical
+
+# Auto-fix safe updates (only semver-compatible patches)
+npm audit fix
+
+# See what would change before applying
+npm audit fix --dry-run
+
+# Force major version upgrades (may break API — test thoroughly)
+npm audit fix --force
+
+# Python
+pip-audit  # or: uv pip audit
+pip-audit --fix --dry-run  # see fix proposals
+```
+
+**Resolution decision tree:**
+1. Is the vulnerable code path reachable from production code? (check call graph)
+2. Does a patched version exist? → Upgrade
+3. No patch exists → Can I remove the dependency? → Remove
+4. Cannot remove → Apply compensating control (WAF, runtime protection, network isolation)
+5. Document risk acceptance with expiry date if not fixable
+
+---
+
+## 15. Interview Insight
+
+Strong answer:
+
+> Dependency management is graph management. I care about direct dependencies, transitive dependencies, conflict resolution, lockfiles, and repository policy. For deployable apps, reproducibility is more important than convenience, so CI should use frozen installs and pinned toolchains. For security, I combine scanning with understanding the graph and testing runtime behavior.
+
+Follow-up trap:
+
+> If a scanner says a transitive dependency is vulnerable, can we just exclude it?
+
+Good answer:
+
+> Not blindly. I first identify which direct dependency pulls it in, whether the vulnerable code path is used, whether a fixed version is compatible, and whether exclusion breaks runtime behavior. Then I upgrade, override, or replace with tests.
+
+---
+
+## 16. Revision Notes
+
+- One-line summary: Dependency management decides the real code and tools your app is built and run with.
+- Three keywords: graph, lock, verify.
+- One interview trap: direct dependencies are only the visible part of the graph.
+- Memory trick: Your artifact includes your dependency decisions.
 
 Strong answer:
 

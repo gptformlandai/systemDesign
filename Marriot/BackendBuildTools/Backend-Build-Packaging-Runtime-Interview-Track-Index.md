@@ -53,25 +53,40 @@ Backend systems differ from frontend systems because they usually produce execut
 3. [Maven Lifecycle, Dependencies, Snapshots](./02-Java-JVM-Builds/Maven-Lifecycle-Dependencies-Snapshots-Gold-Sheet.md)
 4. [Gradle Task DAG, Caching, Optimization](./02-Java-JVM-Builds/Gradle-Task-DAG-Caching-Optimization-Gold-Sheet.md)
 5. [Java Artifacts, Repositories, Releases](./02-Java-JVM-Builds/Java-Artifacts-Repositories-Snapshots-Releases-Gold-Sheet.md)
+6. [Spring Boot Configuration, Profiles, Actuator](./02-Java-JVM-Builds/Spring-Boot-Configuration-Profiles-Actuator-Gold-Sheet.md)
+7. [JVM Runtime Tuning: Heap, GC, Threads, Diagnostics](./02-Java-JVM-Builds/JVM-Runtime-Tuning-Heap-GC-Threads-Diagnostics-Gold-Sheet.md)
+8. [Java Testing: JUnit5, Mockito, Testcontainers, Slices](./02-Java-JVM-Builds/Java-Testing-JUnit5-Mockito-Testcontainers-Slices-Gold-Sheet.md)
 
 ### Phase 3: Quality Reports
 
-6. [Sonar, JaCoCo, Test Reports, Quality Gates](./03-Quality-Reports/Sonar-JaCoCo-Test-Reports-Quality-Gates-Gold-Sheet.md)
+9. [Sonar, JaCoCo, Test Reports, Quality Gates](./03-Quality-Reports/Sonar-JaCoCo-Test-Reports-Quality-Gates-Gold-Sheet.md)
+10. [Database Migrations: Flyway and Liquibase](./03-Quality-Reports/Database-Migrations-Flyway-Liquibase-Gold-Sheet.md)
 
 ### Phase 4: Node.js Build Systems
 
-7. [Node Package Managers: npm, Yarn, pnpm](./04-NodeJS-Builds/NodeJS-Package-Managers-npm-yarn-pnpm-Gold-Sheet.md)
-8. [Node Build, Runtime, Serve, Scale, Logs](./04-NodeJS-Builds/NodeJS-Build-Runtime-Serve-Scale-Logs-Gold-Sheet.md)
+11. [Node Package Managers: npm, Yarn, pnpm](./04-NodeJS-Builds/NodeJS-Package-Managers-npm-yarn-pnpm-Gold-Sheet.md)
+12. [Node Build, Runtime, Serve, Scale, Logs](./04-NodeJS-Builds/NodeJS-Build-Runtime-Serve-Scale-Logs-Gold-Sheet.md)
 
 ### Phase 5: Python Build And Runtime Systems
 
-9. [Python Packaging: pip, venv, Poetry, uv, Wheels](./05-Python-Builds-Runtime/Python-Packaging-pip-venv-Poetry-uv-Wheels-Gold-Sheet.md)
-10. [FastAPI, ASGI, Runtime, Serve, Scale, Logs](./05-Python-Builds-Runtime/Python-FastAPI-ASGI-Runtime-Serve-Scale-Logs-Gold-Sheet.md)
+13. [Python Packaging: pip, venv, Poetry, uv, Wheels](./05-Python-Builds-Runtime/Python-Packaging-pip-venv-Poetry-uv-Wheels-Gold-Sheet.md)
+14. [FastAPI, ASGI, Runtime, Serve, Scale, Logs](./05-Python-Builds-Runtime/Python-FastAPI-ASGI-Runtime-Serve-Scale-Logs-Gold-Sheet.md)
+15. [Python Testing: Pytest, Coverage, Testcontainers](./05-Python-Builds-Runtime/Python-Testing-Pytest-Coverage-Testcontainers-Gold-Sheet.md)
 
 ### Phase 6: Production CI/CD And Logs
 
-11. [Containers, CI/CD, Caching, Artifact Promotion](./06-Production-CICD-Logs/Containers-CICD-Caching-Artifact-Promotion-Gold-Sheet.md)
-12. [Reading Backend Startup Logs And Troubleshooting](./06-Production-CICD-Logs/Reading-Backend-Startup-Logs-Troubleshooting-Gold-Sheet.md)
+16. [Containers, CI/CD, Caching, Artifact Promotion](./06-Production-CICD-Logs/Containers-CICD-Caching-Artifact-Promotion-Gold-Sheet.md)
+17. [Reading Backend Startup Logs And Troubleshooting](./06-Production-CICD-Logs/Reading-Backend-Startup-Logs-Troubleshooting-Gold-Sheet.md)
+18. [Docker BuildKit, Image Scanning, Distroless](./06-Production-CICD-Logs/Docker-BuildKit-Image-Scanning-Distroless-Gold-Sheet.md)
+
+### Phase 7: Practice Upgrade (Interview Readiness)
+
+19. [Tricky Scenario Questions](./07-Practice-Upgrade/BackendBuildTools-Tricky-Scenario-Questions-Gold-Sheet.md)
+20. [Production Debugging Case Studies](./07-Practice-Upgrade/BackendBuildTools-Production-Debugging-Case-Studies-Gold-Sheet.md)
+21. [Active Recall Question Bank (30+ tiered Q&A)](./07-Practice-Upgrade/BackendBuildTools-Active-Recall-Question-Bank.md)
+22. [Mock Interview Scripts (3 rounds)](./07-Practice-Upgrade/BackendBuildTools-Mock-Interview-Scripts.md)
+23. [Interview Scoring Rubrics](./07-Practice-Upgrade/BackendBuildTools-Interview-Scoring-Rubrics.md)
+24. [Mastery Roadmap (7-day + 14-day)](./07-Practice-Upgrade/BackendBuildTools-Mastery-Roadmap.md)
 
 ---
 

@@ -278,7 +278,177 @@ Why:
 
 ---
 
-## 11. Interview Insight
+## 11. NestJS Build Pipeline
+
+NestJS (enterprise TypeScript framework) has a structured build pipeline:
+
+```bash
+# Install
+npm ci
+
+# Build: TypeScript → JavaScript (uses tsc under the hood, output to dist/)
+npm run build
+# equivalent to: nest build
+
+# Start production
+node dist/main.js
+# or: nest start (not for production — uses ts-node-dev which is slow)
+```
+
+```json
+// package.json scripts (NestJS standard)
+{
+  "scripts": {
+    "build": "nest build",
+    "start": "node dist/main",
+    "start:prod": "node dist/main",
+    "test": "jest",
+    "test:cov": "jest --coverage"
+  }
+}
+```
+
+NestJS `dist/` structure:
+```
+dist/
+├── main.js          ← application entry point
+├── app.module.js
+├── controllers/
+└── services/
+```
+
+---
+
+## 12. Node.js Clustering for Multi-Core Utilization
+
+Node.js is single-threaded per process. To use all CPU cores:
+
+```javascript
+// cluster.js — fork one worker per CPU core
+const cluster = require('cluster');
+const os = require('os');
+
+if (cluster.isPrimary) {
+  const numCPUs = os.cpus().length;
+  console.log(`Primary ${process.pid} starting ${numCPUs} workers`);
+
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died — restarting`);
+    cluster.fork();  // auto-restart dead workers
+  });
+} else {
+  require('./dist/main');  // each worker runs the full app
+  console.log(`Worker ${process.pid} started`);
+}
+```
+
+Kubernetes alternative: instead of cluster, run one pod per CPU core as separate containers — simpler, easier to observe individually.
+
+---
+
+## 13. PM2 Process Manager
+
+PM2 manages Node.js processes in production (most useful outside containers):
+
+```yaml
+# ecosystem.config.yml
+module.exports = {
+  apps: [{
+    name: 'payments-api',
+    script: 'dist/main.js',
+    instances: 'max',          // fork one per CPU core
+    exec_mode: 'cluster',
+    max_memory_restart: '500M',
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 8080
+    },
+    error_file: '/var/log/payments-api-error.log',
+    out_file: '/var/log/payments-api-out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
+  }]
+};
+```
+
+```bash
+pm2 start ecosystem.config.yml --env production
+pm2 status
+pm2 logs payments-api
+pm2 reload payments-api   # zero-downtime reload
+```
+
+In containers: prefer single-process (`node dist/main.js`) — Kubernetes handles restarts and scaling. PM2 adds complexity inside containers.
+
+---
+
+## 14. Memory Limit and Worker Threads
+
+```bash
+# Increase V8 heap for memory-heavy Node.js processes
+node --max-old-space-size=2048 dist/main.js   # 2GB heap
+
+# In package.json:
+"start:prod": "node --max-old-space-size=2048 dist/main.js"
+```
+
+Worker Threads for CPU-bound work (e.g., PDF generation, heavy computation):
+
+```javascript
+// main.js — offload CPU-bound work to Worker Thread
+const { Worker } = require('worker_threads');
+
+function runReportInThread(reportData) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker('./report-worker.js', {
+      workerData: reportData
+    });
+    worker.on('message', resolve);
+    worker.on('error', reject);
+    worker.on('exit', (code) => {
+      if (code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
+```
+
+```javascript
+// report-worker.js
+const { workerData, parentPort } = require('worker_threads');
+// CPU-heavy work runs here without blocking event loop
+const result = generateReport(workerData);
+parentPort.postMessage(result);
+```
+
+Rule: use Worker Threads for CPU-bound tasks; never block the event loop with synchronous computation.
+
+---
+
+## 15. Interview Insight
+
+Strong answer:
+
+> For a Node backend, I install with a lockfile, typecheck, transpile TypeScript to JavaScript, run tests and coverage, then run `node dist/server.js` in production. Runtime startup should log config loading, dependency connections, route registration, port bind, and readiness. Scaling is usually process/replica based because each Node process has one main event loop.
+
+Follow-up trap:
+
+> Why did the container start and then immediately stop?
+
+Good answer:
+
+> The entrypoint likely finished instead of keeping a server process alive, or crashed during startup. I would inspect logs for module import errors, missing env vars, failed dependency connections, and whether the HTTP server actually called `listen`.
+
+---
+
+## 16. Revision Notes
+
+- One-line summary: Node backend delivery is locked install, build output, runtime process, health, and event-loop-aware scaling.
+- Three keywords: dist, listen, event loop.
+- One interview trap: a successful `npm run build` does not prove the server can start.
+- Memory trick: Build makes `dist`; runtime must keep listening.
 
 Strong answer:
 

@@ -254,7 +254,197 @@ promote to production
 
 ---
 
-## 11. Interview Insight
+## 11. Maven settings.xml — Nexus / Artifactory Configuration
+
+The `~/.m2/settings.xml` (or CI-injected settings) configures server credentials and repository resolution.
+
+```xml
+<!-- settings.xml — authenticate to private Nexus/Artifactory -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
+
+  <servers>
+    <server>
+      <id>nexus-releases</id>
+      <username>${env.NEXUS_USERNAME}</username>    <!-- use env var, not plaintext -->
+      <password>${env.NEXUS_PASSWORD}</password>
+    </server>
+    <server>
+      <id>nexus-snapshots</id>
+      <username>${env.NEXUS_USERNAME}</username>
+      <password>${env.NEXUS_PASSWORD}</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <mirror>
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>  <!-- all resolution goes through Nexus, which proxies Maven Central -->
+      <url>https://nexus.company.com/repository/maven-public/</url>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+    <profile>
+      <id>nexus</id>
+      <repositories>
+        <repository>
+          <id>nexus-releases</id>
+          <url>https://nexus.company.com/repository/maven-releases/</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>nexus-snapshots</id>
+          <url>https://nexus.company.com/repository/maven-snapshots/</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>nexus</activeProfile>
+  </activeProfiles>
+
+</settings>
+```
+
+The `<id>` in `<server>` must match the `<id>` in `<repository>` or `<distributionManagement>` to wire credentials.
+
+---
+
+## 12. pom.xml distributionManagement — Deploying Artifacts
+
+```xml
+<!-- pom.xml — configure where mvn deploy sends artifacts -->
+<distributionManagement>
+  <repository>
+    <id>nexus-releases</id>  <!-- matches settings.xml server id -->
+    <name>Company Releases</name>
+    <url>https://nexus.company.com/repository/maven-releases/</url>
+  </repository>
+  <snapshotRepository>
+    <id>nexus-snapshots</id>
+    <name>Company Snapshots</name>
+    <url>https://nexus.company.com/repository/maven-snapshots/</url>
+  </snapshotRepository>
+</distributionManagement>
+```
+
+```bash
+# Deploy to repository (for SNAPSHOT versions)
+mvn clean deploy -s ci-settings.xml
+
+# Release plugin (SNAPSHOT → release → tag → next SNAPSHOT)
+mvn release:prepare -Dtag=v1.2.0 -DreleaseVersion=1.2.0 -DdevelopmentVersion=1.3.0-SNAPSHOT
+mvn release:perform
+```
+
+---
+
+## 13. GPG Signing for Maven Central Publishing
+
+Artifacts published to Maven Central must be GPG signed.
+
+```xml
+<!-- pom.xml — enable GPG signing in release profile -->
+<profiles>
+  <profile>
+    <id>release</id>
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.2.7</version>
+          <executions>
+            <execution>
+              <id>sign-artifacts</id>
+              <phase>verify</phase>
+              <goals><goal>sign</goal></goals>
+              <configuration>
+                <gpgArguments>
+                  <arg>--pinentry-mode</arg>
+                  <arg>loopback</arg>
+                </gpgArguments>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </build>
+  </profile>
+</profiles>
+```
+
+```bash
+# CI: import GPG key from secret
+echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+mvn -Prelease clean deploy -Dgpg.passphrase="$GPG_PASSPHRASE"
+```
+
+---
+
+## 14. Multi-Module Artifact Strategy
+
+In a Maven multi-module project, each module is a separate artifact published under the same group ID.
+
+```
+parent/
+├── pom.xml                        ← parent, aggregator, pom packaging
+├── shared-api/
+│   └── pom.xml                    ← library module
+├── service-core/
+│   └── pom.xml                    ← library module
+└── web-app/
+    └── pom.xml                    ← final app (jar/war packaging)
+```
+
+**Publishing strategy:**
+- `shared-api`, `service-core`: published as JARs to artifact repository, consumed by other services
+- `web-app`: built into Docker image, artifact repo is optional
+- All share same `${project.version}` from parent POM
+
+**Version management across modules:**
+```xml
+<!-- parent pom.xml -->
+<groupId>com.example</groupId>
+<artifactId>platform</artifactId>
+<version>2.3.0-SNAPSHOT</version>  <!-- all child modules inherit this version -->
+<packaging>pom</packaging>
+
+<modules>
+  <module>shared-api</module>
+  <module>service-core</module>
+  <module>web-app</module>
+</modules>
+```
+
+---
+
+## 15. Interview Insight
+
+Strong answer:
+
+> In Java systems, artifacts are versioned outputs such as JARs or WARs stored in a repository. SNAPSHOT versions are mutable development builds and remote repositories usually store timestamped physical snapshot files plus metadata. Production should use immutable release artifacts, built once and promoted through environments.
+
+Follow-up trap:
+
+> Why not rebuild the same version in each environment?
+
+Good answer:
+
+> Rebuilding can produce different binaries due to dependency, toolchain, or environment drift. Promotion keeps the binary constant and makes debugging, rollback, and compliance much safer.
+
+---
+
+## 16. Revision Notes
+
+- One-line summary: Java release maturity is artifact immutability plus repository discipline.
+- Three keywords: coordinate, snapshot, promote.
+- One interview trap: same version must mean same binary for releases.
+- Memory trick: Artifacts are the receipts of your build.
 
 Strong answer:
 

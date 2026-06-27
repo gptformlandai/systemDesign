@@ -266,7 +266,153 @@ Good answer:
 
 ---
 
-## 14. Revision Notes
+## 14. Full vite.config.ts Patterns
+
+```typescript
+// vite.config.ts — comprehensive config reference
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');  // load all env (not just VITE_)
+
+  return {
+    plugins: [
+      react(),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, './src/components'),
+      },
+    },
+    server: {
+      port: 3000,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/api/, ''),
+        },
+      },
+    },
+    build: {
+      outDir: 'dist',
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'router': ['react-router-dom'],
+          },
+        },
+      },
+    },
+    define: {
+      // inject non-VITE_ variables to client (careful — only public values)
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    },
+  };
+});
+```
+
+---
+
+## 15. Library Mode
+
+Build a reusable library instead of an app:
+
+```typescript
+// vite.config.ts — library mode
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    lib: {
+      entry: path.resolve(__dirname, 'src/index.ts'),
+      name: 'MyLib',                    // global var name for UMD builds
+      formats: ['es', 'cjs', 'umd'],
+      fileName: (format) => `my-lib.${format}.js`,
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom'],  // don't bundle — consumer provides them
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+        },
+      },
+    },
+  },
+});
+```
+
+---
+
+## 16. SSR Mode
+
+```typescript
+// vite.config.ts for SSR
+export default defineConfig({
+  build: {
+    ssr: true,                          // build for Node.js runtime
+    rollupOptions: {
+      input: 'src/entry-server.tsx',
+    },
+  },
+});
+```
+
+```typescript
+// vite.ssrLoadModule API (for custom server like Express)
+const vite = await createServer({ server: { middlewareMode: true } });
+const module = await vite.ssrLoadModule('/src/entry-server.tsx');
+```
+
+---
+
+## 17. Plugin Authoring Basics
+
+```typescript
+// Custom Vite plugin
+import type { Plugin } from 'vite';
+
+function myPlugin(): Plugin {
+  return {
+    name: 'my-plugin',
+    // Transform hook: runs on every file import
+    transform(code, id) {
+      if (!id.endsWith('.myext')) return null;
+      return {
+        code: code.replace('__VERSION__', '1.0.0'),
+        map: null,
+      };
+    },
+    // Configure dev server hook
+    configureServer(server) {
+      server.middlewares.use('/custom-path', (req, res) => {
+        res.end('custom response');
+      });
+    },
+    // Build output manipulation
+    generateBundle(options, bundle) {
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (chunk.type === 'chunk') {
+          console.log(`Chunk: ${fileName} (${chunk.code.length} bytes)`);
+        }
+      }
+    },
+  };
+}
+```
+
+---
+
+## 18. Revision Notes
 
 - One-line summary: Vite serves ESM on demand in dev and emits optimized production bundles.
 - Three keywords: ESM, on-demand, optimize.
