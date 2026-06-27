@@ -552,7 +552,238 @@ Strong answer:
 
 ---
 
-## 16. Revision Notes
+## 16. Uvicorn Deep Dive
+
+### What Uvicorn Is
+
+Uvicorn is a lightning-fast ASGI server built on Python's `asyncio` event loop and `httptools` / `h11` HTTP parsers. It is the de-facto standard server for FastAPI and Starlette.
+
+```
+Client TCP connection
+   → Uvicorn (asyncio event loop + httptools parser)
+       → ASGI scope dict (type, method, path, headers, query_string)
+       → FastAPI / Starlette app
+           → middleware stack → router → handler
+       → ASGI response events (http.response.start + http.response.body)
+   → Uvicorn writes to socket
+```
+
+---
+
+### Key CLI Flags
+
+```bash
+uvicorn app.main:app \
+  --host 0.0.0.0 \           # bind address (default 127.0.0.1 — must change for containers)
+  --port 8080 \              # port (default 8000)
+  --workers 4 \              # number of worker processes (default 1)
+  --loop uvloop \            # event loop: asyncio (default) or uvloop (faster, requires uvloop package)
+  --http h11 \               # HTTP implementation: h11 (default) or httptools (faster)
+  --log-level info \         # debug / info / warning / error / critical
+  --access-log \             # enable access log (default: off in prod use --no-access-log)
+  --no-access-log \          # disable access log (use structured log middleware instead)
+  --timeout-keep-alive 5 \   # keep-alive timeout in seconds (default 5)
+  --timeout-graceful-shutdown 30 \ # wait this many seconds for in-flight requests on SIGTERM
+  --root-path /api/v1 \      # set ASGI root_path for behind-proxy routing (X-Forwarded-Prefix)
+  --proxy-headers \          # trust X-Forwarded-For, X-Forwarded-Proto headers from proxy
+  --reload                   # dev mode: watch for file changes and restart (NEVER use in prod)
+```
+
+---
+
+### TLS / SSL
+
+```bash
+uvicorn app.main:app \
+  --ssl-keyfile ./certs/private.key \
+  --ssl-certfile ./certs/cert.pem \
+  --ssl-ca-certs ./certs/ca.pem \   # optional client cert verification
+  --port 8443
+```
+
+In containers: TLS termination is usually handled by the ingress/load balancer. Uvicorn runs plain HTTP inside the cluster; TLS added at the edge.
+
+---
+
+### Programmatic Startup (uvicorn.Server)
+
+```python
+# main.py — run Uvicorn programmatically (useful for embedded use, testing, custom signal handling)
+import uvicorn
+
+if __name__ == "__main__":
+    config = uvicorn.Config(
+        app="app.main:app",
+        host="0.0.0.0",
+        port=8080,
+        workers=4,
+        loop="uvloop",
+        log_level="info",
+        access_log=False,
+        timeout_graceful_shutdown=30,
+    )
+    server = uvicorn.Server(config)
+    server.run()
+```
+
+```bash
+python main.py
+# or (equivalent CLI):
+uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 4
+```
+
+---
+
+### uvicorn Config File
+
+```toml
+# pyproject.toml — uvicorn reads this via `uvicorn --config pyproject.toml`
+# (Supported in uvicorn >= 0.30 via --config flag or uvicorn.toml)
+
+# Alternatively, use a Makefile target or shell script to centralize flags:
+```
+
+```bash
+# Makefile
+serve:
+    uvicorn app.main:app \
+        --host 0.0.0.0 \
+        --port 8080 \
+        --workers $(shell nproc) \
+        --loop uvloop \
+        --no-access-log \
+        --timeout-graceful-shutdown 30
+```
+
+Common pattern: define a `serve` target or use an `entrypoint.sh` that constructs the uvicorn command from env vars:
+
+```bash
+#!/bin/sh
+# entrypoint.sh
+exec uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port "${PORT:-8080}" \
+  --workers "${WORKERS:-4}" \
+  --log-level "${LOG_LEVEL:-info}" \
+  --no-access-log \
+  --timeout-graceful-shutdown 30
+```
+
+---
+
+### Gunicorn + UvicornWorker Pattern
+
+Gunicorn manages worker lifecycle; UvicornWorker provides the ASGI runtime:
+
+```bash
+pip install uvicorn-worker   # separate package since uvicorn deprecated built-in worker module
+
+gunicorn app.main:app \
+  -k uvicorn_worker.UvicornWorker \
+  --workers 4 \
+  --bind 0.0.0.0:8080 \
+  --timeout 120 \              # worker timeout (kill + restart if exceeded)
+  --graceful-timeout 30 \      # wait for in-flight requests on SIGTERM
+  --keep-alive 5 \
+  --max-requests 1000 \        # restart worker after this many requests (prevent memory leaks)
+  --max-requests-jitter 50 \   # randomize restart to avoid thundering herd
+  --access-logfile -           # log to stdout
+  --error-logfile -
+```
+
+**When to use Gunicorn vs plain Uvicorn:**
+
+| Situation | Recommendation |
+|---|---|
+| Kubernetes (one process per container) | Plain Uvicorn `--workers N` |
+| VM / bare metal, want process supervisor | Gunicorn + UvicornWorker |
+| Need automatic worker restart after N requests | Gunicorn (`--max-requests`) |
+| Development | `uvicorn --reload` |
+
+---
+
+### uvloop — Faster Event Loop
+
+```bash
+pip install uvloop
+uvicorn app.main:app --loop uvloop   # 2-4× faster than default asyncio loop
+```
+
+```python
+# Programmatic:
+import uvloop
+uvloop.install()   # must call before anything else; patches asyncio globally
+```
+
+`uvloop` is a drop-in replacement for Python's asyncio event loop, implemented in Cython on top of libuv (same C library Node.js uses). Typical throughput improvement: 2-4×.
+
+---
+
+### Structured Access Logs (vs built-in access log)
+
+Uvicorn's built-in access log (`--access-log`) produces plain text lines. For JSON structured logging, use a middleware instead:
+
+```python
+# app/middleware/logging.py
+import time
+import structlog
+
+logger = structlog.get_logger()
+
+class AccessLogMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        start = time.perf_counter()
+        status_code = 500
+
+        async def send_wrapper(message):
+            nonlocal status_code
+            if message["type"] == "http.response.start":
+                status_code = message["status"]
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
+        duration_ms = (time.perf_counter() - start) * 1000
+
+        logger.info(
+            "http_request",
+            method=scope["method"],
+            path=scope["path"],
+            status=status_code,
+            duration_ms=round(duration_ms, 2),
+        )
+```
+
+```python
+# app/main.py
+app = FastAPI()
+app.add_middleware(AccessLogMiddleware)
+```
+
+Use `--no-access-log` in Uvicorn + this middleware → structured JSON logs that flow into your log aggregation pipeline.
+
+---
+
+### Common Uvicorn Mistakes
+
+| Mistake | Consequence | Fix |
+|---|---|---|
+| `--host 127.0.0.1` (default) in Docker | Container unreachable from outside | Always use `--host 0.0.0.0` in containers |
+| `--reload` in production | Extra processes, instability, security risk | Remove `--reload` completely in prod |
+| `--workers` > CPU count × 2 | Process thrashing, memory exhaustion | Use `--workers $(nproc)` or `$(nproc) * 2` for I/O-heavy |
+| No `--timeout-graceful-shutdown` | In-flight requests dropped on SIGTERM | Set to 30s minimum; must be < K8s `terminationGracePeriodSeconds` |
+| Using `uvicorn.workers` module directly | Module deprecated in newer uvicorn | Use `uvicorn_worker` package instead |
+| No `--root-path` behind API gateway | FastAPI docs/redirects use wrong base URL | Set `--root-path /api/v1` to match gateway prefix |
+
+---
+
+## 17. Revision Notes
 
 - One-line summary: FastAPI app code runs inside an ASGI server that converts network traffic into async application events.
 - Three keywords: ASGI, lifespan, Uvicorn.
