@@ -676,7 +676,7 @@ for t in threads: t.start()
 for t in threads: t.join()
 ```
 
-**Root Cause:** The GIL (Global Interpreter Lock) allows only one Python thread to execute bytecode at a time. CPU-bound threads take turns rather than running in parallel.
+**Root Cause:** In default CPython, the GIL (Global Interpreter Lock) allows only one Python thread to execute bytecode at a time. CPU-bound threads take turns rather than running in parallel.
 
 **Fix — Use `multiprocessing`:**
 
@@ -688,9 +688,9 @@ with Pool(processes=4) as pool:
 ```
 
 **Strong Answer:**
-> "CPython's GIL prevents true thread parallelism for CPU-bound work. I/O-bound threads do benefit from threading because the GIL is released during I/O waits. For CPU-bound parallelism, `multiprocessing` spawns separate processes, each with its own GIL."
+> "Default CPython's GIL prevents true thread parallelism for CPU-bound Python bytecode. I/O-bound threads do benefit from threading because the GIL is released during I/O waits. For CPU-bound parallelism, `multiprocessing` spawns separate processes, each with its own GIL. Python 3.13+ free-threaded builds are the advanced caveat, but I would not assume them unless the deployment explicitly uses them."
 
-**Java Bridge:** Java has no GIL — threads share the heap and run truly in parallel on multiple cores. This is one of Python's biggest differences from Java for performance-critical code.
+**Java Bridge:** Java has no GIL — threads share the heap and run truly in parallel on multiple cores. This is one of default CPython's biggest differences from Java for performance-critical code.
 
 ---
 
@@ -804,7 +804,7 @@ flat = [x for row in matrix for x in row]
 | Integer division | `int/int = int` | `int/int = float`, use `//` | MEDIUM |
 | Class variable | `static` field | Class body attribute | HIGH — mutation is shared |
 | Generator | `Stream` (single-use) | `generator` (single-use, lazy) | MEDIUM |
-| Thread parallelism | True parallel | GIL blocks CPU-bound | HIGH |
+| Thread parallelism | True parallel | Default CPython GIL blocks CPU-bound Python bytecode | HIGH |
 | Async blocking | `CompletableFuture` + threadpool | `await` required; blocking = deadlock | HIGH |
 | `None` | `null` | `None` singleton | LOW |
 | Module import | Class static init | Module body runs on first import | MEDIUM |
@@ -825,7 +825,7 @@ flat = [x for row in matrix for x in row]
 > CPython caches small integers (-5 to 256) and interns certain strings. `is` checks memory address (identity), not value. Never use `is` for value comparison — use `==`.
 
 **Q4: When does threading help in Python, and when doesn't it?**
-> Threading helps for I/O-bound work because the GIL is released during I/O waits, allowing other threads to run. For CPU-bound work, the GIL prevents parallel execution — use `multiprocessing` instead.
+> Threading helps for I/O-bound work because the GIL is released during I/O waits, allowing other threads to run. For CPU-bound pure Python work on default CPython, the GIL prevents parallel execution — use `multiprocessing`, native extensions that release the GIL, or explicitly validate a free-threaded build.
 
 **Q5: What is a generator and why is it memory-efficient?**
 > A generator is an iterator that produces values one at a time using `yield`. It never materializes the full sequence in memory. Memory usage is O(1) regardless of sequence length, making it ideal for large files, streams, and infinite sequences.

@@ -171,7 +171,7 @@
 
 🔺 **Follow-up:** "What if the sync library can't be replaced? What do you do?"
 
-> **STRONG ANSWER:** "Use `loop.run_in_executor(ThreadPoolExecutor, sync_function, args)`. This runs the blocking call in a worker thread and returns an awaitable. The event loop thread is freed while the thread pool executes the blocking call. For I/O-bound blocking code, `ThreadPoolExecutor` is sufficient. For CPU-bound blocking code, `ProcessPoolExecutor` bypasses the GIL."
+> **STRONG ANSWER:** "Use `loop.run_in_executor(ThreadPoolExecutor, sync_function, args)`. This runs the blocking call in a worker thread and returns an awaitable. The event loop thread is freed while the thread pool executes the blocking call. For I/O-bound blocking code, `ThreadPoolExecutor` is sufficient. For CPU-bound pure Python code on default CPython, `ProcessPoolExecutor` bypasses the per-process GIL. Python 3.13+ free-threaded builds are an advanced caveat only if the deployment explicitly uses them."
 
 ---
 

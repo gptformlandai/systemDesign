@@ -12,7 +12,7 @@
 | Topic | Frequency | Why It Gets Java Devs |
 |---|---|---|
 | The GIL — what it is and what it blocks | ★★★★★ | No Java equivalent; the most-asked Python concurrency question at MAANG |
-| Threading vs multiprocessing — which for CPU, which for I/O | ★★★★★ | Java threads are true parallel; Python threads are limited by GIL for CPU work |
+| Threading vs multiprocessing — which for CPU, which for I/O | ★★★★★ | Java threads are true parallel; default CPython threads are limited by GIL for CPU work |
 | `threading.Lock` — acquire/release, deadlock risks | ★★★★★ | Java `synchronized` / `ReentrantLock`; Python is nearly identical in API |
 | `concurrent.futures.ThreadPoolExecutor` | ★★★★★ | Java `ExecutorService` equivalent; most common pattern in production code |
 | `concurrent.futures.ProcessPoolExecutor` | ★★★★☆ | Java `ForkJoinPool` equivalent; true parallelism for CPU-bound work |
@@ -30,12 +30,12 @@
 
 ### Must Know
 
-The GIL is the single most important Python concurrency concept. Every MAANG interview that touches Python performance or concurrency will bring it up.
+The GIL is the single most important Python concurrency concept for default CPython. Every MAANG interview that touches Python performance or concurrency will bring it up.
 
 ```
 What it is:
-  A mutex (lock) built into CPython's interpreter.
-  Only ONE thread can execute Python bytecode at any given time.
+  A mutex (lock) built into default GIL-enabled CPython's interpreter.
+  Only ONE thread can execute Python bytecode at any given time in that default build.
   Threads still exist and still provide concurrency — but NOT true parallelism for CPU work.
 
 What it DOES block:
@@ -51,6 +51,10 @@ Java equivalent:
   There is none. Java threads are truly parallel — all cores usable from one JVM.
   This is the fundamental reason Python uses multiprocessing for CPU work.
 ```
+
+Version caveat:
+- Python 3.13+ supports optional **free-threaded CPython builds** where the GIL can be disabled.
+- Treat this as an advanced caveat, not the baseline. Dependency support, C-extension compatibility, memory overhead, and single-thread performance must be validated before recommending it in production.
 
 ### GIL in Practice
 
@@ -84,7 +88,7 @@ thread_time = time.perf_counter() - start
 
 print(f"Single thread: {single_time:.2f}s")
 print(f"Two threads:   {thread_time:.2f}s")
-# Both times are approximately EQUAL — threads add overhead, GIL prevents parallelism!
+# On default GIL-enabled CPython, both times are approximately EQUAL — threads add overhead, GIL prevents parallelism!
 # On a CPU-bound task, threading can be SLOWER than single-threaded code.
 ```
 
@@ -488,7 +492,7 @@ from typing import Iterator
 import time
 
 # ThreadPoolExecutor — I/O-bound work
-# ProcessPoolExecutor — CPU-bound work (bypasses GIL)
+# ProcessPoolExecutor — CPU-bound work (bypasses the default CPython GIL)
 
 def fetch_data(url: str) -> str:
     """Simulated I/O-bound task."""
@@ -604,7 +608,7 @@ primes_single = [n for n in numbers if is_prime(n)]
 single_time = time.perf_counter() - start
 
 # ProcessPoolExecutor — each worker is a separate Python process with its own GIL
-# BYPASSES the GIL — true parallelism across CPU cores
+# BYPASSES the per-process GIL — true parallelism across CPU cores
 start = time.perf_counter()
 with ProcessPoolExecutor(max_workers=4) as executor:
     results = list(executor.map(is_prime, numbers, chunksize=50))
@@ -624,7 +628,7 @@ print(f"Process: {process_time:.2f}s")   # ~4x faster with 4 cores
 ThreadPoolExecutor:
   - I/O-bound tasks: network requests, file I/O, database queries
   - Low overhead: threads share memory; no serialization of args/results
-  - GIL limits CPU parallelism — all threads share one GIL
+  - Default CPython GIL limits CPU parallelism — all threads share one GIL
   - Java: ExecutorService with thread pool
 
 ProcessPoolExecutor:
@@ -990,7 +994,7 @@ if __name__ == "__main__":
 
 | Concept | Java | Python |
 |---|---|---|
-| GIL | No equivalent — JVM threads are truly parallel | CPython GIL limits CPU parallelism per process |
+| GIL | No equivalent — JVM threads are truly parallel | Default CPython GIL limits CPU parallelism per process; Python 3.13+ free-threaded builds are the caveat |
 | Thread creation | `new Thread(runnable)` or `implements Runnable` | `threading.Thread(target=func)` |
 | Start thread | `thread.start()` | `thread.start()` |
 | Wait for thread | `thread.join()` | `thread.join()` |
@@ -1022,10 +1026,10 @@ if __name__ == "__main__":
 ## 12. Hot Interview Q&A
 
 **Q: What is the GIL and why does Python have it?**  
-A: The GIL (Global Interpreter Lock) is a mutex in CPython that ensures only one thread executes Python bytecode at a time. CPython's memory management (reference counting for garbage collection) is not thread-safe — if two threads modify a reference count simultaneously, the count becomes corrupted and the GC frees live objects. The GIL solves this by serializing all bytecode execution. The consequence is that Python threads cannot achieve CPU parallelism — for CPU-bound work you need `multiprocessing`. For I/O-bound work, threads still provide concurrency because threads release the GIL while waiting on I/O.
+A: In default CPython, the GIL (Global Interpreter Lock) is a mutex that ensures only one thread executes Python bytecode at a time. Historically, it simplified CPython's reference counting and interpreter-state safety. The consequence is that default CPython threads do not achieve CPU parallelism for pure Python bytecode — for CPU-bound work you usually need `multiprocessing` or native extensions that release the GIL. For I/O-bound work, threads still provide concurrency because threads release the GIL while waiting on I/O. Python 3.13+ free-threaded builds can disable the GIL, but that is a version- and deployment-specific caveat, not the default answer.
 
 **Q: When do you use `ThreadPoolExecutor` vs `ProcessPoolExecutor`?**  
-A: `ThreadPoolExecutor` for I/O-bound work — network calls, database queries, file I/O. Threads share memory (low overhead), and the GIL is released during I/O, so threads run concurrently. `ProcessPoolExecutor` for CPU-bound work — image processing, numerical computation, data parsing. Each process has its own GIL and runs on its own CPU core, providing true parallelism. The tradeoff: processes have higher startup overhead and must serialize (pickle) all arguments and results across process boundaries.
+A: `ThreadPoolExecutor` for I/O-bound work — network calls, database queries, file I/O. Threads share memory (low overhead), and the GIL is released during I/O, so threads run concurrently. `ProcessPoolExecutor` for CPU-bound pure Python work — image processing, numerical computation, data parsing. Each process has its own GIL and runs on its own CPU core, providing true parallelism under default CPython. The tradeoff: processes have higher startup overhead and must serialize (pickle) all arguments and results across process boundaries.
 
 **Q: What is a race condition and how do you prevent it in Python?**  
 A: A race condition occurs when two threads read and modify shared state without synchronization, and the final result depends on the order of execution (which is nondeterministic). In Python, `counter += 1` is three bytecode instructions (LOAD, ADD, STORE) — a context switch between any of them causes data loss. Prevention: wrap the critical section with `threading.Lock()` using the `with` statement. For atomic operations on simple values, `collections.Counter` and `queue.Queue` are already thread-safe. For compound operations, always use explicit locks.
@@ -1040,7 +1044,7 @@ A: On Windows and macOS, Python uses the `spawn` start method — it starts a fr
 A: Nothing useful — each child process gets a COPY of the parent's memory at spawn time (on Linux with fork) or a fresh empty namespace (with spawn on Windows/macOS). Modifying a list or dict in a child process does NOT affect the parent's copy. This is a fundamental difference from Java where all threads share the JVM heap. To share data between Python processes, you must use explicit IPC: `multiprocessing.Queue` (item passing), `multiprocessing.Pipe` (channel), `multiprocessing.Value`/`Array` (shared memory via ctypes), or `multiprocessing.Manager()` (proxy objects).
 
 **Q: Can you achieve true parallelism in Python with threads?**  
-A: Yes, but only under specific conditions. Pure Python code is limited by the GIL — threads compete for it and only one runs at a time. However, C extensions that explicitly release the GIL (numpy, scipy, Pillow, OpenCV, database drivers) can run truly in parallel in multiple threads. This is why `ThreadPoolExecutor` with numpy operations scales across cores. The rule is: pure Python computation → multiprocessing. I/O or C extension work → threading or asyncio.
+A: Yes, but only under specific conditions. In default CPython, pure Python code is limited by the GIL — threads compete for it and only one runs Python bytecode at a time. However, C extensions that explicitly release the GIL (numpy, scipy, Pillow, OpenCV, database drivers) can run truly in parallel in multiple threads. Python 3.13+ free-threaded builds are another advanced path if the environment supports them. The practical rule remains: pure Python computation on default CPython → multiprocessing; I/O or C-extension work → threading or asyncio.
 
 ---
 
@@ -1050,6 +1054,7 @@ A: Yes, but only under specific conditions. Pure Python code is limited by the G
 
 - [ ] I can explain what the GIL is and why CPython has it
 - [ ] I know the GIL prevents CPU parallelism with threads but NOT I/O concurrency
+- [ ] I can add the Python 3.13+ free-threaded build caveat without derailing the baseline answer
 - [ ] I know C extensions (numpy) release the GIL — threads can run numpy in parallel
 - [ ] I know the GIL is per-process — `multiprocessing` bypasses it
 

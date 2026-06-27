@@ -621,7 +621,7 @@ BaseException also catches SystemExit and KeyboardInterrupt, which you almost ne
 
 | Concept | Java | Python |
 |---|---|---|
-| True CPU parallelism with threads | Yes | No — GIL prevents it in CPython |
+| True CPU parallelism with threads | Yes | Not in default GIL-enabled CPython for Python bytecode |
 | IO-bound concurrency with threads | Yes | Yes — GIL released during IO waits |
 | CPU-bound parallelism | `ThreadPoolExecutor` | `multiprocessing.Pool` |
 | Lightweight concurrent tasks | `CompletableFuture` / virtual threads | `asyncio` coroutines |
@@ -633,7 +633,11 @@ BaseException also catches SystemExit and KeyboardInterrupt, which you almost ne
 | Atomic integer | `AtomicInteger` | No direct equivalent; use `threading.Lock` |
 | Thread-safe queue | `BlockingQueue` | `queue.Queue` |
 | Counting semaphore | `Semaphore` | `threading.Semaphore` |
-| `volatile` visibility | `volatile int x` | No direct equivalent; GIL handles basic visibility for CPython |
+| `volatile` visibility | `volatile int x` | No direct equivalent; use locks/events/queues for synchronization |
+
+Version caveat:
+- Python 3.13+ supports optional free-threaded CPython builds where the GIL can be disabled.
+- Most production deployments and most interviews still assume default GIL-enabled CPython unless the interviewer asks specifically about no-GIL Python.
 
 ### When To Use What
 
@@ -644,6 +648,7 @@ IO-bound (DB, HTTP, files, network):
 
 CPU-bound (computation, parsing, encoding):
   multiprocessing.Pool or ProcessPoolExecutor — separate processes, separate GIL each
+  free-threaded CPython build — advanced Python 3.13+ option; validate dependency support first
 
 Both IO and CPU:
   multiprocessing for CPU parts
@@ -692,11 +697,11 @@ asyncio.run(main())
 
 ### What Does Not Exist In Python
 
-- True CPU-parallel threading. Python threads share a GIL.
+- True CPU-parallel threading in default GIL-enabled CPython. Python 3.13+ free-threaded builds are the advanced caveat, not the baseline assumption.
 - `synchronized` keyword on methods.
 - `volatile` keyword.
 - `AtomicInteger`, `AtomicReference`.
-- Java Memory Model (`happens-before`) as a formal construct. CPython's GIL provides some implicit ordering.
+- Java Memory Model (`happens-before`) as a formal construct. Use explicit synchronization in Python; do not treat the GIL as a replacement for locks around business invariants.
 - `CompletableFuture` chaining style for async — Python uses `async/await`.
 - Virtual threads (Java 21+). Python has no equivalent in CPython.
 
@@ -705,12 +710,14 @@ asyncio.run(main())
 ```text
 Java developer says: "I would use Python threads to parallelize CPU work like in Java."
 
-Correct answer: Python threading does not achieve CPU parallelism due to the GIL.
-For CPU-bound parallelism, use multiprocessing. For IO-bound concurrency, threading works
-or asyncio is more scalable. For high-concurrency blocking IO services, asyncio with
-async/await is the Python equivalent of Java virtual threads in terms of programming model,
-but the implementation is fundamentally different: asyncio is single-threaded cooperative
-scheduling, not lightweight OS threads.
+Correct answer: In default CPython, Python threading does not achieve CPU parallelism for
+Python bytecode due to the GIL. For CPU-bound parallelism, use multiprocessing, native
+extensions that release the GIL, or validate whether a Python 3.13+ free-threaded build is
+appropriate for the environment. For IO-bound concurrency, threading works or asyncio is
+more scalable. For high-concurrency blocking IO services, asyncio with async/await is the
+Python equivalent of Java virtual threads in terms of programming model, but the
+implementation is fundamentally different: asyncio is single-threaded cooperative scheduling,
+not lightweight OS threads.
 ```
 
 ---
@@ -1261,7 +1268,7 @@ def heavy_compute():
 threads = [threading.Thread(target=heavy_compute) for _ in range(4)]
 for t in threads: t.start()
 for t in threads: t.join()
-# NOT faster than sequential — GIL prevents parallel CPU execution
+# NOT faster than sequential on default CPython — GIL prevents parallel CPU execution
 
 # Fix for CPU-bound
 from multiprocessing import Pool

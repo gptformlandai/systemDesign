@@ -845,6 +845,7 @@ async def test_create_order_saves_order():
 ### API Test With Override
 
 ```python
+import httpx
 from httpx import AsyncClient
 
 @pytest.mark.asyncio
@@ -852,9 +853,11 @@ async def test_create_order_api(app):
     fake_service = FakeOrderService()
     app.dependency_overrides[get_order_service] = lambda: fake_service
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = httpx.ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.post("/api/v1/orders", json={"user_id": "u1", "items": []})
 
+    # If the app depends on lifespan-created resources, wrap the test with LifespanManager.
     app.dependency_overrides.clear()
     assert response.status_code in {200, 201, 422}
 ```

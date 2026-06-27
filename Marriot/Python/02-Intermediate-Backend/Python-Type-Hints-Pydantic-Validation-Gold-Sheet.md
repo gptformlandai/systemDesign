@@ -37,7 +37,7 @@ Python: Type hints are DOCUMENTATION only — they are NOT checked or enforced a
 Python's type system is:
 - **Optional** — you don't have to annotate anything
 - **Gradual** — you can annotate some things and leave others untyped
-- **Static analysis only** — tools like `mypy`, `pyright`, `ruff` check types; the Python interpreter ignores them at runtime
+- **Static analysis only** — tools like `mypy` and `pyright` check types; tools like `ruff` lint style and common bug patterns; the Python interpreter ignores type hints at runtime
 
 ```python
 # Python will run this without error:
@@ -645,10 +645,10 @@ class UserService:
 # Type checkers set TYPE_CHECKING = True → they see the import for analysis
 ```
 
-### `from __future__ import annotations` — Always Add This
+### `from __future__ import annotations` — Add When It Helps
 
 ```python
-# Place at top of every file — defers all annotations to strings
+# Place at top of files that need deferred annotations
 # This allows:
 # 1. New-style generics (list[int]) on Python 3.7/3.8
 # 2. Forward references without quotes
@@ -776,7 +776,9 @@ except Exception as e:
 print(user.name)         # Alice
 print(user.model_fields) # All field definitions
 
-# Immutable by default in Pydantic v2 (for model instances you can configure this)
+# Pydantic models are mutable by default.
+# Use ConfigDict(frozen=True) for faux immutability.
+# Use ConfigDict(validate_assignment=True) if assignments should be revalidated.
 ```
 
 ### `Field` — Per-Field Configuration
@@ -978,13 +980,13 @@ print(f.label)   # "HELLO" — uppercased
 ### Serialization
 
 ```python
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class Event(BaseModel):
     name: str
     timestamp: datetime
-    tags: list[str] = []
+    tags: list[str] = Field(default_factory=list)
 
 e = Event(name="Deploy", timestamp=datetime.now(), tags=["prod", "v2"])
 
@@ -1025,7 +1027,8 @@ class StrictUser(BaseModel):
         frozen=True,             # Immutable — no field reassignment
         extra="forbid",          # Error if extra fields passed
         str_strip_whitespace=True,  # Auto-strip strings
-        populate_by_name=True,   # Allow both alias and field name
+        validate_by_name=True,   # Modern replacement for populate_by_name
+        validate_by_alias=True,  # Allow both alias and field name when aliases exist
         validate_default=True,   # Validate default values too
     )
     name: str
@@ -1050,6 +1053,11 @@ try:
 except Exception as e:
     print(e)
 ```
+
+Default behavior to remember:
+- `frozen=False` by default — Pydantic models are mutable unless configured otherwise.
+- `validate_assignment=False` by default — assigning `model.age = "bad"` after creation is not revalidated unless you enable it.
+- `populate_by_name` appears in older Pydantic v2 examples, but newer code should prefer `validate_by_name=True` plus `validate_by_alias=True`.
 
 ### Pydantic for Settings Management
 
@@ -1119,7 +1127,7 @@ A: `Optional[str]` (or `str | None`) declares that the type of the value can be 
 A: Functionally identical for type checking purposes. `List[int]` requires `from typing import List` and works on Python 3.5+. `list[int]` is built-in syntax added in Python 3.9 — no import needed. In Python 3.7/3.8 you can use `list[int]` in annotations if you add `from __future__ import annotations` (annotations become strings, not evaluated at import time).
 
 **Q: What does Pydantic do that plain dataclasses don't?**  
-A: Pydantic validates and coerces data at instantiation time. If you pass `age="25"` to a Pydantic model with `age: int`, it coerces `"25"` to `25`. If you pass `age="abc"`, it raises a `ValidationError` with a detailed message. Plain `@dataclass` does not validate or coerce — it accepts anything regardless of the annotation. Pydantic also provides JSON serialization/deserialization, JSON Schema generation, and nested model validation.
+A: Pydantic validates and coerces data at instantiation time. If you pass `age="25"` to a Pydantic model with `age: int`, it coerces `"25"` to `25` unless strict mode is enabled. If you pass `age="abc"`, it raises a `ValidationError` with a detailed message. Plain `@dataclass` does not validate or coerce — it accepts anything regardless of the annotation. Pydantic also provides JSON serialization/deserialization, JSON Schema generation, nested model validation, configurable immutability with `frozen=True`, and assignment revalidation with `validate_assignment=True`.
 
 **Q: What is the difference between `model_validator(mode="before")` and `mode="after"`?**  
 A: `mode="before"` is a classmethod that receives raw input data (usually a dict) before any field parsing — use it to normalize or transform the raw input. `mode="after"` is an instance method called after all fields have been validated and the model is constructed — use it for cross-field validation (e.g., checking that `start_date < end_date`).
@@ -1131,7 +1139,7 @@ A: `TypeVar` is a type variable — a placeholder that represents a consistent t
 A: Use `TypedDict` when you receive a dict from an external source (JSON API, legacy code) and want type hints without changing the dict structure — the value IS a dict at runtime. Use `@dataclass` for simple data containers where you control the data and don't need validation. Use Pydantic when you need runtime validation, coercion, serialization, or are building FastAPI endpoints — Pydantic provides the most safety but has a dependency cost.
 
 **Q: What is `from __future__ import annotations` and why add it?**  
-A: It defers evaluation of all annotations in the file — they become strings instead of being evaluated at import time. This allows: new-style generics (`list[int]`) on Python 3.7/3.8, forward references without quotes (reference a class before it's defined), and avoiding circular import issues. It is widely recommended to add this to all files in Python 3.7-3.9 codebases.
+A: It defers evaluation of annotations in the file instead of evaluating them at import time. This allows: new-style generics (`list[int]`) on Python 3.7/3.8, forward references without quotes, and fewer circular-import problems. It is especially useful in Python 3.7-3.10 codebases and in files with many forward references. In newer codebases, follow the project's Python-version policy rather than adding it mechanically everywhere.
 
 ---
 
@@ -1142,7 +1150,7 @@ A: It defers evaluation of all annotations in the file — they become strings i
 - [ ] I know type hints are NOT enforced at runtime — they are documentation for static tools
 - [ ] I know `Optional[X]` = `Union[X, None]` = `X | None` — three equivalent notations
 - [ ] I know `Optional` does NOT mean the parameter is optional — it means the value can be None
-- [ ] I use `from __future__ import annotations` at the top of every file
+- [ ] I know when `from __future__ import annotations` helps and follow the project's Python-version policy
 
 ### Container and Generic Types
 
@@ -1170,6 +1178,7 @@ A: It defers evaluation of all annotations in the file — they become strings i
 - [ ] I know `model_dump()` → dict, `model_dump_json()` → JSON string
 - [ ] I know `Model.model_validate(dict)` and `Model.model_validate_json(str)` for deserialization
 - [ ] I know `model_config = ConfigDict(frozen=True, extra="forbid")` options
+- [ ] I know Pydantic models are mutable by default; `frozen=True` and `validate_assignment=True` are explicit choices
 
 ### Java Developer Reminders
 

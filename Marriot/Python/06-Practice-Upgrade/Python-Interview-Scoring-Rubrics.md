@@ -63,9 +63,9 @@ Target: ≥ 4
 |---|---|
 | **1** | Confuses threading and async; does not know what GIL is; cannot explain why `requests.get()` inside `async def` is wrong |
 | **2** | Knows GIL exists; knows async def vs def distinction; cannot explain event loop blocking or connection pool exhaustion |
-| **3** | Correctly explains GIL impact on CPU-bound threading; describes `asyncio.gather` vs sequential await with timing; knows `run_in_executor` for blocking calls |
+| **3** | Correctly explains default CPython GIL impact on CPU-bound threading; describes `asyncio.gather` vs sequential await with timing; knows `run_in_executor` for blocking calls |
 | **4** | Answers all Round 3 questions; correctly handles `CancelledError`; explains `ContextVar` vs `threading.local()` for request isolation; designs semaphore rate-limiting |
-| **5** | Diagnoses production concurrency bugs from symptoms alone; discusses event loop internals (`select`/`epoll`); designs async architectures with bulkhead patterns; explains `TaskGroup` and structured concurrency |
+| **5** | Diagnoses production concurrency bugs from symptoms alone; discusses event loop internals (`select`/`epoll`); designs async architectures with bulkhead patterns; explains `TaskGroup`, structured concurrency, and Python 3.13+ free-threaded CPython as a caveat |
 
 **Self-score after:** Python-Concurrency + Python-AsyncIO sheets + Round 3 mock
 
@@ -183,7 +183,7 @@ Target: ≥ 4
 |---|---|
 | **1** | Cannot articulate any Python vs Java differences; writes Java-style code in Python (getter/setter methods, explicit returns for void, semicolons in mind) |
 | **2** | Knows Python is different but uses Java mental models under pressure; misuses classes where functions suffice; forgets `self`; writes verbose Java-style OOP |
-| **3** | Proactively mentions Java differences when asked; uses dataclasses instead of verbose classes; uses list comprehensions instead of loops; knows GIL has no Java equivalent |
+| **3** | Proactively mentions Java differences when asked; uses dataclasses instead of verbose classes; uses list comprehensions instead of loops; knows the default CPython GIL has no direct Java equivalent |
 | **4** | Flips between both perspectives fluently; uses Python idioms naturally under pressure; bridges every answer with "In Java you'd... In Python the idiomatic way is..."; explains why Python's duck typing changes design |
 | **5** | Teaches the difference; constructs examples that would catch a Java developer off guard; has deeply internalized Python's data model vs Java's type system; discusses GIL, descriptor protocol, and generator protocol with Java equivalents |
 
@@ -307,7 +307,7 @@ These examples help you self-calibrate honestly.
 > "FastAPI's event loop runs on a single OS thread. `requests.get()` blocks that thread for the full network round trip — typically 50–200ms. During that time, the event loop can't process any other requests. Under 50 concurrent users this can take your throughput from thousands of requests per second to single digits. Fix: use `httpx.AsyncClient` which `await`s the I/O and yields the thread back to the loop."
 
 **Score 5 example answer (adds):**
-> "...If the sync library can't be replaced, use `loop.run_in_executor(ThreadPoolExecutor(...), sync_fn, *args)` — this offloads to a thread pool so the event loop thread is never blocked. Set the pool size to roughly match your expected concurrent blocking calls. For CPU-heavy blocking code, `ProcessPoolExecutor` to bypass the GIL."
+> "...If the sync library can't be replaced, use `loop.run_in_executor(ThreadPoolExecutor(...), sync_fn, *args)` — this offloads to a thread pool so the event loop thread is never blocked. Set the pool size to roughly match your expected concurrent blocking calls. For CPU-heavy pure Python code on default CPython, use `ProcessPoolExecutor` to bypass the per-process GIL."
 
 ---
 

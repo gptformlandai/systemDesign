@@ -1181,10 +1181,11 @@ same object. Mutations are visible to the caller. Rebinding is not.
 ### Q5. What is the GIL?
 
 ```text
-The Global Interpreter Lock is a mutex inside CPython that allows only one thread to execute
-Python bytecode at a time. This means Python threads do not achieve true CPU parallelism.
-For IO-bound work, threads still help because the GIL is released during IO waits.
-For CPU-bound parallelism, use multiprocessing.
+In default CPython, the Global Interpreter Lock is a mutex that allows only one thread to
+execute Python bytecode at a time. This means Python threads do not achieve true CPU
+parallelism for pure Python CPU work. For IO-bound work, threads still help because the GIL
+is released during IO waits. For CPU-bound parallelism, use multiprocessing, native
+extensions that release the GIL, or an explicitly chosen Python 3.13+ free-threaded build.
 ```
 
 ### Q6. How does Python import work?

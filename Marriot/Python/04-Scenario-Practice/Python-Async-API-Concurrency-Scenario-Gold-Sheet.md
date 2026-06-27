@@ -75,26 +75,23 @@ async def charge(amount: float):
 **Fix — Use `httpx.AsyncClient`:**
 
 ```python
+from contextlib import asynccontextmanager
+
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Reuse client across requests (connection pooling!)
+    app.state.http_client = httpx.AsyncClient(timeout=10.0)
+    yield
+    await app.state.http_client.aclose()
 
-# Reuse client across requests (connection pooling!)
-_client: httpx.AsyncClient | None = None
-
-@app.on_event("startup")
-async def startup():
-    global _client
-    _client = httpx.AsyncClient(timeout=10.0)
-
-@app.on_event("shutdown")
-async def shutdown():
-    await _client.aclose()
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/charge/{amount}")
-async def charge(amount: float):
-    response = await _client.post(      # non-blocking — yields to event loop
+async def charge(amount: float, request: Request):
+    response = await request.app.state.http_client.post(  # non-blocking — yields to event loop
         "https://payment.api/charge",
         json={"amount": amount}
     )
@@ -184,7 +181,7 @@ async def hash_data(data: bytes):
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
 
-# Process pool for CPU-bound work (bypasses GIL)
+# Process pool for CPU-bound work (bypasses the default CPython GIL)
 _process_pool = ProcessPoolExecutor(max_workers=4)
 
 @app.post("/hash")
@@ -194,7 +191,7 @@ async def hash_data(data: bytes):
     return {"hash": result}
 
 # For I/O-bound legacy blocking code, ThreadPoolExecutor is sufficient
-# For CPU-bound code, ProcessPoolExecutor bypasses GIL
+# For CPU-bound code on default CPython, ProcessPoolExecutor bypasses the per-process GIL
 ```
 
 ---
@@ -892,7 +889,7 @@ async def _process_payment(cart_id: int):
 | `asyncio.wait_for(coro, timeout)` | `future.orTimeout(n, SECONDS)` | Both cancel on breach |
 | `asyncio.timeout(n)` (3.11+) | `future.orTimeout(n, SECONDS)` | More ergonomic in Python 3.11+ |
 | `run_in_executor(ThreadPool)` | `CompletableFuture.supplyAsync(exec)` | Both offload to a thread pool |
-| `run_in_executor(ProcessPool)` | N/A (Java threads share heap) | Bypasses GIL; Java has no GIL |
+| `run_in_executor(ProcessPool)` | N/A (Java threads share heap) | Bypasses default CPython GIL; Java has no GIL |
 | `asyncio.TaskGroup` | `StructuredTaskScope` (Java 21) | Structured concurrency; Java arrived later |
 | `CancelledError` | `CancellationException` / `InterruptedException` | Both must be re-raised after cleanup |
 | `asyncio.shield(coro)` | No direct equivalent | Protects inner coro from cancellation |
@@ -913,7 +910,7 @@ async def _process_payment(cart_id: int):
 > `gather(*coros)` returns all results in order when all tasks complete; it raises the first exception by default (or collects all with `return_exceptions=True`). `wait(tasks, return_when=...)` gives you fine-grained control — you can stop at `FIRST_COMPLETED`, `FIRST_EXCEPTION`, or `ALL_COMPLETED`, and you get `(done, pending)` sets to manage remaining tasks manually.
 
 **Q3: When should you use `run_in_executor` with a `ThreadPoolExecutor` vs `ProcessPoolExecutor`?**
-> `ThreadPoolExecutor` for I/O-bound blocking code — legacy HTTP clients, synchronous ORMs, file I/O. Threads share the GIL but the GIL is released during I/O. `ProcessPoolExecutor` for CPU-bound work — image processing, hashing, data transformation. Separate processes have their own GIL, enabling true parallelism.
+> `ThreadPoolExecutor` for I/O-bound blocking code — legacy HTTP clients, synchronous ORMs, file I/O. Threads share the GIL but the GIL is released during I/O. `ProcessPoolExecutor` for CPU-bound pure Python work on default CPython — image processing, hashing, data transformation. Separate processes have their own GIL, enabling true parallelism. Python 3.13+ free-threaded builds are an advanced caveat, but they require explicit deployment and dependency validation.
 
 **Q4: Why must `CancelledError` always be re-raised?**
 > asyncio cancellation is cooperative — a `CancelledError` is sent into the coroutine at the next `await` point. If you catch it and don't re-raise, the task's caller (e.g., `wait_for`, `TaskGroup`, or a parent task) never receives the cancellation signal and may deadlock waiting for the task to end. Always do cleanup then `raise`.

@@ -689,13 +689,13 @@ while not result_queue.empty():
 
 ## 9. Pydantic and Dataclass Immutability Scenarios
 
-### Scenario 9-A — Pydantic Prevents Mutation (v2)
+### Scenario 9-A — Pydantic Prevents Mutation When Configured (v2)
 
 ```python
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class UserRequest(BaseModel):
-    model_config = {"frozen": True}   # immutable model
+    model_config = ConfigDict(frozen=True)   # explicit faux-immutable model
 
     user_id: int
     name: str
@@ -704,7 +704,7 @@ req = UserRequest(user_id=1, name="Alice")
 req.name = "Bob"   # ValidationError: Instance is frozen
 ```
 
-**Use frozen Pydantic models for request DTOs** to prevent accidental mutation inside handlers.
+Pydantic models are mutable by default. Use `ConfigDict(frozen=True)` for request DTOs when you want to prevent accidental mutation inside handlers.
 
 ---
 

@@ -313,6 +313,8 @@ After b1 mutations:
 
 ## 7. Lab 06 — GIL: Threading vs Multiprocessing
 
+**Version note:** This lab demonstrates default GIL-enabled CPython behavior. Python 3.13+ free-threaded builds can change the threading result, but most installed interpreters and interview questions still assume default CPython.
+
 **Goal:** Show that threading doesn't speed up CPU-bound work; multiprocessing does.
 
 ```python
@@ -322,7 +324,7 @@ import multiprocessing
 import time
 
 def cpu_work(n):
-    """Pure CPU work — affected by GIL in threads."""
+    """Pure CPU work — affected by the default CPython GIL in threads."""
     total = 0
     for i in range(n):
         total += i * i
@@ -337,7 +339,7 @@ cpu_work(N * WORKERS)
 baseline = time.perf_counter() - t0
 print(f"Single thread:      {baseline:.3f}s")
 
-# Threading — GIL prevents true parallelism for CPU work
+# Threading — default CPython GIL prevents true parallelism for CPU work
 t0 = time.perf_counter()
 threads = [threading.Thread(target=cpu_work, args=(N,)) for _ in range(WORKERS)]
 for t in threads: t.start()
@@ -353,7 +355,7 @@ mp_time = time.perf_counter() - t0
 print(f"Multiprocessing ({WORKERS} procs): {mp_time:.3f}s  (ratio: {mp_time/baseline:.2f}x)")
 
 print("\nConclusion:")
-print(f"  Threading speedup: {baseline/thread_time:.2f}x (close to 1.0 — GIL blocks)")
+print(f"  Threading speedup: {baseline/thread_time:.2f}x (close to 1.0 — default GIL blocks)")
 print(f"  MP speedup:        {baseline/mp_time:.2f}x (should be > 1.0 on multi-core)")
 ```
 
@@ -364,7 +366,7 @@ Threading (4 threads): 4.350s  (ratio: 1.06x)
 Multiprocessing (4 procs): 1.280s  (ratio: 0.31x)
 
 Conclusion:
-  Threading speedup: 0.95x (close to 1.0 — GIL blocks)
+  Threading speedup: 0.95x (close to 1.0 — default GIL blocks)
   MP speedup:        3.22x (should be > 1.0 on multi-core)
 ```
 
@@ -995,7 +997,7 @@ Cannot mutate frozen: FrozenInstanceError
 - [ ] Lab 03 — Can predict shallow vs deep copy behavior on nested lists
 - [ ] Lab 04 — Can explain O(1) generator memory; observed exhaustion
 - [ ] Lab 05 — Can predict `append` vs `+=` on class attribute
-- [ ] Lab 06 — Observed GIL blocking threads for CPU; multiprocessing bypasses it
+- [ ] Lab 06 — Observed default CPython GIL blocking threads for CPU; multiprocessing bypasses it
 - [ ] Lab 07 — Measured sequential vs gather speedup; understand why
 - [ ] Lab 08 — Can build 3-layer decorator factory; verified `functools.wraps`
 - [ ] Lab 09 — Observed property setter validation; understood `_celsius` in `__dict__`

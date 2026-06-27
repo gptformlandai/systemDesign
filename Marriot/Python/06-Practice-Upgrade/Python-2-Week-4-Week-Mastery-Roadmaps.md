@@ -124,7 +124,7 @@ You have 6 years of Java. Skip the following as "already known concept, just che
 | 0:55–1:30 | Run Lab 06 (GIL benchmark — threads vs multiprocessing) | Python-Runnable-Mini-Labs.md |
 | 1:30–2:00 | Read Round 3 Q1–Q2 strong answers; self-answer before reading | Python-Mock-Interview-Scripts.md §4 |
 
-**Day 6 exit gate:** Can explain exactly why threading doesn't speed up CPU-bound work in Python.
+**Day 6 exit gate:** Can explain exactly why threading doesn't speed up CPU-bound work in default CPython, and can mention Python 3.13+ free-threaded builds as a caveat.
 
 ---
 
@@ -351,7 +351,7 @@ If any dimension < 3: re-read that day's sheet and re-run the corresponding mock
 #### Day 15 — Concurrency: GIL, Threading, Multiprocessing (1.5 hrs)
 - Read: [Python-Concurrency-Threading-Multiprocessing-MAANG-Master-Sheet.md](../03-Senior-MAANG/Python-Concurrency-Threading-Multiprocessing-MAANG-Master-Sheet.md) (full)
 - Run: Lab 06 (GIL CPU benchmark) — measure on your machine
-- Note: Java thread model vs CPython GIL — write the comparison
+- Note: Java thread model vs default CPython GIL — write the comparison, then add the Python 3.13+ free-threaded caveat
 
 #### Day 16 — Async/Await Deep Dive (1.5 hrs)
 - Read: [Python-AsyncIO-Modern-Concurrency-MAANG-Master-Sheet.md](../03-Senior-MAANG/Python-AsyncIO-Modern-Concurrency-MAANG-Master-Sheet.md) (full)
@@ -477,7 +477,7 @@ Use this in the 7 days before the actual interview.
 - **Using `dict.get()` when a `KeyError` is correct** — don't silence errors unnecessarily
 
 ### Week 3 Pitfalls
-- **Thinking threads bypass the GIL** — they do not for CPU work
+- **Thinking threads bypass the GIL** — they do not for CPU work on default CPython
 - **Using `threading.local()` in async code** — use `ContextVar` instead
 - **Not re-raising `CancelledError`** — this causes silent deadlocks in async code
 

@@ -207,7 +207,7 @@
 
 ### 7-A Foundation
 
-🟢 **Q1:** What is the GIL? Which CPU-bound task type is affected by it?
+🟢 **Q1:** What is the GIL in default CPython? Which CPU-bound task type is affected by it?
 
 🟢 **Q2:** For CPU-bound parallelism, which module do you use? For I/O-bound concurrency?
 
@@ -236,6 +236,8 @@
 🔴 **Q12:** What is `asyncio.TaskGroup`? How does it differ from `asyncio.gather`?
 
 🔴 **Q13:** What is `ContextVar`? How does it differ from `threading.local()`?
+
+🔴 **Q14:** What changed with Python 3.13+ free-threaded CPython builds, and why should you still answer GIL questions with default CPython first?
 
 > **Answer reference:** Python-Concurrency-Threading-Multiprocessing-MAANG-Master-Sheet.md, Python-AsyncIO-Modern-Concurrency-MAANG-Master-Sheet.md, Python-Async-API-Concurrency-Scenario-Gold-Sheet.md
 
@@ -310,6 +312,8 @@
 🔴 **Q11:** Explain the difference between `Literal["GET", "POST"]` and `str` in a type annotation.
 
 🔴 **Q12:** How does `poetry.lock` guarantee reproducible builds? What happens if you don't commit it?
+
+🔴 **Q13:** Are Pydantic v2 models immutable by default? What do `frozen=True` and `validate_assignment=True` each change?
 
 > **Answer reference:** Python-Type-Hints-Pydantic-Validation-Gold-Sheet.md, Python-Modules-Packaging-Venv-Pip-Poetry-Gold-Sheet.md
 

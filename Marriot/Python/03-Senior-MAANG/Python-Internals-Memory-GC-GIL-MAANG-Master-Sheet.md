@@ -13,7 +13,7 @@
 | Object model: names point to objects | Very high | Java variables feel like typed containers; Python names are bindings |
 | Reference counting | Very high | Java GC is tracing-first; CPython frees most objects immediately |
 | Cyclic garbage collector | High | Python has refcount + cycle detector, not JVM-style heap tracing only |
-| GIL mechanics | Very high | No Java equivalent; affects CPU-bound threading answers |
+| GIL mechanics | Very high | No Java equivalent; affects CPU-bound threading answers in default CPython |
 | Object size and `sys.getsizeof` | Medium | Python object overhead is larger than Java developers expect |
 | `__slots__` | Medium | Useful for memory-heavy domain models; unlike Java field declarations |
 | `weakref` | Medium | Important for caches, observer lists, parent-child cycles |
@@ -444,12 +444,16 @@ This does not always mean a leak. It can be allocator reuse or fragmentation.
 
 ### Must Know
 
-The GIL is a mutex in CPython that allows only one thread to execute Python bytecode at a time.
+In default GIL-enabled CPython, the GIL is a mutex that allows only one thread to execute Python bytecode at a time.
 
 ```text
 Thread A executing Python bytecode -> holds GIL
 Thread B wants to execute bytecode -> waits for GIL
 ```
+
+Version caveat:
+- Python 3.13+ supports optional free-threaded CPython builds where the GIL can be disabled.
+- That changes the threading story, but it is not the default assumption in most interview questions or production environments. Mention it after explaining default CPython.
 
 ### What the GIL Protects
 
@@ -497,7 +501,7 @@ Two threads will usually not be close to 2x faster for pure Python CPU work.
 
 ### Interview Answer
 
-> The GIL is a CPython mutex that allows only one thread to execute Python bytecode at a time. It makes reference counting and interpreter internals simpler, but it prevents true parallel execution of CPU-bound Python code in threads. Threads still help for I/O because the GIL is released while waiting on many blocking system calls. For CPU parallelism, use multiprocessing, native extensions that release the GIL, or another runtime strategy.
+> In default CPython, the GIL is a mutex that allows only one thread to execute Python bytecode at a time. It makes reference counting and interpreter internals simpler, but it prevents true parallel execution of CPU-bound Python code in threads. Threads still help for I/O because the GIL is released while waiting on many blocking system calls. For CPU parallelism, use multiprocessing, native extensions that release the GIL, another runtime strategy, or a carefully validated Python 3.13+ free-threaded build.
 
 ---
 
@@ -788,7 +792,7 @@ Fix:
 | Primitives | `int`, `long`, `boolean` primitives | Everything is an object |
 | Memory management | Tracing GC | Reference counting + cyclic GC |
 | Finalization | `finalize` deprecated, try-with-resources | `__del__` discouraged, use context managers |
-| Threading | True CPU parallelism | GIL blocks parallel Python bytecode in threads |
+| Threading | True CPU parallelism | Default CPython GIL blocks parallel Python bytecode in threads |
 | CPU scaling | More threads can use more cores | Use multiprocessing or native extensions |
 | Object fields | Declared fields | Dynamic `__dict__` unless `__slots__` |
 | Class loading | JVM class loader | Import executes modules and caches in `sys.modules` |
@@ -819,7 +823,7 @@ Say:
 > No. The GIL protects CPython interpreter internals, not business invariants. Compound operations like check-then-update are still race-prone. Use locks, queues, or higher-level synchronization.
 
 **Q5: Why does threading help I/O but not CPU work?**
-> I/O waits release the GIL so another thread can run while one thread waits. Pure Python CPU loops need the GIL to execute bytecode, so threads take turns instead of running Python bytecode in parallel.
+> In default CPython, I/O waits release the GIL so another thread can run while one thread waits. Pure Python CPU loops need the GIL to execute bytecode, so threads take turns instead of running Python bytecode in parallel.
 
 **Q6: What does `sys.getsizeof` measure?**
 > The shallow size of one object, not the recursive size of everything it references. For nested structures, use `tracemalloc` or recursive sizing tools.
@@ -845,6 +849,7 @@ Say:
 - [ ] Can explain weak references and where they prevent leaks
 - [ ] Can explain the GIL and its impact on CPU-bound threading
 - [ ] Can explain when the GIL is released
+- [ ] Can mention Python 3.13+ free-threaded builds as a caveat after the default CPython answer
 - [ ] Can use `dis` to show why `counter += 1` is not atomic
 - [ ] Can explain `__slots__` and dataclass `slots=True`
 - [ ] Can explain module import caching and circular import failure

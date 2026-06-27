@@ -52,7 +52,10 @@ Type hints exist but are not enforced at runtime by default.
 
 ### 5. The GIL changes concurrency fundamentally
 
-The Global Interpreter Lock (GIL) in CPython means true parallelism for CPU-bound work needs `multiprocessing`, not `threading`. `threading` is useful but works differently from Java threads.
+In default GIL-enabled CPython, the Global Interpreter Lock (GIL) means true parallelism for CPU-bound Python bytecode usually needs `multiprocessing`, native extensions that release the GIL, or a different runtime strategy. `threading` is still useful for I/O-bound work, but it works differently from Java threads.
+
+Interview safety note:
+- Python 3.13+ also supports optional **free-threaded CPython builds** where the GIL can be disabled. Treat this as an advanced version-specific caveat unless the interviewer explicitly asks about no-GIL Python. Most production interview answers should first explain default CPython.
 
 ---
 
@@ -223,12 +226,13 @@ Use this structure for most Python answers:
 Example — GIL:
 
 ```text
-The GIL is a mutex inside CPython that ensures only one thread executes Python bytecode at a
-time. This is different from Java where multiple threads can genuinely run in parallel on
-multiple cores without a global lock. In Python, threading helps with IO-bound concurrency
-because threads release the GIL during IO waits. For CPU-bound parallelism, multiprocessing
-gives separate processes with separate GILs. asyncio is an alternative that avoids threads
-entirely by using cooperative scheduling on a single thread.
+In default CPython, the GIL is a mutex that ensures only one thread executes Python bytecode
+at a time. This is different from Java, where multiple threads can run application code in
+parallel on multiple cores without a global interpreter lock. Python threading still helps
+with IO-bound concurrency because threads release the GIL during IO waits. For CPU-bound
+parallelism, multiprocessing gives separate processes with separate GILs, and native
+extensions can also run in parallel when they release the GIL. Python 3.13+ free-threaded
+builds are the advanced caveat, but default production CPython remains the interview baseline.
 ```
 
 Example — mutable default argument:
@@ -339,7 +343,7 @@ Use this as a fast orientation when starting the track.
 | `Optional<T>` | `Optional[T]` (type hint) or `T \| None` | Python `None` is not wrapped; the hint is for static analysis only |
 | `try/catch/finally` | `try/except/else/finally` | Python adds `else`: runs when no exception occurred |
 | `synchronized` | `threading.Lock()` | No `synchronized` keyword; locks are explicit objects |
-| `volatile` | No direct equivalent | `threading.Event` or `asyncio.Event` for signaling; Python GIL handles visibility differently |
+| `volatile` | No direct equivalent | `threading.Event` or `asyncio.Event` for signaling; do not rely on the GIL as a business-level synchronization model |
 | `ExecutorService` | `concurrent.futures.ThreadPoolExecutor` | Similar concept; Python has `ProcessPoolExecutor` for CPU work |
 | `CompletableFuture` | `asyncio.Task` or `Future` | Different model: asyncio is cooperative/single-threaded; not equivalent to Java's thread-based future |
 | `Stream` | Generator expression or list comprehension | Python generators are lazy; no parallel stream equivalent without explicit multiprocessing |
@@ -350,7 +354,7 @@ Use this as a fast orientation when starting the track.
 | JVM / bytecode | CPython / `.pyc` bytecode | Both compile to bytecode; CPython is interpreted + optimized, no JIT in standard CPython |
 | JIT compiler | No JIT in CPython | PyPy has a JIT; CPython does not |
 | GC generations | Reference counting + cyclic GC | Python GC is reference counting first, not generational by default |
-| GIL | No direct Java equivalent | Java threads are truly parallel; CPython threads share a global lock |
+| GIL | No direct Java equivalent | Default CPython threads share a global lock; Python 3.13+ has optional free-threaded builds as an advanced caveat |
 | `@Deprecated` | No standard annotation; docstring or `warnings.warn` | Convention-based, not enforced |
 | `record` (Java 17+) | `dataclass` or `NamedTuple` | `dataclass` is mutable by default; `frozen=True` makes it immutable |
 | `sealed class` | No direct equivalent | Can simulate with `__init_subclass__` or ABCs with metaclass tricks |
@@ -513,8 +517,10 @@ Use these sources when refreshing Python details:
 - pytest documentation: `https://docs.pytest.org/`
 - Pydantic documentation: `https://docs.pydantic.dev/`
 - FastAPI documentation: `https://fastapi.tiangolo.com/`
+- HTTPX documentation: `https://www.python-httpx.org/`
 - Poetry documentation: `https://python-poetry.org/docs/`
 - CPython source (for internals): `https://github.com/python/cpython`
+- Python free-threading HOWTO: `https://docs.python.org/3/howto/free-threading-python.html`
 
 Interview safety line:
 
