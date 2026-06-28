@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-06-18T11:56:10.185Z",
+  "summary": {
+    "databases": {},
+    "messaging": {},
+    "authMechanisms": {},
+    "observability": {},
+    "deployments": {},
+    "criticality": {}
+  },
+  "repos": {}
+}

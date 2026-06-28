@@ -302,13 +302,95 @@ yarn set version stable
 nodeLinker: pnp   # Plug'n'Play — no node_modules
 ```
 
-How PnP works:
+### How PnP Works
+
+```txt
+Traditional node_modules resolution:
+  import("lodash")
+    -> Node.js walks up directories looking for node_modules/lodash
+    -> Finds it (or doesn't) based on filesystem layout
+    -> Hoisting determines which version is found
+
+Yarn Berry PnP:
+  import("lodash")
+    -> Node.js patched at startup with Yarn's require hook
+    -> .pnp.cjs file consulted: { "lodash@4.17.21": ".yarn/cache/lodash-4.17.21.zip" }
+    -> Resolved directly — no filesystem walk
+    -> Package is read from the zip archive
+```
+
 - Dependencies stored in `.yarn/cache/` as zip archives
-- A `.pnp.cjs` file generated — maps package names to locations
+- A `.pnp.cjs` file generated — maps package names to zip locations
 - Node.js patched at startup to resolve from zip files instead of `node_modules`
 
-**Benefits:** Faster install (no I/O write to node_modules), strict resolution (no phantom dependencies), smaller CI cache.
-**Tradeoffs:** Some packages incompatible with PnP (need `patchedDependencies`); IDE setup more complex (needs SDKs for TypeScript, ESLint).
+### Benefits vs Tradeoffs
+
+```
+Benefits:
+  - Faster installs: no I/O write to node_modules (thousands of small files)
+  - Strict resolution: phantom dependencies are impossible (undeclared = unresolved)
+  - Smaller CI cache: cache one zip per package, not thousands of files
+  - Zero-install: commit .yarn/cache/ to git — no npm install needed in CI
+
+Tradeoffs:
+  - Some packages incompatible with PnP (C++ native addons, scripts that walk node_modules)
+  - IDE setup requires Yarn SDKs: yarn dlx @yarnpkg/sdks vscode
+  - TypeScript, ESLint, Prettier need SDK wrappers to find their own modules
+  - Harder to debug resolution issues (less familiar error messages)
+  - Not all frameworks officially support it (CRA had issues; Vite works fine)
+```
+
+### Yarn nodeLinker Options (not just PnP)
+
+```yaml
+# .yarnrc.yml
+
+# Option 1: Plug'n'Play (default in Berry)
+nodeLinker: pnp
+
+# Option 2: node-modules (classic behavior, with Yarn Berry tooling improvements)
+nodeLinker: node-modules
+
+# Option 3: pnpm (uses pnpm-style symlinks without needing pnpm)
+nodeLinker: pnpm
+```
+
+For teams not ready for PnP, `nodeLinker: node-modules` gets Yarn Berry's speed improvements (parallel installs, deduplication) while keeping familiar resolution behavior.
+
+### IDE Setup (required for PnP)
+
+```bash
+# Generate IDE integration files (do this after enabling PnP)
+yarn dlx @yarnpkg/sdks vscode   # generates .yarn/sdks/ and .vscode/settings.json
+
+# Required .vscode/settings.json entries generated:
+# "typescript.tsdk": ".yarn/sdks/typescript/lib"
+# "eslint.nodePath": ".yarn/sdks"
+
+# Without this, VS Code uses its own TypeScript and cannot find packages in zip files
+```
+
+### Migrating from npm/Yarn v1 to Yarn Berry
+
+```bash
+# Step 1: Ensure corepack is enabled
+corepack enable
+
+# Step 2: Set Yarn Berry version in the project
+yarn set version stable   # or: yarn set version 4.x
+
+# Step 3: Start with node-modules linker for safety
+# .yarnrc.yml
+# nodeLinker: node-modules
+
+# Step 4: Run install and verify all packages work
+yarn install
+
+# Step 5: (optional, later) migrate to PnP if desired
+# Change nodeLinker to pnp
+# Fix incompatible packages with patches or fallbacks
+# Install IDE SDKs
+```
 
 ---
 
@@ -370,7 +452,129 @@ catalog:
 
 ---
 
-## 15. npm Workspaces
+## 15. pnpm Workspace Protocol and Strict Isolation
+
+### `workspace:*` Protocol
+
+The `workspace:*` protocol tells pnpm to link a local workspace package instead of downloading from the registry. This is how packages in a monorepo reference each other:
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - "packages/*"
+  - "apps/*"
+```
+
+```json
+// apps/payments-ui/package.json
+{
+  "name": "@company/payments-ui",
+  "dependencies": {
+    "@company/ui-components": "workspace:*",   // link to packages/ui-components locally
+    "@company/auth-lib":       "workspace:^",   // link local, publish with ^ range
+    "@company/utils":          "workspace:~"    // link local, publish with ~ range
+  }
+}
+```
+
+```txt
+workspace:*  — when publishing to npm, replaced with exact current version (e.g., "1.2.3")
+workspace:^  — when publishing, replaced with ^1.2.3 (allows minor bumps)
+workspace:~  — when publishing, replaced with ~1.2.3 (allows patch bumps)
+
+During development (inside the monorepo), ALL workspace: variants link locally —
+they all resolve to the local package directory via symlink.
+```
+
+### How pnpm Strict Isolation Works
+
+pnpm's dependency layout is fundamentally different from npm's hoisting:
+
+```txt
+npm hoisting (loose):
+  node_modules/
+    react/           <- shared at root (hoisted)
+    lodash/          <- hoisted even if not declared by root
+    payments-ui/
+      node_modules/  <- only things that can't be hoisted
+    ui-components/
+
+pnpm strict symlinks:
+  node_modules/
+    .pnpm/
+      react@18.3.0/node_modules/react/    <- actual files here
+      lodash@4.17.21/node_modules/lodash/
+    react -> .pnpm/react@18.3.0/.../react  <- symlink
+    @company/
+      ui-components -> ../../packages/ui-components  <- workspace symlink
+
+  packages/payments-ui/node_modules/
+    react -> ../../../node_modules/.pnpm/react@18.3.0/.../react  <- can only access declared deps
+    lodash   <- ERROR if not in payments-ui's own package.json
+```
+
+**Key consequence:** A package can only import modules it has explicitly declared in its own `package.json`. Using a hoisted undeclared transitive dependency (phantom dependency) causes an `ERR_MODULE_NOT_FOUND` error immediately — **not** silently at runtime in production after a dependency tree change.
+
+### Common pnpm Workspace Commands
+
+```bash
+# Install all packages across all workspaces
+pnpm install
+
+# Add a dep to a specific workspace
+pnpm add react --filter @company/payments-ui
+
+# Add a workspace package as a dep to another workspace
+pnpm add @company/ui-components --filter @company/payments-ui --workspace
+
+# Run a script in a specific workspace
+pnpm run build --filter @company/payments-ui
+
+# Run in all workspaces (parallel)
+pnpm run build --recursive          # or: pnpm -r run build
+
+# Run only in changed workspaces (since last git commit)
+pnpm run test --filter "...[HEAD]"
+
+# Execute in workspaces in dependency order (respects package deps)
+pnpm run build --recursive --sort
+
+# CI: frozen install
+pnpm install --frozen-lockfile
+```
+
+### Phantom Dependency Example — Why pnpm Catches Production Bugs Earlier
+
+```json
+// packages/service-a/package.json — only declares express
+{
+  "dependencies": {
+    "express": "^4.18.0"
+  }
+}
+```
+
+```js
+// packages/service-a/src/index.js
+const lodash = require('lodash');   // NOT declared in package.json!
+```
+
+```txt
+npm behavior:
+  lodash is hoisted to root node_modules because service-b uses it
+  → service-a's require('lodash') WORKS locally
+  → After service-b stops using lodash, hoisting removes it
+  → service-a breaks in production (or CI after clean install)
+
+pnpm behavior:
+  service-a's node_modules only contains symlinks to DECLARED packages
+  → require('lodash') in service-a throws immediately in development
+  → Bug caught before it reaches CI or production
+```
+
+---
+
+## 17. npm Workspaces
 
 npm native monorepo support (since npm v7):
 
@@ -403,7 +607,7 @@ npm run build --workspace packages/shared-api --workspace packages/auth-lib
 
 ---
 
-## 16. Interview Insight
+## 18. Interview Insight
 
 Strong answer:
 
@@ -419,7 +623,7 @@ Good answer:
 
 ---
 
-## 17. Revision Notes
+## 19. Revision Notes
 
 - One-line summary: Node package managers resolve, lock, install, and run scripts.
 - Three keywords: manifest, lockfile, scripts.

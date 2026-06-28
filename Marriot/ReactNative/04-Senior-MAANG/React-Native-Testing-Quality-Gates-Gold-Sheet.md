@@ -172,6 +172,33 @@ This catches:
 
 Keep integration tests fewer and meaningful.
 
+### Custom Render with Providers
+
+```tsx
+import {render} from '@testing-library/react-native';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import {NavigationContainer} from '@react-navigation/native';
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {queries: {retry: false}, mutations: {retry: false}},
+  });
+}
+
+function TestProviders({children}: {children: React.ReactNode}) {
+  const qc = createTestQueryClient();
+  return (
+    <NavigationContainer>
+      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    </NavigationContainer>
+  );
+}
+
+export function renderScreen(ui: React.ReactElement) {
+  return render(ui, {wrapper: TestProviders});
+}
+```
+
 ---
 
 ## 8. E2E Tests
@@ -201,6 +228,133 @@ Run E2E:
 - before release
 - on nightly builds
 - on critical PRs if infrastructure allows
+
+### Detox Setup (Jest driver)
+
+```bash
+npx detox init -r jest
+```
+
+`.detoxrc.js`:
+
+```js
+module.exports = {
+  testRunner: {
+    args: {$0: 'jest', config: 'e2e/jest.config.js'},
+    jest: {setupTimeout: 120000},
+  },
+  apps: {
+    'ios.release': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/Products/Release-iphonesimulator/MyApp.app',
+      build: 'xcodebuild -workspace ios/MyApp.xcworkspace ...',
+    },
+  },
+  devices: {
+    simulator: {
+      type: 'ios.simulator',
+      device: {type: 'iPhone 15'},
+    },
+  },
+  configurations: {
+    'ios.sim.release': {
+      device: 'simulator',
+      app: 'ios.release',
+    },
+  },
+};
+```
+
+Detox E2E test:
+
+```ts
+describe('Login flow', () => {
+  beforeAll(async () => {
+    await device.launchApp();
+  });
+
+  beforeEach(async () => {
+    await device.reloadReactNative();
+  });
+
+  it('should login with valid credentials', async () => {
+    await element(by.id('email-input')).typeText('user@example.com');
+    await element(by.id('password-input')).typeText('password123');
+    await element(by.id('login-button')).tap();
+
+    await expect(element(by.text('Dashboard'))).toBeVisible();
+  });
+
+  it('should show error on invalid credentials', async () => {
+    await element(by.id('email-input')).typeText('wrong@example.com');
+    await element(by.id('password-input')).typeText('badpass');
+    await element(by.id('login-button')).tap();
+
+    await expect(element(by.text('Invalid credentials'))).toBeVisible();
+  });
+});
+```
+
+### Maestro — YAML-based E2E
+
+Maestro flows are simpler to write and maintain:
+
+```yaml
+# flows/login.yaml
+appId: com.example.myapp
+---
+- launchApp
+- tapOn:
+    id: "email-input"
+- inputText: "user@example.com"
+- tapOn:
+    id: "password-input"
+- inputText: "password123"
+- tapOn:
+    id: "login-button"
+- assertVisible: "Dashboard"
+```
+
+Run: `maestro test flows/login.yaml`
+
+Maestro advantages over Detox:
+- No rebuild required for test changes
+- Works on real devices over USB
+- YAML is accessible to non-engineers
+
+---
+
+## 8b. Testing Hooks with renderHook
+
+```ts
+import {renderHook, act} from '@testing-library/react-native';
+import {useBookingForm} from './useBookingForm';
+
+test('updates room selection', () => {
+  const {result} = renderHook(() => useBookingForm());
+
+  expect(result.current.selectedRoomId).toBeNull();
+
+  act(() => {
+    result.current.selectRoom('room-101');
+  });
+
+  expect(result.current.selectedRoomId).toBe('room-101');
+});
+```
+
+For hooks requiring providers:
+
+```ts
+const {result} = renderHook(() => useProducts(), {
+  wrapper: ({children}) => (
+    <QueryClientProvider client={createTestQueryClient()}>
+      {children}
+    </QueryClientProvider>
+  ),
+});
+await waitFor(() => expect(result.current.data).toBeDefined());
+```
 
 ---
 

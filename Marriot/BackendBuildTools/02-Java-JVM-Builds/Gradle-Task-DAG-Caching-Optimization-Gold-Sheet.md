@@ -357,26 +357,187 @@ plugins {
 
 ## 13. Configuration Cache
 
-Configuration cache serializes the configuration phase (build scripts + task graph) to disk. Subsequent builds skip the entire configuration phase if nothing changed.
+### What It Is
+
+The configuration cache serializes the **configuration phase** (build scripts + task graph) to disk. Subsequent builds skip the entire configuration phase if nothing changed — only the execution phase runs.
+
+```
+Without configuration cache:
+  ./gradlew build
+  -> Parse settings.gradle.kts           ← runs every time
+  -> Evaluate all build.gradle.kts files ← runs every time
+  -> Build task dependency graph          ← runs every time
+  -> Execute tasks (compile, test, jar)  ← runs every time
+
+With configuration cache hit:
+  ./gradlew build
+  -> Load cached task graph from disk    ← milliseconds
+  -> Execute tasks (compile, test, jar)  ← runs every time
+  
+  Saved: 10–30s on large multi-project builds
+```
+
+### Enabling It
 
 ```properties
 # gradle.properties
 org.gradle.configuration-cache=true
-org.gradle.configuration-cache.problems=warn   # use 'warn' during migration, 'fail' after
+org.gradle.configuration-cache.problems=warn   # warn during migration; switch to fail after
 ```
 
-**What is cached:** task graph, task inputs, build script state
-**When invalidated:** any build script changes, `settings.gradle.kts` changes, task input changes
-
-Compatibility check:
 ```bash
-# Verify configuration cache compatibility
-./gradlew :app:build --configuration-cache
-# First run: "Configuration cache entry stored"
-# Subsequent run: "Configuration cache entry reused — 0s configuration time"
+# Or pass on the command line
+./gradlew build --configuration-cache
+./gradlew build --configuration-cache --configuration-cache-problems=warn
+
+# First run: "Configuration cache entry stored."
+# Subsequent run: "Configuration cache entry reused — 0 ms configuration time."
 ```
 
-Not all plugins support it yet. Check plugin release notes. Use `problems=warn` to see violations without breaking the build.
+### What Gets Cached vs What Invalidates the Cache
+
+```txt
+Cached:
+  - build.gradle.kts / build.gradle content (parsed AST + evaluation result)
+  - settings.gradle.kts / settings.gradle content
+  - Task dependency graph
+  - Task input declarations (but not the actual input files — those use build cache)
+  - Extension configurations (plugins' DSL blocks)
+
+Cache is INVALIDATED when:
+  - Any build.gradle.kts file changes
+  - settings.gradle.kts changes
+  - gradle.properties changes
+  - A buildSrc file changes
+  - An included build changes
+  - A task's @Input value changes (not @InputFile — that's build cache)
+  - External properties accessed at configuration time change (e.g., project.version)
+```
+
+### Configuration Cache vs Build Cache — Key Distinction
+
+```txt
+Configuration Cache:
+  Caches: the configuration PHASE (parsing scripts, building the task graph)
+  Unit: the entire build's task graph
+  Hit means: Gradle skips evaluating all build.gradle.kts files
+
+Build Cache (org.gradle.caching=true):
+  Caches: the OUTPUTS of individual tasks (compiled classes, test results, JARs)
+  Unit: individual task output (keyed by inputs hash)
+  Hit means: a specific task's output is restored without re-running
+
+They are COMPLEMENTARY and can both be enabled simultaneously.
+Most gains come from using BOTH together.
+```
+
+### Plugin Compatibility — The Most Common Problem
+
+Not all Gradle plugins support the configuration cache. Incompatible plugins trigger problems:
+
+```bash
+# See all compatibility problems without failing the build
+./gradlew build --configuration-cache --configuration-cache-problems=warn
+
+# Example warning output:
+# > Task ':processResources' using 'Project' at execution time.
+# > Task ':generateSources' registering outputs after task graph has been calculated.
+```
+
+Common incompatible plugin patterns:
+```kotlin
+// ❌ Incompatible: accessing Project at execution time
+tasks.register("myTask") {
+    doLast {
+        project.file("src/main/resources")   // Project reference — not serializable
+    }
+}
+
+// ✅ Compatible: capture project values at configuration time
+val resourceDir = project.file("src/main/resources")
+tasks.register("myTask") {
+    val dir = resourceDir   // captured value — serializable
+    doLast {
+        println(dir.absolutePath)
+    }
+}
+```
+
+### Fixing Configuration Cache Violations
+
+```kotlin
+// Violation: reading System properties at execution time
+// ❌ Wrong
+tasks.register("printEnv") {
+    doLast {
+        println(System.getenv("MY_VAR"))   // reads env at execution — not cached
+    }
+}
+
+// ✅ Fixed: declare as task input, read at configuration time
+abstract class PrintEnvTask : DefaultTask() {
+    @get:Input
+    val myVar = project.providers.environmentVariable("MY_VAR")
+
+    @TaskAction
+    fun run() {
+        println(myVar.get())   // cached input — serializable
+    }
+}
+
+// Violation: using Closures that capture Project
+// ❌ Wrong
+tasks.register("bad") {
+    doLast {
+        val content = project.configurations.getByName("runtimeClasspath").asPath
+        println(content)
+    }
+}
+
+// ✅ Fixed: use FileCollection as task input
+abstract class GoodTask : DefaultTask() {
+    @get:InputFiles
+    abstract val classpath: ConfigurableFileCollection
+
+    @TaskAction
+    fun run() = println(classpath.asPath)
+}
+
+tasks.register<GoodTask>("good") {
+    classpath.from(configurations.named("runtimeClasspath"))
+}
+```
+
+### Checking Plugin Compatibility
+
+```bash
+# Check a plugin's compatibility
+# 1. Check the plugin's GitHub issues/release notes for "configuration cache" support
+# 2. Run with --configuration-cache-problems=warn and review the output
+# 3. File with problematic plugin — upgrade or use workaround:
+
+# Temporary workaround — disable for specific tasks
+tasks.named("problemTask") {
+    notCompatibleWithConfigurationCache("Using legacy API")
+}
+```
+
+**Well-supported plugins (as of 2025):** Spring Boot Gradle Plugin, Shadow Plugin, Kotlin Gradle Plugin, Android Gradle Plugin (AGP 8.0+), Jacoco, Checkstyle.
+**Historically problematic:** Some code generation plugins, custom in-house plugins, older Gradle plugins.
+
+### Interview Insight
+
+Strong answer:
+
+> The Gradle configuration cache serializes the task graph after the configuration phase and reuses it on subsequent builds that haven't changed build scripts. This is separate from the build cache, which caches task outputs. Together they eliminate both configuration overhead and redundant task execution. The main adoption challenge is plugin compatibility — some plugins access `Project` at execution time rather than configuration time, which violates the serialization contract. The migration strategy is to enable with `problems=warn`, fix violations one by one, then switch to `problems=fail`.
+
+Follow-up trap:
+
+> What's the difference between UP-TO-DATE, FROM-CACHE, and configuration cache reuse?
+
+Good answer:
+
+> `UP-TO-DATE` means the task's inputs and outputs are unchanged since last run — Gradle skips the task locally. `FROM-CACHE` means the task's output was restored from the build cache (local or remote) — Gradle pulled outputs built elsewhere. Configuration cache reuse means the task GRAPH itself wasn't re-evaluated — Gradle skipped the configuration phase entirely. These three optimizations operate at different levels and can all be active in the same build.
 
 ---
 

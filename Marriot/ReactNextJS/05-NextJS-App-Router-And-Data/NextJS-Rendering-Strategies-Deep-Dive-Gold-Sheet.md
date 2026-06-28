@@ -155,6 +155,88 @@ Use when:
 
 ---
 
+## 9b. Route Segment Config — Controlling Rendering
+
+Segment config exports control how Next.js treats each route:
+
+```ts
+// Force the page to always render dynamically (no caching)
+export const dynamic = 'force-dynamic';
+
+// Force the page to be fully static (errors if dynamic APIs used)
+export const dynamic = 'force-static';
+
+// Time-based revalidation (in seconds) — behaves like ISR
+export const revalidate = 3600; // 1 hour
+
+// Cache fetch calls in this segment differently
+export const fetchCache = 'force-cache';
+```
+
+`dynamic = 'force-dynamic'` is equivalent to `cache: 'no-store'` on every `fetch` in the page.
+
+---
+
+## 9c. generateStaticParams — SSG for Dynamic Routes
+
+Pre-render dynamic segments at build time:
+
+```ts
+// app/products/[productId]/page.tsx
+
+export async function generateStaticParams() {
+  const products = await fetchAllProducts();
+
+  return products.map(product => ({
+    productId: product.id,
+  }));
+}
+
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{productId: string}>;
+}) {
+  const {productId} = await params;
+  return <ProductDetails product={await getProduct(productId)} />;
+}
+```
+
+`generateStaticParams` replaces `getStaticPaths` from Pages Router. Paths not in the list are:
+- `dynamicParams = true` (default): rendered on-demand (like ISR without revalidate interval)
+- `dynamicParams = false`: return 404 for unknown paths
+
+---
+
+## 9d. React cache() — Deduplicate Server Requests
+
+`cache()` memoizes a function's result within a single request render tree:
+
+```ts
+import {cache} from 'react';
+
+// Same arguments → same result within one request
+const getUser = cache(async (userId: string) => {
+  return db.query(`SELECT * FROM users WHERE id = $1`, [userId]);
+});
+
+// Two server components calling getUser('u1') in the same request
+// will only make ONE database call
+export async function UserHeader() {
+  const user = await getUser('u1');
+  return <h1>{user.name}</h1>;
+}
+
+export async function UserBadge() {
+  const user = await getUser('u1'); // uses cached result — no second DB call
+  return <span>{user.plan}</span>;
+}
+```
+
+`cache()` is request-scoped (deduplicated per render, not globally). For cross-request caching use Next.js `unstable_cache` or `fetch` with `next: {revalidate}`.
+
+---
+
 ## 10. Common Mistakes
 
 | Mistake | Why It Is Wrong | Better Approach |
@@ -164,6 +246,8 @@ Use when:
 | CSR public landing page | SEO/perceived speed hit | SSG/SSR |
 | One giant Suspense boundary | Whole page skeleton | Use route/widget boundaries |
 | Ignoring cache invalidation | Stale business data | Define revalidation policy |
+| `cache()` for cross-request memoization | Only per-request scope | Use `unstable_cache` or `fetch` revalidate |
+| Missing `generateStaticParams` for ISR routes | Slow cold starts | Pre-generate known params |
 
 ---
 
@@ -176,20 +260,22 @@ Strong answer:
 
 ```text
 I choose per route. SSG is best for stable public pages. ISR works when public
-content changes periodically but can tolerate short staleness. SSR is for
-personalized or request-fresh HTML, with higher server cost. CSR is best for
-private interactive experiences where SEO is not critical. Streaming helps when
-some parts are slow and we want users to see the shell early. Partial
-pre-rendering follows the same idea: static shell plus dynamic holes, if the
-platform supports it.
+content changes periodically but can tolerate short staleness — I use
+generateStaticParams for known paths and revalidatePath/revalidateTag for
+on-demand purging. SSR is for personalized or request-fresh HTML; I use
+`export const dynamic = 'force-dynamic'` or call dynamic APIs like cookies(). CSR
+is best for private interactive experiences where SEO is not critical. Streaming
+with Suspense boundaries lets users see the stable shell while slow data loads.
+I use React's cache() function to deduplicate DB calls within a single request
+when multiple Server Components need the same data.
 ```
 
 ---
 
 ## 12. Revision Notes
 
-- One-line summary: Rendering strategy is a freshness, SEO, cost, and interactivity decision.
-- Three keywords: static, request, stream.
-- One interview trap: SSR is not automatically better.
-- One memory trick: Static when possible, server when necessary, client when interactive.
+- One-line summary: Rendering strategy is a freshness, SEO, cost, and interactivity decision — chosen per route.
+- Three keywords: generateStaticParams, force-dynamic, cache().
+- One interview trap: `cache()` is per-request only — it does not cache across requests.
+- One memory trick: Static when possible, server when necessary, stream for hybrid, CSR for interactive private pages.
 

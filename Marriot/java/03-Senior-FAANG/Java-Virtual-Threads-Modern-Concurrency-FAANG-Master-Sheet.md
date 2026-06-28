@@ -498,22 +498,105 @@ When a request starts multiple child tasks, cancellation, failure, and joining s
 managed together instead of scattering futures everywhere.
 ```
 
-Conceptual shape:
+### StructuredTaskScope — Java 21+ (Preview → Finalized Java 25)
 
-```text
-parent request
-    -> child task A
-    -> child task B
-    -> child task C
-join all or fail/cancel together
+`StructuredTaskScope` is the primary API. It creates a scope that forks child virtual threads and
+manages their lifecycle. The scope must be closed before the parent exits.
+
+#### ShutdownOnFailure — All must succeed
+
+```java
+import java.util.concurrent.StructuredTaskScope;
+
+record BookingResponse(RoomData room, PricingData pricing, LoyaltyData loyalty) {}
+
+public BookingResponse fetchBookingData(String bookingId) throws InterruptedException {
+
+    try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+        // Fork each child task onto a virtual thread
+        StructuredTaskScope.Subtask<RoomData> roomTask =
+            scope.fork(() -> roomService.fetchAvailability(bookingId));
+
+        StructuredTaskScope.Subtask<PricingData> pricingTask =
+            scope.fork(() -> pricingService.fetchRates(bookingId));
+
+        StructuredTaskScope.Subtask<LoyaltyData> loyaltyTask =
+            scope.fork(() -> loyaltyService.fetchPoints(bookingId));
+
+        scope.join();            // Wait for all tasks
+        scope.throwIfFailed();   // Propagates first exception if any child failed
+
+        // All succeeded — safe to call get()
+        return new BookingResponse(
+            roomTask.get(),
+            pricingTask.get(),
+            loyaltyTask.get()
+        );
+    }
+    // scope.close() cancels any still-running subtasks — automatic in try-with-resources
+}
 ```
 
-Strong answer:
+What happens on failure:
+- Any child throws → scope shuts down → remaining children are cancelled
+- `throwIfFailed()` re-throws the cause as an `ExecutionException`
+- No dangling threads — all children are bounded to the scope
+
+#### ShutdownOnSuccess — Return as soon as any succeeds
+
+```java
+// Returns the first successful result from any redundant source
+public String fetchFromFastestSource(List<String> urls) throws InterruptedException {
+    try (var scope = new StructuredTaskScope.ShutdownOnSuccess<String>()) {
+
+        for (String url : urls) {
+            scope.fork(() -> httpClient.get(url));
+        }
+
+        scope.join();
+        return scope.result(); // Throws if ALL failed
+    }
+}
+```
+
+#### Timeout with joinUntil
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    var task1 = scope.fork(() -> slowService1());
+    var task2 = scope.fork(() -> slowService2());
+
+    scope.joinUntil(Instant.now().plusSeconds(2)); // Deadline
+    scope.throwIfFailed();
+
+    return new Result(task1.get(), task2.get());
+}
+// If deadline exceeded, remaining tasks are cancelled
+```
+
+### Structured Concurrency vs CompletableFuture
+
+| Area | StructuredTaskScope | CompletableFuture |
+|---|---|---|
+| Programming model | Sequential-looking + blocking | Callback chains |
+| Error handling | `throwIfFailed()` + try/catch | `exceptionally`, `handle` |
+| Cancellation | Automatic on scope close | Manual, unreliable |
+| Debugging | Normal stack traces | Async chain, harder |
+| Timeout | `joinUntil(Instant)` | `orTimeout(n, unit)` |
+| Available since | Java 21 (preview), Java 25 final | Java 8 |
+
+### Strong Interview Answer: Structured Concurrency
 
 ```text
-Structured concurrency makes concurrent code easier to reason about by giving child tasks
-a clear lifetime under a parent scope. It improves cancellation and error handling, but I
-would verify whether the API is stable or preview in the JDK used by the project.
+Structured concurrency, via StructuredTaskScope, ensures child tasks don't outlive their
+parent scope. I fork each subtask onto a virtual thread, call join() to wait for all of
+them, and then throwIfFailed() to propagate any error. The try-with-resources block
+automatically cancels any remaining tasks when I'm done — no dangling threads, no
+forgotten futures. ShutdownOnFailure is ideal for all-or-nothing parallel calls like
+fetching room, pricing, and loyalty data. ShutdownOnSuccess works for redundancy — first
+winner returns. Compared to CompletableFuture, structured concurrency produces readable,
+sequential code with automatic resource management and cleaner stack traces.
 ```
 
 ---

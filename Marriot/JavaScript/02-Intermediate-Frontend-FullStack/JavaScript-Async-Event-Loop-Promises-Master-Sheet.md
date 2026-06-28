@@ -2476,7 +2476,161 @@ This answer shows:
 
 ---
 
-## 58. Official Source Notes
+## 58. Async Iteration and Async Generators
+
+### `for await...of` — Consuming Async Iterables
+
+`for await...of` iterates over async iterables — sources that produce values asynchronously.
+
+```javascript
+// Consuming a stream of paginated API results
+async function* fetchAllBookings(guestId) {
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+        const response = await fetch(`/api/bookings?guestId=${guestId}&page=${page}`);
+        const data = await response.json();
+
+        for (const booking of data.items) {
+            yield booking; // Produce one booking at a time
+        }
+
+        hasMore = data.hasNextPage;
+        page++;
+    }
+}
+
+// Consumer: processes one booking at a time, memory efficient
+async function processBookings(guestId) {
+    for await (const booking of fetchAllBookings(guestId)) {
+        await sendConfirmation(booking);
+    }
+}
+```
+
+### Async Generators — `async function*`
+
+Async generators combine generator protocol (yielding values) with async/await.
+
+```javascript
+// Async generator: produces values on demand, asynchronously
+async function* readLines(url) {
+    const response = await fetch(url);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+            if (buffer) yield buffer;
+            break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Last incomplete line stays in buffer
+
+        for (const line of lines) {
+            if (line.trim()) yield line;
+        }
+    }
+}
+
+// Consume the streaming response line by line
+async function processCSV() {
+    for await (const line of readLines('/api/export/bookings.csv')) {
+        const [id, guestId, hotel, amount] = line.split(',');
+        await processRecord({ id, guestId, hotel, amount });
+    }
+}
+```
+
+### Cancellation in Async Iteration
+
+```javascript
+async function* withAbort(asyncIterable, signal) {
+    for await (const item of asyncIterable) {
+        if (signal.aborted) {
+            return; // Clean exit — generator cleanup runs
+        }
+        yield item;
+    }
+}
+
+// Usage
+const controller = new AbortController();
+
+setTimeout(() => controller.abort(), 5000); // Cancel after 5 seconds
+
+for await (const booking of withAbort(fetchAllBookings(guestId), controller.signal)) {
+    await processBooking(booking);
+}
+```
+
+### Error Handling in Async Generators
+
+```javascript
+async function* safeFetchStream(url) {
+    try {
+        const response = await fetch(url);
+        const reader = response.body.getReader();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            yield value;
+        }
+    } catch (error) {
+        // Generator can handle the error internally
+        console.error('Stream error:', error);
+        throw error; // Or yield a sentinel value
+    } finally {
+        // Cleanup always runs when generator exits (break, return, throw)
+        console.log('Stream closed');
+    }
+}
+```
+
+### Node.js Readable Streams as Async Iterables
+
+Node.js Readable streams implement the async iterable protocol:
+
+```javascript
+import { createReadStream } from 'node:fs';
+import { createInterface } from 'node:readline';
+
+async function processLargeFile(filePath) {
+    const fileStream = createReadStream(filePath);
+    const lineReader = createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+    });
+
+    let lineCount = 0;
+    for await (const line of lineReader) { // Readable stream as async iterable
+        await processLine(line);
+        lineCount++;
+    }
+
+    return lineCount;
+}
+```
+
+### Interview Line
+
+```text
+Async generators let me produce values lazily and asynchronously — essential for streaming
+APIs, paginated data, and event streams. for await...of consumes async iterables one item at
+a time without loading all data into memory. This is critical for processing large datasets or
+long-running streams while keeping memory bounded.
+```
+
+---
+
+## 59. Official Source Notes
 
 Use these sources when refreshing async/event-loop details:
 

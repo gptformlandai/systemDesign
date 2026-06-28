@@ -1445,6 +1445,81 @@ public class PriceAggregationExample {
 | Default executor? | Common ForkJoinPool |
 | Production caution? | Use custom executor for blocking IO or controlled thread usage |
 
+### Timeout — Java 9+
+
+```java
+// orTimeout — completes exceptionally after timeout
+CompletableFuture<String> future = CompletableFuture
+    .supplyAsync(() -> callExternalService())
+    .orTimeout(2, TimeUnit.SECONDS);
+
+// completeOnTimeout — completes with default value instead of exception
+CompletableFuture<String> withFallback = CompletableFuture
+    .supplyAsync(() -> callExternalService())
+    .completeOnTimeout("Fallback", 2, TimeUnit.SECONDS);
+```
+
+### Cancellation
+
+```java
+CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    sleep(5000);
+    return "Result";
+});
+
+// Cancel does not interrupt the running thread unless it is waiting
+future.cancel(true);
+
+System.out.println("Cancelled: " + future.isCancelled()); // true
+// Calling join() after cancel throws CancellationException
+```
+
+Trap: `cancel(true)` does not interrupt a running supplyAsync task. Use a flag or
+InterruptedException-aware sleep inside the task to actually stop it.
+
+### Virtual Thread Integration (Java 21+)
+
+```java
+// Replace common ForkJoinPool with virtual thread executor
+ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+CompletableFuture<String> hotel = CompletableFuture
+    .supplyAsync(() -> fetchHotelData(), executor);
+
+CompletableFuture<String> weather = CompletableFuture
+    .supplyAsync(() -> fetchWeather(), executor);
+
+CompletableFuture.allOf(hotel, weather).join();
+// Each supplyAsync gets its own virtual thread — optimal for blocking IO
+```
+
+### Production Pattern: Parallel Aggregation with Error Isolation
+
+```java
+ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+CompletableFuture<RoomData> rooms = CompletableFuture
+    .supplyAsync(() -> roomService.fetchAvailability(), executor)
+    .completeOnTimeout(RoomData.EMPTY, 1, TimeUnit.SECONDS);
+
+CompletableFuture<PricingData> pricing = CompletableFuture
+    .supplyAsync(() -> pricingService.fetchRates(), executor)
+    .completeOnTimeout(PricingData.DEFAULT, 1, TimeUnit.SECONDS);
+
+CompletableFuture<LoyaltyData> loyalty = CompletableFuture
+    .supplyAsync(() -> loyaltyService.fetchPoints(), executor)
+    .handle((result, ex) -> ex != null ? LoyaltyData.EMPTY : result); // Isolate failure
+
+CompletableFuture.allOf(rooms, pricing, loyalty).join();
+
+return new BookingResponse(rooms.join(), pricing.join(), loyalty.join());
+```
+
+Why this pattern works:
+- `completeOnTimeout` prevents one slow service from blocking the whole response
+- `handle` on loyalty isolates failures without crashing other calls
+- Virtual thread executor is efficient for blocking IO calls
+
 ---
 
 ## 11. Map Enhancements In Java 8

@@ -485,3 +485,379 @@ jobs, and unexpected consumers.
 - Apache Kafka security docs: https://kafka.apache.org/43/security/
 - Apache Kafka authorization and ACLs: https://kafka.apache.org/43/security/authorization-and-acls/
 - Confluent Schema Registry docs: https://docs.confluent.io/platform/current/schema-registry/index.html
+
+---
+
+## 22. Cloud-Native Kafka Authentication
+
+Modern Kafka deployments run on managed platforms. Authentication differs by provider.
+
+### AWS MSK IAM Authentication
+
+AWS MSK supports IAM-based authentication using `SASL_IAM` mechanism.
+
+How it works:
+
+```text
+Kafka client uses AWS credentials provider
+-> signs Kafka connection request with IAM credentials
+-> MSK validates against IAM policy
+-> topic-level permissions are IAM resource policies, not Kafka ACLs
+```
+
+Producer config (MSK IAM):
+
+```properties
+security.protocol=SASL_SSL
+sasl.mechanism=AWS_MSK_IAM
+sasl.jaas.config=software.amazon.msk.auth.iam.IAMLoginModule required;
+sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbackHandler
+```
+
+Key difference from Apache Kafka ACLs:
+
+- MSK IAM uses IAM policies to control topic access, not `kafka-acls.sh`
+- IAM roles can be attached to ECS tasks, Lambda, EC2 instances, or EC2 instance profiles
+- service-to-topic permissions are expressed as IAM resource policies
+
+Interview trap:
+
+```text
+On MSK IAM, do not add native Kafka ACLs unless you also set an Authorizer. With IAM, the IAM
+policy IS the authorization. Mixing both requires understanding which authorizer wins.
+```
+
+---
+
+### Confluent Cloud Authentication
+
+Confluent Cloud uses API keys, service accounts, and OAuth tokens.
+
+Options:
+
+| Mechanism | Best For |
+|---|---|
+| API Key + Secret | simple service-to-cluster auth |
+| Service Account + RBAC | multi-team platform governance |
+| OAuth/OIDC (Confluent Cloud) | SSO/enterprise identity integration |
+
+SASL/PLAIN config for Confluent Cloud API key:
+
+```properties
+security.protocol=SASL_SSL
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+  username="<api-key>" \
+  password="<api-secret>";
+```
+
+Confluent RBAC roles:
+
+| Role | Scope |
+|---|---|
+| DeveloperRead | read topic/group |
+| DeveloperWrite | produce to topic |
+| ResourceOwner | full topic management |
+| ClusterAdmin | cluster management |
+
+Strong answer:
+
+```text
+On Confluent Cloud, I prefer service accounts with RBAC role bindings over shared API keys.
+Each service gets a dedicated service account with the minimum required roles.
+```
+
+---
+
+### Azure Event Hubs (Kafka Protocol)
+
+Azure Event Hubs supports the Kafka protocol with SAS token or Azure AD/managed identity authentication.
+
+SAS token config:
+
+```properties
+security.protocol=SASL_SSL
+sasl.mechanism=PLAIN
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required \
+  username="$ConnectionString" \
+  password="<Event Hubs connection string>";
+bootstrap.servers=<namespace>.servicebus.windows.net:9093
+```
+
+Managed identity (preferred for production):
+
+- assign Managed Identity to compute resource
+- bind Azure EventHubs Data Owner/Sender/Receiver role
+- use `SASL_OAUTHBEARER` with Azure AD token provider
+
+Key caveats:
+
+- consumer groups in Event Hubs map to Event Hubs consumer groups, not Kafka groups exactly
+- partition count cannot be changed after creation
+- retention is time-based only; no log compaction support
+
+---
+
+### SASL/OAUTHBEARER
+
+`SASL_OAUTHBEARER` is the standard mechanism for OAuth/JWT token-based Kafka auth.
+
+Flow:
+
+```text
+client requests token from identity provider (OAuth2/OIDC)
+-> token included in Kafka SASL handshake
+-> broker validates token (signature, expiry, claims)
+-> Kafka maps token claim to principal for ACL checks
+```
+
+Config skeleton:
+
+```properties
+security.protocol=SASL_SSL
+sasl.mechanism=OAUTHBEARER
+sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;
+sasl.login.callback.handler.class=<provider-specific-class>
+sasl.oauthbearer.token.endpoint.url=https://idp.example.com/oauth2/token
+```
+
+Token refresh:
+
+- `sasl.login.refresh.min.period.seconds` controls token refresh frequency
+- tokens must be refreshed before expiry to avoid sudden auth failure
+- alert on refresh errors
+
+---
+
+### mTLS Certificate Rotation Runbook
+
+mTLS uses client certificates for authentication. Rotating certificates without downtime requires careful ordering.
+
+Rotation strategy:
+
+```text
+Step 1: Add new CA cert to broker truststore (brokers trust both old and new CA)
+Step 2: Distribute new CA truststore to all brokers and rolling restart
+Step 3: Issue new client certificates signed by new CA
+Step 4: Roll out new client certs to services (one by one, verify each)
+Step 5: Remove old CA cert from broker truststore
+Step 6: Final broker rolling restart to clean up old trust anchor
+```
+
+Critical rule:
+
+```text
+Brokers must trust the new CA BEFORE any service sends a new certificate.
+The old CA must remain trusted UNTIL all services are using the new certificate.
+```
+
+Monitor during rotation:
+
+- authentication failure rate per principal
+- SSL handshake error rate
+- certificate expiry metrics (`ssl.valid.to` JMX metric)
+
+Alert on:
+
+- certificate expiry within 30 days
+- sudden auth failure spike after certificate rollout
+
+---
+
+## 23. GDPR Right-to-Erasure And Kafka
+
+GDPR Article 17 gives individuals the right to request deletion of their personal data.
+
+### The Core Challenge
+
+Kafka logs are immutable and append-only. You cannot surgically delete one event.
+
+The tension:
+
+```text
+GDPR: delete user data on request
+Kafka: immutable, durable, replayable log
+```
+
+This is one of the most common senior governance interview questions.
+
+---
+
+### Option 1: Avoid PII In Topics
+
+Best long-term approach:
+
+```text
+Publish identifiers and business facts, not raw PII.
+Store PII in a governed data store with deletion support.
+Consumers fetch PII on demand, not from Kafka replay.
+```
+
+Interview line:
+
+```text
+The best GDPR strategy for Kafka is to not put PII in topics at all. Publish customer IDs, not
+names, emails, or addresses. If a consumer needs PII to process the event, it fetches it
+from the authorized source of truth, not from a Kafka replay.
+```
+
+---
+
+### Option 2: Crypto-Shredding
+
+Crypto-shredding means encrypting PII fields with a per-user encryption key, then deleting the key when the user requests erasure.
+
+Flow:
+
+```text
+publish event:
+  PII field is encrypted with user-specific key stored in KMS
+  Kafka holds encrypted ciphertext only
+  
+deletion request:
+  delete the user's encryption key from KMS
+  Kafka records still exist but PII is permanently unreadable
+```
+
+Properties:
+
+- Kafka data is not modified (immutable log preserved)
+- PII becomes unreadable after key deletion
+- compliant for most interpretations of GDPR Article 17
+- applies to all replicas, backups, and tiered storage automatically
+
+Trade-offs:
+
+| Pro | Con |
+|---|---|
+| No log rewrite needed | per-user key management complexity |
+| Works with immutable Kafka | higher encryption/decryption cost |
+| Applies to replicas automatically | key rotation adds overhead |
+| Audit trail preserved | old events remain as ciphertext |
+
+Tiered storage note:
+
+```text
+Crypto-shredding also covers tiered storage because the encrypted payload is the
+same bytes in remote storage. Key deletion renders all copies unreadable.
+```
+
+---
+
+### Option 3: Tombstone Records (Compacted Topics)
+
+For compacted topics, a tombstone record with `null` value and the user's key signals deletion.
+
+Example:
+
+```text
+topic: customer-profile-state (compacted)
+key: customer-id-456
+value: null  <- tombstone
+```
+
+After compaction:
+
+- all records with key `customer-id-456` are removed from the log
+- tombstone itself is eventually removed after `delete.retention.ms`
+
+Limitations:
+
+- only works for compacted topics with delete.cleanup.policy
+- does not help delete the key from offset-based (non-compacted) topics with time-based retention
+- tiered storage complicates tombstone propagation if cold segments are already in remote storage
+
+---
+
+### Option 4: Short Retention + Source-of-Truth Model
+
+If PII must be in Kafka:
+
+- set short retention (hours, not days)
+- treat Kafka as a transient buffer, not the system of record
+- store PII in a governed database with deletion support
+- design consumers to be stateless or persist only anonymized derived state
+
+When retention expires, PII is gone naturally.
+
+---
+
+### GDPR Kafka Checklist
+
+Before putting any user data in a topic:
+
+1. Is this PII or regulated data?
+2. Can it be replaced by an identifier?
+3. Is short retention appropriate?
+4. If PII must be included, is crypto-shredding implemented?
+5. Does tiered storage behavior affect retention?
+6. Is DLQ retention shorter than main topic?
+7. Is there an audit log of deletion requests and key destruction?
+8. Are backups and archives governed by the same policy?
+9. Can consumers handle null/missing PII gracefully after deletion?
+
+---
+
+## 24. Event Lineage And Provenance
+
+Regulated industries and audit-heavy platforms often ask: "Where did this event come from, and what happened to it?"
+
+### Event Envelope For Lineage
+
+A lineage-aware event carries:
+
+```json
+{
+  "eventId": "evt-uuid-123",
+  "eventType": "PaymentAuthorized",
+  "eventVersion": 2,
+  "producer": "payment-service",
+  "producedAt": "2026-06-28T10:15:30Z",
+  "traceId": "trace-abc-456",
+  "spanId": "span-def-789",
+  "correlationId": "request-ghi-012",
+  "causationId": "evt-uuid-100",
+  "schemaId": 42
+}
+```
+
+Field purposes:
+
+| Field | Use |
+|---|---|
+| `eventId` | dedupe and traceability per event |
+| `producer` | who published this event |
+| `producedAt` | business time vs ingestion time |
+| `traceId` / `spanId` | distributed tracing correlation |
+| `correlationId` | link to originating API request |
+| `causationId` | link to parent event that caused this event |
+| `schemaId` | which schema version encoded this payload |
+
+### Causation vs Correlation
+
+- `correlationId`: links all events originating from one external request
+- `causationId`: links one event to the specific event that caused it
+
+Example:
+
+```text
+HTTP request -> OrderCreated (correlationId=R1, causationId=null)
+OrderCreated -> PaymentRequested (correlationId=R1, causationId=OrderCreated.eventId)
+PaymentRequested -> PaymentAuthorized (correlationId=R1, causationId=PaymentRequested.eventId)
+```
+
+Interview line:
+
+```text
+correlationId tells you which user request caused this chain. causationId tells you which specific
+event in the chain caused this specific event. Together they reconstruct causal history.
+```
+
+### Lineage Monitoring
+
+Audit systems can use event headers and topic to:
+
+- trace which events a user's action produced
+- identify which events contributed to a downstream output
+- confirm compliance events were published and consumed
+- reconstruct processing history after an incident

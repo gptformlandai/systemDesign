@@ -578,3 +578,328 @@ If a breaking change is unavoidable, I would create a new topic or event version
 - Confluent schema evolution docs: <https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html>
 - Apache Kafka design docs: <https://kafka.apache.org/43/design/design/>
 
+---
+
+## 20. Subject Naming Strategies
+
+Schema Registry organizes schemas by subject name. The naming strategy controls how schema versions and topics relate.
+
+### TopicNameStrategy (Default)
+
+Subject name = `<topic>-key` or `<topic>-value`
+
+```text
+topic: order-events
+key subject:   order-events-key
+value subject: order-events-value
+```
+
+Rules:
+
+- one schema per topic key and one per topic value
+- all producers to a topic must use the same schema
+- different event types in one topic cannot have different schemas
+
+Best for:
+
+- one event type per topic
+- simple, common setup
+
+Limitation:
+
+```text
+If you mix OrderPlaced, OrderCancelled, OrderShipped in one topic, they all share one subject.
+You must use a union type (e.g. Avro union) to handle all event types under one schema.
+```
+
+---
+
+### RecordNameStrategy
+
+Subject name = fully qualified record class name
+
+```text
+com.example.orders.OrderPlaced
+com.example.orders.OrderCancelled
+```
+
+Rules:
+
+- each record type gets its own schema version history
+- schemas are shared across all topics that produce that record type
+
+Best for:
+
+- same event type published to multiple topics
+- schema versioning independent of topic name
+- organizations where event schemas are reused across pipelines
+
+Limitation:
+
+```text
+Schema evolution is governed per record type, not per topic. A topic may receive different
+schema types and must handle dynamic dispatch.
+```
+
+---
+
+### TopicRecordNameStrategy
+
+Subject name = `<topic>-<fully-qualified-record-name>`
+
+```text
+topic: order-events
+subjects:
+  order-events-com.example.orders.OrderPlaced
+  order-events-com.example.orders.OrderCancelled
+  order-events-com.example.orders.OrderShipped
+```
+
+Rules:
+
+- each event type in each topic has its own schema version history
+- different topics can produce the same event type with independent schema evolution
+
+Best for:
+
+- topics that carry multiple event types (domain event bus pattern)
+- fine-grained schema governance per topic-type combination
+
+Trade-off comparison:
+
+| Strategy | Subject Granularity | Best For |
+|---|---|---|
+| TopicNameStrategy | one per topic | simple, one event type per topic |
+| RecordNameStrategy | one per record type globally | shared event types across topics |
+| TopicRecordNameStrategy | one per topic + record type | multi-event topics with strong governance |
+
+Interview answer:
+
+```text
+For simple pipelines with one event type per topic, TopicNameStrategy is easiest. For domain
+event buses with multiple event types in one topic, TopicRecordNameStrategy gives cleaner
+subject governance. RecordNameStrategy is useful when the same event schema is produced
+to multiple topics and version history should be shared.
+```
+
+---
+
+## 21. Schema Registry HA Deployment And CI/CD Gate
+
+### Schema Registry HA Deployment
+
+Schema Registry supports multi-instance deployment with leader election backed by Kafka.
+
+Architecture:
+
+```text
+Multiple Schema Registry instances join one cluster
+-> one instance is elected leader
+-> write requests (schema registration) go to leader
+-> read requests (schema fetch) can be served by any instance
+-> schemas are stored in a Kafka compacted topic: _schemas
+-> all instances sync from _schemas topic
+```
+
+Key config:
+
+```properties
+# All instances must use same Kafka cluster
+kafkastore.bootstrap.servers=broker1:9092,broker2:9092
+kafkastore.topic=_schemas
+
+# Inter-instance communication (for forwarding writes to leader)
+listeners=http://0.0.0.0:8081
+host.name=schema-registry-host-1
+```
+
+HA properties:
+
+- `_schemas` topic is compacted, so Schema Registry state is recovered after restart
+- if Schema Registry is unavailable, producers/consumers can still work by using cached schemas
+- schema registration fails during outage (writes) but reads from cache continue
+
+Interview trap:
+
+```text
+Schema Registry availability is critical for new schema registration, not for reading already-
+registered schemas. Producers with cached schema IDs can tolerate short registry outages. But
+new schema versions cannot be registered until the registry recovers.
+```
+
+DR consideration:
+
+```text
+In cross-region Kafka DR, ensure Schema Registry is also available in the failover region.
+Consumers trying to deserialize events in the DR cluster need to reach a registry that has
+the same schema IDs. Options: replicate _schemas topic, deploy a second registry, or use
+Confluent Schema Linking.
+```
+
+---
+
+### CI/CD Schema Compatibility Gate
+
+Prevent breaking schema changes from reaching production by integrating compatibility checks into the CI pipeline.
+
+Confluent Schema Registry CLI gate:
+
+```bash
+# Check if new schema is compatible before registering
+curl -s -X POST \
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+  --data '{"schema": "{\"type\":\"record\",\"name\":\"OrderPlaced\",...}"}' \
+  "http://schema-registry:8081/compatibility/subjects/order-events-value/versions/latest"
+
+# Response:
+# {"is_compatible": true}  <- green
+# {"is_compatible": false} <- fail the build
+```
+
+GitHub Actions gate example:
+
+```yaml
+- name: Check schema compatibility
+  run: |
+    RESULT=$(curl -s -X POST \
+      -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+      --data @schema/order-placed-v2.json \
+      "$SCHEMA_REGISTRY_URL/compatibility/subjects/$SUBJECT/versions/latest")
+    
+    COMPATIBLE=$(echo $RESULT | jq -r '.is_compatible')
+    if [ "$COMPATIBLE" != "true" ]; then
+      echo "Schema is NOT compatible: $RESULT"
+      exit 1
+    fi
+    echo "Schema is compatible"
+```
+
+Workflow placement:
+
+```text
+Code PR opened
+-> lint / build / test
+-> schema compatibility check (fails early on breaking change)
+-> canary deploy
+-> full deploy
+```
+
+Benefits:
+
+- breaking schema changes are caught at PR time, not production time
+- developers get immediate feedback before merge
+- compliance: schema governance is auditable and automated
+
+Interview answer:
+
+```text
+I add schema compatibility checks as a CI gate using the Schema Registry compatibility API.
+If the schema is not backward compatible, the build fails before any artifact is deployed.
+This prevents silent schema breaks from reaching consumers across teams.
+```
+
+---
+
+## 22. CloudEvents Specification
+
+CloudEvents is a CNCF specification for describing event data in a common format across clouds, platforms, and protocols.
+
+### Why It Matters
+
+Kafka does not define what an event envelope should look like. Teams invent their own. CloudEvents provides a standard, interoperable envelope.
+
+CloudEvents is increasingly used at companies adopting multi-cloud or event mesh architectures, and it appears in CNCF-adjacent interviews.
+
+### Required CloudEvents Attributes
+
+| Attribute | Type | Description |
+|---|---|---|
+| `id` | string | unique ID per event; used for dedupe |
+| `source` | URI | identifies the context that created the event (e.g. `/orders/service`) |
+| `specversion` | string | CloudEvents version (`"1.0"`) |
+| `type` | string | event type in reverse-DNS style (`com.example.orders.created`) |
+
+### Optional But Common Attributes
+
+| Attribute | Type | Description |
+|---|---|---|
+| `subject` | string | identifies the subject of the event (e.g. `order-id-123`) |
+| `time` | timestamp | when the event occurred (RFC 3339) |
+| `datacontenttype` | string | content type of `data` (e.g. `application/json`) |
+| `dataschema` | URI | URI of schema for the `data` attribute |
+| `data` | any | the actual event payload |
+
+### CloudEvents JSON Example
+
+```json
+{
+  "specversion": "1.0",
+  "id": "evt-f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "source": "/payments/payment-service",
+  "type": "com.example.payments.authorized",
+  "subject": "payment-id-91",
+  "time": "2026-06-28T10:15:30Z",
+  "datacontenttype": "application/json",
+  "dataschema": "https://schema.example.com/payment-authorized.json",
+  "traceId": "trace-abc-456",
+  "data": {
+    "paymentId": "payment-id-91",
+    "customerId": "cust-7",
+    "amount": 250.00,
+    "currency": "USD",
+    "status": "authorized"
+  }
+}
+```
+
+### Mapping To Kafka
+
+CloudEvents can be carried as Kafka messages in two ways:
+
+Structured mode (whole event as JSON value):
+
+```text
+Kafka value = entire CloudEvents JSON document
+```
+
+Binary mode (attributes in headers, data in value):
+
+```text
+Kafka headers:
+  ce_specversion = 1.0
+  ce_id = evt-f47ac10b-...
+  ce_type = com.example.payments.authorized
+  ce_source = /payments/payment-service
+
+Kafka value = raw data bytes (JSON, Avro, Protobuf)
+```
+
+Binary mode is preferred for performance-sensitive pipelines because:
+
+- data can be Avro/Protobuf-encoded without wrapping
+- Schema Registry integrates with data, not the envelope headers
+- consumers can route on headers without deserializing data
+
+### When To Use CloudEvents
+
+Use CloudEvents when:
+
+- building multi-cloud or event mesh architectures
+- integrating with cloud-native services (Azure Event Grid, GCP Eventarc, Knative) that already speak CloudEvents
+- standardizing event envelopes across many teams or domains
+- building a platform that routes events across Kafka and other brokers
+
+Skip CloudEvents when:
+
+- team is Kafka-only with no cloud-native integration requirements
+- overhead of standard envelope is not justified
+- existing internal envelope standards already serve the same purpose
+
+Interview line:
+
+```text
+CloudEvents is not Kafka-specific, but it provides a standard envelope that lets events move
+cleanly between Kafka, HTTP, event grids, and other transports. For multi-cloud or event mesh
+designs, it reduces integration friction.
+```
+

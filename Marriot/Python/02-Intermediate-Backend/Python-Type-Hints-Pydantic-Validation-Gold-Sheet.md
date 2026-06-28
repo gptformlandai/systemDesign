@@ -674,63 +674,247 @@ class TreeNode:
 ```bash
 # Install
 pip install mypy
-pip install pyright   # or: npx pyright
+pip install pyright   # or: npx pyright (Node-based, faster)
 
 # Run
-mypy src/             # Check all Python files in src/
+mypy src/               # Check all Python files in src/
 mypy --strict myapp.py  # Strictest mode — no implicit Any
+pyright src/            # pyright equivalent
 
 # Common mypy flags
 # --ignore-missing-imports  — don't error on untyped third-party libs
 # --disallow-untyped-defs   — all functions must have annotations
-# --strict                  — maximum strictness
+# --disallow-any-explicit   — ban explicit Any usage
+# --strict                  — enables all disallow-* flags at once
 ```
+
+### mypy vs pyright — Which One?
+
+| | mypy | pyright |
+|---|---|---|
+| Language | Python | TypeScript (Node.js) |
+| Speed | Slower (Python runtime) | Much faster (compiled, incremental) |
+| Strictness | Configurable | Strict by default in pylance |
+| IDE integration | Official plugin for VS Code | Powers Pylance (VS Code default) |
+| CI usage | Very common (de facto standard) | Growing — preferred by Microsoft |
+| `--strict` coverage | Mature, well-documented | Slightly different set of checks |
+| When to choose | Legacy codebases, CI pipelines | New projects, VS Code-heavy teams |
+
+**Interview answer:** mypy is the industry standard for CI. pyright is what powers VS Code's Pylance and is faster for development-time checks. Most teams use pyright in the IDE and mypy in CI.
+
+---
+
+### Configuration — `pyproject.toml` (recommended)
+
+```toml
+# pyproject.toml
+
+[tool.mypy]
+python_version = "3.12"
+strict = true                        # enables all strict checks
+ignore_missing_imports = true        # don't error on untyped third-party libs
+exclude = ["tests/", "migrations/"]
+
+# Override strictness per module (gradual adoption)
+[[tool.mypy.overrides]]
+module = "legacy_module.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["boto3.*", "botocore.*"]
+ignore_missing_imports = true        # AWS SDK lacks stubs
+```
+
+```json
+// pyrightconfig.json (pyright-specific config)
+{
+  "include": ["src"],
+  "exclude": ["tests", ".venv"],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "strict",       // "off" | "basic" | "standard" | "strict"
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false     // suppress for untyped third-party libs
+}
+```
+
+---
 
 ### Common Type Errors and Fixes
 
 ```python
-# Error: Item "None" has no attribute "upper"
+# ── Error 1: Accessing attribute on possible None ──────────────────────
 def bad(name: str | None) -> str:
-    return name.upper()   # mypy error — name might be None!
+    return name.upper()     # mypy: Item "None" has no attribute "upper"
 
 def good(name: str | None) -> str:
     if name is None:
         return ""
-    return name.upper()   # Type narrowed to str here — OK
+    return name.upper()     # type narrowed to str — OK
 
-# Error: Argument 1 has incompatible type "str"; expected "int"
+# ── Error 2: Wrong argument type ───────────────────────────────────────
 def add(a: int, b: int) -> int:
     return a + b
 
-add("1", 2)   # mypy catches this
+add("1", 2)   # Argument 1 has incompatible type "str"; expected "int"
 
-# Error: Return type "None" incompatible with "int"
+# ── Error 3: Missing return value ──────────────────────────────────────
 def multiply(a: int, b: int) -> int:
     if a == 0:
-        return     # Returns None! Missing return value
+        return           # Returns None — incompatible with declared -> int
+    return a * b
 
-# Error: Cannot determine type of variable — assign None without annotation
-x = None   # mypy infers None type — cannot assign str later
-x = "hello"  # mypy error
+# ── Error 4: Variable type inferred as None ────────────────────────────
+x = None          # mypy infers type as "None" — cannot assign str later
+x = "hello"       # error: Incompatible types in assignment
 
-# Fix
-x: str | None = None
-x = "hello"   # Now OK
+x: str | None = None    # fix: declare the intended union type
+x = "hello"             # now OK
+
+# ── Error 5: Unreachable code after exhaustive narrowing ───────────────
+def process(value: int | str) -> str:
+    if isinstance(value, int):
+        return str(value)
+    elif isinstance(value, str):
+        return value
+    else:
+        return value   # pyright: "value" is type Never — unreachable
 ```
+
+---
+
+### Type Narrowing — How Checkers Understand Your Guards
+
+```python
+from typing import TypeGuard
+
+# isinstance() is the most common narrowing construct
+def process(value: int | str | list[int]) -> str:
+    if isinstance(value, int):
+        return str(value)      # value: int here
+    if isinstance(value, str):
+        return value.upper()   # value: str here
+    return str(sum(value))     # value: list[int] here
+
+# assert narrows too (useful in tests and validation code)
+def get_name(data: dict[str, object]) -> str:
+    name = data.get("name")
+    assert isinstance(name, str), "name must be a string"
+    return name.upper()    # name: str here
+
+# TypeGuard — custom narrowing functions (PEP 647)
+def is_list_of_str(val: list[object]) -> TypeGuard[list[str]]:
+    return all(isinstance(x, str) for x in val)
+
+def handle(items: list[object]) -> None:
+    if is_list_of_str(items):
+        for item in items:
+            print(item.upper())   # item: str — TypeGuard narrowed it
+```
+
+---
+
+### `cast()`, `# type: ignore`, and `Any`
+
+```python
+from typing import cast, Any
+
+# cast() — assert a type to the checker without runtime cost
+# Use when YOU know the type but the checker cannot infer it
+raw: Any = get_from_cache("user_id")
+user_id: int = cast(int, raw)   # no runtime check — just a hint to the checker
+
+# ❌ cast() does NOT validate at runtime — it only affects static analysis
+# If raw is actually a string, cast() won't catch it — use isinstance() for runtime safety
+
+# # type: ignore — suppress mypy errors on a specific line
+result = some_untyped_library.do_thing()   # type: ignore[no-untyped-call]
+# Best practice: include the error code in brackets so it's self-documenting
+
+# Any — the escape hatch (avoid in new code)
+def legacy_parse(data: Any) -> Any:   # both input and output untyped
+    ...
+# Any propagates — a function receiving Any returns Any, losing all type safety downstream
+```
+
+---
+
+### `@overload` — Multiple Signatures for the Same Function
+
+```python
+from typing import overload
+
+# overload lets you declare multiple type signatures for one function body
+@overload
+def parse(value: str) -> int: ...
+@overload
+def parse(value: bytes) -> str: ...
+
+def parse(value: str | bytes) -> int | str:
+    if isinstance(value, str):
+        return int(value)
+    return value.decode("utf-8")
+
+# Now the checker knows:
+result1: int = parse("42")       # str → int — OK
+result2: str = parse(b"hello")   # bytes → str — OK
+result3: int = parse(b"hello")   # mypy error: bytes → str, not int
+```
+
+---
+
+### CI Integration — Enforcing Type Safety in Pipelines
+
+```yaml
+# .github/workflows/ci.yml
+- name: Type check with mypy
+  run: |
+    pip install mypy types-requests
+    mypy src/ --config-file pyproject.toml
+
+# With uv:
+- name: Type check
+  run: uv run mypy src/
+
+# Common CI failure modes:
+# 1. New third-party library with no stubs → add to ignore_missing_imports override
+# 2. Legacy module full of Any → add per-module override with ignore_errors = true
+# 3. Strict mode catches missing annotations in new code → enforce gradually
+```
+
+```toml
+# Gradual strictness migration in pyproject.toml
+[tool.mypy]
+python_version = "3.12"
+
+# Start with these two — safe defaults for an existing codebase:
+disallow_untyped_defs = true        # all NEW functions must have annotations
+warn_return_any = true              # warn when returning Any from typed function
+
+# Add these as the codebase matures:
+# disallow_any_generics = true      # list must be list[int], not bare list
+# strict_optional = true            # None must be explicit — no implicit optionals
+# strict = true                     # full strict mode (all of the above + more)
+```
+
+---
 
 ### Gradual Typing Strategy
 
 ```python
-# Strategy for adding types to an existing codebase:
-# 1. Start with function signatures of public APIs
-# 2. Add typing to utility functions and data models
-# 3. Use mypy --ignore-missing-imports initially
-# 4. Progressively eliminate Any
-# 5. Add py.typed marker file to mark the package as typed
+# Adopting types in an existing codebase — recommended order:
+# 1. Annotate public API function signatures first (highest leverage)
+# 2. Add types to utility/helper functions used everywhere
+# 3. Add types to data models and DTOs
+# 4. Annotate test helpers and fixtures
+# 5. Use --ignore-missing-imports during initial rollout
+# 6. Progressively eliminate Any with --warn-return-any
+# 7. Enable --strict after achieving > 80% coverage
 
-# py.typed marker (PEP 561)
-# Create an empty file named py.typed in your package root
-# This tells type checkers the package has type information
+# py.typed marker (PEP 561) — marks your package as fully typed
+# Create an empty file named py.typed in your package root directory
+# This signals to mypy/pyright that they should fully type-check this package
+# Without it, type checkers treat your package as untyped (implicit Any)
+touch my_package/py.typed
 ```
 
 ---
@@ -1143,7 +1327,153 @@ A: It defers evaluation of annotations in the file instead of evaluating them at
 
 ---
 
-## 18. Final Revision Checklist
+## 18. Pydantic v1 → v2 Migration Guide
+
+### Why This Matters
+
+Pydantic v2 (released June 2023) rewrote the core validation engine in Rust, making it **5–50× faster**. Most new projects use v2 syntax, but many production codebases still run v1. Interviewers often ask you to spot the difference or explain the migration.
+
+### Key API Changes
+
+| Concept | Pydantic v1 | Pydantic v2 |
+|---|---|---|
+| Validator decorator | `@validator("field")` | `@field_validator("field")` |
+| Model validator | `@root_validator` | `@model_validator(mode="before"/"after")` |
+| Config class | `class Config: ...` | `model_config = ConfigDict(...)` |
+| Dict output | `.dict()` | `.model_dump()` |
+| JSON output | `.json()` | `.model_dump_json()` |
+| Construct without validation | `.construct(...)` | `.model_construct(...)` |
+| Parse from dict | `Model(**data)` | `Model.model_validate(data)` |
+| Parse from JSON | `Model.parse_raw(json_str)` | `Model.model_validate_json(json_str)` |
+| Schema | `.schema()` | `.model_json_schema()` |
+| Copy | `.copy(update={...})` | `.model_copy(update={...})` |
+| `orm_mode = True` | `class Config: orm_mode = True` | `model_config = ConfigDict(from_attributes=True)` |
+
+### v1 Code Example
+
+```python
+# Pydantic v1 syntax
+from pydantic import BaseModel, validator, root_validator
+
+class UserV1(BaseModel):
+    name: str
+    age: int
+    email: str
+
+    class Config:
+        orm_mode = True
+        extra = "forbid"
+
+    @validator("name")
+    def name_must_not_be_empty(cls, v):
+        if not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
+
+    @root_validator
+    def validate_model(cls, values):
+        name = values.get("name", "")
+        email = values.get("email", "")
+        if name and not email:
+            raise ValueError("email required when name provided")
+        return values
+
+# v1 usage
+user = UserV1(name="Alice", age=30, email="alice@example.com")
+data = user.dict()        # v1 method
+json = user.json()        # v1 method
+```
+
+### Equivalent v2 Code
+
+```python
+# Pydantic v2 syntax
+from pydantic import BaseModel, field_validator, model_validator, ConfigDict
+
+class UserV2(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    name: str
+    age: int
+    email: str
+
+    @field_validator("name")
+    @classmethod
+    def name_must_not_be_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("name cannot be empty")
+        return v.strip()
+
+    @model_validator(mode="after")
+    def validate_model(self) -> "UserV2":
+        if self.name and not self.email:
+            raise ValueError("email required when name provided")
+        return self
+
+# v2 usage
+user = UserV2(name="Alice", age=30, email="alice@example.com")
+data = user.model_dump()          # v2 method
+json_str = user.model_dump_json() # v2 method
+parsed = UserV2.model_validate({"name": "Bob", "age": 25, "email": "b@b.com"})
+```
+
+### Key Behavioral Differences
+
+```python
+# 1. @field_validator is now a classmethod (must add @classmethod decorator)
+# v1 — no @classmethod needed
+@validator("age")
+def check_age(cls, v):
+    return v
+
+# v2 — @classmethod is required
+@field_validator("age")
+@classmethod
+def check_age(cls, v: int) -> int:
+    return v
+
+# 2. @model_validator mode="after" receives self (the constructed model)
+# v2 after-mode validator works on the model instance, not raw dict
+@model_validator(mode="after")
+def cross_field_check(self) -> "Model":
+    if self.start > self.end:
+        raise ValueError("start must be before end")
+    return self
+
+# 3. v2 defaults to strict coercion behavior changes
+# v1: "25" → 25 (int coercion) is always on
+# v2: same by default (lax mode), but strict mode available:
+from pydantic import ConfigDict
+
+class StrictUser(BaseModel):
+    model_config = ConfigDict(strict=True)  # "25" → error, not coercion
+    age: int
+```
+
+### Compatibility Shim — Running v1 Code on v2
+
+```python
+# pydantic.v1 compatibility namespace (Pydantic v2 includes this)
+from pydantic.v1 import BaseModel as BaseModelV1, validator
+
+# Allows gradual migration: v1 models use pydantic.v1, new models use pydantic v2
+# Useful during large codebase migration
+```
+
+### Migration Checklist
+
+- [ ] Replace `class Config:` with `model_config = ConfigDict(...)`
+- [ ] Replace `@validator` with `@field_validator` + add `@classmethod`
+- [ ] Replace `@root_validator` with `@model_validator(mode="before"/"after")`
+- [ ] Replace `.dict()` with `.model_dump()` and `.json()` with `.model_dump_json()`
+- [ ] Replace `orm_mode = True` with `from_attributes=True` in ConfigDict
+- [ ] Replace `.parse_raw(json)` with `.model_validate_json(json)`
+- [ ] Check validator return types — v2 validators must return the value or raise ValueError
+- [ ] Test coercion behavior — `strict=True` changes behaviour if previously relying on v1 defaults
+
+---
+
+## 19. Final Revision Checklist
 
 ### Type Hints Fundamentals
 

@@ -190,6 +190,167 @@ Mitigations:
 
 ---
 
+## 8b. Infinite Queries (Pagination)
+
+```tsx
+import {useInfiniteQuery} from '@tanstack/react-query';
+
+function BookingFeed() {
+  const {data, fetchNextPage, hasNextPage, isFetchingNextPage} =
+    useInfiniteQuery({
+      queryKey: ['bookings'],
+      queryFn: ({pageParam}) => fetchBookings({cursor: pageParam}),
+      initialPageParam: undefined,
+      getNextPageParam: lastPage => lastPage.nextCursor ?? undefined,
+    });
+
+  const bookings = data?.pages.flatMap(page => page.items) ?? [];
+
+  return (
+    <>
+      {bookings.map(b => <BookingCard key={b.id} booking={b} />)}
+      {hasNextPage && (
+        <button
+          onClick={() => fetchNextPage()}
+          disabled={isFetchingNextPage}
+        >
+          {isFetchingNextPage ? 'Loading…' : 'Load more'}
+        </button>
+      )}
+    </>
+  );
+}
+```
+
+---
+
+## 8c. Select — Transform Data in the Query
+
+`select` transforms data without changing what is cached. Different components can subscribe to different shapes of the same query:
+
+```tsx
+// Raw query — cached as full product list
+const useProducts = () =>
+  useQuery({queryKey: ['products'], queryFn: fetchProducts});
+
+// Subscriber A — only needs names
+const useProductNames = () =>
+  useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+    select: products => products.map(p => p.name),
+  });
+
+// Subscriber B — only needs in-stock items
+const useInStockProducts = () =>
+  useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+    select: products => products.filter(p => p.inStock),
+  });
+```
+
+`select` runs on every render if not memoized — wrap with `useCallback` for expensive transforms.
+
+---
+
+## 8d. placeholderData — Smooth Pagination
+
+`keepPreviousData` is replaced by `placeholderData: keepPreviousData` in TanStack Query v5:
+
+```tsx
+import {keepPreviousData} from '@tanstack/react-query';
+
+function ProductTable({page}: {page: number}) {
+  const {data, isFetching} = useQuery({
+    queryKey: ['products', page],
+    queryFn: () => fetchProducts(page),
+    placeholderData: keepPreviousData, // shows previous page while loading next
+  });
+
+  return (
+    <>
+      {isFetching && <div>Updating…</div>}
+      {data?.items.map(p => <ProductRow key={p.id} product={p} />)}
+    </>
+  );
+}
+```
+
+Result: no content flash on page changes — previous data stays visible while the next page loads.
+
+---
+
+## 8e. Dependent Queries — enabled
+
+Run a query only when a prerequisite value is available:
+
+```tsx
+function BookingDetails({userId}: {userId: string | undefined}) {
+  const userQuery = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId!),
+    enabled: !!userId,
+  });
+
+  const bookingsQuery = useQuery({
+    queryKey: ['bookings', userQuery.data?.id],
+    queryFn: () => fetchBookings(userQuery.data!.id),
+    enabled: !!userQuery.data?.id, // waits for user to load
+  });
+}
+```
+
+---
+
+## 8f. Parallel Queries — useQueries
+
+```tsx
+function MultiRoomDetails({roomIds}: {roomIds: string[]}) {
+  const roomQueries = useQueries({
+    queries: roomIds.map(id => ({
+      queryKey: ['room', id],
+      queryFn: () => fetchRoom(id),
+    })),
+  });
+
+  const isLoading = roomQueries.some(q => q.isPending);
+  const rooms = roomQueries
+    .map(q => q.data)
+    .filter(Boolean) as Room[];
+}
+```
+
+---
+
+## 8g. Prefetching in Server Components (Next.js)
+
+Hydrate the query cache on the server so the client has data immediately:
+
+```tsx
+// app/products/page.tsx (Server Component)
+import {dehydrate, HydrationBoundary, QueryClient} from '@tanstack/react-query';
+
+export default async function ProductsPage() {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ProductList />
+    </HydrationBoundary>
+  );
+}
+```
+
+`ProductList` is a Client Component that calls `useQuery(['products'])` — the cache is already populated on first render.
+
+---
+
 ## 9. Common Mistakes
 
 | Mistake | Why It Is Wrong | Better Approach |

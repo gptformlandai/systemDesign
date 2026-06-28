@@ -243,6 +243,97 @@ CDC or relay:
 
 This makes DB state and event publication reliable without needing a distributed two-phase commit across DB and Kafka.
 
+### Part G: Kafka Streams EOS (EXACTLY_ONCE_V2)
+
+Kafka Streams has built-in exactly-once support when the input and output are both Kafka topics.
+
+Enable it with:
+
+```java
+props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
+```
+
+What EXACTLY_ONCE_V2 does internally:
+
+```text
+For each task:
+  input consumer uses read_committed isolation
+  output producer uses a transactional producer per task
+  offset commits happen within the Kafka transaction
+  output records and input offset commit are atomic
+```
+
+`EXACTLY_ONCE_V2` improvements over V1:
+
+| Aspect | EXACTLY_ONCE_V1 | EXACTLY_ONCE_V2 |
+|---|---|---|
+| Transactional producers | one per Streams thread | one per task |
+| Rebalance handling | task-level isolation | task-level, fewer coordinators needed |
+| Kafka requirement | Kafka 2.5+ | Kafka 2.5+ (same) |
+| Performance | more overhead | slightly better with task-level granularity |
+
+Interview line:
+
+```text
+Kafka Streams EXACTLY_ONCE_V2 wraps each task's produce-and-commit in a Kafka transaction.
+It does not protect side effects outside Kafka, like database writes or API calls.
+```
+
+Caveats:
+
+- throughput is lower than `at_least_once` due to transaction overhead
+- state store operations are still eventually consistent outside the Kafka boundary
+- changelog topics and repartition topics must have sufficient replication
+
+### Part H: transactional.id In Kubernetes
+
+In Kubernetes, pods restart and may get new names. The `transactional.id` must be stable across restarts.
+
+Strategy 1: Stateful naming
+
+```text
+Deploy the Kafka Streams app as a StatefulSet with pod names like:
+  payment-processor-0
+  payment-processor-1
+
+transactional.id = app-name + task-id = "payment-processor-0-task-0"
+```
+
+Strategy 2: External ID registry
+
+```text
+On startup, each instance claims a stable ID from a coordination store (e.g., config map, Redis, ZooKeeper)
+transactional.id = claimed stable ID
+On crash and restart, the same ID is reclaimed
+```
+
+Why it matters:
+
+```text
+If a Kubernetes pod restarts and a new pod picks up the same partition, it must use the same
+transactional.id to correctly fence the old producer and continue processing without duplication.
+
+If the transactional.id is pod-name-based but pod names are ephemeral, a new pod starts a new
+transaction producer with no connection to in-flight transactions from the old pod.
+```
+
+### Part I: Transaction Coordinator
+
+The transaction coordinator is not a separate service. It is a broker that owns the `__transaction_state` partition.
+
+Assignment:
+
+```text
+coordinator_partition = hash(transactional.id) % num_partitions(__transaction_state)
+coordinator_broker = leader of that partition
+```
+
+Why it matters:
+
+- if the coordinator broker is down, new `initTransactions()` and `commitTransaction()` calls block
+- coordinator failover (leader election) is automatic but adds latency
+- avoid co-locating many transactional producers that hash to the same coordinator partition
+
 ---
 
 ## 6. What Problem It Solves

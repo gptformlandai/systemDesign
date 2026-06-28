@@ -101,6 +101,178 @@ Mock:
 
 ---
 
+## 5b. Custom Render Utility with Providers
+
+Wrap `render` once so every test gets the right providers:
+
+```tsx
+import {render, RenderOptions} from '@testing-library/react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+
+function createTestQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {retry: false},
+      mutations: {retry: false},
+    },
+  });
+}
+
+function AllProviders({children}: {children: React.ReactNode}) {
+  const qc = createTestQueryClient();
+  return (
+    <QueryClientProvider client={qc}>
+      {children}
+    </QueryClientProvider>
+  );
+}
+
+export function renderWithProviders(ui: React.ReactElement, options?: RenderOptions) {
+  return render(ui, {wrapper: AllProviders, ...options});
+}
+```
+
+Usage replaces `render(...)` everywhere with `renderWithProviders(...)`.
+
+---
+
+## 5c. Mock Service Worker (MSW v2)
+
+MSW intercepts network requests — no API mocking inside component tests.
+
+Setup:
+
+```ts
+// src/mocks/handlers.ts
+import {http, HttpResponse} from 'msw';
+
+export const handlers = [
+  http.get('/api/products', () => {
+    return HttpResponse.json([{id: 'p1', name: 'Bag', price: 1299}]);
+  }),
+
+  http.post('/api/bookings', async ({request}) => {
+    const body = await request.json();
+    return HttpResponse.json({id: 'b1', ...body}, {status: 201});
+  }),
+];
+```
+
+```ts
+// src/mocks/server.ts
+import {setupServer} from 'msw/node';
+import {handlers} from './handlers';
+
+export const server = setupServer(...handlers);
+```
+
+```ts
+// vitest.setup.ts or jest.setup.ts
+import {server} from './src/mocks/server';
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+Override a handler per test:
+
+```ts
+import {http, HttpResponse} from 'msw';
+
+it('shows error when API fails', async () => {
+  server.use(
+    http.get('/api/products', () =>
+      HttpResponse.json({error: 'Service down'}, {status: 500})
+    )
+  );
+
+  renderWithProviders(<ProductList />);
+  expect(await screen.findByText(/error/i)).toBeInTheDocument();
+});
+```
+
+---
+
+## 5d. Testing Custom Hooks with renderHook
+
+```ts
+import {renderHook, act} from '@testing-library/react';
+import {useCounter} from './useCounter';
+
+test('increments counter', () => {
+  const {result} = renderHook(() => useCounter(0));
+
+  expect(result.current.count).toBe(0);
+
+  act(() => {
+    result.current.increment();
+  });
+
+  expect(result.current.count).toBe(1);
+});
+```
+
+For hooks that need providers:
+
+```ts
+const {result} = renderHook(() => useProducts(), {wrapper: AllProviders});
+await waitFor(() => expect(result.current.data).toBeDefined());
+```
+
+---
+
+## 5e. Async Assertions
+
+`findBy*` waits for the element to appear (up to default timeout):
+
+```ts
+// Correct — waits for async render
+const item = await screen.findByText('Booking confirmed');
+
+// Also correct — explicit wait
+await waitFor(() => {
+  expect(screen.getByRole('status')).toHaveTextContent('Success');
+});
+
+// Wrong — getBy throws immediately if not in DOM
+const item = screen.getByText('Booking confirmed'); // fails if async
+```
+
+`waitFor` with multiple assertions:
+
+```ts
+await waitFor(() => {
+  expect(mockFn).toHaveBeenCalledWith('expected');
+  expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+});
+```
+
+---
+
+## 5f. Accessibility Testing with jest-axe
+
+```ts
+import {axe, toHaveNoViolations} from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+it('has no accessibility violations', async () => {
+  const {container} = renderWithProviders(<LoginForm />);
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+});
+```
+
+`jest-axe` catches:
+- missing label on inputs
+- low contrast (with configuration)
+- missing alt text on images
+- invalid ARIA attributes
+- focus management issues
+
+---
+
 ## 6. E2E Testing
 
 Tools:

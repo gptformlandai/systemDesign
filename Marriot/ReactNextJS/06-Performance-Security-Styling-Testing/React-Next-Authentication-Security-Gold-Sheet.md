@@ -152,6 +152,134 @@ Mitigations:
 Rule:
 If cookies authenticate state-changing requests, think about CSRF.
 
+### SameSite Cookie Comparison
+
+| Value | Behavior | Use For |
+|---|---|---|
+| `Strict` | Cookie only sent for same-site navigation | Banking, admin |
+| `Lax` (default) | Cookie sent for top-level navigation (link click) but not cross-site POST | Most web apps |
+| `None` | Always sent (requires `Secure`) | Third-party embeds, iframes |
+
+Next.js `Auth.js` defaults to `SameSite=Lax; Secure; HttpOnly` — covers most CSRF scenarios.
+
+---
+
+## 7b. Security Headers in next.config.ts
+
+```ts
+// next.config.ts
+const securityHeaders = [
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload',
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'SAMEORIGIN',
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff',
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin',
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()',
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'nonce-GENERATED_NONCE'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' blob: data:",
+      "connect-src 'self' https://api.example.com",
+      "frame-ancestors 'none'",
+    ].join('; '),
+  },
+];
+
+const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders,
+      },
+    ];
+  },
+};
+```
+
+CSP in Next.js App Router requires nonces for inline scripts (Next 14+ generates them automatically via middleware).
+
+---
+
+## 7c. JWT Validation in Middleware
+
+```ts
+// middleware.ts
+import {NextRequest, NextResponse} from 'next/server';
+import {jwtVerify} from 'jose';
+
+const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
+
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('session')?.value;
+
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  try {
+    await jwtVerify(token, secret, {algorithms: ['HS256']});
+    return NextResponse.next();
+  } catch {
+    // Invalid or expired token
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('session');
+    return response;
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/api/bookings/:path*'],
+};
+```
+
+Important: middleware runs on Edge Runtime — use `jose` (Edge-compatible) instead of `jsonwebtoken` (Node-only).
+
+---
+
+## 7d. Preventing Token Leakage in Server Components
+
+Server Components can accidentally expose sensitive data to the client:
+
+```tsx
+// DANGER — sensitive data in static render can end up in HTML/JS bundle
+export default async function AccountPage() {
+  const user = await getCurrentUser(); // includes PII
+  return <div data-user={JSON.stringify(user)} />; // user PII in HTML
+}
+
+// SAFE — pass only what the client needs
+export default async function AccountPage() {
+  const user = await getCurrentUser();
+  return (
+    <AccountClient
+      displayName={user.name}
+      plan={user.plan}
+      // never pass token, SSN, full address etc.
+    />
+  );
+}
+```
+
+Also: never import server-only modules (DB clients, secrets) in Client Components — use `import 'server-only'` guard.
+
 ---
 
 ## 8. Real-World Use Cases
