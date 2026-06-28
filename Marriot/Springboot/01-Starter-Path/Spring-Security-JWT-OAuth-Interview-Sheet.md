@@ -2079,6 +2079,282 @@ Use JWT/OAuth2 resource server, protect booking endpoints with scopes, enforce o
 
 ---
 
+# 47. Common Mistakes
+
+| Mistake | Why It Is Wrong | Better Approach |
+|---|---|---|
+| Storing plain passwords | Credential leak disaster | Use `PasswordEncoder` |
+| Saying JWT is encrypted | Payload is readable | Say signed, not encrypted |
+| Putting secrets in JWT | Client can decode payload | Store only non-sensitive claims |
+| Confusing OAuth2 and JWT | One is framework, one is token format | Explain separately |
+| Using `hasRole("ROLE_ADMIN")` | Prefix duplicated | Use `hasRole("ADMIN")` |
+| Not validating issuer/audience | Token from wrong source accepted | Validate claims |
+| Long-lived access tokens | Hard revocation | Short access token + refresh |
+| Disabling CSRF blindly | Cookie auth may be exposed | Disable only when appropriate |
+| Ignoring CORS preflight | Browser calls fail | Configure CORS and OPTIONS |
+| Trusting gateway only | Internal bypass risk | Enforce service authorization |
+| No method ownership check | Broken access control | Check resource owner |
+| Logging full token | Token leak | Mask sensitive headers |
+
+---
+
+# 47b. OAuth2 Advanced — PKCE, Token Introspection, Refresh Token Rotation
+
+## PKCE — Proof Key for Code Exchange
+
+PKCE is required for public clients (SPAs, mobile apps) that cannot store a client secret securely.
+
+```text
+Without PKCE:
+  Authorization code stolen from URL or browser history → exchanged for tokens
+
+With PKCE:
+  Client generates code_verifier (random string, 43-128 chars)
+  Client sends code_challenge = BASE64URL(SHA256(code_verifier)) in authorization request
+  Authorization server stores code_challenge
+  Client sends code_verifier in token request
+  Server verifies SHA256(code_verifier) == code_challenge before issuing tokens
+```
+
+### Spring Authorization Server — PKCE Config (Server Side)
+
+```java
+@Bean
+public RegisteredClientRepository registeredClientRepository() {
+    RegisteredClient spaClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        .clientId("spa-app")
+        .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // Public client — no secret
+        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+        .redirectUri("https://app.example.com/callback")
+        .scope(OidcScopes.OPENID)
+        .scope("bookings:read")
+        .clientSettings(ClientSettings.builder()
+            .requireProofKey(true) // Enforce PKCE
+            .requireAuthorizationConsent(true)
+            .build())
+        .build();
+
+    return new InMemoryRegisteredClientRepository(spaClient);
+}
+```
+
+### Client-Side PKCE (JavaScript/TypeScript)
+
+```typescript
+// Generate PKCE verifier and challenge
+function generateCodeVerifier(): string {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode(...array))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+async function generateCodeChallenge(verifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(hash)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// Authorization request
+const verifier = generateCodeVerifier();
+const challenge = await generateCodeChallenge(verifier);
+sessionStorage.setItem('pkce_verifier', verifier); // Store for token exchange
+
+const authUrl = new URL('https://idp.example.com/oauth2/authorize');
+authUrl.searchParams.set('client_id', 'spa-app');
+authUrl.searchParams.set('response_type', 'code');
+authUrl.searchParams.set('code_challenge', challenge);
+authUrl.searchParams.set('code_challenge_method', 'S256');
+authUrl.searchParams.set('redirect_uri', 'https://app.example.com/callback');
+window.location.href = authUrl.toString();
+
+// Token exchange (at callback)
+const code = new URLSearchParams(window.location.search).get('code');
+const storedVerifier = sessionStorage.getItem('pkce_verifier');
+
+const tokenResponse = await fetch('https://idp.example.com/oauth2/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: 'spa-app',
+        code: code!,
+        code_verifier: storedVerifier!, // Server verifies this
+        redirect_uri: 'https://app.example.com/callback'
+    })
+});
+```
+
+## Token Introspection — Opaque Tokens
+
+For opaque (non-JWT) tokens, the resource server cannot validate them locally. It calls the authorization server's introspection endpoint.
+
+```java
+// Spring Security — Resource Server with opaque token introspection
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .oauth2ResourceServer(oauth2 ->
+            oauth2.opaqueToken(opaque ->
+                opaque.introspectionUri("https://idp.example.com/oauth2/introspect")
+                      .introspectionClientCredentials("resource-server-id", "resource-server-secret")));
+
+    return http.build();
+}
+```
+
+```text
+Introspection flow:
+  1. Client sends request with Bearer opaque-token-xyz
+  2. Resource server calls POST /oauth2/introspect with token
+  3. Authorization server returns: { "active": true, "sub": "user1", "scope": "bookings:read" }
+  4. Resource server uses claims to authorize
+```
+
+**JWT vs Opaque comparison**:
+
+| | JWT | Opaque Token |
+|---|---|---|
+| Validation | Local (public key) | Remote (introspection call) |
+| Latency | None | Adds introspection round trip |
+| Revocation | Hard (until expiry) | Immediate (server controls active state) |
+| Scalability | Better (no network call) | Each validation = network call |
+| Use case | Stateless microservices | When revocation is critical |
+
+## Refresh Token Rotation
+
+```text
+Problem: Refresh token stolen and used by attacker.
+Solution: Rotate refresh token on every use. Old token becomes invalid.
+  If attacker uses stolen token → server detects reuse → revoke all tokens for user.
+```
+
+```java
+// Spring Authorization Server — enable refresh token rotation
+@Bean
+public TokenSettings tokenSettings() {
+    return TokenSettings.builder()
+        .accessTokenTimeToLive(Duration.ofMinutes(15))    // Short-lived access token
+        .refreshTokenTimeToLive(Duration.ofDays(30))      // Longer refresh window
+        .reuseRefreshTokens(false)                         // Rotation: each use → new token
+        .build();
+}
+```
+
+**Refresh token rotation pattern**:
+
+```text
+1. Client exchanges refresh token → gets new access token + new refresh token
+2. Old refresh token is invalidated immediately
+3. If refresh token reuse detected (two requests with same token) → revoke all tokens for user
+4. User must log in again
+```
+
+## OpenID Connect vs OAuth2
+
+```text
+OAuth2:
+  Protocol for AUTHORIZATION (delegated access)
+  Issues: access token + optional refresh token
+  Purpose: "allow app X to access my data on service Y"
+
+OpenID Connect (OIDC):
+  Built on top of OAuth2 for AUTHENTICATION (identity)
+  Issues: access token + ID token (JWT with user identity claims)
+  Purpose: "prove who I am to app X using service Y as identity provider"
+```
+
+```text
+Key claims in ID token:
+  sub     — subject (user unique ID at the IdP)
+  iss     — issuer (IdP URL)
+  aud     — audience (client_id)
+  exp     — expiry
+  iat     — issued at
+  email   — optional profile claim
+  name    — optional profile claim
+```
+
+## Scope and Claims Mapping to Authorities
+
+```java
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+    converter.setAuthoritiesClaimName("roles"); // Use 'roles' claim instead of 'scope'
+    converter.setAuthorityPrefix("ROLE_");       // Add ROLE_ prefix for hasRole()
+
+    JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+    jwtConverter.setJwtGrantedAuthoritiesConverter(converter);
+    return jwtConverter;
+}
+```
+
+Custom extractor (multi-claim):
+
+```java
+@Bean
+public JwtAuthenticationConverter customJwtConverter() {
+    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+
+    converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        // Map scope claims to SCOPE_ authorities
+        List<String> scopes = jwt.getClaimAsStringList("scope");
+        if (scopes != null) {
+            scopes.stream()
+                .map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
+                .forEach(authorities::add);
+        }
+
+        // Map custom roles claim to ROLE_ authorities
+        List<String> roles = jwt.getClaimAsStringList("https://example.com/roles");
+        if (roles != null) {
+            roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .forEach(authorities::add);
+        }
+
+        return authorities;
+    });
+
+    return converter;
+}
+```
+
+## Strong Interview Answers
+
+### PKCE
+
+```text
+PKCE (Proof Key for Code Exchange) prevents authorization code interception attacks for public
+clients like SPAs and mobile apps that cannot store a client secret. The client generates a
+random code_verifier, sends its SHA-256 hash as code_challenge in the authorization request,
+and then sends the original verifier in the token exchange. The server verifies the hash before
+issuing tokens, so a stolen authorization code cannot be exchanged without the verifier.
+```
+
+### Token Introspection
+
+```text
+Opaque tokens are random strings that can be revoked immediately. The resource server calls
+the authorization server's introspection endpoint on each request to check if the token is
+still active. This adds latency per request, so introspection responses should be cached
+for a short TTL. JWTs avoid this round trip but cannot be revoked before expiry.
+```
+
+### Refresh Token Rotation
+
+```text
+Refresh token rotation means each token exchange issues a new refresh token and invalidates the
+previous one. If a stolen refresh token is used twice, the server detects reuse and revokes all
+tokens for the user. This protects against token theft while keeping refresh tokens long-lived.
+```
+
+---
+
 # 48. Final Rapid Revision
 
 ## If Interviewer Says X, Think Y

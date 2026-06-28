@@ -60,6 +60,7 @@ These are the pro sheets.
 | 13 | `03-Senior-FAANG/Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md` | Production coding judgment, API design, validation, logging, timeouts, retries, testing |
 | 14 | `03-Senior-FAANG/Java-Platform-Tooling-Testing-Security-FAANG-Master-Sheet.md` | JPMS, classpath, Maven/Gradle, JUnit, JMH, GraalVM, Java security |
 | 15 | `03-Senior-FAANG/Java-Testing-Patterns-Best-Practices-Gold-Sheet.md` | Test pyramid, JUnit 5, Mockito, Testcontainers, flaky tests, JMH boundaries |
+| 16 | `03-Senior-FAANG/Java-Security-OWASP-Supply-Chain-FAANG-Master-Sheet.md` | OWASP Top 10 Java mappings, XXE, unsafe deserialization (CWE-502), SpEL injection, JWT vulnerabilities, Spring Security method security, secrets management, SBOM/supply chain |
 
 Senior target:
 - You can discuss Java not just as syntax, but as a runtime.

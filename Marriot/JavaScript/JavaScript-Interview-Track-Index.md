@@ -41,7 +41,8 @@ After the starter path, read these.
 | 6 | `02-Intermediate-Frontend-FullStack/JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` | Event loop, microtasks, macrotasks, Promises, async/await, timers, output order |
 | 7 | `02-Intermediate-Frontend-FullStack/TypeScript-For-JavaScript-Engineers-Master-Sheet.md` | Types, interfaces, generics, narrowing, utility types, production safety |
 | 8 | `02-Intermediate-Frontend-FullStack/JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` | DOM, events, bubbling/capturing, storage, fetch, CORS, rendering basics |
-| 9 | `02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
+| 9 | `02-Intermediate-Frontend-FullStack/JavaScript-React-Integration-Hooks-Concurrent-Rendering-Master-Sheet.md` | React hooks (useState/useEffect/useCallback/useMemo/useRef), concurrent rendering, useTransition, Suspense, streaming SSR, hydration, RSC |
+| 10 | `02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
 
 Intermediate target:
 - You can explain how browser JavaScript responds to user events, network calls, timers, and rendering work.

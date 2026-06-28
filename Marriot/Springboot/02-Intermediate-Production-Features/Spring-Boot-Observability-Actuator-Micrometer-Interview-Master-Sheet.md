@@ -846,7 +846,303 @@ Alerts should map to user impact and have a clear response.
 
 ---
 
-# 28. Final Rapid Revision Sheet
+# 28. OpenTelemetry — Trace Propagation and Production Integration
+
+## What OpenTelemetry Adds
+
+Spring Boot 3 ships with Micrometer Tracing + OTLP export built in. OpenTelemetry provides:
+
+- Distributed traces (spans linked across services)
+- W3C Trace Context propagation standard
+- OTLP export to Jaeger, Zipkin, Grafana Tempo, Honeycomb, Datadog
+- Baggage propagation (key-value pairs that ride with the trace)
+
+## Dependencies
+
+```xml
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+</dependency>
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+</dependency>
+```
+
+## Configuration
+
+```properties
+management.tracing.sampling.probability=1.0 # 100% sampling (use 0.1 in production)
+management.otlp.tracing.endpoint=http://otel-collector:4318/v1/traces
+
+# Correlation IDs in logs (adds traceId and spanId to MDC automatically)
+logging.pattern.level=%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]
+```
+
+## W3C Trace Context Propagation
+
+Incoming HTTP request carries:
+
+```text
+traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+              version  traceId (16 bytes hex)          spanId           flags
+```
+
+Spring Boot 3 + Micrometer automatically:
+1. Extracts `traceparent` from inbound HTTP headers
+2. Creates a child span
+3. Injects `traceparent` into outbound RestClient/WebClient calls
+
+### Manual Span Instrumentation
+
+```java
+import io.micrometer.tracing.Tracer;
+
+@Service
+public class BookingService {
+
+    @Autowired
+    private Tracer tracer;
+
+    public Booking createBooking(CreateBookingRequest request) {
+        // Create a child span for a specific operation
+        Tracer.SpanInContext spanInContext = tracer.startScopedSpan("booking.create");
+        Span span = spanInContext.span();
+
+        try {
+            span.tag("booking.guestId", request.getGuestId());
+            span.tag("booking.roomId", request.getRoomId());
+
+            Booking booking = performCreate(request);
+            span.tag("booking.id", booking.getId());
+
+            return booking;
+        } catch (Exception ex) {
+            span.error(ex);
+            throw ex;
+        } finally {
+            span.end();
+        }
+    }
+}
+```
+
+### @Observed — Declarative Observation
+
+```java
+@Service
+@Observed(name = "booking.service")
+public class BookingService {
+
+    @Observed(name = "booking.find", contextualName = "finding-booking")
+    public Booking findById(String id) {
+        return bookingRepository.findById(id)
+            .orElseThrow(() -> new BookingNotFoundException(id));
+    }
+}
+```
+
+Spring Boot automatically creates spans and metrics for each `@Observed` method.
+
+## Baggage Propagation
+
+Baggage carries key-value pairs through the entire distributed trace — available in all downstream services.
+
+```java
+import io.micrometer.tracing.BaggageManager;
+import io.micrometer.tracing.CurrentTraceContext;
+
+@Component
+public class TenantTraceInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private Tracer tracer;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request,
+                             HttpServletResponse response, Object handler) {
+        String tenantId = request.getHeader("X-Tenant-Id");
+
+        if (tenantId != null) {
+            // Baggage propagates to downstream services via W3C baggage header
+            tracer.getBaggage("tenantId").set(tenantId);
+            MDC.put("tenantId", tenantId);
+        }
+
+        return true;
+    }
+}
+```
+
+## Structured Logging with Correlation IDs
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "level": "INFO",
+  "service": "booking-service",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "spanId": "00f067aa0ba902b7",
+  "correlationId": "abc-123",
+  "tenantId": "marriott-us",
+  "message": "Booking confirmed",
+  "bookingId": "B001",
+  "guestId": "G123"
+}
+```
+
+```xml
+<!-- Logback structured logging -->
+<dependency>
+    <groupId>net.logstash.logback</groupId>
+    <artifactId>logstash-logback-encoder</artifactId>
+    <version>7.4</version>
+</dependency>
+```
+
+```xml
+<!-- logback-spring.xml -->
+<appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <includeMdcKeyName>traceId</includeMdcKeyName>
+        <includeMdcKeyName>spanId</includeMdcKeyName>
+        <includeMdcKeyName>correlationId</includeMdcKeyName>
+        <includeMdcKeyName>tenantId</includeMdcKeyName>
+        <customFields>{"service":"booking-service"}</customFields>
+    </encoder>
+</appender>
+```
+
+## Strong Interview Answer: Distributed Tracing
+
+```text
+Spring Boot 3 integrates with OpenTelemetry via Micrometer Tracing. Incoming requests carry a
+traceparent header per the W3C Trace Context spec. The framework extracts the trace ID and span ID,
+creates a child span, and automatically injects them into outgoing RestClient and Kafka calls.
+
+I configure OTLP export to a collector (Jaeger or Grafana Tempo), add traceId/spanId to the
+structured log MDC, and use Baggage to carry tenant ID or correlation ID across all service
+boundaries. This means a single trace ID lets me follow a hotel booking request from the API
+gateway through booking, room, and payment services in one Jaeger query.
+```
+
+---
+
+# 29. SLO and SLI — Production Service Reliability Design
+
+## SLI — Service Level Indicator
+
+A measurable signal of service behavior from the user's perspective.
+
+```text
+Good SLIs:
+  - Request success rate: % of requests that return 2xx
+  - Latency: % of requests under 500ms at p99
+  - Availability: % of time the service returns valid responses
+
+Bad SLIs:
+  - CPU usage (infrastructure, not user experience)
+  - Memory usage (infrastructure, not user experience)
+  - Log volume (activity, not quality)
+```
+
+## SLO — Service Level Objective
+
+A target value for an SLI over a rolling time window.
+
+```text
+Examples:
+  - 99.9% of booking creation requests succeed in a 28-day window
+  - 95% of search queries return within 300ms in a 28-day window
+  - 99.5% availability per month
+
+Error budget:
+  SLO 99.9% → Error budget = 0.1% of requests per window
+  If budget exhausted → freeze non-reliability work, fix reliability
+```
+
+## Prometheus SLO Alerting Rules
+
+```yaml
+# recording rules — precompute SLI over 5m window
+- record: job:booking_request_success_rate:rate5m
+  expr: |
+    sum(rate(http_server_requests_seconds_count{job="booking-service",outcome="SUCCESS"}[5m]))
+    /
+    sum(rate(http_server_requests_seconds_count{job="booking-service"}[5m]))
+
+# alert when error budget consumption rate is too high
+- alert: BookingServiceErrorBudgetBurning
+  expr: |
+    (1 - job:booking_request_success_rate:rate5m) > 0.001
+  for: 10m
+  labels:
+    severity: page
+  annotations:
+    summary: "Booking service SLO error budget burning fast"
+    description: "Error rate {{ $value | humanizePercentage }} exceeds SLO budget"
+```
+
+## Latency SLO
+
+```yaml
+# p99 latency alert
+- alert: BookingLatencyHigh
+  expr: |
+    histogram_quantile(0.99,
+      sum(rate(http_server_requests_seconds_bucket{
+        job="booking-service",
+        uri="/api/bookings"
+      }[5m])) by (le)
+    ) > 0.5
+  for: 5m
+  labels:
+    severity: warning
+  annotations:
+    summary: "Booking API p99 latency > 500ms"
+```
+
+## Availability Monitoring with Spring Boot Actuator
+
+```java
+// Custom health indicator contributes to availability SLI
+@Component
+public class BookingAvailabilityIndicator extends AbstractHealthIndicator {
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Override
+    protected void doHealthCheck(Health.Builder builder) {
+        try {
+            bookingRepository.count(); // Lightweight DB check
+            builder.up()
+                .withDetail("db", "reachable");
+        } catch (Exception ex) {
+            builder.down()
+                .withException(ex)
+                .withDetail("db", "unreachable");
+        }
+    }
+}
+```
+
+## Strong Interview Answer: SLO/SLI
+
+```text
+SLIs are what we measure — request success rate, p99 latency, availability. SLOs are the targets
+we commit to — for example, 99.9% of booking requests succeed within a 28-day window.
+
+I define SLIs on what users experience, not infrastructure metrics. I track the error budget
+(1 - SLO): if the budget burns fast, alerts fire and reliability work takes priority. I
+configure Prometheus recording rules to precompute SLI rates and alerting rules on multi-window
+burn rates. For latency, I use histogram_quantile on Micrometer's histogram metrics.
+```
+
+---
+
+# 30. Final Rapid Revision Sheet
 
 | Need | Concept |
 |---|---|

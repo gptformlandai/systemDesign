@@ -2855,7 +2855,277 @@ service does not amplify downstream failure.
 
 ---
 
-## 71. Official Source Notes
+## 72. AsyncLocalStorage — Trace Context Propagation
+
+`AsyncLocalStorage` provides request-scoped storage that flows automatically through async operations without passing values explicitly through function arguments.
+
+### Why It Matters
+
+```text
+Problem: A request arrives at the Node.js server. You need:
+  - requestId (for tracing)
+  - userId (for authorization logging)
+  - correlationId (for distributed tracing)
+
+Passing these through every function call is impractical.
+ThreadLocal equivalent does not exist in single-threaded JavaScript.
+Solution: AsyncLocalStorage — persists context across await, callbacks, and async boundaries.
+```
+
+### Basic Usage
+
+```javascript
+import { AsyncLocalStorage } from 'node:async_hooks';
+
+// Create a single shared storage instance (module-level singleton)
+export const requestContext = new AsyncLocalStorage();
+
+// Middleware: establish context for the duration of the request
+app.use((req, res, next) => {
+    const context = {
+        requestId: req.headers['x-request-id'] || crypto.randomUUID(),
+        userId: req.auth?.userId,
+        correlationId: req.headers['x-correlation-id'] || crypto.randomUUID()
+    };
+
+    // All async operations spawned from this callback inherit this store
+    requestContext.run(context, () => {
+        next();
+    });
+});
+
+// Any function anywhere in the call graph can access the context
+export function getCurrentRequestId() {
+    return requestContext.getStore()?.requestId;
+}
+
+export function log(message, extra = {}) {
+    const context = requestContext.getStore() ?? {};
+    console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'INFO',
+        requestId: context.requestId,
+        correlationId: context.correlationId,
+        userId: context.userId,
+        message,
+        ...extra
+    }));
+}
+```
+
+### Propagation Through Async Code
+
+```javascript
+// requestContext flows automatically through all async boundaries
+async function handleCreateBooking(req, res) {
+    log('Creating booking'); // requestId available, not passed explicitly
+
+    const booking = await bookingService.create(req.body);
+    // bookingService.create → calls paymentService → calls database
+    // requestId available in ALL of these without passing it
+
+    log('Booking created', { bookingId: booking.id });
+    res.json(booking);
+}
+
+async function bookingService_create(data) {
+    log('Booking service: creating'); // requestId still available
+
+    const payment = await paymentService.charge(data.amount);
+    // Still available in paymentService
+
+    return saveBooking({ ...data, paymentId: payment.id });
+}
+```
+
+### Propagation Through Worker Threads
+
+```javascript
+import { Worker, workerData } from 'node:worker_threads';
+
+// Context does NOT propagate automatically to Worker threads
+// Must pass explicitly via workerData
+const context = requestContext.getStore();
+
+const worker = new Worker('./heavy-worker.js', {
+    workerData: {
+        context: { requestId: context?.requestId },
+        taskData: heavyData
+    }
+});
+```
+
+### Propagation to Outgoing HTTP Requests
+
+```javascript
+// HTTP client interceptor that adds correlation headers from context
+import axios from 'axios';
+
+const httpClient = axios.create();
+
+httpClient.interceptors.request.use(config => {
+    const context = requestContext.getStore();
+
+    if (context?.correlationId) {
+        config.headers['X-Correlation-Id'] = context.correlationId;
+    }
+    if (context?.requestId) {
+        config.headers['X-Request-Id'] = context.requestId;
+    }
+
+    return config;
+});
+```
+
+### Production Pattern: OpenTelemetry Integration
+
+Most APM libraries (OpenTelemetry, Datadog, New Relic) use `AsyncLocalStorage` internally to propagate trace context:
+
+```javascript
+import { context, trace } from '@opentelemetry/api';
+
+// The active span is automatically propagated via AsyncLocalStorage
+app.use((req, res, next) => {
+    const tracer = trace.getTracer('booking-service');
+    const span = tracer.startSpan('http.request', {
+        attributes: {
+            'http.method': req.method,
+            'http.route': req.path
+        }
+    });
+
+    // Runs subsequent middleware inside the span's context
+    context.with(trace.setSpan(context.active(), span), () => {
+        res.on('finish', () => span.end());
+        next();
+    });
+});
+```
+
+### Interview Line
+
+```text
+AsyncLocalStorage is the Node.js equivalent of thread-local storage. I use it to store
+request-scoped context — request ID, correlation ID, user ID, tenant ID — once at the
+middleware level. All async operations in that request's lifetime automatically inherit
+the context without requiring explicit parameter passing. This is the foundation for
+structured logging, distributed tracing, and multi-tenant context in production Node.js services.
+```
+
+---
+
+## 73. diagnostics_channel — Modern Observability API
+
+`diagnostics_channel` is a publish-subscribe API for emitting structured diagnostic events from Node.js internals and application code.
+
+### Core Concepts
+
+```javascript
+import diagnostics_channel from 'node:diagnostics_channel';
+
+// Subscribe to a named channel
+const channel = diagnostics_channel.channel('booking:created');
+
+channel.subscribe(data => {
+    console.log('Booking created diagnostic:', data);
+    metrics.increment('bookings.created', { status: data.status });
+});
+
+// Publish to the channel
+function createBooking(data) {
+    const booking = saveToDatabase(data);
+
+    // Publish to any subscribers — only called if there are subscribers (no-op otherwise)
+    channel.publish({ bookingId: booking.id, status: booking.status });
+
+    return booking;
+}
+```
+
+### Built-in Node.js Channels
+
+Node.js core uses `diagnostics_channel` internally. Subscribing gives you structured events:
+
+```javascript
+import diagnostics_channel from 'node:diagnostics_channel';
+
+// HTTP client events
+const httpClientChannel = diagnostics_channel.channel('http.client.request.start');
+httpClientChannel.subscribe(data => {
+    // data contains: request details, hostname, path, method
+    performanceTracker.startRequest(data.request[Symbol.for('id')]);
+});
+
+// undici (Node.js built-in HTTP client) channels
+diagnostics_channel.channel('undici:request:create').subscribe(data => {
+    log('Outgoing request', {
+        url: data.request.origin + data.request.path,
+        method: data.request.method
+    });
+});
+```
+
+### Custom Application Channels
+
+```javascript
+// Define channels in a shared module
+export const channels = {
+    bookingCreated: diagnostics_channel.channel('myapp:booking:created'),
+    bookingFailed: diagnostics_channel.channel('myapp:booking:failed'),
+    paymentCharged: diagnostics_channel.channel('myapp:payment:charged')
+};
+
+// In service code
+function processBooking(data) {
+    try {
+        const booking = createBooking(data);
+        channels.bookingCreated.publish({ bookingId: booking.id, amount: data.amount });
+        return booking;
+    } catch (error) {
+        channels.bookingFailed.publish({ error: error.message, data });
+        throw error;
+    }
+}
+
+// In observability layer (separate concern)
+channels.bookingCreated.subscribe(data => {
+    metrics.increment('booking.created.count');
+    metrics.histogram('booking.amount', data.amount);
+    log('Booking created', data);
+});
+
+channels.bookingFailed.subscribe(data => {
+    metrics.increment('booking.failed.count');
+    errorTracker.capture(data);
+});
+```
+
+### `hasSubscribers` — Zero Overhead When Unused
+
+```javascript
+// Only construct expensive diagnostic data if someone is listening
+if (diagnostics_channel.channel('myapp:query:slow').hasSubscribers) {
+    channel.publish({
+        query: sql,
+        duration: Date.now() - startTime,
+        params: sanitize(params) // Expensive operation only when needed
+    });
+}
+```
+
+### Interview Line
+
+```text
+diagnostics_channel provides a built-in pub-sub mechanism for structured diagnostic events.
+It has zero overhead when no subscribers are attached (hasSubscribers check). I use it to
+decouple instrumentation from business logic: services publish events to named channels,
+and observability code subscribes. This is how OpenTelemetry auto-instrumentation hooks into
+undici, HTTP, and database operations in Node.js without patching libraries.
+```
+
+---
+
+## 74. Official Source Notes
 
 Use these sources when refreshing Node.js backend knowledge:
 

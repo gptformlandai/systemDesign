@@ -2675,7 +2675,377 @@ This answer shows:
 
 ---
 
-## 62. Rapid Revision
+## 62. `infer` Keyword — Type Inference in Conditional Types
+
+`infer` is used inside conditional types to capture and name a type that TypeScript infers.
+
+### Basic Pattern
+
+```typescript
+// Without infer: conditional type checks shape
+type IsArray<T> = T extends Array<unknown> ? true : false;
+
+// With infer: capture the element type from inside the array
+type ElementType<T> = T extends Array<infer U> ? U : T;
+
+type A = ElementType<string[]>;   // string
+type B = ElementType<number[]>;   // number
+type C = ElementType<boolean>;    // boolean (not an array, returns T itself)
+```
+
+### Interview Example 1: Unwrap Promise
+
+```typescript
+// Built-in Awaited<T> does this, but understanding how helps
+type Unwrap<T> = T extends Promise<infer U> ? U : T;
+
+type A = Unwrap<Promise<string>>;    // string
+type B = Unwrap<Promise<User>>;      // User
+type C = Unwrap<string>;             // string (not a promise)
+```
+
+### Interview Example 2: Extract Return Type of Function
+
+```typescript
+// Built-in ReturnType<T> does this
+type MyReturnType<T extends (...args: any[]) => any> =
+    T extends (...args: any[]) => infer R ? R : never;
+
+function loadUser(): { id: string; name: string } {
+    return { id: "U1", name: "Ava" };
+}
+
+type UserResult = MyReturnType<typeof loadUser>;
+// { id: string; name: string }
+```
+
+### Interview Example 3: Extract Parameters
+
+```typescript
+// Built-in Parameters<T> does this
+type MyParameters<T extends (...args: any[]) => any> =
+    T extends (...args: infer P) => any ? P : never;
+
+function search(query: string, limit: number, offset: number): void {}
+
+type SearchArgs = MyParameters<typeof search>;
+// [query: string, limit: number, offset: number]
+```
+
+### Interview Example 4: First Element of Tuple
+
+```typescript
+type Head<T extends any[]> = T extends [infer First, ...any[]] ? First : never;
+
+type A = Head<[string, number, boolean]>; // string
+type B = Head<[number]>;                  // number
+type C = Head<[]>;                        // never
+```
+
+### Interview Example 5: Flatten Nested Array
+
+```typescript
+type Flatten<T> = T extends Array<infer U>
+    ? U extends Array<any>
+        ? Flatten<U>
+        : U
+    : T;
+
+type A = Flatten<string[][]>;        // string
+type B = Flatten<number[][][]>;      // number
+type C = Flatten<string>;            // string (not an array)
+```
+
+### Interview Example 6: Deep Property Extraction
+
+```typescript
+// Extract the value type from a Record-like type
+type ValueOf<T> = T extends Record<string, infer V> ? V : never;
+
+type Config = { host: string; port: number; debug: boolean };
+type ConfigValues = ValueOf<Config>; // string | number | boolean
+```
+
+### When to Use `infer`
+
+```text
+Use infer when you need to:
+- Extract a type from inside another generic type
+- Build reusable type-level utilities (library code)
+- Mirror runtime extraction at the type level
+
+Avoid infer in everyday business domain types — it adds complexity.
+Reserve for library/utility types and interview scenarios.
+```
+
+**Interview line**:
+
+```text
+infer lets me capture a type at the point TypeScript would infer it inside a conditional type.
+I use it to build utility types that extract the return type, parameter types, element type,
+or any nested type from generic shapes — similar to how runtime code destructures values,
+but at the type level.
+```
+
+---
+
+## 63. TypeScript Decorators (ES2024 / Experimental)
+
+Decorators are functions applied to classes, methods, accessors, properties, or parameters to add behavior or metadata.
+
+### Enable Decorators
+
+```json
+// tsconfig.json — requires TypeScript 5.0+ for ES2024 decorators
+{
+    "compilerOptions": {
+        "experimentalDecorators": true, // Legacy decorator spec (TypeScript < 5 or most frameworks)
+        "emitDecoratorMetadata": true,  // Needed for reflect-metadata based DI
+        "target": "ES2022"
+    }
+}
+```
+
+**Note**: TypeScript 5.0+ implements the TC39 standard decorator spec. Legacy `experimentalDecorators` and the new spec are NOT compatible. NestJS, Angular, TypeORM currently use `experimentalDecorators`.
+
+### Class Decorator
+
+```typescript
+// Log class construction
+function Logged(target: new (...args: any[]) => any) {
+    return class extends target {
+        constructor(...args: any[]) {
+            console.log(`Creating instance of ${target.name}`);
+            super(...args);
+        }
+    };
+}
+
+@Logged
+class BookingService {
+    createBooking(data: unknown) { /* ... */ }
+}
+
+const service = new BookingService(); // Logs: "Creating instance of BookingService"
+```
+
+### Method Decorator
+
+```typescript
+// Performance measurement decorator
+function MeasureTime(
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+): PropertyDescriptor {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function (...args: any[]) {
+        const start = performance.now();
+        try {
+            return await originalMethod.apply(this, args);
+        } finally {
+            const duration = performance.now() - start;
+            console.log(`${propertyKey} took ${duration.toFixed(2)}ms`);
+        }
+    };
+
+    return descriptor;
+}
+
+class ReportService {
+    @MeasureTime
+    async generateMonthlyReport(month: string): Promise<Report> {
+        // Heavy computation
+        return computeReport(month);
+    }
+}
+```
+
+### Property Decorator
+
+```typescript
+// Validate that a property value is not empty
+function NotEmpty(target: any, propertyKey: string) {
+    let value: string;
+
+    const getter = () => value;
+    const setter = (newValue: string) => {
+        if (!newValue?.trim()) {
+            throw new Error(`${propertyKey} cannot be empty`);
+        }
+        value = newValue;
+    };
+
+    Object.defineProperty(target, propertyKey, {
+        get: getter,
+        set: setter,
+        enumerable: true,
+        configurable: true
+    });
+}
+
+class Hotel {
+    @NotEmpty
+    name: string = '';
+}
+```
+
+### Parameter Decorator (common in DI frameworks)
+
+```typescript
+import 'reflect-metadata';
+
+const INJECT_KEY = Symbol('inject');
+
+function Inject(token: string) {
+    return function(target: any, propertyKey: string | undefined, parameterIndex: number) {
+        const injections = Reflect.getMetadata(INJECT_KEY, target) ?? [];
+        injections[parameterIndex] = token;
+        Reflect.defineMetadata(INJECT_KEY, injections, target);
+    };
+}
+
+class Controller {
+    constructor(
+        @Inject('BookingService') private bookingService: any,
+        @Inject('AuthService') private authService: any
+    ) {}
+}
+```
+
+### NestJS Decorator Pattern (Common Interview Context)
+
+```typescript
+// NestJS uses decorators extensively
+@Controller('/bookings')
+@UseGuards(AuthGuard('jwt'))
+export class BookingController {
+
+    constructor(private readonly bookingService: BookingService) {}
+
+    @Get('/:id')
+    @Roles('USER', 'ADMIN')
+    @HttpCode(HttpStatus.OK)
+    async getBooking(
+        @Param('id') id: string,
+        @CurrentUser() user: User
+    ): Promise<BookingDto> {
+        return this.bookingService.findById(id, user);
+    }
+}
+```
+
+### Decorator Composition Order
+
+```typescript
+@A
+@B
+@C
+class Example {}
+
+// Applied bottom-up during evaluation:
+// C is applied first, then B, then A
+// Result: A(B(C(Example)))
+```
+
+**Interview line**:
+
+```text
+Decorators are a metaprogramming feature that attach behavior to classes, methods, properties,
+and parameters without modifying the original code. They are central to frameworks like Angular,
+NestJS, and TypeORM for dependency injection, routing, and schema mapping. The two specifications
+(legacy experimentalDecorators and ES2024 standard) are not compatible, so I check which spec
+the framework targets before writing decorators.
+```
+
+---
+
+## 64. ES2024 `using` Statement — Explicit Resource Management
+
+The `using` statement automatically disposes resources when they go out of scope, using the `Symbol.dispose` protocol.
+
+```typescript
+// Implement Symbol.dispose on a resource
+class DatabaseConnection {
+    private connection: Connection;
+
+    constructor(dsn: string) {
+        this.connection = connect(dsn);
+    }
+
+    query(sql: string): QueryResult {
+        return this.connection.query(sql);
+    }
+
+    [Symbol.dispose]() {
+        this.connection.close();
+        console.log('Connection closed');
+    }
+}
+
+// `using` automatically calls Symbol.dispose when block exits
+function processData() {
+    using conn = new DatabaseConnection(process.env.DB_URL!);
+    // conn.connection is open here
+
+    const result = conn.query('SELECT * FROM bookings LIMIT 100');
+    processResults(result);
+    // conn[Symbol.dispose]() called automatically here — even if an error is thrown
+}
+
+// No more try/finally for resource cleanup
+```
+
+### Async Resources with `Symbol.asyncDispose`
+
+```typescript
+class RedisClient {
+    [Symbol.asyncDispose]() {
+        return this.client.quit(); // Returns a Promise
+    }
+}
+
+async function processCache() {
+    await using redis = new RedisClient();
+    await redis.set('key', 'value');
+    // redis[Symbol.asyncDispose]() awaited automatically on exit
+}
+```
+
+### Comparison with try/finally
+
+```typescript
+// Before using statement:
+function withoutUsing() {
+    const conn = new DatabaseConnection(dsn);
+    try {
+        return conn.query('SELECT 1');
+    } finally {
+        conn.close();
+    }
+}
+
+// With using statement (TypeScript 5.2+):
+function withUsing() {
+    using conn = new DatabaseConnection(dsn);
+    return conn.query('SELECT 1');
+    // conn disposed automatically
+}
+```
+
+**Interview line**:
+
+```text
+The using statement (ES2024) is TypeScript/JavaScript's answer to Java's try-with-resources or
+C#'s using statement. Any object implementing Symbol.dispose or Symbol.asyncDispose is
+automatically cleaned up when the block exits, even if an exception is thrown. This eliminates
+try/finally boilerplate for file handles, database connections, locks, and HTTP clients.
+```
+
+---
+
+## 65. Rapid Revision
 
 - TypeScript is JavaScript plus compile-time types.
 - Types are erased at runtime.
@@ -2709,12 +3079,15 @@ This answer shows:
 - Indexed access reuses property types.
 - Mapped types transform object types.
 - Conditional types power advanced utilities.
+- `infer` captures a type inside a conditional type — foundation of ReturnType, Parameters, Awaited.
 - Utility types reduce duplication.
 - `Pick` and `Omit` derive API shapes.
 - `Record` is best with known key unions when possible.
 - `Awaited<ReturnType<typeof fn>>` extracts async result types.
 - Literal unions are often better for API status strings than enums.
 - TypeScript private is compile-time; `#private` is runtime private.
+- Decorators are `experimentalDecorators` (NestJS/Angular) or ES2024 standard (TS 5+) — not compatible.
+- `using` calls `Symbol.dispose` on exit — replaces try/finally for resource cleanup.
 - Runtime validation is required for API, env, storage, and message boundaries.
 - Strict tsconfig settings catch more real bugs.
 - Use discriminated unions for React async state.

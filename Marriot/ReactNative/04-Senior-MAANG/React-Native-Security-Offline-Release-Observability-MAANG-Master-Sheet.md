@@ -248,6 +248,108 @@ type MobileTelemetryEvent = {
 Rule:
 Telemetry should help debug without collecting unnecessary sensitive data.
 
+### Sentry React Native Setup
+
+```ts
+// App.tsx or index.ts
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://YOUR_DSN@o0.ingest.sentry.io/0',
+  tracesSampleRate: 0.1,
+  environment: __DEV__ ? 'development' : 'production',
+  // Automatically capture JS errors, network failures, ANRs
+  enableNativeCrashHandling: true,
+  enableAutoSessionTracking: true,
+});
+
+// Wrap root component for automatic error boundary
+export default Sentry.wrap(App);
+```
+
+Sentry captures:
+- JS exceptions (unhandled Promise rejections, thrown errors)
+- Native crashes (via native SDKs)
+- Slow frames / frozen frames
+- App-not-responding (ANR) on Android
+- Breadcrumbs (navigation, network, console)
+
+**Source map upload in CI** (required for readable stack traces):
+
+```bash
+# Fastlane or CI script after build
+npx sentry-cli releases files "$VERSION" upload-sourcemaps \
+  --dist "$BUILD_NUMBER" \
+  ./.next/build # or your JS output folder
+```
+
+Without source maps, all crash traces point to minified `bundle.js:1:xxx` — unreadable.
+
+---
+
+## 9b. Certificate Pinning
+
+Certificate pinning rejects TLS certificates that don't match a known fingerprint — protects against MITM attacks.
+
+Concept:
+
+```text
+Normal TLS:  client trusts any cert signed by a trusted CA
+Pinning:     client only trusts cert matching hardcoded hash/fingerprint
+```
+
+React Native approach: use `react-native-ssl-pinning` or configure OkHttp (Android) and NSURLSession (iOS) in native code.
+
+```ts
+// react-native-ssl-pinning usage
+import {fetch} from 'react-native-ssl-pinning';
+
+const response = await fetch('https://api.example.com/data', {
+  method: 'GET',
+  sslPinning: {
+    certs: ['api_cert_sha256_hash'], // SHA-256 fingerprint
+  },
+});
+```
+
+Production considerations:
+- Certificate rotation is the main risk — when the cert changes, old app versions break
+- Use two pins: current cert + next cert during rotation
+- Certificate pinning increases security against MITM but adds operational risk
+- Often reserved for high-security apps (banking, healthcare)
+
+---
+
+## 9c. Biometric Authentication
+
+```ts
+import * as LocalAuthentication from 'expo-local-authentication';
+
+async function authenticateWithBiometric(): Promise<boolean> {
+  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+  if (!hasHardware || !isEnrolled) {
+    return fallbackToPinOrPassword();
+  }
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: 'Confirm your identity',
+    cancelLabel: 'Use PIN instead',
+    fallbackLabel: 'Use PIN',
+    disableDeviceFallback: false,
+  });
+
+  return result.success;
+}
+```
+
+Production considerations:
+- Biometric does not replace server auth — it gates local token access
+- Pattern: store token in Keychain/Keystore encrypted with biometric key
+- Always provide a fallback (PIN, password)
+- Handle `ERROR_LOCKOUT` when too many failed attempts
+
 ---
 
 ## 10. Common Mistakes
@@ -260,6 +362,8 @@ Telemetry should help debug without collecting unnecessary sensitive data.
 | Retrying all mutations | Duplicate side effects | Retry only idempotent/safe actions |
 | No old-version API support | Older apps break | Version APIs or maintain compatibility |
 | Logging PII | Compliance/security issue | Redact and minimize |
+| Certificate pinning without rotation plan | Cert expires → app breaks | Pin two certs, rotate gradually |
+| Biometric replacing server auth | Biometric is local only | Biometric gates token access only |
 
 ---
 
@@ -272,19 +376,22 @@ Strong answer:
 
 ```text
 I treat mobile as an unreliable distributed client. Security starts with backend
-authorization, secure token storage, HTTPS, and PII-safe logs. Reliability requires
-timeouts, cancellation, safe retries, idempotency, and offline cache/queue design
-where appropriate. Release readiness means app-store builds, source maps, staged
-rollout, feature flags, OTA compatibility rules, and monitoring crash-free users,
-startup time, API failures, and screen performance by app version and device class.
+authorization, secure token storage (Keychain/Keystore), HTTPS, and PII-safe logs.
+I integrate Sentry with source map upload in CI so every crash trace is readable.
+Reliability requires timeouts, cancellation, safe retries with backoff, idempotency,
+and offline cache/queue design where appropriate. For high-security features I
+consider certificate pinning — with a rotation plan — and biometric auth to gate
+token access. Release readiness means feature flags, OTA compatibility rules, staged
+rollout, and monitoring crash-free user rate, startup time, API failure rate, and
+screen performance by app version and device class.
 ```
 
 ---
 
 ## 12. Revision Notes
 
-- One-line summary: Production RN needs security, offline resilience, release discipline, and telemetry.
-- Three keywords: tokens, OTA, crash reports.
-- One interview trap: Mobile app config is not secret.
-- One memory trick: Mobile release is slower than web release, so feature flags and compatibility matter.
+- One-line summary: Production RN needs security, offline resilience, release discipline, Sentry, and telemetry.
+- Three keywords: tokens, OTA, Sentry.
+- One interview trap: Mobile app config is not secret — API keys bundled in the binary are public.
+- One memory trick: Mobile release is slower than web release, so feature flags, compatibility, and crash monitoring matter.
 

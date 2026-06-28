@@ -133,6 +133,177 @@ Do not:
 - use effects for derived state
 - optimize before measuring
 
+### Why Components Re-render
+
+A component re-renders when:
+1. Its own state changes
+2. A parent re-renders (unless wrapped with `React.memo`)
+3. A context it subscribes to changes
+4. A key prop changes
+
+```tsx
+// React.memo — skip re-render if props are shallowly equal
+const ProductCard = React.memo(function ProductCard({product}: Props) {
+  return <div>{product.name}</div>;
+});
+
+// useMemo — memoize expensive computation
+const sortedItems = useMemo(
+  () => items.sort((a, b) => a.price - b.price),
+  [items]
+);
+
+// useCallback — stable function reference for memoized children
+const handleSelect = useCallback((id: string) => {
+  setSelectedId(id);
+}, []); // stable — no dependencies change
+```
+
+Trap: `React.memo` does a shallow comparison. Object/array props created inline defeat it:
+
+```tsx
+// WRONG — new object every parent render defeats memo
+<ProductCard style={{margin: 0}} />
+
+// RIGHT — stable reference
+const style = useMemo(() => ({margin: 0}), []);
+<ProductCard style={style} />
+```
+
+### List Virtualization
+
+Only render rows visible in the viewport:
+
+```tsx
+import {useVirtualizer} from '@tanstack/react-virtual';
+
+function VirtualList({items}: {items: Item[]}) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 60,
+  });
+
+  return (
+    <div ref={parentRef} style={{height: '600px', overflow: 'auto'}}>
+      <div style={{height: `${virtualizer.getTotalSize()}px`, position: 'relative'}}>
+        {virtualizer.getVirtualItems().map(virtualItem => (
+          <div
+            key={virtualItem.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              transform: `translateY(${virtualItem.start}px)`,
+              height: `${virtualItem.size}px`,
+            }}
+          >
+            <ItemRow item={items[virtualItem.index]} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+Use `@tanstack/react-virtual` or `react-window` for 1000+ row tables and infinite feeds.
+
+---
+
+## 7b. Font Optimization with next/font
+
+`next/font` downloads fonts at build time, hosts them self-served, and injects optimal `<link>` preloads:
+
+```ts
+// app/layout.tsx
+import {Inter, Roboto_Mono} from 'next/font/google';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const robotoMono = Roboto_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-roboto-mono',
+});
+
+export default function RootLayout({children}: {children: React.ReactNode}) {
+  return (
+    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Benefits:
+- Zero layout shift (CLS=0 with `display: swap`)
+- Privacy (no requests to Google Fonts at runtime)
+- Automatic `size-adjust` for fallback font
+- No extra network requests
+
+Local font:
+
+```ts
+import localFont from 'next/font/local';
+
+const brandFont = localFont({
+  src: '../public/fonts/brand.woff2',
+  variable: '--font-brand',
+});
+```
+
+---
+
+## 7c. INP — Reducing Interaction Latency
+
+INP (Interaction to Next Paint) measures the worst interaction delay across a session.
+
+Common causes:
+- Long main-thread tasks blocking the event loop
+- Synchronous state updates causing large reconciliation
+- Heavy `onClick` handlers without yielding
+
+Fixes:
+
+```tsx
+// Use useTransition to keep the input responsive while filtering
+const [isPending, startTransition] = useTransition();
+const [query, setQuery] = useState('');
+const [filtered, setFiltered] = useState(allItems);
+
+function handleInput(value: string) {
+  setQuery(value); // urgent — update input immediately
+  startTransition(() => {
+    setFiltered(allItems.filter(i => i.name.includes(value))); // non-urgent
+  });
+}
+```
+
+Yield to browser between large tasks:
+
+```ts
+async function processLargeDataset(items: Item[]) {
+  const results: ProcessedItem[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    results.push(processItem(items[i]));
+
+    // Yield every 50 items so the browser can handle events
+    if (i % 50 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
+
+  return results;
+}
+```
+
 ---
 
 ## 8. Real-World Use Cases
