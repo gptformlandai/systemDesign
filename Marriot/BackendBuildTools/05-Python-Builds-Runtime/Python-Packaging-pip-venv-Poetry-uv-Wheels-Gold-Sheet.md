@@ -418,6 +418,141 @@ read pyproject.toml
   -> run command inside project environment
 ```
 
+### uv vs pip vs Poetry — Decision Matrix
+
+| Need | pip | pip + pip-tools | Poetry | uv |
+|---|---|---|---|---|
+| Simple script installs | ✅ | ✅ | ✅ | ✅ |
+| Lockfile for reproducible builds | ❌ | ✅ `requirements.txt` | ✅ `poetry.lock` | ✅ `uv.lock` |
+| Virtual env management | ❌ (needs venv) | ❌ | ✅ | ✅ |
+| Python version management | ❌ | ❌ | ❌ | ✅ `uv python install` |
+| Build wheel + publish | ❌ (needs build/twine) | ❌ | ✅ | ✅ |
+| Speed (resolution + install) | Slow | Slow | Moderate | **10–100× faster** |
+| Pip compatibility commands | ✅ | ✅ | ❌ | ✅ `uv pip install` |
+| CI frozen install command | `pip install -r requirements.txt` | `pip-sync` | `poetry install --no-root` | `uv sync --frozen` |
+| Ecosystem maturity | Very mature | Mature | Mature | Newer (2024+) |
+
+**Interview answer:** For new projects in 2025, uv is the recommended default — it replaces the entire pip + venv + pip-tools toolchain with a single faster tool. For existing Poetry projects, the migration cost is low but not zero (different lockfile format, different dependency groups syntax).
+
+### uv pip — Drop-in pip Replacement
+
+```bash
+# uv can behave as a pip replacement for existing workflows
+uv pip install fastapi
+uv pip install -r requirements.txt
+uv pip install -e .              # editable install
+
+# Same flags as pip — but 10-100× faster
+uv pip install --no-cache fastapi
+uv pip compile requirements.in -o requirements.txt   # like pip-tools pip-compile
+uv pip sync requirements.txt                          # like pip-tools pip-sync
+```
+
+### Migrating from pip + requirements.txt to uv
+
+```bash
+# Step 1: Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Step 2: Initialize pyproject.toml from existing setup.py / setup.cfg / requirements.txt
+uv init --no-workspace            # creates pyproject.toml with project metadata
+
+# Step 3: Import your existing dependencies
+# For each package in requirements.txt:
+uv add fastapi uvicorn sqlalchemy   # adds to [project.dependencies] in pyproject.toml
+uv add --dev pytest ruff mypy       # adds to [dependency-groups] dev
+
+# Step 4: Lock
+uv lock   # creates uv.lock
+
+# Step 5: Verify
+uv sync --frozen
+uv run pytest
+
+# Step 6: Update CI
+# Before: pip install -r requirements.txt && pytest
+# After:  uv sync --frozen && uv run pytest
+```
+
+### Migrating from Poetry to uv
+
+```bash
+# Poetry and uv use different pyproject.toml sections
+# Poetry uses [tool.poetry.dependencies]
+# uv uses [project.dependencies] (PEP 621 standard)
+
+# Step 1: Export Poetry lockfile to requirements format
+poetry export -f requirements.txt --output requirements.txt --without-hashes
+
+# Step 2: Check pyproject.toml differences
+
+# Poetry format (tool.poetry):
+[tool.poetry]
+name = "booking-api"
+version = "0.1.0"
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110.0"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+
+# uv format (PEP 621 standard [project]):
+[project]
+name = "booking-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110.0",
+]
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+# Step 3: Rewrite pyproject.toml to PEP 621 format (manual but straightforward)
+# Step 4: uv lock — generates uv.lock
+# Step 5: Remove poetry.lock and pyproject.toml [tool.poetry] sections
+# Step 6: Verify with uv sync --frozen && uv run pytest
+```
+
+### uv in CI
+
+```yaml
+# GitHub Actions
+- name: Install uv
+  uses: astral-sh/setup-uv@v5
+  with:
+    version: "0.5.x"
+    enable-cache: true              # caches uv's global package cache
+
+- name: Install dependencies
+  run: uv sync --frozen --no-dev   # production install (no dev deps)
+
+- name: Run tests
+  run: uv run pytest --cov=app
+
+- name: Build
+  run: uv build
+```
+
+```dockerfile
+# Dockerfile — uv in Docker
+FROM python:3.12-slim AS builder
+RUN pip install uv
+
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+COPY app ./app
+RUN uv sync --frozen --no-dev
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY app ./app
+ENV PATH="/app/.venv/bin:$PATH"
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
 ### uv sync
 
 ```bash
