@@ -69,17 +69,20 @@ Consent → Data Layer → Tags → Web SDK → Edge Network → Analytics / Tar
 
 8. [Adobe Tags (Launch) — Rules, Data Elements, Publishing](./03-Activation/Adobe-Tags-Launch-Rules-DataElements-Publishing-Gold-Sheet.md)
 9. [Adobe Target — A/B Testing, Personalization, Recommendations](./03-Activation/Adobe-Target-AB-Testing-Personalization-Gold-Sheet.md)
+10. [Server-Side Event Forwarding — Meta CAPI, Google Enhanced Conversions](./03-Activation/Server-Side-Event-Forwarding-Meta-CAPI-Google-Gold-Sheet.md)
+11. [Adobe Mobile SDK — iOS, Android, In-App, Push](./03-Activation/Adobe-Mobile-SDK-iOS-Android-InApp-Push-Gold-Sheet.md)
 
 ### Phase 4: Platform
 
-10. [Adobe Experience Platform (AEP) — CDP, XDM, Identity, Segments](./04-Platform/Adobe-Experience-Platform-AEP-CDP-XDM-Identity-Gold-Sheet.md)
-11. [Adobe Journey Optimizer (AJO) — Journeys, Channels, Offers](./04-Platform/Adobe-Journey-Optimizer-AJO-Journeys-Channels-Gold-Sheet.md)
-12. [Customer Journey Analytics (CJA) — Cross-Channel Analysis](./04-Platform/Customer-Journey-Analytics-CJA-Cross-Channel-Gold-Sheet.md)
+12. [Adobe Experience Platform (AEP) — CDP, XDM, Identity, Segments](./04-Platform/Adobe-Experience-Platform-AEP-CDP-XDM-Identity-Gold-Sheet.md)
+13. [Adobe Journey Optimizer (AJO) — Journeys, Channels, Offers](./04-Platform/Adobe-Journey-Optimizer-AJO-Journeys-Channels-Gold-Sheet.md)
+14. [Customer Journey Analytics (CJA) — Cross-Channel Analysis](./04-Platform/Customer-Journey-Analytics-CJA-Cross-Channel-Gold-Sheet.md)
 
 ### Phase 5: Practice Upgrade
 
-13. [Active Recall Question Bank](./05-Practice-Upgrade/MarTech-Active-Recall-Question-Bank.md)
-14. [Tricky Scenario Questions](./05-Practice-Upgrade/MarTech-Tricky-Scenario-Questions.md)
+15. [MarTech Debugging and Testing Tools](./05-Practice-Upgrade/MarTech-Debugging-Testing-Tools-Gold-Sheet.md)
+16. [Active Recall Question Bank](./05-Practice-Upgrade/MarTech-Active-Recall-Question-Bank.md)
+17. [Tricky Scenario Questions](./05-Practice-Upgrade/MarTech-Tricky-Scenario-Questions.md)
 
 ---
 
@@ -90,6 +93,8 @@ Consent → Data Layer → Tags → Web SDK → Edge Network → Analytics / Tar
 | Adobe Data Layer (ACDL) | Client-side standard | Standardizes events pushed by the page | Building page instrumentation |
 | Adobe Web SDK (alloy.js) | Data collection library | Replaces AppMeasurement+at.js; sends one request to Edge Network | Implementing modern Adobe data collection |
 | Adobe Tags (Launch) | Tag Manager | Loads scripts, fires rules based on data layer events | Configuring tracking rules |
+| Server-Side Event Forwarding | Data forwarding | Sends conversions server-to-server to Meta/Google — bypasses ad blockers | Conversion tracking, paid media signal recovery |
+| Adobe Mobile SDK (AEP SDK) | Native app collection | iOS/Android equivalent of Web SDK — same Edge, same DataStream | Mobile app tracking, push notifications, in-app messages |
 | Consent Management (OneTrust) | Privacy/compliance | Cookie banner, user consent storage, gates MarTech tools | Privacy compliance, GDPR/CCPA |
 | Adobe Analytics | Analytics | Stores web clickstream; dimensions, metrics, segments | Analyzing web user behavior |
 | Akamai | CDN + Security | Delivers content, detects geo/bot, runs edge logic | Performance, security, geo data |
