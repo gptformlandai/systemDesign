@@ -492,3 +492,200 @@ replay jobs without review.
 - Apache Kafka operations docs: https://kafka.apache.org/43/operations/ops/
 - Apache Kafka monitoring docs: https://kafka.apache.org/43/operations/monitoring/
 - Apache Kafka security docs: https://kafka.apache.org/43/security/
+
+---
+
+## 22. Managed Kafka Platform Comparison
+
+Managed Kafka platforms differ significantly. Design using Kafka fundamentals, then verify against the provider.
+
+| Feature | AWS MSK | Confluent Cloud | Azure Event Hubs | Aiven for Kafka |
+|---|---|---|---|---|
+| Auth mechanism | SASL_IAM (AWS IAM), mTLS, SCRAM | API keys, RBAC, OAuth/OIDC | SAS token, Azure AD/RBAC | SASL/SCRAM, SSL/mTLS |
+| Authorization | IAM resource policy or Kafka ACLs | Confluent RBAC role bindings | Azure RBAC roles | Kafka ACLs |
+| ACL model | IAM policy OR native ACLs (not both by default) | RBAC subjects per service account | Azure roles (Owner/Sender/Receiver) | native Kafka ACLs |
+| Tiered storage | AWS MSK tiered storage (supported) | Confluent Cloud (supported) | not standard (archive = Event Hubs Capture) | supported on some plans |
+| KRaft | MSK manages, abstracted | managed, abstracted | abstracted (not native Kafka internals) | exposed or abstracted |
+| Custom connectors | MSK Connect (managed Connect workers) | Confluent Cloud connectors | not supported natively | supported |
+| Partition limit | configurable, cost-based scaling | partition-count based pricing | up to 32 per Event Hub (namespace) | configurable |
+| Log compaction | supported | supported | NOT supported | supported |
+| Schema Registry | AWS Glue Schema Registry (separate) | built-in Confluent Schema Registry | Azure Schema Registry | separate service |
+| Multi-region | cross-region replication via MirrorMaker 2 or MSK Replicator | Cluster Linking | Event Hubs Geo-DR (metadata only) | cross-cloud/region via service |
+| Kafka version | follows AWS release cadence | Confluent Platform version | 1.0+ Kafka protocol emulation | follows upstream |
+
+Key interview answers by provider:
+
+AWS MSK:
+
+```text
+MSK authentication defaults to SASL_IAM on VPC. Topic access is granted through IAM resource
+policies. I do not need kafka-acls.sh unless I switch to native ACLs authorizer. Schema registry
+is Glue or self-hosted. Connector tasks run in MSK Connect as managed workers.
+```
+
+Confluent Cloud:
+
+```text
+Confluent Cloud uses service accounts and RBAC role bindings. Each service gets a service account
+with DeveloperRead/Write roles, not shared API keys. Schema Registry is built in. Connector
+availability is broad but connector versions are managed by Confluent.
+```
+
+Azure Event Hubs:
+
+```text
+Event Hubs is not Kafka. It speaks Kafka protocol, but no log compaction, limited partition
+counts, no custom connectors, and consumer groups map differently. Good for lifting existing Kafka
+producers to Azure quickly, but not a drop-in replacement for complex platform needs.
+```
+
+---
+
+## 23. Kafka Rolling Upgrade Strategy
+
+Kafka upgrades must be done as rolling restarts to avoid data loss and downtime.
+
+### Key Concepts
+
+- **IBP (Inter-Broker Protocol)**: the version used for broker-to-broker communication
+- **log.message.format.version**: the message format version stored to disk
+- During upgrades, old and new brokers coexist, so IBP must stay at the old version until all brokers are upgraded
+
+### Step-by-Step Rolling Upgrade
+
+```text
+Phase 1: Upgrade one broker at a time
+  For each broker:
+    1. Drain the broker (preferred replica election away if needed)
+    2. Stop broker
+    3. Install new Kafka version
+    4. Keep log.message.format.version = OLD_VERSION (not yet changed)
+    5. Keep inter.broker.protocol.version = OLD_VERSION
+    6. Start broker
+    7. Wait until all partitions are in-sync (under-replicated partitions = 0)
+    8. Proceed to next broker
+
+Phase 2: Enable new protocol (after all brokers upgraded)
+    9. Update inter.broker.protocol.version = NEW_VERSION
+    10. Rolling restart all brokers to apply
+    11. Update log.message.format.version = NEW_VERSION
+    12. Rolling restart all brokers to apply
+```
+
+Why two phases:
+
+- setting IBP to new version before all brokers are upgraded causes incompatibility
+- setting message format before IBP is set to new version is also risky
+- the two-phase approach ensures safe coexistence during transition
+
+Interview trap:
+
+```text
+Changing message format version triggers log recompression on all brokers for that topic.
+This can cause significant CPU and disk I/O. Plan for a maintenance window or gradual rollout.
+```
+
+### KRaft Upgrade Notes
+
+For KRaft mode:
+
+- controller quorum must stay quorum-safe during rolling upgrade
+- upgrade controllers one at a time
+- verify controller quorum health after each controller upgrade before proceeding
+- brokers should upgrade after controller quorum is fully on new version
+
+### ZooKeeper to KRaft Migration
+
+For clusters still running ZooKeeper (Kafka 2.x/3.x):
+
+```text
+Step 1: Upgrade Kafka version to one that supports dual-mode migration (3.x+)
+Step 2: Generate a new KRaft controller cluster ID
+Step 3: Start dedicated KRaft controller nodes in migration mode
+Step 4: Allow brokers to dual-register with both ZooKeeper and KRaft controllers
+Step 5: Verify KRaft metadata is fully synced
+Step 6: Disable ZooKeeper mode (ZooKeeper controllers step down)
+Step 7: Rolling restart brokers in pure KRaft mode
+Step 8: Decommission ZooKeeper nodes
+```
+
+Caution:
+
+```text
+Migration is a major cluster operation. Run it in staging first. Verify metadata integrity
+checkpoints at each step before advancing.
+```
+
+---
+
+## 24. JVM Tuning Basics For Kafka Brokers
+
+Kafka brokers run on the JVM. Garbage collection and heap sizing affect latency, pause times, and throughput.
+
+### Heap Size
+
+Kafka brokers do not need large heaps.
+
+Rule of thumb:
+
+```text
+broker heap = 6-8 GB for most production brokers
+do not allocate more than ~25% of total RAM to heap
+remaining RAM goes to OS page cache, which Kafka relies on heavily
+```
+
+Why page cache matters more:
+
+```text
+Kafka brokers delegate most I/O to the OS page cache. Giving too much RAM to JVM heap
+starves the page cache, increasing disk reads and reducing throughput.
+```
+
+### G1GC vs ZGC
+
+| Garbage Collector | When To Use |
+|---|---|
+| G1GC | default choice for most Kafka brokers; predictable pause times |
+| ZGC | very large heaps or strict sub-millisecond pause requirements |
+| CMS | deprecated; avoid on modern JVMs |
+
+G1GC typical settings:
+
+```bash
+-Xms6g -Xmx6g
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=20
+-XX:InitiatingHeapOccupancyPercent=35
+-XX:G1HeapRegionSize=16m
+```
+
+ZGC for latency-sensitive brokers:
+
+```bash
+-Xms8g -Xmx8g
+-XX:+UseZGC
+```
+
+### GC Pauses And Kafka
+
+GC pauses affect broker request latency.
+
+If GC pauses exceed `replica.socket.timeout.ms` or session timeouts:
+
+- replica fetch latency increases
+- leader may declare follower out of ISR
+- consumer rebalances may trigger if fetch is blocked
+
+Monitor:
+
+- JVM GC pause duration (JMX `GarbageCollector` beans)
+- `log_flush_latency_ms`
+- `produce_request_latency_ms`
+- ISR shrink rate after broker GC events
+
+Interview line:
+
+```text
+Kafka brokers should have a modest heap with G1GC tuned for predictable pauses. The rest of
+RAM should serve the OS page cache, which is the real performance layer for sequential reads.
+```
