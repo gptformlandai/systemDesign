@@ -36,17 +36,17 @@ working tree
 
 | Order | Document | Why It Exists |
 |---|---|---|
-| 1 | [Local Git Foundations and Daily Commands](Git-Local-Foundations-Daily-Commands-Gold-Sheet.md) | `config`, `init`, `clone`, `status`, `add`, `commit`, `diff`, `log`, `show`, `restore` |
-| 2 | [Branching, Merging, Rebasing, and Conflicts](Git-Branching-Merging-Rebasing-Conflicts-Gold-Sheet.md) | `branch`, `switch`, `merge`, `rebase`, conflict resolution, `cherry-pick`, `revert` |
-| 3 | [Remote Collaboration and GitHub Flow](Git-Remote-Collaboration-GitHub-Flow-Gold-Sheet.md) | `remote`, `fetch`, `pull`, `push`, upstreams, forks, PR workflow, non-fast-forward fixes |
-| 4 | [Undo, Recovery, and Safety Commands](Git-Undo-Recovery-Safety-Commands-Gold-Sheet.md) | `restore`, `reset`, `revert`, `reflog`, `stash`, `clean`, `commit --amend`, `force-with-lease` |
-| 5 | [Inspection, Debugging, and History Pro Commands](Git-Inspection-Debugging-History-Pro-Commands-Gold-Sheet.md) | `log`, `show`, `diff`, `blame`, `bisect`, `grep`, `tag`, `describe`, `range-diff` |
-| 6 | [GitHub CLI Command Mastery](GitHub-CLI-Command-Mastery-Gold-Sheet.md) | `gh auth`, `gh repo`, `gh pr`, `gh issue`, `gh release`, checks, reviews, merge commands |
-| 7 | [Advanced Repository Workflows](Git-Advanced-Repository-Workflows-Gold-Sheet.md) | `worktree`, `submodule`, `sparse-checkout`, hooks, `.gitignore`, attributes, LFS, aliases |
-| 8 | [Git Internals, Object Model, Refs, and Packfiles](Git-Internals-Object-Model-Refs-Packfiles-Gold-Sheet.md) | Senior internals: objects, refs, HEAD, index, DAG, merge/rebase mechanics, reflog, packfiles, GC |
-| 9 | [GitHub Enterprise Governance, Security, and Branch Protection](GitHub-Enterprise-Governance-Security-Branch-Protection-Gold-Sheet.md) | Enterprise layer: rulesets, branch protection, CODEOWNERS, checks, permissions, tokens, secrets, audit |
-| 10 | [Git Release Engineering, Versioning, Tags, and Backports](Git-Release-Engineering-Versioning-Tags-Backports-Gold-Sheet.md) | Release layer: annotated tags, semver, release branches, hotfixes, backports, changelogs, rollback, traceability |
-| 11 | [Production and Interview Scenario Playbook](Git-GitHub-Production-Interview-Scenario-Playbook.md) | wrong branch, bad merge, lost commit, conflict, force push, hotfix, release, protected branch scenarios |
+| 1 | [Local Git Foundations and Daily Commands](01-Foundations/Git-Local-Foundations-Daily-Commands-Gold-Sheet.md) | `config`, `init`, `clone`, `status`, `add`, `commit`, `diff`, `log`, `show`, `restore` |
+| 2 | [Branching, Merging, Rebasing, and Conflicts](01-Foundations/Git-Branching-Merging-Rebasing-Conflicts-Gold-Sheet.md) | `branch`, `switch`, `merge`, `rebase`, conflict resolution, `cherry-pick`, `revert` |
+| 3 | [Remote Collaboration and GitHub Flow](01-Foundations/Git-Remote-Collaboration-GitHub-Flow-Gold-Sheet.md) | `remote`, `fetch`, `pull`, `push`, upstreams, forks, PR workflow, non-fast-forward fixes |
+| 4 | [Undo, Recovery, and Safety Commands](02-Recovery-And-Inspection/Git-Undo-Recovery-Safety-Commands-Gold-Sheet.md) | `restore`, `reset`, `revert`, `reflog`, `stash`, `clean`, `commit --amend`, `force-with-lease` |
+| 5 | [Inspection, Debugging, and History Pro Commands](02-Recovery-And-Inspection/Git-Inspection-Debugging-History-Pro-Commands-Gold-Sheet.md) | `log`, `show`, `diff`, `blame`, `bisect`, `grep`, `tag`, `describe`, `range-diff` |
+| 6 | [GitHub CLI Command Mastery](04-Internals-Enterprise-CLI/GitHub-CLI-Command-Mastery-Gold-Sheet.md) | `gh auth`, `gh repo`, `gh pr`, `gh issue`, `gh release`, checks, reviews, merge commands |
+| 7 | [Advanced Repository Workflows](03-Advanced-Workflows/Git-Advanced-Repository-Workflows-Gold-Sheet.md) | `worktree`, `submodule`, `sparse-checkout`, hooks, `.gitignore`, attributes, LFS, aliases |
+| 8 | [Git Internals, Object Model, Refs, and Packfiles](04-Internals-Enterprise-CLI/Git-Internals-Object-Model-Refs-Packfiles-Gold-Sheet.md) | Senior internals: objects, refs, HEAD, index, DAG, merge/rebase mechanics, reflog, packfiles, GC |
+| 9 | [GitHub Enterprise Governance, Security, and Branch Protection](04-Internals-Enterprise-CLI/GitHub-Enterprise-Governance-Security-Branch-Protection-Gold-Sheet.md) | Enterprise layer: rulesets, branch protection, CODEOWNERS, checks, permissions, tokens, secrets, audit |
+| 10 | [Git Release Engineering, Versioning, Tags, and Backports](03-Advanced-Workflows/Git-Release-Engineering-Versioning-Tags-Backports-Gold-Sheet.md) | Release layer: annotated tags, semver, release branches, hotfixes, backports, changelogs, rollback, traceability |
+| 11 | [Production and Interview Scenario Playbook](05-Practice-Upgrade/Git-GitHub-Production-Interview-Scenario-Playbook.md) | wrong branch, bad merge, lost commit, conflict, force push, hotfix, release, protected branch scenarios |
 | 12 | [Golden Command Cheat Sheet](Git-GitHub-Golden-Command-Cheat-Sheet.md) | fast command recipes for daily use and interview revision |
 | 13 | [Git-GitHub Active Recall Question Bank](05-Practice-Upgrade/Git-GitHub-Active-Recall-Question-Bank.md) | Retrieval practice across daily commands, recovery, internals, governance, and release engineering |
 | 14 | [Git-GitHub Scenario Drill Bank](05-Practice-Upgrade/Git-GitHub-Scenario-Drill-Bank.md) | Production and interview scenario drills for local, remote, recovery, governance, and release workflows |

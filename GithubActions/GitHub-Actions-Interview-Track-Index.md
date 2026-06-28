@@ -38,23 +38,23 @@ For interviews, every strong answer should cover:
 
 | Order | Document | Why It Exists |
 |---|---|---|
-| 1 | [Foundations and Workflow Syntax](GitHub-Actions-Foundations-Workflow-Syntax-Gold-Sheet.md) | Workflow, job, step, action, event, runner, contexts, expressions, matrix, outputs |
-| 2 | [Backend CI and Testing](GitHub-Actions-Backend-CI-Testing-Gold-Sheet.md) | Java/Spring Boot, Node, Python, Go, .NET, service containers, test reports, coverage |
-| 3 | [Frontend CI and Preview Deployments](GitHub-Actions-Frontend-CI-Preview-Deployments-Gold-Sheet.md) | React, Angular, Vue, Next.js, Vite, Playwright/Cypress, Storybook, preview URLs, CDN |
-| 4 | [Caching, Artifacts, Monorepos, and Performance](GitHub-Actions-Caching-Artifacts-Monorepo-Performance-Gold-Sheet.md) | cache keys, artifacts, matrix tuning, Nx/Turborepo, path filters, workflow speed |
-| 5 | [Reusable Workflows and Custom Actions](GitHub-Actions-Reusable-Workflows-Custom-Actions-Gold-Sheet.md) | `workflow_call`, composite actions, JavaScript/Docker actions, versioning, org standardization |
-| 6 | [Workflow Architecture Patterns and Anti-Patterns](GitHub-Actions-Workflow-Architecture-Patterns-Anti-Patterns-Gold-Sheet.md) | fan-out/fan-in, dynamic matrix, artifact contracts, reusable workflow contracts, deployment concurrency |
-| 7 | [Docker, Containers, and Registry Pipelines](GitHub-Actions-Docker-Containers-Registry-Gold-Sheet.md) | Docker build, tags, GHCR/ECR/ACR/GCR, scanning, SBOM, image promotion |
-| 8 | [Deployments, Environments, Kubernetes, and Cloud](GitHub-Actions-Deployments-Environments-Kubernetes-Cloud-Gold-Sheet.md) | environments, approvals, blue-green/canary/rolling, Kubernetes, Helm, rollback |
-| 9 | [Security, OIDC, Secrets, and Supply Chain](GitHub-Actions-Security-OIDC-Secrets-Supply-Chain-Gold-Sheet.md) | `GITHUB_TOKEN`, permissions, OIDC, fork PR security, action pinning, CodeQL, attestations |
-| 10 | [Advanced Security Threat Model and Untrusted Code](GitHub-Actions-Advanced-Security-Threat-Model-Untrusted-Code-Gold-Sheet.md) | `pull_request_target`, fork PRs, cache/artifact poisoning, command injection, runner trust, third-party actions |
-| 11 | [Runners, Networking, Governance, and Scale](GitHub-Actions-Runners-Networking-Governance-Gold-Sheet.md) | hosted/self-hosted runners, ARC, runner groups, private networking, quotas, org controls |
-| 12 | [Platform Observability, Cost, and Operating Model](GitHub-Actions-Platform-Observability-Cost-Operating-Model-Gold-Sheet.md) | CI/CD platform ownership, SLIs/SLOs, dashboards, cost controls, golden paths, support model |
-| 13 | [Infrastructure as Code and Database Migration Pipelines](GitHub-Actions-IaC-Database-Migration-Gold-Sheet.md) | Terraform plan/apply, drift, policy, DB migrations, approvals, rollback thinking |
-| 14 | [Release Engineering and Progressive Delivery](GitHub-Actions-Release-Engineering-Progressive-Delivery-Gold-Sheet.md) | SemVer, tags, changelogs, releases, hotfix, rollback, feature flags, canary |
-| 15 | [Production Operations and Scenario Bank](GitHub-Actions-Production-Operations-Scenario-Bank-Gold-Sheet.md) | failed workflow triage, slow CI, compromised runner, OIDC failure, prod rollback, MAANG scenarios |
-| 16 | [Interview Stress Concepts and Production Scenarios](GitHub-Actions-Interview-Stress-Concepts-Production-Scenarios-Gold-Sheet.md) | high-pressure interview concepts: `GITHUB_TOKEN`, OIDC, fork PRs, runner trust, rollback, frontend/CDN traps, prod incidents |
-| 17 | [Golden Workflow Templates Library](GitHub-Actions-Golden-Workflow-Templates-Library.md) | ready-to-revise YAML patterns for backend, frontend, Docker, Terraform, Kubernetes, security |
+| 1 | [Foundations and Workflow Syntax](01-Foundations/GitHub-Actions-Foundations-Workflow-Syntax-Gold-Sheet.md) | Workflow, job, step, action, event, runner, contexts, expressions, matrix, outputs |
+| 2 | [Backend CI and Testing](01-Foundations/GitHub-Actions-Backend-CI-Testing-Gold-Sheet.md) | Java/Spring Boot, Node, Python, Go, .NET, service containers, test reports, coverage |
+| 3 | [Frontend CI and Preview Deployments](01-Foundations/GitHub-Actions-Frontend-CI-Preview-Deployments-Gold-Sheet.md) | React, Angular, Vue, Next.js, Vite, Playwright/Cypress, Storybook, preview URLs, CDN |
+| 4 | [Caching, Artifacts, Monorepos, and Performance](02-Containers-Caching/GitHub-Actions-Caching-Artifacts-Monorepo-Performance-Gold-Sheet.md) | cache keys, artifacts, matrix tuning, Nx/Turborepo, path filters, workflow speed |
+| 5 | [Reusable Workflows and Custom Actions](03-Security-Reusable-Workflows/GitHub-Actions-Reusable-Workflows-Custom-Actions-Gold-Sheet.md) | `workflow_call`, composite actions, JavaScript/Docker actions, versioning, org standardization |
+| 6 | [Workflow Architecture Patterns and Anti-Patterns](04-Senior-Platform-Operations/GitHub-Actions-Workflow-Architecture-Patterns-Anti-Patterns-Gold-Sheet.md) | fan-out/fan-in, dynamic matrix, artifact contracts, reusable workflow contracts, deployment concurrency |
+| 7 | [Docker, Containers, and Registry Pipelines](02-Containers-Caching/GitHub-Actions-Docker-Containers-Registry-Gold-Sheet.md) | Docker build, tags, GHCR/ECR/ACR/GCR, scanning, SBOM, image promotion |
+| 8 | [Deployments, Environments, Kubernetes, and Cloud](04-Senior-Platform-Operations/GitHub-Actions-Deployments-Environments-Kubernetes-Cloud-Gold-Sheet.md) | environments, approvals, blue-green/canary/rolling, Kubernetes, Helm, rollback |
+| 9 | [Security, OIDC, Secrets, and Supply Chain](03-Security-Reusable-Workflows/GitHub-Actions-Security-OIDC-Secrets-Supply-Chain-Gold-Sheet.md) | `GITHUB_TOKEN`, permissions, OIDC, fork PR security, action pinning, CodeQL, attestations |
+| 10 | [Advanced Security Threat Model and Untrusted Code](03-Security-Reusable-Workflows/GitHub-Actions-Advanced-Security-Threat-Model-Untrusted-Code-Gold-Sheet.md) | `pull_request_target`, fork PRs, cache/artifact poisoning, command injection, runner trust, third-party actions |
+| 11 | [Runners, Networking, Governance, and Scale](04-Senior-Platform-Operations/GitHub-Actions-Runners-Networking-Governance-Gold-Sheet.md) | hosted/self-hosted runners, ARC, runner groups, private networking, quotas, org controls |
+| 12 | [Platform Observability, Cost, and Operating Model](04-Senior-Platform-Operations/GitHub-Actions-Platform-Observability-Cost-Operating-Model-Gold-Sheet.md) | CI/CD platform ownership, SLIs/SLOs, dashboards, cost controls, golden paths, support model |
+| 13 | [Infrastructure as Code and Database Migration Pipelines](04-Senior-Platform-Operations/GitHub-Actions-IaC-Database-Migration-Gold-Sheet.md) | Terraform plan/apply, drift, policy, DB migrations, approvals, rollback thinking |
+| 14 | [Release Engineering and Progressive Delivery](04-Senior-Platform-Operations/GitHub-Actions-Release-Engineering-Progressive-Delivery-Gold-Sheet.md) | SemVer, tags, changelogs, releases, hotfix, rollback, feature flags, canary |
+| 15 | [Production Operations and Scenario Bank](05-Practice-Upgrade/GitHub-Actions-Production-Operations-Scenario-Bank-Gold-Sheet.md) | failed workflow triage, slow CI, compromised runner, OIDC failure, prod rollback, MAANG scenarios |
+| 16 | [Interview Stress Concepts and Production Scenarios](05-Practice-Upgrade/GitHub-Actions-Interview-Stress-Concepts-Production-Scenarios-Gold-Sheet.md) | high-pressure interview concepts: `GITHUB_TOKEN`, OIDC, fork PRs, runner trust, rollback, frontend/CDN traps, prod incidents |
+| 17 | [Golden Workflow Templates Library](05-Practice-Upgrade/GitHub-Actions-Golden-Workflow-Templates-Library.md) | ready-to-revise YAML patterns for backend, frontend, Docker, Terraform, Kubernetes, security |
 
 ---
 
