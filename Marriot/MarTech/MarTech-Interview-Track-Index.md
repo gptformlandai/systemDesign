@@ -9,29 +9,43 @@
 ```txt
 User Browser
     │
+    ├── Consent Management Platform (OneTrust)
+    │       Cookie banner → user consent → gates everything below
+    │
     ├── Adobe Data Layer (adobeDataLayer[])
     │       Push events: page view, product view, add-to-cart, booking-complete
     │
     ├── Akamai CDN
     │       Edge delivery + geo-IP detection + bot protection + EdgeWorkers
     │
+    ├── Adobe Web SDK (alloy.js)  ← Modern standard (replaces AppMeasurement + at.js)
+    │       One library → one request → Adobe Edge Network
+    │       DataStream routes to: Analytics + Target + AEP simultaneously
+    │
     ├── Adobe Tags (Launch)
-    │       Tag manager: rules fire on data layer events → send beacons to Adobe products
+    │       Tag manager: rules fire on data layer events → calls Web SDK
     │
     ├── Adobe Analytics
     │       Clickstream storage: eVars, props, events, segments, calculated metrics
+    │       Marketing Channels, UTM attribution, Analysis Workspace
     │
     ├── Adobe Target
     │       A/B testing + personalization: serve different content based on audience
     │
-    └── Adobe Experience Platform (AEP)
-            Unified profile: Real-Time CDP, XDM schemas, identity graph, segments → activation
+    ├── Adobe Experience Platform (AEP)
+    │       Unified profile: Real-Time CDP, XDM schemas, identity graph, segments → activation
+    │
+    ├── Adobe Journey Optimizer (AJO)
+    │       Omnichannel journeys: email, SMS, push, in-app — triggered by AEP events
+    │
+    └── Customer Journey Analytics (CJA)
+            Cross-channel analysis: web + app + call center + email stitched per person
 ```
 
 Short version:
 
 ```txt
-Data Layer → Tags → Analytics / Target → AEP
+Consent → Data Layer → Tags → Web SDK → Edge Network → Analytics / Target / AEP → AJO / CJA
 ```
 
 ---
@@ -42,25 +56,30 @@ Data Layer → Tags → Analytics / Target → AEP
 
 1. [MarTech Stack Overview — Adobe Ecosystem](./01-Foundations/MarTech-Stack-Overview-Adobe-Ecosystem-Gold-Sheet.md)
 2. [Adobe Data Layer — Events, Schema, Tag Integration](./01-Foundations/Adobe-Data-Layer-Events-Tag-Integration-Gold-Sheet.md)
+3. [Adobe Web SDK (alloy.js) and DataStreams](./01-Foundations/Adobe-Web-SDK-DataStream-Edge-Gold-Sheet.md)
+4. [Privacy, Consent, and Cookie Management](./01-Foundations/Privacy-Consent-Cookie-Management-Gold-Sheet.md)
 
 ### Phase 2: Analytics and Edge
 
-3. [Adobe Analytics — Data Collection, Reports, Segments](./02-Analytics/Adobe-Analytics-Data-Collection-Reports-Segments-Gold-Sheet.md)
-4. [Akamai — CDN, Geo-IP, EdgeWorkers, Security](./02-Analytics/Akamai-CDN-Geo-IP-EdgeWorkers-Security-Gold-Sheet.md)
+5. [Adobe Analytics — Data Collection, Reports, Segments](./02-Analytics/Adobe-Analytics-Data-Collection-Reports-Segments-Gold-Sheet.md)
+6. [Akamai — CDN, Geo-IP, EdgeWorkers, Security](./02-Analytics/Akamai-CDN-Geo-IP-EdgeWorkers-Security-Gold-Sheet.md)
+7. [Marketing Attribution — UTMs, Channels, Campaign Tracking](./02-Analytics/Marketing-Attribution-UTM-Channels-Campaign-Gold-Sheet.md)
 
 ### Phase 3: Activation and Testing
 
-5. [Adobe Tags (Launch) — Rules, Data Elements, Publishing](./03-Activation/Adobe-Tags-Launch-Rules-DataElements-Publishing-Gold-Sheet.md)
-6. [Adobe Target — A/B Testing, Personalization, Recommendations](./03-Activation/Adobe-Target-AB-Testing-Personalization-Gold-Sheet.md)
+8. [Adobe Tags (Launch) — Rules, Data Elements, Publishing](./03-Activation/Adobe-Tags-Launch-Rules-DataElements-Publishing-Gold-Sheet.md)
+9. [Adobe Target — A/B Testing, Personalization, Recommendations](./03-Activation/Adobe-Target-AB-Testing-Personalization-Gold-Sheet.md)
 
 ### Phase 4: Platform
 
-7. [Adobe Experience Platform (AEP) — CDP, XDM, Identity, Segments](./04-Platform/Adobe-Experience-Platform-AEP-CDP-XDM-Identity-Gold-Sheet.md)
+10. [Adobe Experience Platform (AEP) — CDP, XDM, Identity, Segments](./04-Platform/Adobe-Experience-Platform-AEP-CDP-XDM-Identity-Gold-Sheet.md)
+11. [Adobe Journey Optimizer (AJO) — Journeys, Channels, Offers](./04-Platform/Adobe-Journey-Optimizer-AJO-Journeys-Channels-Gold-Sheet.md)
+12. [Customer Journey Analytics (CJA) — Cross-Channel Analysis](./04-Platform/Customer-Journey-Analytics-CJA-Cross-Channel-Gold-Sheet.md)
 
 ### Phase 5: Practice Upgrade
 
-8. [Active Recall Question Bank](./05-Practice-Upgrade/MarTech-Active-Recall-Question-Bank.md)
-9. [Tricky Scenario Questions](./05-Practice-Upgrade/MarTech-Tricky-Scenario-Questions.md)
+13. [Active Recall Question Bank](./05-Practice-Upgrade/MarTech-Active-Recall-Question-Bank.md)
+14. [Tricky Scenario Questions](./05-Practice-Upgrade/MarTech-Tricky-Scenario-Questions.md)
 
 ---
 
@@ -68,14 +87,18 @@ Data Layer → Tags → Analytics / Target → AEP
 
 | Product | Category | What It Does | Your Role Touches It When |
 |---|---|---|---|
-| Adobe Data Layer | Client-side standard | Standardizes events pushed by the page | Building page instrumentation |
+| Adobe Data Layer (ACDL) | Client-side standard | Standardizes events pushed by the page | Building page instrumentation |
+| Adobe Web SDK (alloy.js) | Data collection library | Replaces AppMeasurement+at.js; sends one request to Edge Network | Implementing modern Adobe data collection |
 | Adobe Tags (Launch) | Tag Manager | Loads scripts, fires rules based on data layer events | Configuring tracking rules |
-| Adobe Analytics | Analytics | Stores clickstream, dimensions, metrics | Analyzing user behavior |
+| Consent Management (OneTrust) | Privacy/compliance | Cookie banner, user consent storage, gates MarTech tools | Privacy compliance, GDPR/CCPA |
+| Adobe Analytics | Analytics | Stores web clickstream; dimensions, metrics, segments | Analyzing web user behavior |
 | Akamai | CDN + Security | Delivers content, detects geo/bot, runs edge logic | Performance, security, geo data |
+| Marketing Attribution | Analytics concept | UTMs, channel classification, multi-touch credit | Campaign tracking, ROI measurement |
 | Adobe Target | Personalization | Serves A/B test variants, recommendations | Experimentation, personalization |
-| Adobe Experience Platform | Unified Platform | Real-time customer profile, CDP, identity resolution | Audience building, activation |
-| Customer Journey Analytics (CJA) | Advanced analytics | Cross-channel stitched journey analysis | Attribution, multi-touch |
-| Adobe Audience Manager (AAM) | DMP | Audience segments from 1st/2nd/3rd party data (legacy) | Programmatic advertising |
+| Adobe Experience Platform (AEP) | Unified Platform | Real-time customer profile, CDP, identity resolution | Audience building, activation |
+| Adobe Journey Optimizer (AJO) | Journey Orchestration | Omnichannel journeys — email, SMS, push, in-app | Triggered campaigns, lifecycle marketing |
+| Customer Journey Analytics (CJA) | Advanced analytics | Cross-channel stitched journey analysis on AEP data | Attribution, multi-channel analysis |
+| Adobe Audience Manager (AAM) | DMP (legacy) | Audience segments from 1st/2nd/3rd party data | Programmatic advertising (being replaced by AEP) |
 
 ---
 
