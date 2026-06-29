@@ -168,6 +168,84 @@ volumes:
 
 `readOnlyRootFilesystem: true` forces apps to write to explicitly mounted volumes, not the container filesystem. Prevents runtime code modification.
 
+## 4. seccomp Profiles
+
+```text
+seccomp (Secure Computing Mode): filters system calls a container can make.
+
+RuntimeDefault: uses the container runtime's (containerd/CRI-O) default seccomp
+profile — blocks ~100+ dangerous syscalls (ptrace, kexec, mount, etc.)
+
+Localhost: load a custom seccomp profile from the node filesystem.
+
+Unconfined: no filtering (not recommended for production).
+```
+
+```yaml
+# In pod securityContext:
+seccompProfile:
+  type: RuntimeDefault         # use container runtime default (recommended)
+
+# For custom profile:
+seccompProfile:
+  type: Localhost
+  localhostProfile: profiles/payment-service.json  # relative to /var/lib/kubelet/seccomp/
+```
+
+## 5. AppArmor Profiles
+
+```text
+AppArmor is a Linux Security Module (LSM) that restricts per-process capabilities
+via named profiles (loaded into the kernel).
+
+Works alongside seccomp:
+  seccomp: filters syscalls (what system calls the process can make)
+  AppArmor: restricts file paths, network access, capabilities per profile
+
+Modes:
+  enforce  — violations are blocked and logged
+  complain — violations are logged only (use for auditing before enforcing)
+  unconfined — no restriction
+```
+
+```yaml
+# Enable AppArmor on a pod (annotation-based, pre-K8s 1.30):
+metadata:
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/payment-service: runtime/default
+
+# K8s 1.30+ uses securityContext field (Beta):
+spec:
+  securityContext:
+    appArmorProfile:
+      type: RuntimeDefault      # use container runtime's default AppArmor profile
+```
+
+```text
+Common AppArmor profiles:
+  runtime/default   — containerd/CRI-O default profile (recommended baseline)
+  localhost/my-profile — custom profile loaded on each node
+
+Custom AppArmor profile use case:
+  payment-service should only read /app/ and write /tmp/
+  Write a profile that denies all file writes outside /tmp/
+  Load on nodes via DaemonSet
+  Attach with annotation
+
+AppArmor + PSS:
+  Restricted PSS does NOT require AppArmor (only seccomp)
+  AppArmor is an additional hardening layer on top of Restricted
+```
+
+## 6. Interview Traps — seccomp/AppArmor
+
+| Trap | Reality |
+|---|---|
+| "Restricted PSS enforces AppArmor" | Restricted only requires seccomp (RuntimeDefault). AppArmor is extra hardening. |
+| "seccomp and AppArmor do the same thing" | seccomp filters syscalls; AppArmor filters file/network access and capabilities |
+| "RuntimeDefault blocks all dangerous syscalls" | It blocks common dangerous ones. For maximum security, use a custom Localhost profile |
+| "AppArmor is kernel-version specific" | True — profiles compiled for one kernel may need updates after kernel upgrade |
+
 ---
 
 # Topic 3: OPA/Gatekeeper (Policy Engine)

@@ -372,6 +372,140 @@ Gateway API advantages over Ingress:
 
 ---
 
+# Topic 3b: cert-manager — Automated TLS Certificate Management
+
+## 1. What cert-manager Does
+
+```text
+cert-manager is a Kubernetes controller that:
+  - Automatically provisions TLS certificates (Let's Encrypt, Vault, AWS PCA)
+  - Renews certs before expiry (30-day buffer by default)
+  - Stores certs as Kubernetes Secrets
+  - Integrates with Ingress and Gateway API (annotation-based or CRD-based)
+
+Without cert-manager: manual cert renewal → expired certs → outages.
+With cert-manager: fully automated lifecycle.
+```
+
+## 2. Key CRDs
+
+```text
+Issuer      — issues certs for one namespace
+ClusterIssuer — issues certs cluster-wide (most common)
+Certificate — declares what cert you want
+CertificateRequest — internal (created by cert-manager, not manually)
+```
+
+## 3. ClusterIssuer (Let's Encrypt)
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ops-team@mycompany.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key    # stores ACME account key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: nginx   # use NGINX Ingress for HTTP-01 challenge
+      - dns01:                        # for wildcard certs
+          route53:
+            region: us-east-1
+            hostedZoneID: Z1234567890
+```
+
+## 4. Ingress Integration (annotation-driven)
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: payment-ingress
+  annotations:
+    # Tell cert-manager to issue a cert for this Ingress
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - payment.myapp.com
+      secretName: payment-tls-cert    # cert-manager creates this Secret
+  rules:
+    - host: payment.myapp.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 80
+
+# cert-manager sees the annotation → creates Certificate CRD → issues cert → stores in Secret
+```
+
+## 5. Explicit Certificate Resource
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: payment-tls
+  namespace: prod
+spec:
+  secretName: payment-tls-cert       # K8s Secret where cert will be stored
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: payment.myapp.com
+  dnsNames:
+    - payment.myapp.com
+    - api.payment.myapp.com
+  duration: 2160h    # 90 days (Let's Encrypt max)
+  renewBefore: 720h  # renew 30 days before expiry
+```
+
+## 6. Debugging cert-manager
+
+```bash
+# Check certificate status
+kubectl get certificate -n prod
+kubectl describe certificate payment-tls -n prod
+# Look for: Ready=True, not-before, not-after
+
+# Check CertificateRequest
+kubectl get certificaterequest -n prod
+
+# Check Orders (ACME challenge status)
+kubectl get order -n prod
+kubectl describe order payment-tls-xxx -n prod
+# Look for: state=valid (succeeded) or state=pending (challenge not yet solved)
+
+# Check cert-manager logs
+kubectl logs -n cert-manager deployment/cert-manager -f
+
+# Force renewal (add annotation)
+kubectl annotate certificate payment-tls \
+  cert-manager.io/force-renewal=true -n prod
+```
+
+## 7. Interview Traps — cert-manager
+
+| Trap | Reality |
+|---|---|
+| "cert-manager only works with Let's Encrypt" | Supports ACME (LE, ZeroSSL), Vault, AWS PCA, self-signed, CA issuers |
+| "HTTP-01 challenge works for wildcard certs" | HTTP-01 cannot issue wildcards. Use DNS-01 for `*.myapp.com` |
+| "cert-manager stores the private key in a ConfigMap" | No — stored in a K8s Secret of type `kubernetes.io/tls` |
+| "Cert expiry won't happen because cert-manager renews" | cert-manager must have permission (RBAC) and issuer must be reachable at renewal time |
+
+---
+
 # Topic 4: DNS in Kubernetes
 
 ## 1. CoreDNS
