@@ -1,35 +1,139 @@
 {
-  "_comment": "Copy this to your .vscode/settings.json — these are the recommended Copilot workspace settings",
-  "_note": "Remove _comment and _note keys before using — they are documentation only",
+  "_setup": "Copy this file to .vscode/settings.json in any project. Remove keys starting with _ before committing.",
+  "_docs": "Full Copilot settings reference: https://docs.github.com/en/copilot/configuring-github-copilot/configuring-github-copilot-in-your-environment",
 
+  // ─── GitHub Copilot — Core ────────────────────────────────────────────────
   "github.copilot.enable": {
     "*": true,
     "markdown": true,
     "yaml": true,
     "json": true,
+    "jsonc": true,
+    "toml": true,
     "plaintext": false,
-    "env": false
+    "env": false,
+    "dotenv": false
   },
 
+  // Load copilot-instructions.md and path-specific instructions automatically
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,
 
-  "editor.inlineSuggest.enabled": true,
-  "editor.inlineSuggest.showToolbar": "onHover",
-
+  // Enable Agent Mode (requires VS Code 1.90+)
   "chat.agent.enabled": true,
   "github.copilot.chat.agent.runTasks": true,
 
+  // ─── Inline Suggestions ────────────────────────────────────────────────────
+  "editor.inlineSuggest.enabled": true,
+  "editor.inlineSuggest.showToolbar": "onHover",
+  // Accept inline suggestion word by word with Cmd+Right
+  "editor.inlineSuggest.suppressSuggestions": false,
+
+  // ─── Editor — General ──────────────────────────────────────────────────────
   "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
   "editor.wordWrap": "on",
-  "files.autoSave": "afterDelay",
-  "files.autoSaveDelay": 1000,
-
-  "git.autofetch": true,
-  "git.confirmSync": false,
-
+  "editor.rulers": [100],
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.minimap.enabled": false,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.acceptSuggestionOnEnter": "smart",
 
+  // ─── File Handling ──────────────────────────────────────────────────────────
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  // ─── Git Integration ────────────────────────────────────────────────────────
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "git.suggestSmartCommit": false,
+  "git.openRepositoryInParentFolders": "always",
+  // Show diff decorations in gutter
+  "scm.diffDecorations": "all",
+
+  // ─── Terminal ───────────────────────────────────────────────────────────────
   "terminal.integrated.defaultProfile.osx": "zsh",
-  "terminal.integrated.defaultProfile.linux": "bash"
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.scrollback": 5000,
+
+  // ─── Explorer ───────────────────────────────────────────────────────────────
+  "explorer.confirmDelete": true,
+  "explorer.confirmDragAndDrop": true,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.spec.ts, ${capture}.test.ts",
+    "*.py": "${capture}_test.py, test_${capture}.py",
+    "pyproject.toml": "poetry.lock, .python-version",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .npmrc",
+    ".env.example": ".env, .env.local, .env.development, .env.test"
+  },
+
+  // ─── Search ─────────────────────────────────────────────────────────────────
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/coverage": true
+  },
+
+  // ─── Language-Specific ──────────────────────────────────────────────────────
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": false
+    }
+  },
+
+  // ─── Workspace Appearance ───────────────────────────────────────────────────
+  "workbench.tree.indent": 16,
+  "workbench.colorCustomizations": {},
+  "breadcrumbs.enabled": true
 }

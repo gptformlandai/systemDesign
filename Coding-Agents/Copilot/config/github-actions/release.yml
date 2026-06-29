@@ -1,0 +1,93 @@
+# Release Workflow — GitHub Actions Template
+# Use: copy to .github/workflows/release.yml
+# Triggered manually to create a versioned GitHub Release
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.2.0)"
+        required: true
+        type: string
+      prerelease:
+        description: "Is this a pre-release?"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: write      # to create the release
+      packages: write      # to publish packages (if needed)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for changelog generation
+
+      - name: Validate version format
+        run: |
+          if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "Invalid version format. Use: v1.2.3 or v1.2.3-beta.1"
+            exit 1
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --oneline --pretty=format:"- %s")
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline --pretty=format:"- %s")
+          fi
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.version }}
+          release_name: ${{ inputs.version }}
+          body: |
+            ## What's Changed
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            **Full Changelog**: https://github.com/${{ github.repository }}/commits/${{ inputs.version }}
+          draft: false
+          prerelease: ${{ inputs.prerelease }}
+
+      # ── Stack-specific publish steps ────────────────────────────────────────
+      # Uncomment the block that matches your stack:
+
+      # Python package publish to PyPI:
+      # - name: Publish to PyPI
+      #   run: |
+      #     pip install build twine
+      #     python -m build
+      #     twine upload dist/*
+      #   env:
+      #     TWINE_USERNAME: __token__
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+
+      # npm package publish:
+      # - name: Publish to npm
+      #   run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
