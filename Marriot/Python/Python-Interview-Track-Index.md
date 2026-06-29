@@ -119,6 +119,7 @@ After the starter path, read these.
 | 10 | `02-Intermediate-Backend/Python-Modules-Packaging-Venv-Pip-Poetry-Gold-Sheet.md` | Module system, imports, packages, `__init__.py`, `PYTHONPATH`, virtualenv, pip, Poetry, dependency hygiene |
 | 11 | `02-Intermediate-Backend/Python-File-IO-Serialization-JSON-Pickle-Gold-Sheet.md` | File reading/writing, `pathlib`, `json`, `csv`, `pickle` dangers, encoding, buffered vs unbuffered |
 | 12 | `02-Intermediate-Backend/Python-Backend-APIs-FastAPI-Flask-Patterns-Gold-Sheet.md` | Request lifecycle, routing, validation, dependency injection, error handling, FastAPI and Flask patterns |
+| 12a | `02-Intermediate-Backend/Python-Data-Engineering-Pandas-Polars-Gold-Sheet.md` | `DataFrame` creation, `loc`/`iloc`, `groupby`, `merge`, `apply` trap, dtype memory optimization, chunked reading, pandas vs polars, polars lazy API |
 
 Intermediate target:
 - You can explain how Python built-in data structures work internally.
@@ -126,6 +127,7 @@ Intermediate target:
 - You can write typed Python using hints, protocols, and Pydantic.
 - You can create and ship Python packages and manage dependencies.
 - You can design backend API handlers with clean validation and error handling.
+- You can process tabular data with pandas and explain when polars is the better choice.
 
 ---
 
@@ -141,6 +143,8 @@ These are the pro sheets.
 | 16 | `03-Senior-MAANG/Python-Performance-Profiling-Debugging-MAANG-Master-Sheet.md` | `cProfile`, `line_profiler`, `py-spy`, `memory_profiler`, `tracemalloc`, latency analysis, profiling in production |
 | 17 | `03-Senior-MAANG/Python-Testing-Pytest-Mocking-Testcontainers-Gold-Sheet.md` | `pytest`, fixtures, parametrize, monkeypatch, `unittest.mock`, fakes, integration tests, Testcontainers |
 | 18 | `03-Senior-MAANG/Python-Production-Engineering-Best-Practices-MAANG-Master-Sheet.md` | Logging, configuration, secrets, structured errors, retries, timeouts, packaging, observability, dependency safety |
+| 18a | `03-Senior-MAANG/Python-AsyncIO-Database-Drivers-Gold-Sheet.md` | asyncpg vs psycopg2, `AsyncEngine`, `AsyncSession`, `async_sessionmaker`, `expire_on_commit=False`, FastAPI `get_db` dependency, N+1 with selectinload/joinedload, connection pool sizing, Alembic with async |
+| 18b | `03-Senior-MAANG/Python-Memory-Optimization-Slots-Object-Pooling-Gold-Sheet.md` | `__dict__` overhead, `__slots__` mechanics, inheritance rules, pickling, small int/string interning, `weakref` caches, `__del__` pitfalls, object pooling patterns, `tracemalloc`, `objgraph`, generator vs list memory, production anti-patterns |
 
 Senior target:
 - You can explain CPython internals including the GIL, reference counting, and cyclic GC.
@@ -149,6 +153,8 @@ Senior target:
 - You can profile and debug slow or leaky Python production services.
 - You can describe a production Python testing strategy.
 - You can write Python that survives production failure modes.
+- You can build async FastAPI services with correct SQLAlchemy async session lifecycle and connection pool strategy.
+- You can diagnose Python memory leaks and apply `__slots__`, `weakref`, and generator patterns to reduce memory footprint.
 
 ---
 

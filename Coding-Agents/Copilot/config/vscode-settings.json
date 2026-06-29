@@ -1,0 +1,35 @@
+{
+  "_comment": "Copy this to your .vscode/settings.json — these are the recommended Copilot workspace settings",
+  "_note": "Remove _comment and _note keys before using — they are documentation only",
+
+  "github.copilot.enable": {
+    "*": true,
+    "markdown": true,
+    "yaml": true,
+    "json": true,
+    "plaintext": false,
+    "env": false
+  },
+
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+
+  "editor.inlineSuggest.enabled": true,
+  "editor.inlineSuggest.showToolbar": "onHover",
+
+  "chat.agent.enabled": true,
+  "github.copilot.chat.agent.runTasks": true,
+
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  "git.autofetch": true,
+  "git.confirmSync": false,
+
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.defaultProfile.linux": "bash"
+}

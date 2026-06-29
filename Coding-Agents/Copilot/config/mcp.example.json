@@ -1,0 +1,41 @@
+{
+  "servers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      },
+      "_comment_token": "Set GITHUB_TOKEN in your shell: export GITHUB_TOKEN=your_fine_grained_token",
+      "_comment_permissions": "Fine-grained token with: Contents=read, Issues=read, Pull requests=read"
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${env:COPILOT_FILESYSTEM_PATH}"
+      ],
+      "_comment_path": "Set COPILOT_FILESYSTEM_PATH to a specific project directory only. NEVER set to /",
+      "_comment_example": "export COPILOT_FILESYSTEM_PATH=/Users/yourname/projects/my-project"
+    }
+  },
+  "_security_notes": [
+    "NEVER commit mcp.json with real tokens — this file is gitignored",
+    "Always use ${env:VAR_NAME} for secrets — never hardcode",
+    "Scope filesystem access to specific directories only, never root",
+    "Use fine-grained GitHub tokens with minimum required permissions",
+    "Add mcp.json to .gitignore: echo '.vscode/mcp.json' >> .gitignore",
+    "Commit THIS file (mcp.example.json) as a template — not mcp.json"
+  ],
+  "_setup_instructions": [
+    "1. Copy this file: cp config/mcp.example.json .vscode/mcp.json",
+    "2. Set environment variables in your shell profile (~/.zshrc or ~/.bashrc):",
+    "   export GITHUB_TOKEN=your_fine_grained_token_here",
+    "   export COPILOT_FILESYSTEM_PATH=/path/to/your/project",
+    "3. Reload VS Code: Command Palette -> Developer: Reload Window",
+    "4. Verify MCP tools appear in Copilot Agent Mode"
+  ]
+}
