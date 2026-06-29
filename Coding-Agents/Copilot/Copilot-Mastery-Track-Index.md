@@ -80,7 +80,8 @@ Read these first. They build Copilot intuition from zero.
 | Order | File | What It Builds |
 |---:|---|---|
 | 1 | `01-Foundations/Copilot-Mental-Model-Gold-Sheet.md` | What Copilot is, how it sees context, difference between all modes, when to use each surface |
-| 2 | `01-Foundations/GitHub-Copilot-Setup-Personal-Machine-Gold-Sheet.md` | VS Code setup, extension install, account sign-in, plan verification, troubleshooting auth and network |
+| 2 | `01-Foundations/GitHub-Copilot-Setup-Personal-Machine-Gold-Sheet.md` | VS Code + JetBrains install, GitHub OAuth auth flow, SSH vs HTTPS, multi-account, extension activation troubleshooting, account/plan debugging, 4-level verification protocol |
+| 2a | `01-Foundations/Personal-Machine-Mastery-Gold-Sheet.md` | Workspace instructions at 3 levels, multi-machine sync strategy, personal AI productivity repo structure, prompt/agent backup, secret leak prevention, Git safety with Copilot changes |
 | 3 | `01-Foundations/Copilot-Inline-Suggestions-Gold-Sheet.md` | How autocomplete works, how to guide it with comments, tab/reject patterns, ghost text control |
 | 4 | `01-Foundations/Copilot-Chat-Fundamentals-Gold-Sheet.md` | Chat panel vs inline chat, Ask mode, context variables `#file` `#selection` `#codebase`, slash commands |
 | 5 | `01-Foundations/Safe-Prompting-Principles-Gold-Sheet.md` | No secrets rule, synthetic data, review discipline, small changes, source control safety net |
@@ -88,10 +89,12 @@ Read these first. They build Copilot intuition from zero.
 
 Foundations target:
 - You understand how Copilot processes context and generates output.
-- You have Copilot installed and verified working on your machine.
+- You have Copilot installed in VS Code (and JetBrains if applicable) and verified working.
+- You have a multi-machine sync strategy and personal AI productivity repository.
 - You can guide inline suggestions with strategic comments.
 - You can use Chat effectively with context variables.
-- You never paste secrets into Copilot.
+- You never paste secrets into Copilot and have pre-commit secret scanning configured.
+- You use Git checkpoints and the five-point commit gate for all Copilot-assisted changes.
 - You have completed at least 5 quick-win exercises.
 
 ---
