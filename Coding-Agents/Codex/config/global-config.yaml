@@ -1,0 +1,129 @@
+# Global Config Reference — global-config.yaml
+
+> Copy to: ~/.codex/config.yaml
+> Customize: model and approval_policy for your typical work
+
+---
+
+## Recommended Default Config
+
+```yaml
+# ~/.codex/config.yaml
+# Sensible defaults for production development work
+
+model: o4-mini
+# Why o4-mini: handles 90% of coding tasks well at lower cost than gpt-4.1
+# Override per session: codex --model gpt-4.1 "architecture task"
+
+approval_policy: auto-edit
+# Why auto-edit: applies file edits directly (fastest for implementation)
+#                asks before running shell commands (safe for unknown commands)
+# Override: codex --approval-policy suggest   (safe review mode)
+#           codex --approval-policy full-auto  (autonomous, only on feature branches)
+```
+
+---
+
+## Model Selection Quick Reference
+
+```yaml
+# Per-session overrides:
+
+# gpt-4.1 — use for:
+#   Architecture design and complex reasoning
+#   Debugging unfamiliar or complex errors
+#   Security reviews (important or high-stakes)
+#   Multi-file refactors with complex dependencies
+#   Full PR reviews
+# Command: codex --model gpt-4.1 "..."
+
+# o4-mini — use for (default, ~90% of tasks):
+#   Implementation (clear spec available)
+#   Test generation
+#   Refactoring with clear scope
+#   Pre-commit security checks
+#   Documentation generation
+# Command: codex "..." (uses default)
+
+# gpt-4.1-mini — use for:
+#   Pure documentation tasks only (docstrings, README)
+#   Fastest + cheapest for doc-only work
+# Command: codex --model gpt-4.1-mini "..."
+```
+
+---
+
+## Approval Policy Quick Reference
+
+```yaml
+# suggest:
+#   - Proposes changes, shows diffs, applies nothing
+#   - Use for: planning, security review, architecture review, exploration
+#   - Risk level: zero (nothing is applied)
+#   Command: codex --approval-policy suggest "..."
+
+# auto-edit (default):
+#   - Applies file edits directly
+#   - Asks before running shell commands
+#   - Use for: most implementation, test generation, documentation, refactoring
+#   - Risk level: low (files change, commands need approval)
+#   Command: codex "..." (default)
+
+# full-auto:
+#   - Applies file edits AND runs shell commands without asking
+#   - Required: feature branch + git checkpoint BEFORE running
+#   - Use for: bounded, well-specified tasks where you trust the scope
+#   - Risk level: high if misused — always on feature branch, always with checkpoint
+#   Command: codex --approval-policy full-auto "..."
+```
+
+---
+
+## Full Config With All Options
+
+```yaml
+# ~/.codex/config.yaml
+
+# Primary model for most tasks
+model: o4-mini
+
+# Default approval policy
+approval_policy: auto-edit
+
+# Optional: notification on long task completion
+# notify: true
+
+# Optional: disable telemetry
+# disable_telemetry: true
+```
+
+---
+
+## Environment Variables (Required)
+
+```bash
+# Required — must be set before codex will work
+export OPENAI_API_KEY="sk-..."
+
+# Add to shell profile for persistence
+echo 'export OPENAI_API_KEY="sk-..."' >> ~/.zshrc  # or ~/.bashrc
+
+# NEVER commit this value to any file
+# NEVER put this value in AGENTS.md
+# NEVER put this value in a Codex prompt
+```
+
+---
+
+## Per-Project Config Override
+
+```bash
+# To override config for a specific project without changing global config:
+# Run from project root:
+
+codex --model gpt-4.1 --approval-policy auto-edit "task"
+
+# Or set a project-level wrapper in your Makefile:
+# codex-default:
+#     @codex --model gpt-4.1 --approval-policy auto-edit "$(TASK)"
+```

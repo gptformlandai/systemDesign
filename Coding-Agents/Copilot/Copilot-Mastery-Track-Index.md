@@ -84,6 +84,7 @@ Read these first. They build Copilot intuition from zero.
 | 2a | `01-Foundations/Personal-Machine-Mastery-Gold-Sheet.md` | Workspace instructions at 3 levels, multi-machine sync strategy, personal AI productivity repo structure, prompt/agent backup, secret leak prevention, Git safety with Copilot changes |
 | 3 | `01-Foundations/Copilot-Inline-Suggestions-Gold-Sheet.md` | How autocomplete works, how to guide it with comments, tab/reject patterns, ghost text control |
 | 4 | `01-Foundations/Copilot-Chat-Fundamentals-Gold-Sheet.md` | Chat panel vs inline chat, Ask mode, context variables `#file` `#selection` `#codebase`, slash commands |
+| 4a | `01-Foundations/Copilot-CLI-Terminal-Gold-Sheet.md` | `gh copilot explain` + `gh copilot suggest` + alias setup — Copilot in the terminal without VS Code |
 | 5 | `01-Foundations/Safe-Prompting-Principles-Gold-Sheet.md` | No secrets rule, synthetic data, review discipline, small changes, source control safety net |
 | 6 | `01-Foundations/Copilot-For-Beginners-Quick-Wins-Gold-Sheet.md` | First 10 high-ROI use cases: explain, fix error, generate test, write docstring, create README |
 
@@ -107,6 +108,7 @@ After foundations, read these.
 |---:|---|---|
 | 7 | `02-Intermediate-Power-User/Custom-Instructions-Deep-Dive-Gold-Sheet.md` | `copilot-instructions.md` structure, path-specific instructions, instruction design principles, bad vs good examples |
 | 8 | `02-Intermediate-Power-User/Prompt-Files-Slash-Commands-Gold-Sheet.md` | YAML frontmatter, prompt file anatomy, creating reusable slash commands, prompt library management |
+| 8a | `02-Intermediate-Power-User/Before-After-Prompt-Examples-Gold-Sheet.md` | Side-by-side before/after rewrites for every major task type — the fastest way to level up prompt quality |
 | 9 | `02-Intermediate-Power-User/Copilot-Edits-Mode-Gold-Sheet.md` | Edits vs Chat Ask, multi-file edits, working set management, diff review, accepting/rejecting changes |
 | 10 | `02-Intermediate-Power-User/Agent-Mode-Safe-Usage-Gold-Sheet.md` | Agent Mode mechanics, planning before coding, multi-file safety, recovery from bad changes, task templates |
 | 11 | `02-Intermediate-Power-User/Copilot-For-Testing-Gold-Sheet.md` | Unit test generation, test gap analysis, edge case generation, mocking strategy, per-language patterns |
@@ -138,6 +140,9 @@ These are the leverage multipliers.
 | 18 | `03-Advanced-Engineering/MCP-Integration-Copilot-Gold-Sheet.md` | What MCP is, MCP server use cases, `.vscode/mcp.json` config, security risks, least privilege |
 | 19 | `03-Advanced-Engineering/Copilot-For-Architecture-And-Prompt-Library-Gold-Sheet.md` | Architecture review prompt, ADR generation, system design helper, prompt library management |
 | 19a | `03-Advanced-Engineering/Optional-M365-AgentBuilder-Studio-Gold-Sheet.md` | M365 Copilot productivity workflows, Copilot Chat Agent Builder concepts, Copilot Studio overview — **OPTIONAL** |
+| 20a | `03-Advanced-Engineering/Personal-GitHub-Workflow-Gold-Sheet.md` | GitHub CLI daily driver, personal account setup, SSH, branch strategy, PR workflow with Copilot |
+| 20b | `03-Advanced-Engineering/Personal-Project-Bootstrap-Gold-Sheet.md` | 30-minute project scaffold: repo + CI + Copilot config from zero using Copilot Agent Mode |
+| 20c | `03-Advanced-Engineering/Open-Source-Contribution-Workflow-Gold-Sheet.md` | OSS contribution mental model, codebase exploration prompts, pattern-matching, PR discipline with Copilot |
 
 Advanced target:
 - You have built at least 3 custom agents with clear scopes and boundaries.
@@ -204,6 +209,7 @@ Use these alongside and after the concept sheets. They convert passive reading i
 | 34 | `06-Practice-Upgrade/Copilot-Mock-Workflow-Scripts.md` | Timed scenario exercises for coding sessions, debugging, review, and architecture |
 | 35 | `06-Practice-Upgrade/Copilot-Scoring-Rubrics.md` | 1-5 scoring rubrics for prompt quality, context efficiency, output review, and workflow maturity |
 | 36 | `06-Practice-Upgrade/Copilot-4-Week-Mastery-Roadmap.md` | Realistic 4-week plan from beginner to pro operating level |
+| 37 | `06-Practice-Upgrade/Copilot-MAANG-Interview-Prep-Gold-Sheet.md` | L3–L7 interview Q&A for "how do you use AI tools" — behavioral, depth, team/org, and strategy questions |
 
 Practice target:
 - You can answer questions about Copilot modes, context, and instructions from memory.

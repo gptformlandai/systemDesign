@@ -6,6 +6,128 @@
 
 ---
 
+## ⭐ Beginner Tier — First Week with Copilot (Scenarios B1–B3)
+
+> Complete these before the Intermediate scenarios. No frameworks required — just a file and VS Code.
+
+---
+
+### Scenario B1 — Explain a File You've Never Seen (5 minutes)
+
+**Setup**: Open any unfamiliar file in your project (or paste the code below into a new file).
+
+**Simulated file** (create `calculator.py`):
+```python
+def calculate_discount(price, customer_type, quantity):
+    base = price * quantity
+    if customer_type == "VIP":
+        return base * 0.75
+    elif customer_type == "MEMBER":
+        return base * 0.90 if quantity >= 10 else base * 0.95
+    return base
+```
+
+**Task**: Use Copilot Chat to understand it before touching it.
+
+**Prompt**:
+```
+"Explain what this function does:
+#selection
+
+1. What is its purpose in plain English?
+2. What are the inputs and what are valid values?
+3. What does each branch of the if/elif do?
+4. What edge cases does it NOT handle?
+5. If I call calculate_discount(100, 'VIP', 5), what is the return value and why?"
+```
+
+**Success criteria**: You can explain the function to someone else without re-reading the code.
+
+**What you're practicing**: Using Chat to read code before modifying it — the single most important Copilot habit.
+
+---
+
+### Scenario B2 — Your First Inline Suggestion Drill (10 minutes)
+
+**Setup**: Create a new file `string_utils.py`.
+
+**Task**: Use inline completions (not Chat) to build a small utility module.
+
+**Step 1** — Type this comment, then press Tab to accept the suggestion:
+```python
+# Returns True if the string is a valid email address
+def is_valid_email(
+```
+
+**Step 2** — On a new line, type:
+```python
+# Truncates a string to max_length characters and adds "..." if truncated
+def truncate(
+```
+
+**Step 3** — Type:
+```python
+# Counts the number of words in a sentence (split by spaces)
+def word_count(
+```
+
+**Step 4** — Review each generated function:
+- Does it do what the comment says?
+- Does it handle an empty string?
+- If the function is wrong: reject it, rewrite the comment more specifically, try again.
+
+**Score**:
+- [ ] 3 functions generated via inline completions
+- [ ] You reviewed each one — not just accepted all
+- [ ] You can explain what each function does
+- [ ] At least one iteration where you rejected the first suggestion and refined it
+
+---
+
+### Scenario B3 — Document Existing Code (10 minutes)
+
+**Setup**: Take any undocumented function you wrote (or use one from Scenario B2).
+
+**Task**: Use Copilot Chat to add docstrings and improve the function.
+
+**Prompt 1 — Generate docstring**:
+```
+"Generate a Python docstring for this function using Google style format:
+#selection
+
+Include: what it does, Args with types and descriptions,
+Returns with type and description, Raises if it can raise errors,
+and one Example."
+```
+
+**Prompt 2 — Find edge cases**:
+```
+"What inputs could break this function or produce unexpected results?
+#selection
+
+List: invalid input types, boundary values, empty inputs, None values.
+For each: what happens currently and what should happen."
+```
+
+**Prompt 3 — Improve error handling**:
+```
+"Add input validation to this function so it raises ValueError with a clear message
+for each invalid input you identified:
+#selection
+
+Do not change the return behavior for valid inputs."
+```
+
+**Success criteria**: The function now has a docstring, handles invalid input with clear errors, and you understand every line.
+
+---
+
+## Intermediate Tier — Scenarios 1–5
+
+> Pre-requisite: complete 01-Foundations and 02-Intermediate-Power-User tracks.
+
+---
+
 ## Scenario 1 — Morning Planning Sprint (10 minutes)
 
 **Setup**: You have a ticket: "Add rate limiting to the login endpoint — max 5 attempts per IP per 15 minutes. Return HTTP 429 after that."

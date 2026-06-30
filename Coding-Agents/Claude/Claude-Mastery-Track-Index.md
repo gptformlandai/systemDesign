@@ -179,11 +179,12 @@ Convert passive reading into active skill.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 30 | `06-Practice-Upgrade/Claude-Active-Recall-Question-Bank.md` | 50 applied questions mapped to every sheet |
-| 31 | `06-Practice-Upgrade/Claude-Slash-Command-Library.md` | Ready-to-use slash command templates for every major workflow |
-| 32 | `06-Practice-Upgrade/Claude-Mock-Workflow-Scripts.md` | Timed exercises: planning, debugging, refactoring, review |
-| 33 | `06-Practice-Upgrade/Claude-Scoring-Rubrics.md` | 1-5 scoring rubrics for prompt quality, CLAUDE.md quality, workflow maturity |
+| 30 | `06-Practice-Upgrade/Claude-Active-Recall-Question-Bank.md` | 30 Q&A pairs with full answers, mapped to every track section |
+| 31 | `06-Practice-Upgrade/Claude-Slash-Command-Library.md` | Ready-to-use slash command templates for every major workflow (9 commands) |
+| 32 | `06-Practice-Upgrade/Claude-Mock-Workflow-Scripts.md` | 7 timed drills: planning, testing, debugging, pre-commit, agent mode, tokens, pipeline |
+| 33 | `06-Practice-Upgrade/Claude-Scoring-Rubrics.md` | 7 rubrics /35: prompt quality, CLAUDE.md quality, workflow maturity, agentic depth |
 | 34 | `06-Practice-Upgrade/Claude-4-Week-Mastery-Roadmap.md` | Day-by-day plan from beginner to pro operating level |
+| 35 | `06-Practice-Upgrade/Claude-MAANG-Interview-Prep-Gold-Sheet.md` | L3–L7 interview Q&A: daily workflow, quality assurance, team rollout, governance, 60-second pitch |
 
 ---
 

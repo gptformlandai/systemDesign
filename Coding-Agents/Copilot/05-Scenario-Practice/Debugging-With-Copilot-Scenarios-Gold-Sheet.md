@@ -19,6 +19,143 @@ Before every debugging session:
 
 ---
 
+## ⭐ Beginner Tier — First Debugging Sessions (Scenarios B1–B3)
+
+> No framework knowledge required. Practice the habit of using Copilot to understand errors before guessing at fixes.
+
+---
+
+### Scenario B1 — NameError: Explain Before You Fix (5 minutes)
+
+**Setup**: Create `budget.py` and run it.
+
+```python
+# budget.py
+def calculate_monthly_budget(income, expenses):
+    savings = incme - expenses   # intentional typo
+    return savings
+
+result = calculate_monthly_budget(5000, 3200)
+print(f"Monthly savings: {result}")
+```
+
+**Error you'll see**:
+```
+NameError: name 'incme' is not defined
+```
+
+**Exercise — Explain then fix**:
+```
+"I got this Python error when running budget.py:
+
+NameError: name 'incme' is not defined
+
+File: budget.py, line 3: savings = incme - expenses
+
+1. Why does Python throw NameError specifically?
+2. What does 'not defined' mean — is the variable missing, misspelled, or out of scope?
+3. What is the fix?
+4. How can I catch this kind of mistake before running the code?
+   (hint: mention a linter or type checker)"
+```
+
+**Expected learning**: Understand what NameError means vs TypeError vs AttributeError. Know how a linter (ruff, pylint) would have caught this before runtime.
+
+---
+
+### Scenario B2 — TypeError: Read the Error, Don't Guess (5 minutes)
+
+**Setup**: Create `converter.py` and run it.
+
+```python
+# converter.py
+def celsius_to_fahrenheit(celsius):
+    return (celsius * 9/5) + 32
+
+temperatures = ["20", "25", "30"]  # strings, not numbers
+for temp in temperatures:
+    print(celsius_to_fahrenheit(temp))
+```
+
+**Error you'll see**:
+```
+TypeError: unsupported operand type(s) for *: 'str' and 'float'
+```
+
+**Exercise**:
+```
+"Explain this Python TypeError:
+
+TypeError: unsupported operand type(s) for *: 'str' and 'float'
+Line: return (celsius * 9/5) + 32
+
+Code context:
+[paste the function]
+
+1. What is Python telling me in plain English?
+2. Where is the type mismatch — what is 'str' and what is 'float' referring to?
+3. Two ways to fix this:
+   a. Fix the data before calling the function
+   b. Fix the function to handle string input
+4. Which fix is better and why?"
+```
+
+**Expected learning**: Read error messages character by character. "unsupported operand type(s) for *: 'str' and 'float'" tells you everything — don't guess, decode it.
+
+---
+
+### Scenario B3 — Test Failure: What Does FAILED Actually Mean? (10 minutes)
+
+**Setup**: Create `math_utils.py` and `test_math_utils.py`.
+
+```python
+# math_utils.py
+def safe_divide(a, b):
+    return a / b  # no protection against b=0
+```
+
+```python
+# test_math_utils.py
+def test_safe_divide_raises_on_zero():
+    try:
+        result = safe_divide(10, 0)
+        assert False, "Should have raised an error"
+    except ZeroDivisionError:
+        pass  # this is what we want
+
+def test_safe_divide_normal():
+    assert safe_divide(10, 2) == 5
+```
+
+Run: `python -m pytest test_math_utils.py -v`
+
+**The test passes** (ZeroDivisionError is caught by the test) — but the implementation is wrong.
+
+**Exercise**:
+```
+"Explain this situation:
+
+Implementation: safe_divide(a, b) just does a / b
+Test: catches ZeroDivisionError, which 'passes'
+Problem: the function is called 'safe_divide' but it's not actually safe
+
+1. Why does the test pass even though the implementation is unsafe?
+2. What should safe_divide actually do when b=0?
+3. Rewrite safe_divide to return a clear error instead of ZeroDivisionError
+4. Update the test to match the new behavior
+5. What is the difference between ZeroDivisionError and a ValueError with a message?"
+```
+
+**Expected learning**: Passing tests ≠ correct behavior. Tests only verify what they test. Learning to write tests that actually express requirements, not just avoid crashes.
+
+---
+
+## Intermediate Tier — Scenarios 1–5
+
+> Pre-requisite: comfortable with your language's testing framework and async patterns.
+
+---
+
 ## Scenario 1 — Interpret an Error You've Never Seen
 
 **Setup**: You encounter this error for the first time in a new library.
