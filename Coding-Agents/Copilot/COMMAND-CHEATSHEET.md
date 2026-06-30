@@ -4,7 +4,60 @@
 
 ---
 
-## 🔑 Essential Keyboard Shortcuts
+## � Copilot CLI (`gh copilot`) — Terminal Surface
+
+Install once: `gh extension install github/gh-copilot`
+Set up aliases: `gh copilot alias -- zsh` (or `bash` / `fish`)
+
+### Explain a command
+```bash
+gh copilot explain "kubectl get pods --all-namespaces -o wide"
+gh copilot explain "git log --oneline --graph --all --decorate"
+gh copilot explain "find . -name '*.log' -mtime +7 -exec rm {} \;"
+```
+
+### Suggest a command
+```bash
+gh copilot suggest "list all running docker containers with memory usage"
+gh copilot suggest -t git "squash the last 3 commits into one"
+gh copilot suggest -t gh  "create a draft PR from current branch to main"
+```
+
+### Shell aliases (after `gh copilot alias -- zsh`)
+| Alias | Equivalent |
+|---|---|
+| `??  "your task"` | `gh copilot suggest -t shell "your task"` |
+| `git? "your task"` | `gh copilot suggest -t git "your task"` |
+| `gh?  "your task"` | `gh copilot suggest -t gh "your task"` |
+
+### Quick patterns
+```bash
+# Kubernetes (saves the most time):
+?? "get all pods in prod namespace not in Running state"
+?? "port-forward port 5432 from the postgres pod in database namespace"
+?? "watch pod restart counts in real time for the payment namespace"
+
+# Git operations you always forget:
+git? "find the commit that introduced the string stripe_charge_id"
+git? "cherry-pick commits abc123 and def456 onto current branch"
+
+# AWS/cloud:
+?? "list all EC2 instances tagged Environment=production and their state"
+?? "tail CloudWatch logs for my Lambda function named payment-processor"
+```
+
+### CLI vs VS Code Chat — when to use which
+| Scenario | Use |
+|---|---|
+| Explain a command before running it | CLI (`gh copilot explain`) |
+| Generate kubectl / docker / git command | CLI (`??`) |
+| SSH'd into server, no VS Code | CLI only |
+| Need to reference a file or codebase | VS Code Chat |
+| Multi-file code change | VS Code Edits / Agent Mode |
+
+---
+
+## �🔑 Essential Keyboard Shortcuts
 
 | Action | Mac | Windows/Linux |
 |---|---|---|

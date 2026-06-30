@@ -6,6 +6,127 @@
 
 ---
 
+## ⭐ Beginner Tier — Your First Feature with Copilot (Scenarios B1–B2)
+
+> No framework required. Just a Python (or any language) file and VS Code.
+
+---
+
+### Scenario B1 — Add a Function Using Inline Suggestions (15 minutes)
+
+**Setup**: Create `inventory.py` with this starter:
+
+```python
+# inventory.py
+
+items = {}
+
+def add_item(name: str, quantity: int, price: float):
+    """Adds an item to inventory. Raises ValueError if quantity or price < 0."""
+    if quantity < 0 or price < 0:
+        raise ValueError("Quantity and price must be non-negative")
+    items[name] = {"quantity": quantity, "price": price}
+```
+
+**Task**: Use Copilot (inline suggestions + Chat) to add 3 more functions.
+
+**Step 1** — Type the comment and let inline suggest complete:
+```python
+# Returns total inventory value (sum of quantity * price for all items)
+def total_value(
+```
+
+**Step 2** — Type:
+```python
+# Removes an item by name. Raises KeyError if not found.
+def remove_item(
+```
+
+**Step 3** — Use Chat to generate a search function:
+```
+"Add a function to inventory.py:
+
+Function: search_items(keyword: str) → list[str]
+Behavior: returns names of all items where keyword appears in the item name (case-insensitive)
+If no matches: return empty list
+
+Follow the same style as the existing functions in #file:inventory.py"
+```
+
+**Step 4** — Use Edits mode to add tests:
+```
+Working set: inventory.py (or create test_inventory.py)
+
+"Generate pytest tests for all 4 functions in #file:inventory.py.
+For each function: 1 happy path test, 1 error case test.
+Test total_value with 0 items and with 2 items."
+```
+
+**Success criteria**: 4 functions implemented, all tests pass, you can explain each function.
+
+---
+
+### Scenario B2 — Extend an Existing Function Safely (20 minutes)
+
+**Setup**: Use the `calculate_discount` function from Daily Workflow Scenario B1 (or paste it):
+
+```python
+def calculate_discount(price, customer_type, quantity):
+    base = price * quantity
+    if customer_type == "VIP":
+        return base * 0.75
+    elif customer_type == "MEMBER":
+        return base * 0.90 if quantity >= 10 else base * 0.95
+    return base
+```
+
+**Task**: Extend it safely without breaking existing behavior.
+
+**Step 1 — Understand first**:
+```
+"Before I change this function:
+#selection
+
+What are all the current behaviors? List each customer_type branch
+and what discount it applies. Also: what happens for customer_type='GUEST'?
+What happens if price=0?"
+```
+
+**Step 2 — Plan the extension**:
+```
+"I want to add a new customer type: 'STAFF' gets 40% discount on any quantity.
+Also: if any order is over $1000 base value, add an extra 5% on top of the discount.
+
+Before implementing: show me the new behavior table for all customer types.
+Plan only — no code yet."
+```
+
+**Step 3 — Implement**:
+```
+"Implement the changes we planned to #selection.
+Do not change the existing VIP and MEMBER logic.
+Add 'STAFF' at 40% discount.
+Add the $1000 extra 5% discount layer on top.
+Keep all existing tests passing."
+```
+
+**Step 4 — Add tests for the new cases**:
+```
+"Generate tests for the new STAFF discount and the $1000 threshold.
+Test: STAFF with quantity 1, STAFF with large quantity,
+order exactly at $1000 boundary, order over $1000 for each customer type."
+```
+
+**Success criteria**: New behavior added, all old tests still pass, new tests verify new behavior.
+
+---
+
+## Intermediate Tier — Scenarios 1–4
+
+> Pre-requisite: completed 01-Foundations and 02-Intermediate-Power-User tracks.
+
+---
+
 ## Scenario 1 — Feature from Scratch (Language-Agnostic)
 
 **Task**: Build a "user notification preferences" feature.
