@@ -319,12 +319,391 @@ Under 500 words.
 
 ---
 
-## 9. Revision Checklist
+## 9. XML Tags — Structured Reasoning for Complex Tasks
 
+### Why XML Tags Work With Claude
+
+```
+Claude was trained with XML-tagged content. Using XML tags in prompts:
+  - Clearly separates different parts of your instruction
+  - Tells Claude EXACTLY what type of content is in each section
+  - Forces Claude to reason through sections in the right order
+  - Dramatically improves output for complex multi-part tasks
+
+When to use XML tags:
+  → Tasks with multiple distinct input types (code + error + context)
+  → Tasks requiring structured step-by-step reasoning
+  → Tasks where you want Claude to separate analysis from answer
+  → Multi-document analysis
+  → Long prompts where visual structure helps Claude parse intent
+```
+
+### Core XML Pattern for Code Tasks
+
+```xml
+<task>
+Security review of the authentication service.
+</task>
+
+<code>
+@file:src/api/auth.py
+</code>
+
+<requirements>
+- Check: SQL injection, hardcoded credentials, missing auth checks, PII in logs
+- Severity labels: CRITICAL, HIGH, MEDIUM, LOW
+- Format: one finding per line: [SEVERITY] line:N — issue — fix
+- CRITICAL first, skip INFO-level
+</requirements>
+
+<constraints>
+- Under 250 words
+- Code fixes shown inline, not in separate section
+</constraints>
+```
+
+### The Reasoning Sandwich Pattern
+
+```xml
+<!-- For hard problems: think first, then answer -->
+<problem>
+Why is the payment webhook endpoint occasionally returning 500 errors
+under load?
+</problem>
+
+<context>
+@file:src/api/webhooks.py
+Error rate: 2% at 100 req/s, 15% at 500 req/s
+Logs show: database connection pool exhausted
+</context>
+
+<think>
+Before answering, reason through:
+1. What happens to connection pool under load?
+2. What is the pool size vs concurrent requests?
+3. What does "connection pool exhausted" look like in the code?
+</think>
+
+<answer>
+Root cause and fix.
+</answer>
+```
+
+### Document Analysis Pattern
+
+```xml
+<document_1>
+@file:src/services/order_service.py
+</document_1>
+
+<document_2>
+@file:src/repositories/order_repository.py
+</document_2>
+
+<task>
+Compare the error handling approach across both files.
+Which is more robust? Show concrete differences.
+Format: comparison table.
+</task>
+```
+
+---
+
+## 10. Extended Thinking — Claude's Internal Reasoning
+
+### What Extended Thinking Is
+
+```
+Extended thinking (available via API with "thinking" parameter and in some interfaces)
+allows Claude to work through complex problems before producing an answer.
+
+Claude uses a private "scratchpad" for reasoning, then produces a visible answer.
+
+When to use it:
+  → Complex multi-step debugging (race conditions, timing issues)
+  → Architecture decisions with many trade-offs
+  → Security analysis requiring adversarial thinking
+  → Algorithm design problems
+  → Any problem where you've gotten wrong answers from standard prompting
+
+How to invoke in Claude Code:
+  claude --extended-thinking "Debug this race condition: @file:src/worker.py"
+  
+Or in a prompt:
+  "Think through this carefully before answering.
+  Reason step by step. Show your reasoning, then give your conclusion."
+```
+
+### Simulating Extended Thinking Without API Access
+
+```
+Even without the extended thinking API:
+1. Ask Claude to reason explicitly:
+
+   "Before giving your final answer, work through:
+   1. What are all the possible causes?
+   2. What evidence supports or rules out each cause?
+   3. What is the most likely cause?
+   
+   Then give your final diagnosis."
+
+2. Use the scratchpad pattern:
+   "First, reason through this problem for yourself — list your assumptions,
+   possible approaches, and why each works or doesn't.
+   Then show me only your recommended solution."
+
+3. Ask for confidence levels:
+   "Give me the answer, but also tell me:
+   - How confident are you (0-100%)?
+   - What would make you change your answer?
+   - What are you uncertain about?"
+```
+
+---
+
+## 11. Chain-of-Thought — Making Reasoning Explicit
+
+### When Chain-of-Thought Helps
+
+```
+Chain-of-thought (COT) prompting forces Claude to reason step by step.
+This catches errors that appear in "intuitive" answers.
+
+Use COT for:
+  - Logic-heavy debugging (not obvious root cause)
+  - Security analysis (easy to miss attack vectors)
+  - Architecture decisions (many trade-offs)
+  - Complex business logic implementation
+
+Don't use COT for:
+  - Simple code generation (adds overhead)
+  - Factual questions
+  - Formatting/restructuring tasks
+```
+
+### COT Templates
+
+```
+Template 1 — Step-by-step analysis:
+"Before giving your answer, list:
+1. All possible root causes for this error
+2. Evidence that supports or rules out each cause
+3. Your conclusion
+
+Then give: root cause (1 sentence) + fix (diff)"
+
+Template 2 — Decision analysis:
+"Before recommending, analyze:
+Option A: [pros, cons, risks]
+Option B: [pros, cons, risks]
+Option C: [pros, cons, risks]
+Decision criteria: [list the most important factors]
+
+Then give: your recommendation and the 2 most important reasons."
+
+Template 3 — Security analysis:
+"Analyze this code for security issues by working through each attack vector:
+1. Can user input reach this code without sanitization? [yes/no + evidence]
+2. Are there SQL operations? [yes/no — show which ones]
+3. Is authentication checked before business logic? [yes/no + location]
+4. Is any sensitive data logged? [yes/no + location]
+
+Then show findings table."
+```
+
+### Anti-Pattern: COT Without Constraint
+
+```
+BAD: "Think step by step about how to improve this code"
+→ Claude reasons for 600 words, concludes with generic advice
+
+GOOD: "Reason through exactly 3 options for solving this caching problem.
+For each option: 2 pros, 2 cons, effort estimate (S/M/L).
+Then recommend one option in 1 sentence."
+→ Structured reasoning, bounded output, actionable conclusion
+```
+
+---
+
+## 12. Prefilling — Control Where Claude Starts
+
+### What Prefilling Is
+
+```
+Prefilling = providing the START of Claude's response in your prompt.
+Claude then completes the response starting from where you left off.
+
+Why it's powerful:
+  - Prevents Claude from changing the format mid-response
+  - Forces Claude to begin with code, not preamble
+  - Ensures output is parseable by downstream processes
+  - Eliminates "Certainly! I'd be happy to help..." preamble
+
+How to use in Claude Code:
+  End your prompt with the beginning of Claude's intended response.
+  Claude will continue from there.
+```
+
+### Prefilling Examples
+
+```python
+# Example 1: Force code-only output
+"Generate the process_refund() function for payment_service.py:
+  - Takes order_id: int, amount: Decimal, reason: str
+  - Returns RefundResult dataclass
+  - Raises InsufficientFundsError if amount > order.total
+  - Uses asyncpg session injection
+
+```python
+async def process_refund(session: AsyncSession, order_id: int, amount: Decimal, reason: str) -> RefundResult:"
+# Claude continues from this exact line — no preamble
+
+# Example 2: Force structured analysis
+"Security analysis of @file:auth.py:
+
+| Severity | Line | Vulnerability | Fix |
+|----------|------|---------------|-----|"
+# Claude fills in the table rows directly
+
+# Example 3: Force ADR format
+"Write an ADR for using JWT stateless tokens:
+
+# ADR-042: JWT Stateless Authentication
+Date: 2024-01-15
+Status: Accepted
+
+## Context"
+# Claude fills in the section content
+```
+
+---
+
+## 13. Output Parsing — Reliable Structured Data
+
+### The Parsing Problem
+
+```
+If you need to programmatically process Claude's output:
+  - Unstructured prose is impossible to parse reliably
+  - Markdown has inconsistent formatting
+  - Tables are fragile to parse
+
+Solutions: JSON output, XML output, or strict delimiters.
+```
+
+### JSON Output Pattern
+
+```python
+# Prompt:
+"Analyze the security issues in @file:auth.py.
+Return ONLY a JSON array — no explanation, no markdown, no prose:
+[
+  {
+    \"severity\": \"CRITICAL|HIGH|MEDIUM|LOW\",
+    \"line\": <line_number>,
+    \"issue\": \"<description>\",
+    \"fix\": \"<code change>\"
+  }
+]"
+
+# Parsing in Python:
+import json
+import subprocess
+result = subprocess.run(['claude', '--print', prompt], capture_output=True, text=True)
+findings = json.loads(result.stdout)
+for f in findings:
+    if f['severity'] in ('CRITICAL', 'HIGH'):
+        print(f"[{f['severity']}] Line {f['line']}: {f['issue']}")
+```
+
+### Delimiter-Based Parsing
+
+```python
+# Prompt:
+"Generate 3 test function names for user_service.py's create_user method.
+Return exactly 3 names, one per line, between <names> tags:
+<names>
+test_name_1
+test_name_2
+test_name_3
+</names>"
+
+# Parsing:
+import re
+output = run_claude(prompt)
+match = re.search(r'<names>(.*?)</names>', output, re.DOTALL)
+names = [n.strip() for n in match.group(1).strip().split('\n')]
+```
+
+### Validation Pattern
+
+```python
+# Always validate parsed output:
+def parse_severity(data: dict) -> str:
+    allowed = {'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'}
+    sev = data.get('severity', '').upper()
+    if sev not in allowed:
+        raise ValueError(f"Invalid severity: {sev}")
+    return sev
+
+# Never trust Claude output in security-sensitive contexts without validation
+```
+
+---
+
+## 14. Self-Critique Pattern — Constitutional Prompting
+
+### What Self-Critique Is
+
+```
+Ask Claude to generate code, then critique it, then improve it.
+This surfaces problems Claude wouldn't mention in a single pass.
+
+When to use:
+  - Security-sensitive code
+  - Complex business logic
+  - Public APIs
+
+The pattern: Generate → Critique → Revise
+```
+
+### Self-Critique Template
+
+```
+"Generate a payment processing function that charges a credit card via Stripe.
+
+After generating, critique your implementation against these principles:
+1. Does this handle all error cases (network timeout, invalid card, insufficient funds)?
+2. Is any sensitive data logged?
+3. Are there any race conditions if called concurrently?
+4. Does this fail safely if Stripe is unavailable?
+
+Then revise the function to address any issues you found.
+
+Output:
+1. Initial implementation
+2. Critique (what's wrong with it)
+3. Revised implementation (addressing each critique point)"
+```
+
+---
+
+## 15. Revision Checklist
+
+### Foundation Techniques (Sections 2-8)
 - [ ] Can write a prompt with all 5 CRISP elements
-- [ ] Knows the bad vs good pattern for: code gen, debugging, review, refactor, learning
+- [ ] Uses bad vs good pattern knowledge for: code gen, debugging, review, refactor, learning
 - [ ] Always specifies output format in every prompt
-- [ ] Uses role prompting for specialist reviews and analysis
-- [ ] Uses multi-shot examples instead of long instruction lists
+- [ ] Uses role prompting for specialist reviews
+- [ ] Uses multi-shot examples instead of 200-word instruction lists
 - [ ] Uses "Do NOT" constraints to prevent common wrong turns
-- [ ] Has saved all 4 prompt templates for daily reuse
+- [ ] Has all 4 prompt templates saved for daily reuse
+
+### Advanced Techniques (Sections 9-14)
+- [ ] Uses XML tags for multi-part tasks and complex instructions
+- [ ] Knows when to use extended thinking (complex debugging, architecture, security)
+- [ ] Uses COT templates for logic-heavy problems
+- [ ] Applies prefilling to force specific output format (no preamble)
+- [ ] Can parse JSON and delimiter-based Claude output programmatically
+- [ ] Uses self-critique pattern for security-sensitive code generation
+- [ ] Knows which advanced technique to apply for which task type
