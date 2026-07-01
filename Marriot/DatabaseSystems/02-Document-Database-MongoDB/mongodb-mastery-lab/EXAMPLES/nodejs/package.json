@@ -1,0 +1,15 @@
+{
+  "name": "mongodb-mastery-node-examples",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "crud": "node src/crud.js",
+    "aggregation": "node src/aggregation.js",
+    "change-stream": "node src/change-stream.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mongodb": "^6.12.0"
+  }
+}

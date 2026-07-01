@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongodb-mastery-lab
+    restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+      MONGO_INITDB_DATABASE: mongodb_mastery
+    volumes:
+      - mongo_data:/data/db
+      - ./SCRIPTS/00-init-user.js:/docker-entrypoint-initdb.d/00-init-user.js:ro
+      - ./SCRIPTS/01-seed-data.js:/docker-entrypoint-initdb.d/01-seed-data.js:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username root --password rootpass --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 }).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  mongo-rs-init:
+    image: mongo:7
+    container_name: mongodb-mastery-lab-rs-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - bash
+      - -lc
+      - >
+        mongosh --host mongo:27017 --username root --password rootpass --authenticationDatabase admin
+        --eval 'try { rs.status().ok } catch (error) { rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "localhost:27017" }] }) }'
+
+volumes:
+  mongo_data:

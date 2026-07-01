@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: mongodb-mastery-spring-boot
+  data:
+    mongodb:
+      uri: "mongodb://app:app_password@localhost:27017/mongodb_mastery?authSource=mongodb_mastery&replicaSet=rs0&directConnection=true"
+
+server:
+  port: 8080

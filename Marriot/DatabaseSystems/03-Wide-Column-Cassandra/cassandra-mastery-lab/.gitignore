@@ -1,0 +1,4 @@
+.DS_Store
+cassandra-data/
+*.log
+tmp/

@@ -1,0 +1,54 @@
+query ProductList($first: Int!, $after: String, $filter: ProductFilterInput) {
+  products(first: $first, after: $after, filter: $filter) {
+    edges {
+      cursor
+      node {
+        id
+        name
+        priceCents
+        seller {
+          id
+          displayName
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+
+query ProductDetail($id: ID!) {
+  product(id: $id) {
+    id
+    name
+    priceCents
+    reviews(first: 10) {
+      edges {
+        node {
+          id
+          rating
+          body
+          author {
+            id
+            displayName
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation AddToCart($productId: ID!, $quantity: Int!) {
+  addToCart(input: { productId: $productId, quantity: $quantity }) {
+    cartId
+    itemCount
+  }
+}
+
+fragment ProductCard on Product {
+  id
+  name
+  priceCents
+}

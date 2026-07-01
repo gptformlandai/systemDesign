@@ -1,0 +1,29 @@
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Java
+EXAMPLES/java-spring-boot/target/
+
+# Local dumps/backups
+backups/
+*.dump
+*.archive
+
+# Logs
+*.log

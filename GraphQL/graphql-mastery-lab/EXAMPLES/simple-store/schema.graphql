@@ -1,0 +1,82 @@
+interface Node {
+  id: ID!
+}
+
+type Query {
+  product(id: ID!): Product
+  products(filter: ProductFilterInput, first: Int!, after: String): ProductConnection!
+  viewer: User
+}
+
+type Mutation {
+  addToCart(input: AddToCartInput!): AddToCartPayload!
+}
+
+type Product implements Node {
+  id: ID!
+  name: String!
+  priceCents: Int!
+  seller: Seller!
+  reviews(first: Int!, after: String): ReviewConnection!
+  oldSku: String @deprecated(reason: "Use id instead")
+}
+
+type Seller implements Node {
+  id: ID!
+  displayName: String!
+  rating: Float
+}
+
+type Review implements Node {
+  id: ID!
+  rating: Int!
+  body: String
+  author: User!
+}
+
+type User implements Node {
+  id: ID!
+  displayName: String!
+  email: String
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProductEdge {
+  cursor: String!
+  node: Product!
+}
+
+type ReviewConnection {
+  edges: [ReviewEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ReviewEdge {
+  cursor: String!
+  node: Review!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input ProductFilterInput {
+  search: String
+  minPriceCents: Int
+  maxPriceCents: Int
+}
+
+input AddToCartInput {
+  productId: ID!
+  quantity: Int!
+}
+
+type AddToCartPayload {
+  cartId: ID!
+  itemCount: Int!
+}
