@@ -41,8 +41,9 @@ After the starter path, read these.
 | 6 | `02-Intermediate-Frontend-FullStack/JavaScript-Async-Event-Loop-Promises-Master-Sheet.md` | Event loop, microtasks, macrotasks, Promises, async/await, timers, output order |
 | 7 | `02-Intermediate-Frontend-FullStack/TypeScript-For-JavaScript-Engineers-Master-Sheet.md` | Types, interfaces, generics, narrowing, utility types, production safety |
 | 8 | `02-Intermediate-Frontend-FullStack/JavaScript-Browser-DOM-Web-APIs-Master-Sheet.md` | DOM, events, bubbling/capturing, storage, fetch, CORS, rendering basics |
-| 9 | `02-Intermediate-Frontend-FullStack/JavaScript-React-Integration-Hooks-Concurrent-Rendering-Master-Sheet.md` | React hooks (useState/useEffect/useCallback/useMemo/useRef), concurrent rendering, useTransition, Suspense, streaming SSR, hydration, RSC |
-| 10 | `02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
+| 9 | `02-Intermediate-Frontend-FullStack/JavaScript-Browser-Storage-Workers-PWA-Performance-Mastery-Sheet.md` | Sessions, cookies, IndexedDB, Web Workers, Service Workers, PWA, hydration, lazy loading, frontend performance |
+| 10 | `02-Intermediate-Frontend-FullStack/JavaScript-React-Integration-Hooks-Concurrent-Rendering-Master-Sheet.md` | React hooks (useState/useEffect/useCallback/useMemo/useRef), concurrent rendering, useTransition, Suspense, streaming SSR, hydration, RSC |
+| 11 | `02-Intermediate-Frontend-FullStack/JavaScript-Frontend-Interview-Scenarios.md` | UI race conditions, forms, state bugs, debounce/throttle, rendering and performance traps |
 
 Intermediate target:
 - You can explain how browser JavaScript responds to user events, network calls, timers, and rendering work.
@@ -58,10 +59,10 @@ Use this path if you are preparing for Node.js backend, full-stack, platform, or
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 10 | `03-Backend-NodeJS/JavaScript-NodeJS-Backend-Production-Master-Sheet.md` | Node runtime, CommonJS/ESM, APIs, streams, buffers, event-loop blocking, worker threads |
-| 11 | `03-Backend-NodeJS/JavaScript-NodeJS-Interview-Scenarios.md` | API latency, blocked event loop, retries, queues, streams, backpressure, memory leaks |
-| 12 | `03-Backend-NodeJS/JavaScript-Security-Best-Practices-Master-Sheet.md` | XSS, CSRF, prototype pollution, JWT/storage, npm supply chain, injection risks |
-| 13 | `03-Backend-NodeJS/JavaScript-Testing-Patterns-Master-Sheet.md` | Jest/Vitest, mocks, fake timers, integration tests, Playwright, contract tests |
+| 12 | `03-Backend-NodeJS/JavaScript-NodeJS-Backend-Production-Master-Sheet.md` | Node runtime, CommonJS/ESM, APIs, streams, buffers, event-loop blocking, worker threads |
+| 13 | `03-Backend-NodeJS/JavaScript-NodeJS-Interview-Scenarios.md` | API latency, blocked event loop, retries, queues, streams, backpressure, memory leaks |
+| 14 | `03-Backend-NodeJS/JavaScript-Security-Best-Practices-Master-Sheet.md` | XSS, CSRF, prototype pollution, JWT/storage, npm supply chain, injection risks |
+| 15 | `03-Backend-NodeJS/JavaScript-Testing-Patterns-Master-Sheet.md` | Jest/Vitest, mocks, fake timers, integration tests, Playwright, contract tests |
 
 Backend target:
 - You can explain why Node.js is efficient for IO-heavy workloads and weak for CPU-heavy work unless designed carefully.
@@ -77,9 +78,9 @@ These are the pro sheets.
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 14 | `04-Senior-MAANG/JavaScript-Performance-Memory-Debugging-Master-Sheet.md` | Memory leaks, profiling, DevTools, heap snapshots, event-loop lag, bundle/runtime cost |
-| 15 | `04-Senior-MAANG/JavaScript-Production-Debugging-Case-Studies.md` | High CPU, memory leak, blocked event loop, API storm, bad bundle, async failures |
-| 16 | `04-Senior-MAANG/JavaScript-System-Design-For-Frontend-And-Node.md` | Client/server JS architecture, SSR/CSR, caching, API gateway patterns, scalability |
+| 16 | `04-Senior-MAANG/JavaScript-Performance-Memory-Debugging-Master-Sheet.md` | Memory leaks, profiling, DevTools, heap snapshots, event-loop lag, bundle/runtime cost |
+| 17 | `04-Senior-MAANG/JavaScript-Production-Debugging-Case-Studies.md` | High CPU, memory leak, blocked event loop, API storm, bad bundle, async failures |
+| 18 | `04-Senior-MAANG/JavaScript-System-Design-For-Frontend-And-Node.md` | Client/server JS architecture, SSR/CSR, caching, API gateway patterns, scalability |
 
 Senior target:
 - You can debug JavaScript as a runtime, not just write syntax.
@@ -95,10 +96,10 @@ Use these after the concept sheets. They train fast spoken answers and hands-on 
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 17 | `05-Scenario-Practice/JavaScript-Tricky-Output-Questions.md` | Coercion, hoisting, closure loops, `this`, async order, equality, prototype traps |
-| 18 | `05-Scenario-Practice/JavaScript-Machine-Coding-Patterns.md` | Debounce, throttle, promise pool, event emitter, retry, memoize, LRU cache, pub-sub |
-| 19 | `05-Scenario-Practice/JavaScript-Quick-Revision-And-Answer-Templates.md` | 30-60 second answers, scenario templates, final revision tables, confidence checklist |
-| 20 | `05-Scenario-Practice/JavaScript-MAANG-Mock-Interview-Question-Bank.md` | Full mock rounds, follow-up ladders, scoring rubrics, production depth checks, final drills |
+| 19 | `05-Scenario-Practice/JavaScript-Tricky-Output-Questions.md` | Coercion, hoisting, closure loops, `this`, async order, equality, prototype traps |
+| 20 | `05-Scenario-Practice/JavaScript-Machine-Coding-Patterns.md` | Debounce, throttle, promise pool, event emitter, retry, memoize, LRU cache, pub-sub |
+| 21 | `05-Scenario-Practice/JavaScript-Quick-Revision-And-Answer-Templates.md` | 30-60 second answers, scenario templates, final revision tables, confidence checklist |
+| 22 | `05-Scenario-Practice/JavaScript-MAANG-Mock-Interview-Question-Bank.md` | Full mock rounds, follow-up ladders, scoring rubrics, production depth checks, final drills |
 
 Scenario target:
 - You can solve output questions by execution rules.
