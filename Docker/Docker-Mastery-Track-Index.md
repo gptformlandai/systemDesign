@@ -2,6 +2,8 @@
 
 This folder is a complete Docker mastery track for developers, backend engineers, DevOps/SRE engineers, cloud engineers, and system design interviews.
 
+It contains 30 core track files plus appendix #31, a senior gap-fill deep dive for production internals.
+
 It teaches Docker as a production containerization platform, not just a list of commands.
 
 ```text
@@ -35,7 +37,7 @@ Docker mastery is not memorizing `docker run`. It is understanding what image, c
 |---:|---|---|
 | 1 | `01-Foundations` | Docker mental model, daemon/CLI, images, containers, Dockerfile basics |
 | 2 | `02-Intermediate-Practical` | daily commands, Dockerfile cache, volumes, networking, Compose, registries |
-| 3 | `03-Senior-Production` | security, performance, build optimization, observability, CI/CD, orchestration bridge |
+| 3 | `03-Senior-Production` | security, performance, build optimization, observability, CI/CD, orchestration bridge, pro internals appendix |
 | 4 | `04-Scenario-Practice` | containerize app, debug startup, network, volume, build, registry, production incidents |
 | 5 | `05-Special-Interview-Rounds` | Q&A, command maps, anti-patterns, debugging traps |
 | 6 | `06-Practice-Upgrade` | active recall, drills, mini projects, production readiness checklist |
@@ -88,11 +90,12 @@ Practical target:
 | 14 | [03-Senior-Production/14-Docker-Observability-Logs-Events-Debugging-Gold-Sheet.md](03-Senior-Production/14-Docker-Observability-Logs-Events-Debugging-Gold-Sheet.md) | logs, events, inspect, stats, exec debugging, crash loops |
 | 15 | [03-Senior-Production/15-Docker-CI-CD-Registries-Scanning-Promotion-Gold-Sheet.md](03-Senior-Production/15-Docker-CI-CD-Registries-Scanning-Promotion-Gold-Sheet.md) | build pipelines, registry promotion, immutable tags, scanning gates |
 | 16 | [03-Senior-Production/16-Docker-Orchestration-Bridge-Kubernetes-Compose-Swarm-MAANG-Sheet.md](03-Senior-Production/16-Docker-Orchestration-Bridge-Kubernetes-Compose-Swarm-MAANG-Sheet.md) | Docker vs Compose vs Kubernetes, deployment boundaries |
-| Gap fill | [03-Senior-Production/31-Docker-Pro-Gap-Fill-PID1-BuildKit-MultiPlatform-Disk-Pressure-MAANG-Sheet.md](03-Senior-Production/31-Docker-Pro-Gap-Fill-PID1-BuildKit-MultiPlatform-Disk-Pressure-MAANG-Sheet.md) | PID 1, signals, BuildKit secrets/cache, multi-platform images, OCI internals, disk pressure |
+| Appendix 31 | [03-Senior-Production/31-Docker-Pro-Gap-Fill-PID1-BuildKit-MultiPlatform-Disk-Pressure-MAANG-Sheet.md](03-Senior-Production/31-Docker-Pro-Gap-Fill-PID1-BuildKit-MultiPlatform-Disk-Pressure-MAANG-Sheet.md) | full MAANG deep dive on PID 1, signals, BuildKit secrets/cache, multi-platform images, OCI internals, disk pressure |
 
 Senior target:
 
 - You can explain Docker in production: security, reliability, resource limits, supply chain, CI/CD, observability, and orchestration tradeoffs.
+- You can use appendix #31 for the deeper architect-level layer: intuition, definitions, internals, trade-offs, key numbers, failure modes, scenario, code sample, mini simulation, and strong interview answer.
 
 ---
 
@@ -200,7 +203,7 @@ For Docker debugging and interview answers, use this shape:
 
 1. Week 1: Docker mental model, images, containers, Dockerfiles, daily commands.
 2. Week 2: volumes, networking, Compose, registries, tagging, debugging.
-3. Week 3: security, resource limits, build optimization, observability, CI/CD, orchestration.
+3. Week 3: security, resource limits, build optimization, observability, CI/CD, orchestration, and appendix #31.
 4. Week 4: production scenarios, runbooks, mini projects, interview practice.
 
 ### Production Operator Path
