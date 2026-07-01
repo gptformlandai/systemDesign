@@ -100,3 +100,7 @@ Gold bar for every problem:
 - [Google Search](10-Graph-Search-Recommendation-Systems/Google-Search-End-to-End-System-Design.md)
 - [Search Engine ElasticSearch-Like](10-Graph-Search-Recommendation-Systems/Search-Engine-ElasticSearch-Like-End-to-End-System-Design.md)
 - [Recommendation System](10-Graph-Search-Recommendation-Systems/Recommendation-System-End-to-End-System-Design.md)
+
+## 11. AdTech / Advertising Systems
+
+- [Real-Time Ad Bidding System / Ad Aggregator](11-AdTech-Advertising-Systems/Real-Time-Ad-Bidding-Ad-Aggregator-End-to-End-System-Design.md)
