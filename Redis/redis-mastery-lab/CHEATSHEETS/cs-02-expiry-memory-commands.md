@@ -59,3 +59,23 @@ HSCAN key cursor [MATCH pattern] [COUNT n]
 SSCAN key cursor [MATCH pattern] [COUNT n]
 ZSCAN key cursor [MATCH pattern] [COUNT n]
 ```
+
+## Atomic Get Variants (Redis 6.2+)
+
+| Command | Syntax | Notes |
+|---|---|---|
+| GETDEL | `GETDEL key` | get and delete atomically |
+| GETEX | `GETEX key [EX s\|PX ms\|EXAT ts\|PERSIST]` | get and set/remove TTL atomically |
+| COPY | `COPY src dest [DB n] [REPLACE]` | copy key without deleting source |
+
+## Diagnostic CLI Flags
+
+```bash
+redis-cli --bigkeys          # top largest keys by type
+redis-cli --hotkeys          # most-accessed keys (requires LFU policy)
+redis-cli --memkeys          # memory usage of keys
+redis-cli --stat             # live stats dashboard (1s refresh)
+redis-cli --latency          # continuous round-trip latency
+redis-cli --latency-history -i 5   # per-interval latency percentiles
+redis-cli --latency-dist     # latency distribution chart
+```

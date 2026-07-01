@@ -86,6 +86,7 @@ Practical target:
 | 14 | [03-Senior-Production/14-Redis-Security-ACL-TLS-AUTH-Command-Disable-MAANG-Sheet.md](03-Senior-Production/14-Redis-Security-ACL-TLS-AUTH-Command-Disable-MAANG-Sheet.md) | ACL, TLS, requirepass, RENAME/DISABLE dangerous commands |
 | 15 | [03-Senior-Production/15-Redis-Observability-INFO-SLOWLOG-MONITOR-Keyspace-Latency-Gold-Sheet.md](03-Senior-Production/15-Redis-Observability-INFO-SLOWLOG-MONITOR-Keyspace-Latency-Gold-Sheet.md) | INFO sections, SLOWLOG, MONITOR, keyspace events, latency histogram |
 | 16 | [03-Senior-Production/16-Redis-Advanced-Patterns-RateLimiting-Locks-Leaderboard-Geo-Bloom-MAANG-Sheet.md](03-Senior-Production/16-Redis-Advanced-Patterns-RateLimiting-Locks-Leaderboard-Geo-Bloom-MAANG-Sheet.md) | rate limiter, Redlock, sessions, leaderboard, geo, HyperLogLog, Bloom |
+| 31 | [03-Senior-Production/31-Redis-Pro-Gap-Fill-Bitmaps-Encoding-Internals-Redis7-MAANG-Sheet.md](03-Senior-Production/31-Redis-Pro-Gap-Fill-Bitmaps-Encoding-Internals-Redis7-MAANG-Sheet.md) | bitmaps, OBJECT ENCODING internals, Redis 7 commands, diagnostic CLI flags |
 
 Senior target:
 
@@ -98,13 +99,13 @@ Senior target:
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 17 | [04-Scenario-Practice/17-Redis-Design-Rate-Limiter-Sliding-Window-Token-Bucket-Scenario-Gold-Sheet.md](04-Scenario-Practice/17-Redis-Design-Rate-Limiter-Sliding-Window-Token-Bucket-Scenario-Gold-Sheet.md) | rate limiter design with sorted sets and Lua |
-| 18 | [04-Scenario-Practice/18-Redis-Cache-Stampede-Thundering-Herd-Hot-Key-Scenario-MAANG-Sheet.md](04-Scenario-Practice/18-Redis-Cache-Stampede-Thundering-Herd-Hot-Key-Scenario-MAANG-Sheet.md) | stampede, probabilistic early refresh, hot key sharding |
-| 19 | [04-Scenario-Practice/19-Redis-Memory-Pressure-OOM-Eviction-Key-Explosion-Scenario-MAANG-Sheet.md](04-Scenario-Practice/19-Redis-Memory-Pressure-OOM-Eviction-Key-Explosion-Scenario-MAANG-Sheet.md) | OOM, eviction policy, key expiry drift, memory fragmentation |
-| 20 | [04-Scenario-Practice/20-Redis-Streams-Event-Bus-Scenario-Gold-Sheet.md](04-Scenario-Practice/20-Redis-Streams-Event-Bus-Scenario-Gold-Sheet.md) | event bus design, consumer groups, DLQ, trim, ordering |
-| 21 | [04-Scenario-Practice/21-Redis-Distributed-Lock-Redlock-Failure-Scenario-MAANG-Sheet.md](04-Scenario-Practice/21-Redis-Distributed-Lock-Redlock-Failure-Scenario-MAANG-Sheet.md) | Redlock, clock drift, fencing tokens, failure modes |
-| 22 | [04-Scenario-Practice/22-Redis-Sentinel-Failover-Split-Brain-Scenario-MAANG-Sheet.md](04-Scenario-Practice/22-Redis-Sentinel-Failover-Split-Brain-Scenario-MAANG-Sheet.md) | Sentinel failover, quorum, stale replica, client reconnect |
-| 23 | [04-Scenario-Practice/23-Redis-Production-Incident-Debugging-Scenario-MAANG-Sheet.md](04-Scenario-Practice/23-Redis-Production-Incident-Debugging-Scenario-MAANG-Sheet.md) | on-call Redis incident response framework |
+| 17 | [04-Scenario-Practice/17-Scenario-Rate-Limiter-Design-Redis-MAANG-Sheet.md](04-Scenario-Practice/17-Scenario-Rate-Limiter-Design-Redis-MAANG-Sheet.md) | rate limiter design with sorted sets and Lua |
+| 18 | [04-Scenario-Practice/18-Scenario-Cache-Stampede-Hot-Key-Cold-Start-MAANG-Sheet.md](04-Scenario-Practice/18-Scenario-Cache-Stampede-Hot-Key-Cold-Start-MAANG-Sheet.md) | stampede, probabilistic early refresh, hot key sharding |
+| 19 | [04-Scenario-Practice/19-Scenario-OOM-Eviction-Misconfiguration-Memory-Leak-MAANG-Sheet.md](04-Scenario-Practice/19-Scenario-OOM-Eviction-Misconfiguration-Memory-Leak-MAANG-Sheet.md) | OOM, eviction policy, key expiry drift, memory fragmentation |
+| 20 | [04-Scenario-Practice/20-Scenario-Streams-Event-Bus-Design-MAANG-Sheet.md](04-Scenario-Practice/20-Scenario-Streams-Event-Bus-Design-MAANG-Sheet.md) | event bus design, consumer groups, DLQ, trim, ordering |
+| 21 | [04-Scenario-Practice/21-Scenario-Redlock-Failures-Distributed-Lock-Safety-MAANG-Sheet.md](04-Scenario-Practice/21-Scenario-Redlock-Failures-Distributed-Lock-Safety-MAANG-Sheet.md) | Redlock, clock drift, fencing tokens, failure modes |
+| 22 | [04-Scenario-Practice/22-Scenario-Sentinel-Failover-Client-Reconnect-MAANG-Sheet.md](04-Scenario-Practice/22-Scenario-Sentinel-Failover-Client-Reconnect-MAANG-Sheet.md) | Sentinel failover, quorum, stale replica, client reconnect |
+| 23 | [04-Scenario-Practice/23-Scenario-Production-Debugging-Latency-Slow-Commands-Connections-MAANG-Sheet.md](04-Scenario-Practice/23-Scenario-Production-Debugging-Latency-Slow-Commands-Connections-MAANG-Sheet.md) | on-call Redis incident response framework |
 
 Scenario target:
 
@@ -116,9 +117,9 @@ Scenario target:
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 24 | [05-Special-Interview-Rounds/24-Redis-Interview-QA-Beginner-To-Pro-MAANG-Sheet.md](05-Special-Interview-Rounds/24-Redis-Interview-QA-Beginner-To-Pro-MAANG-Sheet.md) | Redis Q&A from beginner to MAANG |
-| 25 | [05-Special-Interview-Rounds/25-Redis-Commands-DataStructure-Decision-Map-Cheat-Sheet.md](05-Special-Interview-Rounds/25-Redis-Commands-DataStructure-Decision-Map-Cheat-Sheet.md) | command map, data structure decision guide |
-| 26 | [05-Special-Interview-Rounds/26-Redis-Anti-Patterns-Debugging-Traps-MAANG-Sheet.md](05-Special-Interview-Rounds/26-Redis-Anti-Patterns-Debugging-Traps-MAANG-Sheet.md) | unsafe Redis patterns and debugging traps |
+| 24 | [05-Special-Interview-Rounds/24-Redis-Interview-QnA-Beginner-to-MAANG-Sheet.md](05-Special-Interview-Rounds/24-Redis-Interview-QnA-Beginner-to-MAANG-Sheet.md) | Redis Q&A from beginner to MAANG |
+| 25 | [05-Special-Interview-Rounds/25-Redis-Commands-DataStructure-Decision-Cheatsheet.md](05-Special-Interview-Rounds/25-Redis-Commands-DataStructure-Decision-Cheatsheet.md) | command map, data structure decision guide |
+| 26 | [05-Special-Interview-Rounds/26-Redis-Anti-Patterns-Common-Bugs-Debugging-Traps-Sheet.md](05-Special-Interview-Rounds/26-Redis-Anti-Patterns-Common-Bugs-Debugging-Traps-Sheet.md) | unsafe Redis patterns and debugging traps |
 
 ---
 
@@ -126,10 +127,10 @@ Scenario target:
 
 | Order | File | What It Builds |
 |---:|---|---|
-| 27 | [06-Practice-Upgrade/27-Redis-Active-Recall-Question-Bank.md](06-Practice-Upgrade/27-Redis-Active-Recall-Question-Bank.md) | recall prompts across beginner to pro topics |
-| 28 | [06-Practice-Upgrade/28-Redis-Hands-On-Exercises-And-Drills.md](06-Practice-Upgrade/28-Redis-Hands-On-Exercises-And-Drills.md) | command and design drills |
-| 29 | [06-Practice-Upgrade/29-Redis-Mini-Projects-Portfolio.md](06-Practice-Upgrade/29-Redis-Mini-Projects-Portfolio.md) | portfolio-ready Redis projects |
-| 30 | [06-Practice-Upgrade/30-Redis-Pro-Gap-Fill-Production-Readiness-Checklist.md](06-Practice-Upgrade/30-Redis-Pro-Gap-Fill-Production-Readiness-Checklist.md) | senior readiness checklist and scoring rubric |
+| 27 | [06-Practice-Upgrade/27-Redis-Active-Recall-Spaced-Repetition-Drills.md](06-Practice-Upgrade/27-Redis-Active-Recall-Spaced-Repetition-Drills.md) | recall prompts across beginner to pro topics |
+| 28 | [06-Practice-Upgrade/28-Redis-Practical-Drills-Hands-On-Command-Practice.md](06-Practice-Upgrade/28-Redis-Practical-Drills-Hands-On-Command-Practice.md) | command and design drills |
+| 29 | [06-Practice-Upgrade/29-Redis-Mini-Projects-Portfolio-Mastery.md](06-Practice-Upgrade/29-Redis-Mini-Projects-Portfolio-Mastery.md) | portfolio-ready Redis projects |
+| 30 | [06-Practice-Upgrade/30-Redis-Production-Readiness-Checklist.md](06-Practice-Upgrade/30-Redis-Production-Readiness-Checklist.md) | senior readiness checklist and scoring rubric |
 
 ---
 
@@ -196,6 +197,9 @@ You are Redis interview-ready when you can do all of this without notes:
 - Design cache patterns including cache-aside, write-through, and stampede prevention.
 - Explain replication, Sentinel HA, and Cluster sharding with hash slots.
 - Implement rate limiting, distributed locks, leaderboards, and geospatial patterns.
+- Implement bitmap-based presence/activity tracking with SETBIT/BITCOUNT/BITOP.
+- Explain memory encoding internals (listpack, hashtable, intset) and OBJECT ENCODING.
+- Name Redis 7 additions: LMPOP, ZMPOP, GETEX, GETDEL, SINTERCARD, COPY, Functions.
 - Explain security with ACL, TLS, and command restrictions.
 - Operate Redis with INFO, SLOWLOG, keyspace events, and latency monitoring.
 - Handle production Redis incidents: OOM, eviction storms, hot keys, Sentinel failover, cluster MOVED errors.

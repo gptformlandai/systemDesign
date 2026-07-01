@@ -66,3 +66,33 @@
 | ZREM | `ZREM key m` | remove member |
 | ZCARD | `ZCARD key` | count |
 | ZREMRANGEBYSCORE | `ZREMRANGEBYSCORE key min max` | remove by score |
+| ZMPOP | `ZMPOP numkeys key [key...] MIN\|MAX [COUNT n]` | pop from first non-empty (Redis 7) |
+
+## Bitmaps
+
+| Command | Syntax | Notes |
+|---|---|---|
+| SETBIT | `SETBIT key offset 0\|1` | set bit at offset |
+| GETBIT | `GETBIT key offset` | get bit at offset |
+| BITCOUNT | `BITCOUNT key [start end]` | count set bits |
+| BITPOS | `BITPOS key 0\|1 [start [end]]` | first 0 or 1 bit |
+| BITOP | `BITOP AND\|OR\|XOR\|NOT dest key [key...]` | bitwise operations |
+
+## Special Types
+
+| Command | Syntax | Notes |
+|---|---|---|
+| PFADD | `PFADD key el [el...]` | HyperLogLog add |
+| PFCOUNT | `PFCOUNT key [key...]` | approximate cardinality |
+| PFMERGE | `PFMERGE dest key [key...]` | merge HyperLogLogs |
+| GEOADD | `GEOADD key lng lat member` | add geo point |
+| GEODIST | `GEODIST key m1 m2 [unit]` | distance |
+| GEOSEARCH | `GEOSEARCH key FROMMEMBER m BYRADIUS r unit [ASC\|DESC]` | proximity search |
+
+## Encoding Inspection
+
+| Command | Syntax | Notes |
+|---|---|---|
+| OBJECT ENCODING | `OBJECT ENCODING key` | internal encoding (listpack, hashtable, etc.) |
+| OBJECT IDLETIME | `OBJECT IDLETIME key` | seconds since last access |
+| OBJECT FREQ | `OBJECT FREQ key` | LFU access frequency |
