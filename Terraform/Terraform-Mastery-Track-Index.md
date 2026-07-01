@@ -11,8 +11,8 @@ A complete Terraform mastery system from zero to senior/MAANG level. Covers IaC 
 ```text
 Beginner:       Sheets 1 → 5  (Foundations)
 Intermediate:   Sheets 6 → 11 (Intermediate Practical)
-Senior:         Sheets 12 → 18 (Senior Production)
-Interview Prep: Sheets 19 → 29 (Scenarios + Interview + Practice)
+Senior:         Sheets 12 → 18, 30, 31 (Senior Production)
+Interview Prep: Sheets 19 → 29, 32 → 34 (Scenarios + Interview + Practice)
 ```
 
 Read each sheet, run examples in the lab, do the drills.
@@ -84,6 +84,8 @@ Providers = plugins that talk to cloud APIs.
 | 16 | Performance: Large Terraform, Parallelism | [03-Senior-Production/16-Performance-Large-Terraform-Parallelism-Targeting.md](03-Senior-Production/16-Performance-Large-Terraform-Parallelism-Targeting.md) |
 | 17 | Security: Secrets, Sensitive Variables | [03-Senior-Production/17-Security-Secrets-Management-Sensitive-Variables.md](03-Senior-Production/17-Security-Secrets-Management-Sensitive-Variables.md) |
 | 18 | CI/CD: Pipelines, Atlantis, TFC | [03-Senior-Production/18-CICD-Terraform-Pipelines-Atlantis-TFC.md](03-Senior-Production/18-CICD-Terraform-Pipelines-Atlantis-TFC.md) |
+| 30 | Provisioners, null_resource, terraform_data | [03-Senior-Production/30-Provisioners-NullResource-TerraformData.md](03-Senior-Production/30-Provisioners-NullResource-TerraformData.md) |
+| 31 | Terragrunt: DRY Patterns, Dependencies | [03-Senior-Production/31-Terragrunt-DRY-Patterns-Dependency.md](03-Senior-Production/31-Terragrunt-DRY-Patterns-Dependency.md) |
 
 ### 04-Scenario-Practice
 
@@ -94,6 +96,7 @@ Providers = plugins that talk to cloud APIs.
 | 21 | Scenario: State Corruption Recovery | [04-Scenario-Practice/21-Scenario-State-Corruption-Recovery-Runbook.md](04-Scenario-Practice/21-Scenario-State-Corruption-Recovery-Runbook.md) |
 | 22 | Scenario: Refactoring Monolith to Modules | [04-Scenario-Practice/22-Scenario-Refactoring-Monolith-To-Modules.md](04-Scenario-Practice/22-Scenario-Refactoring-Monolith-To-Modules.md) |
 | 23 | Scenario: Zero-Downtime Infrastructure Changes | [04-Scenario-Practice/23-Scenario-Zero-Downtime-Infrastructure-Changes.md](04-Scenario-Practice/23-Scenario-Zero-Downtime-Infrastructure-Changes.md) |
+| 34 | Scenario: Kubernetes + Helm Provider | [04-Scenario-Practice/34-Scenario-Kubernetes-Helm-Provider.md](04-Scenario-Practice/34-Scenario-Kubernetes-Helm-Provider.md) |
 
 ### 05-Special-Interview-Rounds
 
@@ -102,6 +105,8 @@ Providers = plugins that talk to cloud APIs.
 | 24 | Interview Questions: Beginner–Intermediate | [05-Special-Interview-Rounds/24-Terraform-Interview-Questions-Beginner-Intermediate.md](05-Special-Interview-Rounds/24-Terraform-Interview-Questions-Beginner-Intermediate.md) |
 | 25 | Interview Questions: Senior–MAANG | [05-Special-Interview-Rounds/25-Terraform-Interview-Questions-Senior-MAANG.md](05-Special-Interview-Rounds/25-Terraform-Interview-Questions-Senior-MAANG.md) |
 | 26 | Anti-Patterns and Common Mistakes | [05-Special-Interview-Rounds/26-Terraform-Anti-Patterns-Common-Mistakes.md](05-Special-Interview-Rounds/26-Terraform-Anti-Patterns-Common-Mistakes.md) |
+| 32 | Static Analysis: tflint, Checkov, OPA, Infracost | [05-Special-Interview-Rounds/32-Static-Analysis-tflint-Checkov-OPA-Infracost.md](05-Special-Interview-Rounds/32-Static-Analysis-tflint-Checkov-OPA-Infracost.md) |
+| 33 | OpenTofu, BSL Licensing, CDKTF, Ecosystem | [05-Special-Interview-Rounds/33-OpenTofu-Licensing-CDKTF-Ecosystem.md](05-Special-Interview-Rounds/33-OpenTofu-Licensing-CDKTF-Ecosystem.md) |
 
 ### 06-Practice-Upgrade
 
@@ -131,13 +136,15 @@ Week 2: Intermediate (Sheets 6-11)
   → Master for_each, dynamic blocks, functions
   → Set up remote backend, Terraform Cloud
 
-Week 3: Senior Production (Sheets 12-18)
+Week 3: Senior Production (Sheets 12-18, 30-31)
   → State operations: import, moved, refactor
   → Multi-account providers, cross-account patterns
   → Secrets management, CI/CD integration
+  → Provisioners, terraform_data, Terragrunt DRY patterns
 
-Week 4: Mastery (Sheets 19-29)
-  → Full scenarios: multi-env, AWS full stack
+Week 4: Mastery (Sheets 19-29, 32-34)
+  → Full scenarios: multi-env, AWS full stack, K8s/Helm
   → State recovery runbooks
   → Interview Q&A, active recall, production checklist
+  → Static analysis tools (tflint/checkov/OPA), OpenTofu/CDKTF ecosystem
 ```
