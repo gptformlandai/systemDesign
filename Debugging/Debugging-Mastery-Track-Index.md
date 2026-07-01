@@ -16,9 +16,10 @@ observe symptom -> set targeted breakpoint -> step through execution -> inspect 
 | 1 | `01-IntelliJ-Java` | IntelliJ IDEA — Java debugging |
 | 2 | `02-VSCode-Frontend-NodeJS` | VS Code — Node.js / JS / Python debugging |
 | 3 | `03-PyCharm-Python` | PyCharm — Python debugging |
-| 4 | `04-Concurrency-Threading` | Concurrency deep dive across all three |
-| 5 | `05-Scenario-Practice` | Full scenario walkthroughs |
-| 6 | `06-Practice-Upgrade` | Drills, recall, production readiness |
+| 4 | `04-Cross-IDE-Debugging` | Common debugging mental models across IntelliJ, VS Code, and PyCharm |
+| 5 | `05-Concurrency-Threading` | Concurrency deep dive across all three |
+| 6 | `06-Scenario-Practice` | Full scenario walkthroughs |
+| 7 | `07-Practice-Upgrade` | Drills, recall, production readiness |
 | Lab | `debugging-mastery-lab` | Cheatsheets, examples, scripts |
 
 ---
@@ -64,39 +65,52 @@ observe symptom -> set targeted breakpoint -> step through execution -> inspect 
 
 ---
 
-## 5. Concurrency And Threading Deep Dive
+## 5. Cross-IDE Debugging Bridge
+
+Use this bridge when the problem is not tied to one IDE. It teaches the debugger mental model, environment drift checks, remote attach rules, and cross-language concurrency triage.
 
 | Sheet | File | What It Builds |
 |---:|---|---|
-| 21 | [04-Concurrency-Threading/21-Java-Concurrency-Debug-DeadLock-RaceCondition-Synchronized.md](04-Concurrency-Threading/21-Java-Concurrency-Debug-DeadLock-RaceCondition-Synchronized.md) | Java thread dump, deadlock detection, synchronized, volatile, jstack |
-| 22 | [04-Concurrency-Threading/22-Java-Virtual-Threads-Loom-Debug-ExecutorService.md](04-Concurrency-Threading/22-Java-Virtual-Threads-Loom-Debug-ExecutorService.md) | Project Loom virtual threads, ForkJoinPool, CompletableFuture debug |
-| 23 | [04-Concurrency-Threading/23-Python-GIL-Threading-Multiprocessing-AsyncIO-Debug.md](04-Concurrency-Threading/23-Python-GIL-Threading-Multiprocessing-AsyncIO-Debug.md) | Python GIL impact, threading vs multiprocessing, asyncio event loop debug |
-| 24 | [04-Concurrency-Threading/24-NodeJS-EventLoop-Worker-Threads-Cluster-Debug.md](04-Concurrency-Threading/24-NodeJS-EventLoop-Worker-Threads-Cluster-Debug.md) | Node.js event loop phases, Worker threads, libuv, cluster debug |
-| 25 | [04-Concurrency-Threading/25-Thread-Dump-Analysis-jstack-pySpy-NodeInspect.md](04-Concurrency-Threading/25-Thread-Dump-Analysis-jstack-pySpy-NodeInspect.md) | jstack, py-spy, node --inspect, reading thread dumps for deadlocks |
-| 26 | [04-Concurrency-Threading/26-Concurrency-Anti-Patterns-Bugs-All-Languages.md](04-Concurrency-Threading/26-Concurrency-Anti-Patterns-Bugs-All-Languages.md) | Race conditions, deadlocks, starvation, livelocks across Java/Python/Node |
+| X1 | [04-Cross-IDE-Debugging/X01-Cross-IDE-Debugging-Mental-Model-Breakpoints-State-CallStack.md](04-Cross-IDE-Debugging/X01-Cross-IDE-Debugging-Mental-Model-Breakpoints-State-CallStack.md) | universal debugger mental model: breakpoints, call stack, variables, stepping |
+| X2 | [04-Cross-IDE-Debugging/X02-Cross-IDE-Environment-Config-Interpreter-Classpath-SourceMaps.md](04-Cross-IDE-Debugging/X02-Cross-IDE-Environment-Config-Interpreter-Classpath-SourceMaps.md) | environment/config mismatch debugging across Java, Node/JS, and Python |
+| X3 | [04-Cross-IDE-Debugging/X03-Cross-IDE-Remote-Attach-Docker-SSH-Ports.md](04-Cross-IDE-Debugging/X03-Cross-IDE-Remote-Attach-Docker-SSH-Ports.md) | remote attach through JDWP, Node inspector, debugpy/pydevd, Docker, SSH, and ports |
+| X4 | [04-Cross-IDE-Debugging/X04-Cross-IDE-Threads-Async-Concurrency-Triage-Playbook.md](04-Cross-IDE-Debugging/X04-Cross-IDE-Threads-Async-Concurrency-Triage-Playbook.md) | cross-language triage for threads, async, event loops, deadlocks, hangs, and timing bugs |
 
 ---
 
-## 6. Scenario Practice
+## 6. Concurrency And Threading Deep Dive
 
 | Sheet | File | What It Builds |
 |---:|---|---|
-| 27 | [05-Scenario-Practice/27-Scenario-Java-Deadlock-IntelliJ-Debug-Walkthrough.md](05-Scenario-Practice/27-Scenario-Java-Deadlock-IntelliJ-Debug-Walkthrough.md) | Full deadlock scenario: detect, locate, resolve in IntelliJ |
-| 28 | [05-Scenario-Practice/28-Scenario-NodeJS-Async-Promise-Leak-VSCode-Debug.md](05-Scenario-Practice/28-Scenario-NodeJS-Async-Promise-Leak-VSCode-Debug.md) | Async promise rejection / memory leak debug in VS Code |
-| 29 | [05-Scenario-Practice/29-Scenario-Python-Race-Condition-Thread-PyCharm-Debug.md](05-Scenario-Practice/29-Scenario-Python-Race-Condition-Thread-PyCharm-Debug.md) | Python threading race condition: reproduce, debug, fix in PyCharm |
+| 21 | [05-Concurrency-Threading/21-Java-Concurrency-Debug-DeadLock-RaceCondition-Synchronized.md](05-Concurrency-Threading/21-Java-Concurrency-Debug-DeadLock-RaceCondition-Synchronized.md) | Java thread dump, deadlock detection, synchronized, volatile, jstack |
+| 22 | [05-Concurrency-Threading/22-Java-Virtual-Threads-Loom-Debug-ExecutorService.md](05-Concurrency-Threading/22-Java-Virtual-Threads-Loom-Debug-ExecutorService.md) | Project Loom virtual threads, ForkJoinPool, CompletableFuture debug |
+| 23 | [05-Concurrency-Threading/23-Python-GIL-Threading-Multiprocessing-AsyncIO-Debug.md](05-Concurrency-Threading/23-Python-GIL-Threading-Multiprocessing-AsyncIO-Debug.md) | Python GIL impact, threading vs multiprocessing, asyncio event loop debug |
+| 24 | [05-Concurrency-Threading/24-NodeJS-EventLoop-Worker-Threads-Cluster-Debug.md](05-Concurrency-Threading/24-NodeJS-EventLoop-Worker-Threads-Cluster-Debug.md) | Node.js event loop phases, Worker threads, libuv, cluster debug |
+| 25 | [05-Concurrency-Threading/25-Thread-Dump-Analysis-jstack-pySpy-NodeInspect.md](05-Concurrency-Threading/25-Thread-Dump-Analysis-jstack-pySpy-NodeInspect.md) | jstack, py-spy, node --inspect, reading thread dumps for deadlocks |
+| 26 | [05-Concurrency-Threading/26-Concurrency-Anti-Patterns-Bugs-All-Languages.md](05-Concurrency-Threading/26-Concurrency-Anti-Patterns-Bugs-All-Languages.md) | Race conditions, deadlocks, starvation, livelocks across Java/Python/Node |
 
 ---
 
-## 7. Practice Upgrade
+## 7. Scenario Practice
 
 | Sheet | File | What It Builds |
 |---:|---|---|
-| 30 | [06-Practice-Upgrade/30-Debugging-Active-Recall-Drills-All-IDEs.md](06-Practice-Upgrade/30-Debugging-Active-Recall-Drills-All-IDEs.md) | Active recall Q&A across all three IDEs and concurrency |
-| 31 | [06-Practice-Upgrade/31-Debugging-Production-Readiness-Checklist.md](06-Practice-Upgrade/31-Debugging-Production-Readiness-Checklist.md) | Self-assessment checklist with scoring rubric |
+| 27 | [06-Scenario-Practice/27-Scenario-Java-Deadlock-IntelliJ-Debug-Walkthrough.md](06-Scenario-Practice/27-Scenario-Java-Deadlock-IntelliJ-Debug-Walkthrough.md) | Full deadlock scenario: detect, locate, resolve in IntelliJ |
+| 28 | [06-Scenario-Practice/28-Scenario-NodeJS-Async-Promise-Leak-VSCode-Debug.md](06-Scenario-Practice/28-Scenario-NodeJS-Async-Promise-Leak-VSCode-Debug.md) | Async promise rejection / memory leak debug in VS Code |
+| 29 | [06-Scenario-Practice/29-Scenario-Python-Race-Condition-Thread-PyCharm-Debug.md](06-Scenario-Practice/29-Scenario-Python-Race-Condition-Thread-PyCharm-Debug.md) | Python threading race condition: reproduce, debug, fix in PyCharm |
 
 ---
 
-## 8. Lab
+## 8. Practice Upgrade
+
+| Sheet | File | What It Builds |
+|---:|---|---|
+| 30 | [07-Practice-Upgrade/30-Debugging-Active-Recall-Drills-All-IDEs.md](07-Practice-Upgrade/30-Debugging-Active-Recall-Drills-All-IDEs.md) | Active recall Q&A across all three IDEs and concurrency |
+| 31 | [07-Practice-Upgrade/31-Debugging-Production-Readiness-Checklist.md](07-Practice-Upgrade/31-Debugging-Production-Readiness-Checklist.md) | Self-assessment checklist with scoring rubric |
+
+---
+
+## 9. Lab
 
 - [debugging-mastery-lab/README.md](debugging-mastery-lab/README.md)
 - [debugging-mastery-lab/CHEATSHEETS/](debugging-mastery-lab/CHEATSHEETS/)
@@ -104,7 +118,7 @@ observe symptom -> set targeted breakpoint -> step through execution -> inspect 
 
 ---
 
-## 9. Core Debugging Mental Model
+## 10. Core Debugging Mental Model
 
 ```text
 1. REPRODUCE: make the bug happen reliably (understand the trigger)
@@ -119,7 +133,7 @@ observe symptom -> set targeted breakpoint -> step through execution -> inspect 
 
 ---
 
-## 10. IDE Selection Guide
+## 11. IDE Selection Guide
 
 | Scenario | Best IDE |
 |---|---|

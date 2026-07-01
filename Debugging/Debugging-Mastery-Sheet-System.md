@@ -6,8 +6,9 @@ Debugging mastery is not about memorizing how to click buttons. It is about:
 
 - Knowing exactly which breakpoint type catches a specific class of bug
 - Understanding how the IDE represents runtime state (call stack, variable scope, thread frames)
-- Debugging concurrency problems: seeing deadlocks in the Threads panel, reading thread dumps
-- Attaching to remote processes (Docker, K8s, production-like environments)
+- Recognizing when a bug is actually environment drift: wrong interpreter, JDK, Node version, working directory, env var, classpath, or source map
+- Attaching safely to remote processes through the correct protocol, port, and source path mapping
+- Debugging concurrency problems: seeing deadlocks in the Threads panel, reading thread dumps, and comparing repeated snapshots
 - Debugging async code without getting lost in callback chains or coroutine frames
 
 ---
@@ -21,6 +22,19 @@ Test debug:     IDE runs a test class/function in debug mode (JUnit, pytest, Jes
 ```
 
 Every IDE covered in this track supports all three.
+
+---
+
+## Cross-IDE Bridge
+
+Use [04-Cross-IDE-Debugging](04-Cross-IDE-Debugging) when the debugging problem is bigger than one IDE.
+
+| File | Use When |
+|---|---|
+| [X01-Cross-IDE-Debugging-Mental-Model-Breakpoints-State-CallStack.md](04-Cross-IDE-Debugging/X01-Cross-IDE-Debugging-Mental-Model-Breakpoints-State-CallStack.md) | you need the universal debugger model: pause, inspect state, read stack, step with a hypothesis |
+| [X02-Cross-IDE-Environment-Config-Interpreter-Classpath-SourceMaps.md](04-Cross-IDE-Debugging/X02-Cross-IDE-Environment-Config-Interpreter-Classpath-SourceMaps.md) | code works in terminal but fails in the IDE, or breakpoints/debug behavior differ by runtime config |
+| [X03-Cross-IDE-Remote-Attach-Docker-SSH-Ports.md](04-Cross-IDE-Debugging/X03-Cross-IDE-Remote-Attach-Docker-SSH-Ports.md) | attaching IntelliJ, VS Code, or PyCharm to a running process in Docker, SSH, or a remote machine |
+| [X04-Cross-IDE-Threads-Async-Concurrency-Triage-Playbook.md](04-Cross-IDE-Debugging/X04-Cross-IDE-Threads-Async-Concurrency-Triage-Playbook.md) | debugging hangs, deadlocks, event-loop stalls, race conditions, promises, threads, or coroutines |
 
 ---
 
@@ -79,7 +93,7 @@ Broken concurrent code:
   threads make progress but never finish their combined goal (livelock)
 
 Debug approach:
-  Suspend all threads except the one of interest (Thread.suspend in IntelliJ)
+  Use debugger thread controls to suspend/resume only the thread of interest
   Read the thread dump to see what each thread is waiting for
   Use atomic operations and proper synchronization to fix
 ```
@@ -98,7 +112,7 @@ Node.js (VS Code):
   Remote: node --inspect=0.0.0.0:9229 server.js
 
 Python (PyCharm/VS Code):
-  Python -> pydevd (debugger stub) -> IDE
+  Python -> debugpy or pydevd (debugger stub) -> IDE
   Remote: python -m debugpy --listen 0.0.0.0:5678 app.py
 ```
 
