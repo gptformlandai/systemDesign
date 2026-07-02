@@ -16,6 +16,50 @@
 
 ---
 
+# Section 0: AWS CLI and Developer Tooling
+
+**Q0.1.** Before running a write command in AWS CLI, what seven things should you verify?
+
+> Hint: account, region, profile/role, resource, change, verification, rollback/cleanup
+
+**Q0.2.** What command proves which AWS account and principal your CLI is currently using?
+
+> Hint: STS caller identity
+
+**Q0.3.** For human access in a company AWS environment, why is IAM Identity Center better than IAM user access keys?
+
+> Hint: central login, MFA, short-lived credentials, account assignments
+
+**Q0.4.** What is the purpose of `--query`, and what language does it use?
+
+> Hint: client-side output filtering and reshaping
+
+**Q0.5.** Why should you use service-side filters before `--query` when inspecting large AWS accounts?
+
+> Hint: reduce API payload before client-side reshaping
+
+**Q0.6.** What is the difference between `aws s3` and `aws s3api`?
+
+> Hint: friendly high-level commands vs raw S3 API control
+
+**Q0.7.** What are AWS CLI waiters, and why do production scripts use them?
+
+> Hint: poll until resource reaches state; avoid racing async operations
+
+**Q0.8.** How should GitHub Actions authenticate to AWS in a production-grade pipeline?
+
+> Hint: OIDC assume-role, not static access keys
+
+**Q0.9.** What are the first commands you run when the CLI seems to use the wrong account?
+
+> Hint: configure list, env AWS vars, STS identity
+
+**Q0.10.** What does `--dry-run` prove, and what does it not prove?
+
+> Hint: IAM permission check for supported actions; does not validate every runtime dependency
+
+---
+
 # Section 1: Compute — EC2 and Auto Scaling
 
 **Q1.** What is the difference between a Savings Plan and a Reserved Instance? When do you choose each?

@@ -1,7 +1,7 @@
 # AWS Consolidated Notes
 
 Generated on: 2026-03-31 23:21:03
-Source folder: `/Users/malapalli_aravind@optum.com/Desktop/maravin4/SD/Sources/AWS`
+Source folder: `/Users/malapalli_aravind@optum.com/Desktop/maravin4/SD/AWS/10-Source-Deep-Dive`
 Total source files: 9
 
 ## Included Documents

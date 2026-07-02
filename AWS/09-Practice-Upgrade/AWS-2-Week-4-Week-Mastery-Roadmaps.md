@@ -30,13 +30,18 @@
 
 ### Day 1 (Monday) — 2 hours
 
-**Focus: VPC and Networking**
+**Focus: AWS CLI Orientation + VPC Networking**
+- Read: [AWS-CLI-Developer-Tooling-Gold-Sheet.md](../01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md) sections 0-4
 - Read: [AWS-Networking-VPC-ALB-Route53-Gold-Sheet.md](../01-Foundations/AWS-Networking-VPC-ALB-Route53-Gold-Sheet.md)
+- Run mentally or in sandbox: `aws --version`, `aws configure list`, `aws sts get-caller-identity`
 - Draw the 3-tier VPC from memory (public/private-app/private-data)
+- Answer aloud: CLI Q0.1-Q0.8 from Active Recall Bank
 - Answer aloud: Q6-Q10 from Active Recall Bank
 - Practice: explain security groups vs NACLs in 60 seconds
 
 **Commit to memory:**
+- Before every write command: account, region, profile, resource, verification, rollback
+- SSO for humans, roles for workloads, OIDC for CI/CD
 - 3 subnet tiers × 3 AZs minimum
 - NACLs are stateless (ephemeral return ports must be explicitly allowed)
 - VPC Gateway Endpoint for S3 and DynamoDB (free)
@@ -217,7 +222,7 @@
 
 | Day | Topics |
 |---|---|
-| Mon | VPC (full), EC2 + Auto Scaling |
+| Mon | AWS CLI + Developer Tooling, VPC (full), EC2 + Auto Scaling |
 | Tue | Lambda + API Gateway (full) |
 | Wed | S3 + CloudFront |
 | Thu | ECS + EKS (full) |
@@ -273,6 +278,7 @@
 
 Before ending each study session:
 
+- [ ] Ran or rehearsed `aws sts get-caller-identity` for the intended profile/account
 - [ ] Read the Gold Sheet section fully (no skimming)
 - [ ] Drew or wrote the architecture from memory
 - [ ] Answered 5+ active recall questions aloud
@@ -309,6 +315,7 @@ Before ending each study session:
 # Final Day Checklist (Day Before Interview)
 
 - [ ] Review the AWS Interview Architecture Template (9 steps)
+- [ ] Review CLI safety rule: profile, region, identity, target resource, verification, rollback
 - [ ] Run through key numbers above without looking
 - [ ] Review all items marked ❌ in Active Recall Bank
 - [ ] Practice "tell me about yourself" + "why AWS" + "system you designed"

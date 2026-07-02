@@ -41,6 +41,19 @@ Use https://console.aws.amazon.com for AWS Console work.
 Do not use retail amazon.com.
 ```
 
+For the newer beginner-to-pro interview track and hands-on operator notes, use:
+
+- [AWS Interview Track Index](../../AWS-Interview-Track-Index.md)
+- [AWS CLI and Developer Tooling Gold Sheet](../../01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md)
+
+CLI operator rule:
+
+```text
+Before running write commands from terminal or CloudShell, verify account,
+region, profile/role, target resource, expected change, verification path,
+and rollback/cleanup path.
+```
+
 ---
 
 ## 1. Group 1: Core AWS Foundation
@@ -49,6 +62,7 @@ Read:
 
 - [AWS-01 Compute + Networking](AWS-01-Compute-Networking.md)
 - [AWS-06 Networking Story Mode](AWS-06-Networking-Story-Mode.md)
+- [AWS CLI and Developer Tooling](../../01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md)
 
 Use when:
 
@@ -254,4 +268,3 @@ Is this change captured in IaC?
 ```
 
 This is the difference between using AWS and architecting AWS.
-

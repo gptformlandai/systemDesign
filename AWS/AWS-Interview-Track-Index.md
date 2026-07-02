@@ -40,9 +40,9 @@ For every design question, the senior answer covers:
 
 | Order | Document | Why It Exists |
 |---|---|---|
-| 1 | [AWS Compute: EC2 and Auto Scaling](01-Foundations/AWS-Compute-EC2-Auto-Scaling-Gold-Sheet.md) | Instance types, pricing, ASG, placement, AMIs, production deployment |
-| 2 | [AWS Networking: VPC, ALB, Route 53, CloudFront](01-Foundations/AWS-Networking-VPC-ALB-Route53-Gold-Sheet.md) | VPC design, subnets, security groups, NACLs, ALB, Route 53, CDN |
-| 3 | [AWS CLI and Developer Tooling](01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md) | Install, configure, profiles, MFA, JMESPath queries, scripting, CloudShell, SSO, LocalStack |
+| 1 | [AWS CLI and Developer Tooling](01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md) | Install, SSO, profiles, STS identity checks, JMESPath queries, waiters, scripting, CloudShell, LocalStack, cleanup |
+| 2 | [AWS Compute: EC2 and Auto Scaling](01-Foundations/AWS-Compute-EC2-Auto-Scaling-Gold-Sheet.md) | Instance types, pricing, ASG, placement, AMIs, production deployment |
+| 3 | [AWS Networking: VPC, ALB, Route 53, CloudFront](01-Foundations/AWS-Networking-VPC-ALB-Route53-Gold-Sheet.md) | VPC design, subnets, security groups, NACLs, ALB, Route 53, CDN |
 | 4 | [AWS Containers: ECS and EKS](02-Containers-Serverless/AWS-ECS-EKS-Container-Platform-Gold-Sheet.md) | ECS Fargate, task definitions, EKS node groups, IRSA, cluster autoscaler |
 | 5 | [AWS Serverless: Lambda and API Gateway](02-Containers-Serverless/AWS-Lambda-API-Gateway-Serverless-Gold-Sheet.md) | Lambda cold start, concurrency, layers, API Gateway REST/HTTP/WebSocket |
 | 6 | [AWS Storage: S3 and CloudFront](03-Storage-Database/AWS-S3-CloudFront-Storage-Gold-Sheet.md) | S3 storage classes, lifecycle, security, pre-signed URLs, OAC, behaviors |
@@ -95,6 +95,9 @@ read one sheet -> sketch architecture -> answer recall -> solve scenario -> spea
 ### Beginner
 
 You should be able to:
+- configure AWS CLI v2 with IAM Identity Center or a sandbox profile
+- run `aws sts get-caller-identity` before touching resources
+- use `--profile`, `--region`, `--output`, and basic `--query`
 - explain which service solves which problem
 - deploy a basic app to ECS or EC2 behind an ALB
 - put app and DB in private subnets
@@ -105,6 +108,8 @@ You should be able to:
 ### Intermediate
 
 You should confidently handle:
+- inspect AWS resources from the CLI across accounts and regions
+- use waiters, pagination, SSO profiles, and service-specific debug commands
 - design a multi-AZ production app with RDS and ElastiCache
 - choose RDS vs DynamoDB vs S3 by access pattern
 - design SQS/SNS/EventBridge async workflows with DLQ
@@ -116,6 +121,7 @@ You should confidently handle:
 ### Pro / MAANG Architect
 
 You should be able to:
+- automate safe AWS operations with temporary credentials, explicit blast-radius checks, tagging, verification, and cleanup
 - design multi-account landing zones with SCPs and centralized audit
 - define RTO/RPO and select pilot light vs warm standby vs active-active
 - design network topology across accounts with Transit Gateway and PrivateLink

@@ -62,6 +62,7 @@ real situation
 
 | Order | Document | What You Learn |
 |---|---|---|
+| 0 | [AWS CLI and Developer Tooling](../../01-Foundations/AWS-CLI-Developer-Tooling-Gold-Sheet.md) | CLI v2, IAM Identity Center, profiles, STS checks, JMESPath, waiters, safe scripting, cleanup |
 | 1 | [Core Service Console Runbook](AWS-Core-Service-Console-Runbook-Real-World.md) | EC2, VPC, ALB, ECS, EKS, Lambda, S3, RDS, DynamoDB, SQS, SNS, EventBridge, CloudWatch, CloudTrail, Secrets Manager, Bedrock console paths |
 | 2 | [Landing Zone, Multi-Account, and Governance](AWS-Architect-01-Landing-Zone-Governance-Real-World.md) | Organizations, Control Tower, account separation, SCPs, centralized logs, account vending |
 | 3 | [Security Architecture and Incident Response](AWS-Architect-02-Security-Incident-Response-Real-World.md) | IAM Identity Center, GuardDuty, Security Hub, Inspector, Macie, Config, Access Analyzer, incident response |
@@ -187,6 +188,8 @@ Use https://console.aws.amazon.com for AWS, not retail amazon.com.
 
 You should be able to:
 
+- configure AWS CLI v2 with SSO or a sandbox profile
+- run `aws sts get-caller-identity` and explain account/role/region before changes
 - explain which service solves which problem
 - deploy a basic app to ECS or EC2
 - put app and DB in private subnets
