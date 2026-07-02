@@ -521,6 +521,138 @@ Source: `05-Special-Interview-Rounds/Java-Production-Debugging-Case-Studies-Gold
 
 ---
 
+## 24. Java JDK, CLI, IDE, Maven, And Gradle
+
+Source: `00-Setup/Java-JDK-CLI-IDE-Maven-Gradle-Gold-Sheet.md`
+
+1. Explain JDK, JRE, JVM, `javac`, and `java` without mixing them.
+2. What should `JAVA_HOME` point to?
+3. How do you prove which JDK the terminal is using?
+4. How do you compile and run a single Java file?
+5. Why can IntelliJ pass while CI fails?
+6. What problem do Maven and Gradle wrappers solve?
+7. What is the standard Java project layout?
+8. How do toolchains prevent Java version drift?
+9. What causes `UnsupportedClassVersionError`?
+10. How would you align IDE, build tool, CI, and container runtime?
+11. Why should local commands match CI commands?
+12. When is a single-file Java exercise enough?
+13. When do you need a real build tool?
+14. What should a Java project README include for setup?
+15. Give a strong answer for "It works locally but fails in CI."
+
+---
+
+## 25. Java JDBC, Transactions, And Connection Pooling
+
+Source: `02-Intermediate-Backend/Java-JDBC-Transactions-Connection-Pooling-Gold-Sheet.md`
+
+1. Explain JDBC in one minute.
+2. What roles do `DataSource`, `Connection`, `PreparedStatement`, and `ResultSet` play?
+3. Why are prepared statements safer than string concatenation?
+4. How does try-with-resources prevent connection leaks?
+5. What does auto-commit do?
+6. Walk through a manual transaction with commit and rollback.
+7. Why must connection state be restored before returning to a pool?
+8. What causes connection-pool exhaustion?
+9. Why can increasing pool size make the database slower?
+10. What metrics would you check for HikariCP?
+11. How do transaction isolation and database locks relate to Java service correctness?
+12. What Maven scope should a JDBC driver usually use?
+13. How do JDBC batching and transaction boundaries interact?
+14. Why does `ConcurrentHashMap` not solve multi-instance booking correctness?
+15. Give a senior answer for "Our API waits for DB connections."
+
+---
+
+## 26. Java Profiling, JFR, Async-Profiler, And JVM Runbooks
+
+Source: `03-Senior-FAANG/Java-Profiling-JFR-AsyncProfiler-Runbooks-Gold-Sheet.md`
+
+1. Map high CPU to the right Java diagnostic steps.
+2. How do you map an OS thread to a Java thread dump `nid`?
+3. Why are multiple thread dumps better than one?
+4. What does JFR capture?
+5. When would you use async-profiler?
+6. What is a flamegraph?
+7. How do you debug memory retention?
+8. What is the difference between allocation pressure and retained memory?
+9. When is a heap dump risky?
+10. How do GC logs and JFR complement each other?
+11. How do you debug native memory growth?
+12. What evidence points to lock contention?
+13. What evidence points to downstream pool starvation?
+14. What mitigation can you apply before root-cause fix?
+15. Give a production answer for "Do not guess, collect evidence."
+
+---
+
+## 27. Java Data Formats, Jackson, Protobuf, And Serialization
+
+Source: `03-Senior-FAANG/Java-Data-Formats-Jackson-Protobuf-Serialization-Gold-Sheet.md`
+
+1. Explain why data formats are contracts.
+2. Why should APIs use DTOs instead of JPA entities?
+3. When is JSON a good choice?
+4. When is Protobuf a good choice?
+5. When is Avro and schema registry a good choice?
+6. Why is Java native serialization risky?
+7. How do you represent money safely?
+8. How do you represent timestamps safely?
+9. Why are unknown JSON fields useful for compatibility?
+10. What makes polymorphic deserialization dangerous?
+11. How do you evolve an event schema safely?
+12. What Protobuf field-number rule should you remember?
+13. What is a poison-pill message?
+14. How would contract tests catch a breaking payload change?
+15. Give a strong answer for JSON vs Protobuf vs Avro.
+
+---
+
+## 28. Java Annotation Processing And Code Generation
+
+Source: `05-Special-Interview-Rounds/Java-Annotation-Processing-Code-Generation-Gold-Sheet.md`
+
+1. Explain annotations, reflection, and annotation processing.
+2. Compare `SOURCE`, `CLASS`, and `RUNTIME` retention.
+3. Why can runtime reflection not see source-retention annotations?
+4. What does an annotation processor do during compilation?
+5. Why can generated code be faster at runtime than reflection?
+6. What does Lombok generate, and what are the risks?
+7. What does MapStruct generate, and why is it useful?
+8. Where do generated sources usually appear?
+9. Why can code build in IDE but fail in CI with generated classes missing?
+10. How do Maven/Gradle annotation processor paths matter?
+11. How do annotation processors relate to native-image/AOT?
+12. What generated-code choices can harm readability?
+13. How would you inspect generated code during debugging?
+14. How do you explain Spring annotations vs compile-time generation?
+15. Give a strong answer for "Reflection discovers, processors generate."
+
+---
+
+## 29. Java Capstone Production Service Lab
+
+Source: `06-Practice-Upgrade/Java-Capstone-Production-Service-Lab.md`
+
+1. Explain the capstone architecture in 90 seconds.
+2. What is the core booking invariant?
+3. How do you model a date range safely?
+4. Why is `[start, end)` usually easier than closed ranges?
+5. Where should validation live?
+6. What belongs in the service layer vs repository layer?
+7. Why is check-then-insert unsafe without a critical section?
+8. How would you make the in-memory version one-JVM safe?
+9. Why is one-JVM safety not enough in production?
+10. What database transaction or constraint would enforce correctness?
+11. How would you add idempotency?
+12. Which DTOs would you expose externally?
+13. What tests prove overlap and concurrency correctness?
+14. How would you debug p99 latency in the capstone service?
+15. Give a senior answer for evolving the capstone into production.
+
+---
+
 ## Weekly Recall Rotation
 
 Use this when revising the full Java track.
@@ -529,10 +661,10 @@ Use this when revising the full Java track.
 |---|---|---|
 | Monday | Core, String, Java 8 | Answer 30 questions, code 3 snippets |
 | Tuesday | Streams, Collectors, Patterns | Answer 30 questions, solve 3 transformations |
-| Wednesday | Collections, Concurrency, IO | Answer 35 questions, code 2 concurrency snippets |
-| Thursday | JVM, GC, Virtual Threads | Answer 30 questions, explain 2 incidents |
-| Friday | Production, Tooling, Testing | Answer 30 questions, design 1 test strategy |
-| Saturday | Scenarios and Special Rounds | Run timed mocks and output questions |
+| Wednesday | Collections, Concurrency, IO, JDBC | Answer 40 questions, code 2 concurrency/database snippets |
+| Thursday | JVM, GC, Virtual Threads, Profiling | Answer 35 questions, explain 2 incidents |
+| Friday | Production, Tooling, Testing, Data Formats | Answer 35 questions, design 1 test strategy and 1 payload contract |
+| Saturday | Scenarios, Annotation Processing, Special Rounds | Run timed mocks and output questions |
 | Sunday | Red-question cleanup | Re-answer only red/yellow questions |
 
 ---

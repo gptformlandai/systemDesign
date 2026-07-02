@@ -157,6 +157,32 @@ Critical misses:
 
 ---
 
+## 6A. Professional Java Integration Rubric
+
+Use this for setup, JDBC, data contracts, annotation processing, and capstone discussions.
+
+| Area | 3-Level Answer | 5-Level Answer |
+|---|---|---|
+| Environment setup | Knows JDK and IDE basics | Verifies terminal, IDE, build tool, CI, and runtime version alignment |
+| Build reproducibility | Can run Maven/Gradle | Explains wrappers, toolchains, dependency scopes, and CI parity |
+| JDBC | Knows `Connection` and SQL | Explains `DataSource`, prepared statements, transactions, rollback, batching, and pool limits |
+| DB correctness | Mentions transactions | Separates one-JVM safety from database constraints, isolation, and idempotency |
+| Data formats | Knows JSON | Chooses JSON/Protobuf/Avro by contract, schema, performance, and compatibility needs |
+| DTO design | Has request/response objects | Avoids entity leakage, handles unknown fields, money, timestamps, and versioning |
+| Annotation processing | Knows annotations | Differentiates retention, reflection, processors, generated sources, and CI configuration |
+| Capstone | Explains classes | Connects model, invariant, repository, concurrency, persistence, tests, profiling, and production migration |
+
+Critical misses:
+- Cannot run Java outside the IDE.
+- Does not know why `UnsupportedClassVersionError` happens.
+- Builds SQL through string concatenation.
+- Treats connection pool size as a magic latency fix.
+- Exposes JPA entities as public API contracts.
+- Cannot explain generated-source failures in CI.
+- Claims in-memory locking solves multi-instance correctness.
+
+---
+
 ## 7. Scenario Answer Rubric
 
 Use this for booking, production, and architecture-style Java scenarios.
@@ -289,11 +315,17 @@ Use this table after each study session.
 | ConcurrentHashMap |  |  |  |  |
 | Virtual threads |  |  |  |  |
 | JVM/GC debugging |  |  |  |  |
+| Profiling/JFR/runbooks |  |  |  |  |
 | Production engineering |  |  |  |  |
+| JDK/setup/build parity |  |  |  |  |
+| JDBC/transactions/pooling |  |  |  |  |
+| Data formats/contracts |  |  |  |  |
+| Annotation processing/code generation |  |  |  |  |
 | Tooling/security |  |  |  |  |
 | Testing |  |  |  |  |
 | Tricky output |  |  |  |  |
 | LLD/machine coding |  |  |  |  |
+| Capstone production service |  |  |  |  |
 | Production incidents |  |  |  |  |
 
 ---
@@ -308,6 +340,7 @@ You are ready when:
 - Concurrency basics score average is 3.3+.
 - You can solve simple coding snippets without notes.
 - You can explain at least one production bug per major topic.
+- You can run Java and the project build from the terminal.
 
 ### Senior Java Backend Ready
 
@@ -316,6 +349,8 @@ You are ready when:
 - You can debug high CPU, memory leak, deadlock, and pool starvation verbally.
 - You can explain one-JVM vs distributed correctness clearly.
 - You can complete the booking machine-coding drill in 90 minutes.
+- You can explain JDBC transaction and connection-pool behavior under a Spring/JPA service.
+- You can design a safe DTO/event contract and explain compatibility.
 - You can pass Mock 3, Mock 4, and Mock 8 without critical misses.
 
 ### FAANG-Style Java Depth Ready
@@ -326,4 +361,5 @@ You are ready when:
 - You can answer follow-ups two levels deep.
 - You can write code and explain runtime behavior.
 - You can make trade-offs instead of giving one-size-fits-all answers.
+- You can present the capstone as a production migration story, not just an in-memory coding exercise.
 - You can stay calm under tricky output and production incident pressure.

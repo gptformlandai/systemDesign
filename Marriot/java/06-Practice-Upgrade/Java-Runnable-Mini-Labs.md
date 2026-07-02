@@ -850,6 +850,231 @@ Debrief:
 
 ---
 
+## Lab 16. Java Environment Check
+
+Maps to:
+- `00-Setup/Java-JDK-CLI-IDE-Maven-Gradle-Gold-Sheet.md`
+
+File: `JavaEnvironmentCheckLab.java`
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+public class JavaEnvironmentCheckLab {
+    public static void main(String[] args) {
+        List<String> properties = List.of(
+            "java.version",
+            "java.vendor",
+            "java.home",
+            "java.class.path",
+            "user.dir",
+            "os.name",
+            "os.arch"
+        );
+
+        for (String property : properties) {
+            System.out.printf("%-16s = %s%n", property, System.getProperty(property));
+        }
+
+        System.out.println("pom.xml exists      = " + Files.exists(Path.of("pom.xml")));
+        System.out.println("build.gradle exists = " + Files.exists(Path.of("build.gradle")));
+        System.out.println("mvnw exists         = " + Files.exists(Path.of("mvnw")));
+        System.out.println("gradlew exists      = " + Files.exists(Path.of("gradlew")));
+    }
+}
+```
+
+Expected observations:
+- The runtime JDK version is visible from `java.version`.
+- `java.home` shows the actual runtime path.
+- Project build files tell you whether Maven or Gradle should be the source of truth.
+
+Debrief:
+1. Does terminal Java match your IDE project SDK?
+2. What command should CI run for this project?
+3. What causes `UnsupportedClassVersionError`?
+
+---
+
+## Lab 17. Connection Pool Pressure Simulation
+
+Maps to:
+- `02-Intermediate-Backend/Java-JDBC-Transactions-Connection-Pooling-Gold-Sheet.md`
+- `03-Senior-FAANG/Java-Production-Engineering-Best-Practices-FAANG-Master-Sheet.md`
+
+File: `ConnectionPoolPressureLab.java`
+
+```java
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+
+public class ConnectionPoolPressureLab {
+    private static final Semaphore POOL = new Semaphore(3);
+
+    public static void main(String[] args) throws InterruptedException {
+        List<Thread> workers = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            int requestId = i;
+            workers.add(new Thread(() -> handleRequest(requestId), "request-" + requestId));
+        }
+
+        for (Thread worker : workers) {
+            worker.start();
+        }
+        for (Thread worker : workers) {
+            worker.join();
+        }
+    }
+
+    private static void handleRequest(int requestId) {
+        Instant start = Instant.now();
+        try {
+            POOL.acquire();
+            long waitMillis = Duration.between(start, Instant.now()).toMillis();
+            System.out.println("request=" + requestId + " acquired after " + waitMillis + "ms");
+            Thread.sleep(500);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+        } finally {
+            POOL.release();
+        }
+    }
+}
+```
+
+Expected observations:
+- Only three requests can hold the simulated connection at once.
+- Later requests wait even though many Java threads exist.
+- More threads do not remove downstream capacity limits.
+
+Debrief:
+1. How is the semaphore like a connection pool?
+2. Why can virtual threads still wait on DB connections?
+3. What would Hikari pending/active metrics show?
+4. Why is blindly increasing the pool risky?
+
+---
+
+## Lab 18. Data Contract Evolution
+
+Maps to:
+- `03-Senior-FAANG/Java-Data-Formats-Jackson-Protobuf-Serialization-Gold-Sheet.md`
+
+File: `DataContractEvolutionLab.java`
+
+```java
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Map;
+
+public class DataContractEvolutionLab {
+    record BookingEvent(String bookingId, String roomId, BigDecimal amount, String currency, Instant createdAt) {
+    }
+
+    public static void main(String[] args) {
+        Map<String, String> v1Payload = Map.of(
+            "booking_id", "B1",
+            "room_id", "R1",
+            "amount", "120.00",
+            "created_at", "2026-07-02T10:15:30Z"
+        );
+
+        Map<String, String> v2Payload = Map.of(
+            "booking_id", "B2",
+            "room_id", "R2",
+            "amount", "145.50",
+            "currency", "USD",
+            "created_at", "2026-07-02T10:16:30Z",
+            "trace_id", "ignored-by-old-consumer"
+        );
+
+        System.out.println(parse(v1Payload));
+        System.out.println(parse(v2Payload));
+    }
+
+    private static BookingEvent parse(Map<String, String> payload) {
+        return new BookingEvent(
+            payload.get("booking_id"),
+            payload.get("room_id"),
+            new BigDecimal(payload.get("amount")),
+            payload.getOrDefault("currency", "USD"),
+            Instant.parse(payload.get("created_at"))
+        );
+    }
+}
+```
+
+Expected observations:
+- Additive fields are easier to handle than breaking renames.
+- Unknown fields can be ignored.
+- Missing fields need explicit defaults or validation.
+- Money uses `BigDecimal`, not `double`.
+- Timestamp uses `Instant`.
+
+Debrief:
+1. What would break if `booking_id` were renamed?
+2. Why is `currency` additive and safer?
+3. How would this map to JSON/Jackson?
+4. How would Protobuf field numbers change the compatibility rules?
+
+---
+
+## Lab 19. Annotation Retention Reflection
+
+Maps to:
+- `05-Special-Interview-Rounds/Java-Annotation-Processing-Code-Generation-Gold-Sheet.md`
+- `05-Special-Interview-Rounds/Java-Generics-Reflection-Annotations-Deep-Dive-Gold-Sheet.md`
+
+File: `AnnotationRetentionLab.java`
+
+```java
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+public class AnnotationRetentionLab {
+    @Retention(RetentionPolicy.SOURCE)
+    @Target(ElementType.TYPE)
+    @interface SourceOnly {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    @interface RuntimeVisible {
+        String value();
+    }
+
+    @SourceOnly
+    @RuntimeVisible("booking-service")
+    static class BookingService {
+    }
+
+    public static void main(String[] args) {
+        System.out.println(BookingService.class.getAnnotation(SourceOnly.class));
+        RuntimeVisible runtimeVisible = BookingService.class.getAnnotation(RuntimeVisible.class);
+        System.out.println(runtimeVisible.value());
+    }
+}
+```
+
+Expected observations:
+- `SourceOnly` is not visible through runtime reflection.
+- `RuntimeVisible` is visible and its value can be read.
+
+Debrief:
+1. Why does retention policy matter?
+2. Which retention would an annotation processor often use?
+3. Which retention does a runtime framework need?
+4. How is annotation processing different from reflection?
+
+---
+
 ## Lab Completion Tracker
 
 | Lab | Done | Redo Needed | Notes |
@@ -869,3 +1094,7 @@ Debrief:
 | 13 |  |  |  |
 | 14 |  |  |  |
 | 15 |  |  |  |
+| 16 |  |  |  |
+| 17 |  |  |  |
+| 18 |  |  |  |
+| 19 |  |  |  |

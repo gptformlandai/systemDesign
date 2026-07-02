@@ -62,7 +62,7 @@ Use this when time is short but you still want depth.
 
 | Day | Focus | Read | Practice | Output |
 |---:|---|---|---|---|
-| 1 | Java runtime and memory | Core master sheet sections on JVM, memory, class loading | Recall Q1; Lab 2 | Explain Java execution and memory in 90 seconds |
+| 1 | Setup, runtime, and memory | Setup sheet plus Core master sheet sections on JVM, memory, class loading | Recall Q24 and Q1; Lab 2 | Explain JDK setup, Java execution, and memory in 90 seconds |
 | 2 | OOP, String, equality | Core OOP/equality plus String deep dive | Recall Q1-Q2; Lab 1 | Explain String pool and HashMap key failure |
 | 3 | Java 8 and Optional | Java 8+ concepts | Recall Q3; write Optional examples | Explain lambda, Optional, Date-Time, CompletableFuture |
 | 4 | Streams | Streams interview prep | Recall Q4; Lab 7 | Solve 3 stream transformations |
@@ -80,13 +80,13 @@ Week 1 checkpoint:
 
 | Day | Focus | Read | Practice | Output |
 |---:|---|---|---|---|
-| 8 | Executors and CHM | Concurrency remaining sections plus CHM scenario | Recall Q8/Q17; Labs 4-6 | Explain executor starvation and CHM compound traps |
+| 8 | Executors, CHM, and JDBC limits | Concurrency remaining sections, CHM scenario, JDBC sheet pool sections | Recall Q8/Q17/Q25; Labs 4-6 | Explain executor starvation, CHM compound traps, and DB pool limits |
 | 9 | Virtual threads | Virtual threads sheet | Recall Q10; Lab 9 if JDK 21+ | Explain virtual threads, pinning, DB pool limits |
-| 10 | JVM and GC debugging | JVM/GC sheet | Recall Q11; Labs 11-12 | Debug high CPU, leak, deadlock verbally |
+| 10 | JVM, GC, and profiling | JVM/GC sheet plus profiling runbooks | Recall Q11/Q26; Labs 11-12 | Debug high CPU, leak, deadlock, and GC with evidence |
 | 11 | Modern Java and production engineering | Modern LTS plus production best practices | Recall Q12-Q13 | Explain Java 17/21 adoption and production readiness |
-| 12 | Tooling, testing, security | Platform/tooling/testing/security plus testing patterns | Recall Q14-Q15; Lab 13 | Explain testing strategy, JMH, dependency hygiene |
-| 13 | Special rounds | Tricky output, generics/reflection, LLD | Recall Q20-Q22; Lab 14 | Solve output prompts and outline machine coding |
-| 14 | Full simulation day | Scenario sheets and production debugging cases | Mock 3, Mock 4, Mock 8 | Final score and red-topic retest plan |
+| 12 | Tooling, testing, security, data contracts | Platform/tooling/testing/security, testing patterns, data formats | Recall Q14-Q15/Q27; Lab 13 | Explain testing strategy, JMH, dependency hygiene, DTO/event compatibility |
+| 13 | Special rounds and annotation processing | Tricky output, generics/reflection, annotation processing, LLD | Recall Q20-Q22/Q28; Lab 14 | Solve output prompts, explain generated code, outline machine coding |
+| 14 | Full simulation and capstone day | Scenario sheets, production debugging cases, capstone lab | Mock 3, Mock 4, Mock 8, Capstone outline | Final score and red-topic retest plan |
 
 Week 2 final gate:
 - Mock 3 average score: 4.0+
@@ -94,6 +94,7 @@ Week 2 final gate:
 - Mock 8 no critical correctness miss
 - 80%+ on tricky output round
 - Can complete Lab 15 outline in 30 minutes or full build in 90 minutes
+- Can explain the capstone's in-memory correctness, JDBC/database migration, DTO contract, and profiling plan
 
 ---
 
@@ -107,7 +108,7 @@ Goal: no hesitation on runtime, memory, OOP, strings, equality, Java 8 basics.
 
 | Day | Focus | Assignments |
 |---:|---|---|
-| 1 | Track setup | Read index; skim all file titles; prepare red/yellow/green tracker |
+| 1 | Track and environment setup | Read index; read setup sheet; verify JDK/build tool; prepare red/yellow/green tracker |
 | 2 | JVM/JDK/JRE and execution | Core sheet JVM sections; answer recall Q1 first 5 questions |
 | 3 | Memory model basics | Core memory sections; draw heap/stack/metaspace examples |
 | 4 | OOP and immutability | Core OOP sections; write immutable class with defensive copy |
@@ -151,7 +152,7 @@ Goal: move from Java syntax to runtime and incident reasoning.
 | 18 | Coordination and ThreadLocal | latch/semaphore/barrier/phaser; run Lab 10 |
 | 19 | ConcurrentHashMap scenarios | CHM request scenario; run Labs 5-6 |
 | 20 | Virtual threads | Virtual threads sheet; run Lab 9 if available |
-| 21 | JVM, GC, and tools | JVM/GC sheet; run Labs 11-12 carefully |
+| 21 | JVM, GC, profiling, and tools | JVM/GC sheet plus profiling runbooks; run Labs 11-12 carefully |
 
 Week 3 checkpoint:
 - Mock 3 and Mock 4.
@@ -164,12 +165,12 @@ Goal: make answers crisp, practical, and interview-ready.
 
 | Day | Focus | Assignments |
 |---:|---|---|
-| 22 | Modern Java | Java 17/21/25 sheet; answer migration questions |
-| 23 | Production engineering | Production best practices; create production code review checklist |
+| 22 | Modern Java and JDBC correctness | Java 17/21/25 sheet plus JDBC sheet; answer migration and DB correctness questions |
+| 23 | Production engineering and data contracts | Production best practices plus data-format sheet; create code review and payload compatibility checklist |
 | 24 | Tooling/testing/security | Platform/tooling/security and testing sheets; run Lab 13 |
-| 25 | Tricky output and generics | Output sheet plus generics/reflection/annotations; run Lab 14 |
+| 25 | Tricky output, generics, annotation processing | Output sheet plus generics/reflection/annotations and annotation-processing sheet; run Lab 14 |
 | 26 | Machine coding | LLD sheet; implement or outline Lab 15 |
-| 27 | Booking scenario day | Intervue booking scenario plus quick revision sheet |
+| 27 | Capstone and booking scenario day | Capstone lab plus Intervue booking scenario and quick revision sheet |
 | 28 | Final mock day | Mock 6, Mock 7, Mock 8; final rubric scoring |
 
 Week 4 final gate:
@@ -181,6 +182,7 @@ Week 4 final gate:
 - LLD/machine coding: 3.8+
 - Tricky output: 85%+
 - Senior scenario: no critical invariant miss
+- Capstone: can explain environment, model, concurrency, JDBC, DTO, testing, and profiling decisions
 
 ---
 
@@ -193,10 +195,10 @@ Use only when the interview is tomorrow.
 | Hour 1 | Core and String | Read index checklist; answer 20 recall questions |
 | Hour 2 | HashMap, collections, streams | Solve 3 stream tasks; explain HashMap |
 | Hour 3 | Concurrency | Explain JMM, volatile, synchronized, executor, CHM |
-| Hour 4 | JVM/GC | Explain high CPU, memory leak, deadlock, GC spike |
-| Hour 5 | Modern Java/testing/tooling | Explain Java 17/21, testing strategy, JMH, dependency conflicts |
+| Hour 4 | JVM/GC/profiling | Explain high CPU, memory leak, deadlock, GC spike, JFR |
+| Hour 5 | Modern Java/testing/tooling/data | Explain Java 17/21/25, testing strategy, JMH, dependency conflicts, DTO/schema compatibility |
 | Hour 6 | Scenarios | Run booking scenario and CHM scenario aloud |
-| Hour 7 | Special rounds | Solve tricky output and generics prompts |
+| Hour 7 | Special rounds | Solve tricky output, generics, and annotation-processing prompts |
 | Hour 8 | Mock and patch | Run weakest mock; review red topics only |
 
 Emergency rule:
@@ -234,12 +236,14 @@ Java alone is not full backend readiness. Pair it with these after the Java road
 
 | Java Topic | Pair With |
 |---|---|
+| JDK, build tools, CI parity | BackendBuildTools track |
 | JDBC, transactions, booking correctness | SQL track transactions and locking |
 | REST/API production engineering | Spring Boot track |
 | Async processing and retries | Kafka and Microservices tracks |
 | Observability and debugging | System design observability notes |
 | LLD and machine coding | DSA and design-pattern practice |
 | Virtual threads and blocking IO | Spring Boot, WebFlux, and performance notes |
+| DTOs, schema evolution, JSON/Avro/Protobuf | Spring Boot, Kafka, API design, and data-platform notes |
 
 ---
 
@@ -248,6 +252,7 @@ Java alone is not full backend readiness. Pair it with these after the Java road
 Before the interview, confirm:
 
 - I can answer the final confidence checklist in the index without notes.
+- I can verify and explain local JDK/build/CI/runtime version alignment.
 - I completed at least 8 runnable labs.
 - I completed at least 3 mock interviews.
 - I scored at least 4.0 on concurrency or know exactly what is weak.
@@ -256,6 +261,7 @@ Before the interview, confirm:
 - I can solve output questions by rule, not guessing.
 - I can structure a machine-coding solution in 10 minutes.
 - I can connect Java concepts to Spring, SQL, Kafka, and production systems.
+- I can explain the capstone from plain Java to production database-backed design.
 
 ---
 

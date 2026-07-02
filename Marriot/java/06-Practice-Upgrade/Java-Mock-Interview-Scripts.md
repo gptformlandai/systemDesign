@@ -490,6 +490,68 @@ architecture.
 
 ---
 
+## Mock 9. 90-Minute Java Capstone Production Round
+
+Best after:
+- `00-Setup/Java-JDK-CLI-IDE-Maven-Gradle-Gold-Sheet.md`
+- `02-Intermediate-Backend/Java-JDBC-Transactions-Connection-Pooling-Gold-Sheet.md`
+- `03-Senior-FAANG/Java-Data-Formats-Jackson-Protobuf-Serialization-Gold-Sheet.md`
+- `03-Senior-FAANG/Java-Profiling-JFR-AsyncProfiler-Runbooks-Gold-Sheet.md`
+- `05-Special-Interview-Rounds/Java-Annotation-Processing-Code-Generation-Gold-Sheet.md`
+- `06-Practice-Upgrade/Java-Capstone-Production-Service-Lab.md`
+
+### Scenario
+
+You built a plain Java in-memory booking service. The interviewer now asks you to make it production-ready enough for a real backend team.
+
+### Interview Flow
+
+| Time | Segment | Goal |
+|---:|---|---|
+| 0-8 min | Environment and build | JDK, wrapper, CI/runtime alignment |
+| 8-22 min | Domain and invariant | booking model, date range, overlap |
+| 22-38 min | Concurrency | one-JVM locking and limits |
+| 38-52 min | JDBC and persistence | transactions, constraints, pool sizing |
+| 52-64 min | Data contracts | DTOs, JSON/event schema, compatibility |
+| 64-74 min | Code generation | annotations, MapStruct/Lombok trade-offs |
+| 74-84 min | Profiling and incidents | p99, JFR, thread dump, pool pressure |
+| 84-90 min | Final answer | concise production migration plan |
+
+### Questions
+
+1. What JDK and build setup would you require for the project?
+2. How do you prove local and CI use the same Java version?
+3. What is the core booking invariant?
+4. How do you test date overlap boundaries?
+5. How do you make in-memory booking safe in one JVM?
+6. Why does that not solve multi-instance correctness?
+7. What database transaction or constraint would you add?
+8. How do prepared statements prevent SQL injection?
+9. What connection pool metrics matter during load?
+10. Why should API DTOs differ from persistence entities?
+11. How would you evolve a booking-created event safely?
+12. When would JSON be enough, and when would Protobuf/Avro be better?
+13. Where would MapStruct help, and where might Lombok hurt clarity?
+14. Why can generated classes be missing in CI?
+15. How would you debug p99 latency in this service?
+16. When would you collect JFR?
+17. What would a thread dump show during DB pool starvation?
+18. What tests belong in unit, integration, and load categories?
+19. What observability would you add before launch?
+20. Give the final production migration plan in two minutes.
+
+### Strong Closing Pattern
+
+```text
+I would keep the plain Java domain and service boundary, then make production correctness
+database-backed with transactions, constraints, and idempotency. I would expose DTOs instead
+of entities, evolve event schemas additively, and keep generated code such as mappers in the
+build path. For runtime confidence, I would align JDK/build/CI/runtime versions, add tests,
+metrics, logs, and use JFR/thread dumps/pool metrics for p99 incidents before tuning.
+```
+
+---
+
 ## Mock Schedule Recommendation
 
 | Week | Mocks |
@@ -497,7 +559,7 @@ architecture.
 | Week 1 | Mock 1, Mock 2, Mock 3 |
 | Week 2 | Mock 4, Mock 5, Mock 7 |
 | Week 3 | Mock 6, Mock 8 |
-| Week 4 | Repeat weakest two mocks under stricter timing |
+| Week 4 | Mock 9 plus repeat weakest two mocks under stricter timing |
 
 ---
 
