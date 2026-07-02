@@ -1630,6 +1630,16 @@ Answer each in 20 seconds.
 38. What is LRU?
 39. Why retry with jitter?
 40. Why idempotency keys?
+41. Why pin Node version?
+42. What does a lockfile protect?
+43. Why prefer Node LTS for production?
+44. When is edge runtime useful?
+45. What breaks Node libraries in edge runtime?
+46. Why does TC39 stage not equal production support?
+47. When can ARIA make accessibility worse?
+48. How does Intl help with dates and currency?
+49. What is a trace ID?
+50. What should source maps include for production debugging?
 
 ---
 
@@ -1783,7 +1793,191 @@ Passing bar:
 
 ---
 
-## 20. Final Evaluation Checklist
+## 20. Platform, Observability, And Capstone Round
+
+Use this round after finishing the enriched setup, runtime, observability, and capstone sheets.
+
+### Q60. How do you set up a JavaScript project so it is reproducible?
+
+Strong answer must include:
+
+- Node version pinning,
+- one package manager,
+- committed lockfile,
+- `packageManager` field or equivalent convention,
+- scripts for lint/test/build/start,
+- environment variable documentation,
+- CI using the same commands.
+
+Strong answer:
+
+```text
+I pin the Node version, choose one package manager, commit the lockfile, and make the common workflows explicit in package scripts. I also document environment variables, avoid mixed lockfiles, and run the same install, lint, test, and build commands in CI. That makes local development, CI, and deployment use the same dependency graph and runtime assumptions.
+```
+
+Follow-ups:
+
+- Why is mixing npm, pnpm, and Yarn lockfiles risky?
+- What does the `packageManager` field protect?
+- Why should production usually prefer Node LTS over Current?
+
+---
+
+### Q61. How do you decide whether to use browser JavaScript, Node.js, edge runtime, serverless, Deno, or Bun?
+
+Strong answer must include:
+
+- workload type,
+- latency and geography,
+- runtime APIs,
+- cold start or long-running process needs,
+- filesystem/native dependency constraints,
+- ecosystem maturity,
+- observability and deployment support.
+
+Strong answer:
+
+```text
+I choose runtime based on workload and constraints. Browser JavaScript is for user interaction. Node.js is strong for IO-heavy backend services with mature package support. Edge runtimes help with low-latency request shaping near users, but have stricter APIs. Serverless is useful for bursty workloads but needs cold-start and connection-pool planning. Deno and Bun can be good fits in specific teams, but I would validate ecosystem, deployment, debugging, and operational support before production adoption.
+```
+
+Follow-ups:
+
+- Why can edge runtime break Node libraries?
+- When is serverless a poor fit?
+- What would you measure before migrating runtime?
+
+---
+
+### Q62. How do you handle a modern ECMAScript feature in production?
+
+Strong answer must include:
+
+- stable spec vs proposal distinction,
+- runtime support,
+- transpilation/polyfill decision,
+- browser/Node target,
+- bundle/runtime cost,
+- test coverage,
+- fallback or rollback.
+
+Strong answer:
+
+```text
+I first separate stable ECMAScript from TC39 proposals. Then I check support in the runtimes we target: browsers, Node, edge, or build output. If syntax can be transpiled safely, I verify bundle impact. If behavior needs a polyfill, I check cost and correctness. Some features cannot be fully polyfilled. I would ship only with tests, compatibility checks, and a rollback path.
+```
+
+Follow-ups:
+
+- Why does TC39 stage not automatically mean production-ready?
+- What is the difference between transpiling syntax and polyfilling APIs?
+- Why can feature support differ between browser and Node?
+
+---
+
+### Q63. How do you make a JavaScript UI accessible and localized?
+
+Strong answer must include:
+
+- semantic HTML first,
+- keyboard navigation,
+- focus management,
+- labels and error messages,
+- cautious ARIA,
+- `Intl` formatting,
+- locale and time zone awareness,
+- text expansion and RTL/bidi awareness.
+
+Strong answer:
+
+```text
+I start with semantic HTML and native controls because they already carry accessibility behavior. Then I verify labels, keyboard navigation, focus order, visible focus, error messages, and screen-reader announcements for dynamic updates. I use ARIA only when semantics are missing, not as decoration. For localization, I avoid hard-coded date, number, currency, and plural formatting and use Intl with locale and time zone awareness.
+```
+
+Follow-ups:
+
+- When can ARIA make accessibility worse?
+- How do you test keyboard accessibility?
+- Why is string concatenation dangerous for i18n?
+
+---
+
+### Q64. What observability would you add to a production JavaScript system?
+
+Strong answer must include:
+
+- frontend RUM,
+- browser error reporting,
+- Node structured logs,
+- metrics,
+- distributed traces,
+- request/correlation IDs,
+- source maps and release metadata,
+- SLOs and alerting.
+
+Strong answer:
+
+```text
+On the frontend I want RUM for user-perceived latency, browser errors, release metadata, and source-map-backed stack traces. On the backend I want structured logs, RED-style metrics, distributed traces, dependency latency, event-loop lag, memory, and saturation signals. A request or trace ID should connect browser actions to Node services. Alerts should map to SLO impact, not just noisy raw metrics.
+```
+
+Follow-ups:
+
+- What should be on a JavaScript production dashboard?
+- How do source maps help and what is their security risk?
+- How do you avoid alert fatigue?
+
+---
+
+### Q65. Explain the full JavaScript capstone from click to production incident handling.
+
+Strong answer must include:
+
+- accessible client interaction,
+- validation and cancellation,
+- TypeScript boundary awareness,
+- Node API validation,
+- idempotency for writes,
+- timeouts/retries,
+- logs/metrics/traces,
+- tests,
+- deployment and rollback.
+
+Strong answer outline:
+
+```text
+For a booking flow, the browser validates accessible form state, cancels stale search requests, and sends a request with an idempotency key and trace ID. The Node API validates runtime input, checks auth, applies idempotency, calls inventory/payment with timeouts and retry rules, and returns stable error shapes. Tests cover utilities, API behavior, browser flow, and failure paths. Observability connects RUM, logs, metrics, traces, and source maps. If a release causes latency or errors, I mitigate with rollback or feature flag, then root cause with traces, profiles, and regression tests.
+```
+
+Follow-ups:
+
+- Where can TypeScript help and where can it not help?
+- What makes retry safe for booking creation?
+- What would you monitor during rollout?
+
+---
+
+### Platform Follow-Up Ladder
+
+1. What runtime are you targeting?
+2. Which APIs does that runtime support?
+3. How do dependencies behave there?
+4. What are the deployment limits?
+5. How do you observe it?
+6. How do you roll back if the runtime choice fails?
+
+### Observability Follow-Up Ladder
+
+1. What symptom did the user see?
+2. Which metric proves impact?
+3. Which trace/log points to the failing dependency?
+4. Which profile or source map points to code?
+5. What is the mitigation?
+6. What test or alert prevents recurrence?
+
+---
+
+## 21. Final Evaluation Checklist
 
 You are ready for a JavaScript MAANG-style interview when you can:
 
@@ -1791,12 +1985,16 @@ You are ready for a JavaScript MAANG-style interview when you can:
 - solve tricky output by rules,
 - implement common utilities from scratch,
 - explain browser and Node runtime differences,
+- explain runtime and platform trade-offs,
 - debug async races,
 - debug memory leaks,
 - debug performance incidents with tools,
 - explain security controls precisely,
+- explain accessibility and i18n production decisions,
+- design observability for frontend and Node systems,
 - design frontend and Node systems with trade-offs,
 - write tests for async and timer behavior,
+- explain a full-stack capstone end to end,
 - connect every answer to production failure modes.
 
 Final spoken line:
