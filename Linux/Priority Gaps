@@ -1,0 +1,30 @@
+Priority Gaps
+Kernel Internals Depth
+Add deeper coverage for syscalls, VFS, page cache, memory reclaim, scheduler, interrupts, /proc, /sys, kernel modules, kernel panic, and crash dump flow.
+
+Advanced Performance Engineering
+Current performance coverage is useful but compact. Add NUMA, PSI, sar, pidstat, mpstat, iostat, perf workflows, flamegraphs, CPU steal, run queues, memory pressure, swap behavior, slab/page cache, and latency percentiles.
+
+Modern Linux Tracing
+Add eBPF/BCC/bpftrace tools: execsnoop, opensnoop, tcpconnect, runqlat, profile, offcputime. This is important for real senior SRE/platform interviews.
+
+Networking Deep Dive
+Add packet path, conntrack, iptables/nftables/firewalld, routing tables, ip rule, MTU, TCP retransmits, TCP states, network namespaces, veth/bridge, DNS resolver internals, systemd-resolved, IPv6, and TLS chain debugging.
+
+Storage Deep Dive
+Add fsck, xfs_repair, LVM resize, snapshots, RAID/mdadm, LUKS encryption, swap, I/O schedulers, fio, NFS/EFS/EBS-style cloud volume troubleshooting, backup and restore drills.
+
+systemd Advanced Operations
+Add drop-ins, targets, socket units, path units, timers, journald persistence/rate limits, systemd-analyze critical-chain, sandboxing options like ProtectSystem, DynamicUser, NoNewPrivileges, PrivateTmp.
+
+Security Hardening Depth
+Existing security sheet is good but high-level. Add PAM, NSS, SSSD/LDAP/Kerberos basics, Linux capabilities, seccomp, auditd rules with auditctl/ausearch, CIS baseline, fail2ban, SSH certificates, sudoers patterns, file integrity, vulnerability scanning.
+
+Automation Maturity
+Add shellcheck, bats, trap, cleanup handlers, flock, structured logging, dry-run mode, argument parsing, Ansible roles/handlers/check mode/vault, and CI validation for scripts.
+
+Cloud Linux Operations
+Cloud VM patching exists, but needs depth around cloud-init, IMDSv2, bastion vs SSM, golden images, EBS attach/resize, ENI/security group debugging from the host, immutable server patterns.
+
+Kubernetes/Linux Boundary
+   Since you have K8s separately, add a bridge sheet: kubelet, containerd, crictl, CNI, pod cgroups, node pressure, host networking, systemd services on nodes, and Linux evidence during pod failures.
