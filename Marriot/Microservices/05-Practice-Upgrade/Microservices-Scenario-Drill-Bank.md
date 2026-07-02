@@ -655,7 +655,176 @@ Expected critique:
 
 ---
 
-## 11. Self-Scoring
+## 11. Gap-Fill Mastery Scenarios
+
+### Scenario 31: Local Development Is Painful
+
+Prompt:
+
+```text
+New engineers need two days to run the booking platform locally. Services require manual
+startup, staging dependencies, and undocumented environment variables.
+```
+
+Strong direction:
+
+- create a local golden path
+- document ports/env vars
+- provide seed data
+- use local mocks/containers
+- add smoke test
+- include request ID logs
+- include duplicate/idempotency failure drill
+
+---
+
+### Scenario 32: Partner API Duplicate Bookings
+
+Prompt:
+
+```text
+A travel partner retries after 504 responses and creates duplicate bookings.
+```
+
+Strong direction:
+
+- require idempotency keys on writes
+- return stored response for duplicate key
+- define timeout as unknown
+- document retry behavior
+- add partner-specific quota/analytics
+- use API management lifecycle controls
+
+---
+
+### Scenario 33: Webhook Delivery Failure
+
+Prompt:
+
+```text
+BookingConfirmed webhooks fail for one partner for 6 hours.
+```
+
+Must mention:
+
+- durable webhook event
+- signed payload
+- event ID idempotency
+- retry with backoff
+- DLQ/support queue
+- delivery dashboard
+- partner status/support communication
+
+---
+
+### Scenario 34: Workflow Engine Decision
+
+Prompt:
+
+```text
+Group booking approval has 12 steps, waits up to 48 hours, and requires payment retries,
+supplier callbacks, and manual approval.
+```
+
+Strong direction:
+
+- consider workflow engine
+- durable timers and retries
+- activity idempotency
+- workflow state visibility
+- workflow versioning
+- keep domain ownership in services
+- avoid shared business monolith
+
+---
+
+### Scenario 35: Cloud Runtime Choice
+
+Prompt:
+
+```text
+Design the platform using a mix of containers, serverless functions, queues, and managed
+databases. What runs where?
+```
+
+Must compare:
+
+- long-running APIs vs event workers
+- EKS/ECS/Fargate vs Lambda
+- Kafka/MSK vs SQS/SNS/EventBridge
+- workflow service vs Saga service
+- quotas, cold starts, connection limits
+- IAM/workload identity
+- cost and observability
+
+---
+
+### Scenario 36: Cost Grows Faster Than Traffic
+
+Prompt:
+
+```text
+Traffic grows 3x, but cloud cost grows 10x while latency remains acceptable.
+```
+
+Debug:
+
+- cost by service/team/region
+- cost per request/booking
+- retries and fan-out
+- log/trace cardinality
+- cross-region traffic
+- idle replicas and overprovisioning
+- Kafka retention
+- DB read/write amplification
+
+---
+
+### Scenario 37: Account Deletion Request
+
+Prompt:
+
+```text
+A user asks to delete their account. Their data exists in service databases, search indexes,
+events, analytics, logs, and partner exports.
+```
+
+Strong direction:
+
+- data inventory and classification
+- deletion case workflow
+- service-owned delete/anonymize actions
+- derived store cleanup
+- PII minimization in events
+- residency/retention constraints
+- audit evidence
+- deletion SLO/dashboard
+
+---
+
+### Scenario 38: Platform Sprawl
+
+Prompt:
+
+```text
+The company has 200 microservices. Every team uses different logging, deployment, secret,
+and API patterns.
+```
+
+Answer:
+
+- golden path
+- service templates
+- automated guardrails
+- service catalog
+- maturity model
+- standard observability/security/deployment baseline
+- platform vs app ownership
+- risk-based exception process
+
+---
+
+## 12. Self-Scoring
 
 For each scenario, score 1-5:
 

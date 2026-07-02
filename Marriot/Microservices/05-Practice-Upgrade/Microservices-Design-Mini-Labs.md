@@ -478,7 +478,205 @@ Must answer:
 
 ---
 
-## 16. Lab 15: Architecture Review Scorecard
+## 16. Lab 15: Run The Local Capstone Lab
+
+Task:
+
+```text
+Run the local booking simulation and explain the distributed flow from request to outbox.
+```
+
+Deliverables:
+
+- run `microservices-mastery-lab/booking_platform_simulation.py`
+- create one successful booking
+- replay the same idempotency key
+- simulate payment decline
+- simulate payment timeout
+- inspect one booking by ID
+- write the 60-second explanation
+
+Must answer:
+
+1. Where is the request ID created?
+2. Why does Booking also use a payment idempotency key?
+3. Why does timeout produce `PAYMENT_UNKNOWN`?
+4. What does the outbox worker simulate?
+5. What would change with real Kafka/Postgres?
+
+---
+
+## 17. Lab 16: API Management And Webhook Plan
+
+Task:
+
+```text
+Design partner booking APIs and booking-status webhooks.
+```
+
+Deliverables:
+
+- API consumer onboarding flow
+- auth/authz model
+- API key or OAuth2/mTLS decision
+- rate limit and quota table
+- OpenAPI/error model outline
+- webhook payload and headers
+- webhook retry/DLQ policy
+- deprecation policy
+
+Must include:
+
+- idempotency key for booking creation
+- signed webhook payload
+- event ID for webhook idempotency
+- partner-specific analytics
+- sandbox and support process
+
+---
+
+## 18. Lab 17: Workflow Engine Decision
+
+Task:
+
+```text
+Decide whether a 12-step group booking workflow should use hand-rolled Saga or a workflow engine.
+```
+
+Deliverables:
+
+- workflow step list
+- timer/retry/manual-step inventory
+- decision table
+- activity idempotency key list
+- workflow observability dashboard
+- versioning risk notes
+
+Must answer:
+
+1. Which steps are activities?
+2. Which activities can duplicate side effects?
+3. What happens if a worker crashes?
+4. How do old running workflows survive new code deployment?
+5. When would simple Outbox/Saga be enough?
+
+---
+
+## 19. Lab 18: Cloud Runtime Decision
+
+Task:
+
+```text
+Map hotel booking services to EKS, ECS/Fargate, Lambda, queues, event bus, and managed databases.
+```
+
+Deliverables:
+
+- runtime decision table
+- messaging decision table
+- data ownership map
+- IAM/workload identity model
+- quota/limit checklist
+- rollout and rollback plan
+
+Must compare:
+
+- Booking API as container vs serverless
+- Notification worker as queue consumer vs Lambda
+- Kafka/MSK vs SQS/SNS/EventBridge
+- Step Functions vs Saga service vs Temporal
+
+---
+
+## 20. Lab 19: FinOps Unit Economics
+
+Task:
+
+```text
+Build a cost model for cost per confirmed booking.
+```
+
+Deliverables:
+
+- cost driver list
+- cost tags
+- cost per request formula
+- cost per booking formula
+- top 5 waste risks
+- optimization plan that preserves SLO
+
+Must include:
+
+- retry amplification
+- log/trace volume
+- cross-region traffic
+- idle replicas
+- Kafka/event retention
+- DB read/write amplification
+
+---
+
+## 21. Lab 20: Privacy Data Lifecycle
+
+Task:
+
+```text
+Design account deletion for a hotel booking microservice platform.
+```
+
+Deliverables:
+
+- data inventory
+- owning services
+- PII classification
+- deletion/anonymization workflow
+- derived store cleanup plan
+- event-stream strategy
+- audit evidence fields
+- deletion SLO/dashboard
+
+Must cover:
+
+- service databases
+- caches
+- search indexes
+- read models
+- analytics
+- logs/audit logs
+- backups
+- partner exports
+
+---
+
+## 22. Lab 21: Platform Golden Path
+
+Task:
+
+```text
+Create a golden path checklist for launching a new Booking service.
+```
+
+Deliverables:
+
+- service template checklist
+- required CI/CD gates
+- observability baseline
+- security baseline
+- contract/schema gates
+- service catalog fields
+- maturity score
+- platform vs app team responsibility split
+
+Must answer:
+
+1. Which checks are automated?
+2. Which decisions need human architecture review?
+3. What is the escape hatch for unusual services?
+4. How do you prevent stale service catalog metadata?
+
+---
+
+## 23. Lab 22: Architecture Review Scorecard
 
 Task:
 
@@ -498,6 +696,9 @@ Rubric areas:
 - testing
 - deployment
 - ownership
+- privacy/compliance
+- cost
+- platform maturity
 
 Deliverable:
 
@@ -507,7 +708,7 @@ A one-page architecture review with top 3 risks and top 3 changes.
 
 ---
 
-## 17. Completion Criteria
+## 24. Completion Criteria
 
 You completed this mini-lab set when you can:
 
@@ -517,3 +718,7 @@ You completed this mini-lab set when you can:
 4. Create a dashboard/runbook for lag and checkout latency.
 5. Define SLOs and canary abort criteria.
 6. Review a design using the platinum rubric.
+7. Run the local capstone and explain idempotency/outbox behavior.
+8. Design partner APIs and webhooks safely.
+9. Decide when workflow engines are justified.
+10. Include cloud runtime, privacy, cost, and platform ownership in senior answers.

@@ -243,7 +243,78 @@ Score 4+ must mention:
 
 ---
 
-## 11. Full System Design Rubric
+## 11. API Management And Webhook Rubric
+
+Use for partner API, external API, API lifecycle, and webhook questions.
+
+| Score | Description |
+|---:|---|
+| 1 | exposes internal service directly |
+| 2 | mentions gateway and API key only |
+| 3 | includes docs, auth, and basic rate limits |
+| 4 | includes quotas, developer portal, idempotency, analytics, deprecation, signed webhooks |
+| 5 | adds partner onboarding, sandbox, support lifecycle, webhook DLQ/retry, SLA, abuse/cost controls |
+
+Score 4+ must mention:
+
+- API as product surface
+- consumer onboarding
+- authentication plus authorization
+- quotas and rate limits
+- idempotency for writes
+- signed webhooks with event IDs
+- versioning and deprecation
+- partner-specific observability
+
+---
+
+## 12. Workflow Engine Rubric
+
+Use for Temporal/Camunda/durable execution questions.
+
+| Score | Description |
+|---:|---|
+| 1 | says "use Temporal" without reason |
+| 2 | knows workflow engine coordinates steps |
+| 3 | compares choreography vs orchestration |
+| 4 | includes durable timers, retries, activity idempotency, state visibility, compensation |
+| 5 | adds workflow versioning, replay risk, stuck workflow alerts, worker scaling, domain ownership boundaries |
+
+Score 4+ must mention:
+
+- why hand-rolled Saga may be enough
+- workflow engine operational cost
+- side effects in activities
+- idempotency keys per activity
+- workflow state/history
+- versioning of long-running workflows
+
+---
+
+## 13. Cloud, Cost, Privacy, And Platform Rubric
+
+Use for senior ownership questions that go beyond core patterns.
+
+| Area | 3 | 4 | 5 |
+|---|---|---|---|
+| Cloud runtime | names EKS/Lambda | chooses runtime by workload | includes quotas, cold starts, IAM, observability, cost |
+| Managed messaging | names Kafka/SQS | maps replay/order/fan-out | includes retention, DLQ, cost, schema, failure semantics |
+| FinOps | mentions cost | tracks service cost | defines cost per booking/request and optimizes without breaking SLO |
+| Privacy | says encrypt PII | classifies/minimizes data | handles deletion, derived stores, residency, audit evidence |
+| Platform | says standardize | uses templates/catalog | designs golden path, guardrails, maturity model, escape hatch |
+
+Score 5 answer includes:
+
+- workload-to-runtime decision
+- data residency and privacy impact
+- cost tags and unit economics
+- platform vs app ownership
+- service catalog and automated guardrails
+- trade-offs and when not to add platform complexity
+
+---
+
+## 14. Full System Design Rubric
 
 Use for hotel booking platform capstone.
 
@@ -257,6 +328,11 @@ Use for hotel booking platform capstone.
 | Resilience | retries | timeouts/circuit breaker | budgets, backpressure, degradation, capacity |
 | Observability | logs | metrics/traces | SLO, dashboards, runbooks, async health, incidents |
 | Security | auth only | JWT/gateway | zero trust, service auth, secrets, audit, tenant |
+| Privacy | ignored | basic PII masking | deletion lifecycle, derived stores, residency, audit evidence |
+| Cost | ignored | basic capacity | unit economics, cost tags, retry/fan-out/observability cost |
+| Cloud runtime | vague cloud | chooses containers/serverless | maps workload to runtime, quotas, IAM, rollout, observability |
+| API management | gateway only | docs/rate limit | partner lifecycle, quotas, webhooks, analytics, deprecation |
+| Platform | teams figure it out | service catalog | golden path, guardrails, maturity, ownership split |
 | Deployment | deploy services | canary/rollback | compatibility gates, migrations, version metrics |
 | Trade-offs | none | some trade-offs | clear alternatives and when not to use patterns |
 
@@ -274,7 +350,7 @@ Multiple 5s, especially in boundaries, data consistency, failure handling, and o
 
 ---
 
-## 12. Readiness Gates
+## 15. Readiness Gates
 
 ### Starter Ready
 
@@ -285,12 +361,15 @@ You can:
 - explain REST vs events
 - name gateway, service discovery, circuit breaker
 - draw simple hotel booking flow
+- run the local capstone happy path
 
 ### Intermediate Ready
 
 You can:
 
 - design saga/outbox/idempotency
+- design partner API idempotency and webhook retry
+- decide when workflow engine is useful
 - explain Kafka partitioning and lag
 - handle retries/DLQ/replay
 - evolve API/event contracts safely
@@ -303,6 +382,9 @@ You can:
 - debug p99 incidents
 - define SLOs and dashboards
 - secure internal services with zero trust
+- choose cloud runtime based on workload
+- explain cost per booking/request
+- design privacy deletion lifecycle
 - design migration from monolith
 - explain Kubernetes runtime failures
 
@@ -315,10 +397,11 @@ You can:
 - review architecture with scoring rubric
 - design rollback/migration/reconciliation paths
 - connect every design choice to ownership and operations
+- design platform golden path and guardrails
 
 ---
 
-## 13. Common Score Inflation Mistakes
+## 16. Common Score Inflation Mistakes
 
 Do not give yourself a 4 or 5 if:
 
@@ -326,6 +409,11 @@ Do not give yourself a 4 or 5 if:
 - you skipped data ownership
 - you skipped observability
 - you skipped security for sensitive flows
+- you skipped privacy for PII flows
+- you skipped cost for high-scale flows
+- you skipped API lifecycle for external consumers
+- you skipped workflow versioning for long-running workflows
+- you skipped platform ownership for many-service organizations
 - you ignored deployment/migration risk
 - you could not answer follow-up questions
 - you did not mention trade-offs

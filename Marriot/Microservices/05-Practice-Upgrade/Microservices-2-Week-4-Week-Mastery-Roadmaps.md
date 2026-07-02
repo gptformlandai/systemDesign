@@ -535,7 +535,8 @@ Final gate:
 
 ```text
 You are ready if all core areas score at least 4 and no follow-up exposes a blank area in
-boundaries, data consistency, observability, security, or platform operations.
+boundaries, data consistency, observability, security, cloud runtime, cost, privacy, or
+platform operations.
 ```
 
 ---
@@ -554,8 +555,15 @@ Use this table every 7 days.
 | Resilience/scale | | | |
 | Observability/incidents | | | |
 | Security | | | |
+| API management/webhooks | | | |
+| Workflow engines | | | |
+| Cloud runtime | | | |
+| Cost/FinOps | | | |
+| Privacy/compliance | | | |
 | Testing/migration | | | |
 | Kubernetes/platform | | | |
+| Platform golden path | | | |
+| Local runnable lab | | | |
 | Full system design | | | |
 
 Rule:
@@ -573,8 +581,9 @@ One complete microservices answer should flow like this:
 ```text
 Business capability -> service boundary -> data owner -> local transaction -> sync/async
 communication -> consistency model -> saga/outbox/idempotency -> resilience patterns ->
-observability/SLOs -> security/identity/secrets -> tests/contracts -> rollout/migration ->
-trade-offs.
+observability/SLOs -> security/identity/secrets -> privacy/data lifecycle -> cost/unit
+economics -> cloud/runtime choice -> platform ownership -> tests/contracts ->
+rollout/migration -> trade-offs.
 ```
 
 If you can say that through the hotel booking example without notes, the track has done its

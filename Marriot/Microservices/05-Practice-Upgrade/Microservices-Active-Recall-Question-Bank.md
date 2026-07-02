@@ -372,7 +372,50 @@ Difficulty tiers:
 
 ---
 
-## 11. Platinum Architecture Review
+## 11. API, Workflow, Cloud, Cost, Privacy, And Platform
+
+### Foundation
+
+1. What is the difference between API Gateway and API management?
+2. Why do partner write APIs need idempotency keys?
+3. What is a webhook?
+4. What is a workflow engine?
+5. What is cost per request?
+6. What is PII?
+7. What is a service catalog?
+8. What is a golden path?
+9. What is the difference between container and serverless runtime?
+10. What is data retention?
+
+### Intermediate
+
+1. How do you design signed webhook delivery?
+2. How do you handle webhook retries and DLQ?
+3. When is Temporal/Camunda better than hand-rolled Saga?
+4. Why must workflow activities be idempotent?
+5. How do you choose between Kafka/MSK and SQS/SNS/EventBridge?
+6. What causes microservice cost to grow faster than traffic?
+7. How do logs/traces become a cost problem?
+8. How do you delete user data from read models and search indexes?
+9. What belongs in a service catalog?
+10. What guardrails should a platform automate?
+
+### Senior
+
+1. A partner creates duplicate bookings after retries. Design the fix.
+2. A webhook partner is down for 6 hours. What state, metrics, and replay controls do you need?
+3. A 12-step workflow waits 48 hours for supplier confirmation. Workflow engine or Saga service?
+4. Old workflows are running while workflow code changes. What can go wrong?
+5. Booking traffic grows 3x and cost grows 10x. What do you investigate?
+6. A user requests account deletion. How do you handle service DBs, events, caches, search, analytics, and backups?
+7. Data residency prevents failover to one region. How does that affect DR design?
+8. Company has 200 services and inconsistent deployment/logging/security. What platform strategy do you propose?
+9. How do you separate platform responsibility from application service responsibility?
+10. What is a good escape hatch for golden path exceptions?
+
+---
+
+## 12. Platinum Architecture Review
 
 Answer these as 2-minute drills:
 
@@ -386,17 +429,21 @@ Answer these as 2-minute drills:
 8. Migrate from shared database to database per service.
 9. Add contract testing to independent deployments.
 10. Design incident response for checkout outage.
+11. Design partner API and webhook delivery.
+12. Design cost controls for a 10x traffic spike.
+13. Design privacy deletion lifecycle.
+14. Design platform golden path for a new service.
 
 For each answer, include:
 
 ```text
 boundary, data owner, communication, consistency, failure handling, observability, security,
-testing, deployment/migration, trade-off
+privacy, cost, platform ownership, testing, deployment/migration, trade-off
 ```
 
 ---
 
-## 12. Final Readiness Gate
+## 13. Final Readiness Gate
 
 You are ready when you can do all of this without notes:
 
@@ -410,3 +457,9 @@ You are ready when you can do all of this without notes:
 8. Explain Kubernetes probe and graceful shutdown failure modes.
 9. Provide a migration plan from monolith to microservices.
 10. Score an architecture using the platinum rubric.
+11. Run the local capstone and explain the request/outbox flow.
+12. Design partner APIs and signed webhooks.
+13. Decide when to use a workflow engine.
+14. Explain cost per booking and top cost drivers.
+15. Design user deletion across microservice data stores.
+16. Explain golden path and service catalog strategy.

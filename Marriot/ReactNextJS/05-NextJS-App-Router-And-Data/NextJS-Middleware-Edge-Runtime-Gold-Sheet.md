@@ -3,6 +3,8 @@
 > Track File #30 of 40 · Group 5: Next.js App Router And Data
 > Level: intermediate → senior | Middleware patterns, Edge vs Node, auth, A/B, localization
 
+> Current Next.js 16 note: Middleware has been renamed/deprecated in favor of `proxy.ts`. This sheet remains useful for legacy projects and conceptual patterns, but modern answers should read `NextJS-Proxy-Runtime-Migration-Gold-Sheet.md` and say "Proxy" first.
+
 ---
 
 ## 1. Intuition

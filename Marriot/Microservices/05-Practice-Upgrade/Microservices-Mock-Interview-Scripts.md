@@ -556,7 +556,116 @@ recovery without hand-waving.
 
 ---
 
-## 11. Final Mock Schedule
+## 11. Mock 10: Gap-Fill Senior Ownership Round - 60 Minutes
+
+Use this after reading the local setup, API management, workflow engine, cloud, FinOps,
+privacy, and platform engineering sheets.
+
+### Question 1
+
+Prompt:
+
+```text
+How would you make the hotel booking system runnable and debuggable for new engineers locally?
+```
+
+Expected points:
+
+- local golden path
+- config/env documentation
+- seed data
+- service mocks or containers
+- request ID propagation
+- smoke test
+- idempotency and outbox failure drills
+
+### Question 2
+
+Prompt:
+
+```text
+Design partner booking APIs and BookingConfirmed webhooks.
+```
+
+Expected points:
+
+- API management vs gateway
+- OAuth2/mTLS/API key decision
+- quotas and rate limits
+- developer portal and sandbox
+- idempotency keys
+- signed webhook payloads
+- retry/DLQ
+- partner analytics and deprecation
+
+### Question 3
+
+Prompt:
+
+```text
+The group booking workflow has 12 steps and waits up to 48 hours. Would you use a workflow engine?
+```
+
+Expected points:
+
+- hand-rolled Saga vs workflow engine
+- durable timers
+- activity idempotency
+- worker crash recovery
+- workflow versioning
+- stuck workflow alerts
+- domain ownership remains in services
+
+### Question 4
+
+Prompt:
+
+```text
+Traffic grows 3x, cost grows 10x, and a privacy deletion request arrives during the same week.
+What do you investigate and design?
+```
+
+Expected points:
+
+- cost per request/booking
+- retry/fan-out/log/trace/cross-region cost
+- cost tags and dashboard
+- PII inventory
+- delete/anonymize workflow
+- derived stores and partner exports
+- audit evidence
+
+### Question 5
+
+Prompt:
+
+```text
+Your company now has 200 microservices with inconsistent deployment, observability, secrets,
+and API standards. What platform strategy do you propose?
+```
+
+Expected points:
+
+- golden path
+- service templates
+- service catalog
+- automated guardrails
+- maturity model
+- platform vs app ownership
+- exception process
+- adoption plan
+
+Passing answer:
+
+```text
+A passing answer treats microservices as a socio-technical system: local developer flow,
+external API lifecycle, durable workflows, cloud runtime choices, cost, privacy, and platform
+guardrails all become part of production ownership.
+```
+
+---
+
+## 12. Final Mock Schedule
 
 Recommended sequence:
 
@@ -571,4 +680,5 @@ Recommended sequence:
 | 7 | Security |
 | 8 | Kubernetes/platform |
 | 9 | Full FAANG system design |
-| 10 | Repeat weakest two rounds |
+| 10 | Gap-fill senior ownership round |
+| 11 | Repeat weakest two rounds |
