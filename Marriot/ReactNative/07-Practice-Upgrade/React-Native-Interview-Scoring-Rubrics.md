@@ -1,6 +1,6 @@
 # React Native Interview Scoring Rubrics — Gold Sheet
 
-> Track File #28 of 37 · Group 7: Practice Upgrade
+> Track Module - Group 7: Practice Upgrade
 > Level: all levels | Mode: honest self-assessment with 1-5 rubrics
 
 ---

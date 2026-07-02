@@ -1,6 +1,6 @@
 # React Native LLD & Machine Coding Design Patterns — Gold Sheet
 
-> Track File #22 of 37 · Group 5: Scenario Practice
+> Track Module - Group 5: Scenario Practice
 > Level: senior / MAANG | Mode: design complete features from scratch in 30-45 minutes
 
 ---

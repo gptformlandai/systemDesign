@@ -7,12 +7,12 @@ Audience:
 - You want React Native notes split like the Python track: starter, intermediate, senior, and scenario practice.
 - You want one organized learning path that teaches app building, native internals, performance, release engineering, and interview communication.
 
-Track size: **37 files, 7 groups** — beginner to MAANG-ready.
+Track size: **49 learning files, 9 groups**, plus this index and one topic coverage checklist.
 
-Current baseline checked on June 27, 2026:
+Current baseline checked on July 2, 2026:
 - React Native docs show version `0.86`.
 - The official React Native docs recommend starting most new apps with a React Native framework, commonly Expo, while still supporting bare React Native for unusual native constraints.
-- React Navigation docs used here follow the current 7.x examples.
+- Expo's current production path emphasizes Expo Go for learning, development builds for real app development, config plugins/CNG for native configuration, and EAS for build/submit/update workflows.
 - Always verify exact package versions before creating a new production app.
 
 Goal:
@@ -25,6 +25,12 @@ Goal:
 ## How To Read These Notes
 
 Read in order if React Native is new to you. If you already build apps, jump to Group 3 and Group 4 for internals, performance, release, security, and production debugging.
+
+Use the checklist as your progress tracker:
+
+| File | Purpose |
+|---|---|
+| `React-Native-Topic-Coverage-Checklist.md` | Beginner-to-pro coverage map and final mastery gates |
 
 The track follows this repeated pattern:
 
@@ -66,18 +72,34 @@ Interview trap:
 
 ---
 
+## 0. Setup And Tooling Path (1 file)
+
+Start here if you are new to mobile tooling.
+
+| # | File | What It Builds |
+|---:|---|---|
+| 1 | `00-Setup-And-Tooling/React-Native-Developer-Environment-Expo-First-Gold-Sheet.md` | Expo-first setup, real device strategy, Expo Go vs development builds, app config, env config, troubleshooting |
+
+Setup target:
+- You can create and run a new React Native app.
+- You understand why modern RN docs recommend a framework for most new apps.
+- You know when Expo Go is enough and when a development build is required.
+- You can document a reproducible team setup.
+
+---
+
 ## 1. Starter Path (6 files)
 
 Read these first. They build React Native intuition without assuming native app experience.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 1 | `01-Starter-Path/React-Native-Core-Foundations-Master-Sheet.md` | What React Native is, Expo vs bare, app startup, native views, Metro, Hermes, basic mental model |
-| 2 | `01-Starter-Path/React-Native-Components-Props-State-Hooks-Gold-Sheet.md` | Core components, props, state, effects, callbacks, controlled inputs, render behavior |
-| 3 | `01-Starter-Path/React-Native-Styling-Flexbox-Responsive-UI-Gold-Sheet.md` | StyleSheet, Flexbox, SafeArea, keyboard handling, responsive layouts, platform styles |
-| 4 | `01-Starter-Path/React-Native-Web-Developer-Bridge-Gold-Sheet.md` | Web→RN mapping: DOM vs native views, CSS vs StyleSheet, flex defaults, text inheritance, storage, events, animations, 7 traps |
-| 5 | `01-Starter-Path/React-Native-Hooks-Deep-Dive-Gold-Sheet.md` | Hook rules, useState batching, useEffect 4 forms + cleanup + stale closure, useRef, useCallback, useMemo, useReducer, custom hooks |
-| 6 | `01-Starter-Path/React-Native-Error-Handling-Error-Boundaries-Gold-Sheet.md` | 3 error layers, Error Boundary class pattern, async error state machine, global handler, Sentry, retry with backoff |
+| 2 | `01-Starter-Path/React-Native-Core-Foundations-Master-Sheet.md` | What React Native is, Expo vs bare, app startup, native views, Metro, Hermes, basic mental model |
+| 3 | `01-Starter-Path/React-Native-Components-Props-State-Hooks-Gold-Sheet.md` | Core components, props, state, effects, callbacks, controlled inputs, render behavior |
+| 4 | `01-Starter-Path/React-Native-Styling-Flexbox-Responsive-UI-Gold-Sheet.md` | StyleSheet, Flexbox, SafeArea, keyboard handling, responsive layouts, platform styles |
+| 5 | `01-Starter-Path/React-Native-Web-Developer-Bridge-Gold-Sheet.md` | Web to RN mapping: DOM vs native views, CSS vs StyleSheet, text inheritance, storage, events, animations |
+| 6 | `01-Starter-Path/React-Native-Hooks-Deep-Dive-Gold-Sheet.md` | Hook rules, state batching, effects, cleanup, refs, callbacks, memoization, reducer, custom hooks |
+| 7 | `01-Starter-Path/React-Native-Error-Handling-Error-Boundaries-Gold-Sheet.md` | Error layers, Error Boundary class pattern, async errors, global handlers, Sentry, retry with backoff |
 
 Starter target:
 - You can explain React Native without calling it a WebView.
@@ -88,17 +110,18 @@ Starter target:
 
 ---
 
-## 2. App Architecture Path (5 files)
+## 2. App Architecture Path (6 files)
 
 Use these after fundamentals. They teach how real apps are structured.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 7 | `02-App-Architecture/React-Native-Navigation-Routing-Deep-Linking-Gold-Sheet.md` | Stack, tabs, drawers, Expo Router, React Navigation, params, auth flows, deep links |
-| 8 | `02-App-Architecture/React-Native-State-Management-Data-Fetching-Forms-Gold-Sheet.md` | Local state, server state, cache, Zustand deep dive, Redux vs Zustand matrix, RHF forms |
-| 9 | `02-App-Architecture/React-Native-Project-Architecture-TypeScript-Gold-Sheet.md` | Feature folders, TypeScript, API clients, DTOs, domain models, dependency boundaries |
-| 10 | `02-App-Architecture/React-Native-TypeScript-Deep-Dive-Gold-Sheet.md` | Strict mode, navigation typing end-to-end, discriminated unions, generics, Zod runtime validation |
-| 11 | `02-App-Architecture/React-Native-TanStack-Query-Data-Fetching-Internals-Gold-Sheet.md` | useQuery, useMutation optimistic updates, useInfiniteQuery, AppState focus, offline persistence |
+| 8 | `02-App-Architecture/React-Native-Navigation-Routing-Deep-Linking-Gold-Sheet.md` | Stack, tabs, drawers, Expo Router, React Navigation, params, auth flows, deep links |
+| 9 | `02-App-Architecture/React-Native-State-Management-Data-Fetching-Forms-Gold-Sheet.md` | Local state, server state, cache, Zustand deep dive, Redux vs Zustand matrix, RHF forms |
+| 10 | `02-App-Architecture/React-Native-Project-Architecture-TypeScript-Gold-Sheet.md` | Feature folders, TypeScript, API clients, DTOs, domain models, dependency boundaries |
+| 11 | `02-App-Architecture/React-Native-TypeScript-Deep-Dive-Gold-Sheet.md` | Strict mode, navigation typing end-to-end, discriminated unions, generics, Zod runtime validation |
+| 12 | `02-App-Architecture/React-Native-TanStack-Query-Data-Fetching-Internals-Gold-Sheet.md` | useQuery, useMutation optimistic updates, useInfiniteQuery, AppState focus, offline persistence |
+| 13 | `02-App-Architecture/React-Native-Modern-React-19-Compiler-Compatibility-Gold-Sheet.md` | React 19-era feature judgment, React Compiler, Suspense caution, RN vs web/framework compatibility |
 
 Architecture target:
 - You can design navigation for authenticated and unauthenticated users.
@@ -106,49 +129,57 @@ Architecture target:
 - You can structure a production mobile repo so screens stay thin and business logic is testable.
 - You can type navigation params, discriminated union states, and generic components end-to-end.
 - You can manage server state with caching, refetch, and optimistic mutations.
+- You can adopt modern React features without assuming DOM, Next.js, or browser APIs exist.
 
 ---
 
-## 3. Native Device And Internals Path (6 files)
+## 3. Native Device And Internals Path (8 files)
 
 This is where React Native becomes mobile engineering rather than just React syntax.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 12 | `03-Native-Device-And-Internals/React-Native-Native-APIs-Permissions-Storage-Gold-Sheet.md` | Permissions, secure storage, local storage, files, camera, notifications, app lifecycle |
-| 13 | `03-Native-Device-And-Internals/React-Native-New-Architecture-Fabric-TurboModules-JSI-Gold-Sheet.md` | JSI deep dive, Fabric render pipeline phases, TurboModules codegen, Hermes AOT, bridgeless mode |
-| 14 | `03-Native-Device-And-Internals/React-Native-Animations-Gestures-Lists-Gold-Sheet.md` | FlatList vs FlashList, virtualization, Reanimated worklets, Gesture Handler, swipe patterns |
-| 15 | `03-Native-Device-And-Internals/React-Native-Push-Notifications-Background-Tasks-Gold-Sheet.md` | FCM vs APNs, app state behavior table, deep linking from tap, background fetch limits, silent push |
-| 16 | `03-Native-Device-And-Internals/React-Native-Platform-Specific-Patterns-Gold-Sheet.md` | Platform.OS, .ios.tsx/.android.tsx, SafeAreaView, keyboard behavior, shadows, BackHandler, biometric |
-| 17 | `03-Native-Device-And-Internals/React-Native-Custom-Hooks-Pattern-Library-Gold-Sheet.md` | 15 production hooks: useAsync, useFetch, usePaginatedList, useNetworkStatus, useKeyboardDimensions, useDebounce |
+| 14 | `03-Native-Device-And-Internals/React-Native-Native-APIs-Permissions-Storage-Gold-Sheet.md` | Permissions, secure storage, local storage, files, camera, notifications, app lifecycle |
+| 15 | `03-Native-Device-And-Internals/React-Native-New-Architecture-Fabric-TurboModules-JSI-Gold-Sheet.md` | JSI deep dive, Fabric render pipeline phases, TurboModules codegen, Hermes, bridgeless mode |
+| 16 | `03-Native-Device-And-Internals/React-Native-Native-Modules-Codegen-Swift-Kotlin-Gold-Sheet.md` | Custom native modules, Codegen, TurboModule specs, Swift/Kotlin implementation shape, native events |
+| 17 | `03-Native-Device-And-Internals/React-Native-Device-APIs-Camera-Maps-BLE-Payments-Gold-Sheet.md` | Camera, maps, location, BLE, NFC, files, sensors, payments, permission-safe device API design |
+| 18 | `03-Native-Device-And-Internals/React-Native-Animations-Gestures-Lists-Gold-Sheet.md` | FlatList vs FlashList, virtualization, Reanimated worklets, Gesture Handler, swipe patterns |
+| 19 | `03-Native-Device-And-Internals/React-Native-Push-Notifications-Background-Tasks-Gold-Sheet.md` | FCM vs APNs, app state behavior table, deep linking from tap, background fetch limits, silent push |
+| 20 | `03-Native-Device-And-Internals/React-Native-Platform-Specific-Patterns-Gold-Sheet.md` | Platform.OS, .ios.tsx/.android.tsx, SafeAreaView, keyboard behavior, shadows, BackHandler, biometric |
+| 21 | `03-Native-Device-And-Internals/React-Native-Custom-Hooks-Pattern-Library-Gold-Sheet.md` | Production hooks: useAsync, useFetch, usePaginatedList, useNetworkStatus, useKeyboardDimensions, useDebounce |
 
 Native target:
-- You can explain how JavaScript creates native UI (shadow tree → Yoga → host views).
+- You can explain how JavaScript creates native UI.
 - You can reason about JS thread vs UI thread.
 - You can choose secure storage, local cache, permissions, and background behavior correctly.
-- You can build fast lists, responsive gestures, and smooth animations using Reanimated 3.
-- You can explain New Architecture (JSI, Fabric, TurboModules) end-to-end.
+- You can design device API flows with real permission, fallback, and privacy handling.
+- You can explain New Architecture, Codegen, Fabric, TurboModules, and native module trade-offs.
 
 ---
 
-## 4. Senior / MAANG Path (5 files)
+## 4. Senior / MAANG Path (9 files)
 
 These are the pro sheets for production interviews.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 18 | `04-Senior-MAANG/React-Native-Performance-Memory-Debugging-MAANG-Master-Sheet.md` | 60 FPS, Hermes profiler workflow, FlatList complete playbook, memory leak patterns, startup optimization |
-| 19 | `04-Senior-MAANG/React-Native-Testing-Quality-Gates-Gold-Sheet.md` | Type checking, unit tests, component tests, native mocks, E2E, Detox/Maestro, CI quality gates |
-| 20 | `04-Senior-MAANG/React-Native-Security-Offline-Release-Observability-MAANG-Master-Sheet.md` | Token safety, PII, offline sync, retries, app releases, OTA updates, crash analytics, telemetry |
-| 21 | `04-Senior-MAANG/React-Native-Production-App-Architecture-MAANG-Master-Sheet.md` | Feature flags, modularization, API contracts, accessibility, i18n, design systems, app system design |
-| 22 | `04-Senior-MAANG/React-Native-GraphQL-Apollo-URQL-Gold-Sheet.md` | Apollo client, useQuery, useMutation optimistic update, subscriptions, fragment colocation, URQL trade-off |
+| 22 | `04-Senior-MAANG/React-Native-Performance-Memory-Debugging-MAANG-Master-Sheet.md` | 60 FPS, Hermes profiler workflow, FlatList playbook, memory leak patterns, startup optimization |
+| 23 | `04-Senior-MAANG/React-Native-Testing-Quality-Gates-Gold-Sheet.md` | Type checking, unit tests, component tests, native mocks, E2E, Detox/Maestro, CI quality gates |
+| 24 | `04-Senior-MAANG/React-Native-Visual-Testing-Device-Farms-Performance-Gates-Gold-Sheet.md` | Visual regression, Storybook/component catalog, device farms, release smoke, accessibility and performance gates |
+| 25 | `04-Senior-MAANG/React-Native-Security-Offline-Release-Observability-MAANG-Master-Sheet.md` | Token safety, PII, offline sync, retries, app releases, OTA updates, crash analytics, telemetry |
+| 26 | `04-Senior-MAANG/React-Native-Auth-OAuth-PKCE-Passkeys-Deep-Link-Security-Gold-Sheet.md` | OAuth/OIDC with PKCE, state/nonce, deep link callback security, passkeys, biometrics, token refresh |
+| 27 | `04-Senior-MAANG/React-Native-Offline-First-Database-Sync-Engine-Gold-Sheet.md` | Local database selection, durable mutation queue, idempotency, conflict resolution, migrations, sync cursors |
+| 28 | `04-Senior-MAANG/React-Native-Mobile-Observability-RUM-SLO-Gold-Sheet.md` | Crash-free sessions, startup p95, RUM, OTA attribution, dashboards, privacy-safe telemetry |
+| 29 | `04-Senior-MAANG/React-Native-Production-App-Architecture-MAANG-Master-Sheet.md` | Feature flags, modularization, API contracts, accessibility, i18n, design systems, app system design |
+| 30 | `04-Senior-MAANG/React-Native-GraphQL-Apollo-URQL-Gold-Sheet.md` | Apollo client, useQuery, useMutation optimistic update, subscriptions, fragment colocation, URQL trade-offs |
 
 Senior target:
 - You can debug slow screens using evidence, not guesses.
 - You can describe mobile security and release risk with maturity.
 - You can design a large mobile app used by millions of users.
-- You can explain trade-offs across UX, performance, native capability, app store constraints, and team velocity.
-- You can make architectural decisions between REST + TanStack Query vs GraphQL + Apollo.
+- You can build offline-first flows with idempotency, conflicts, tombstones, and sync observability.
+- You can define reliability metrics and operate a production mobile app after release.
+- You can defend auth callback security, token storage, release-quality testing, and device fragmentation strategy.
 
 ---
 
@@ -158,59 +189,76 @@ Use these after the concept sheets. They convert notes into interview fluency.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 23 | `05-Scenario-Practice/React-Native-MAANG-Interview-Scenario-Bank.md` | Scenario questions with strong answers and follow-ups |
-| 24 | `05-Scenario-Practice/React-Native-Machine-Coding-Mini-Labs.md` | Hands-on hooks, retry, forms, list optimization, offline queue, navigation typing |
-| 25 | `05-Scenario-Practice/React-Native-Quick-Revision-Answer-Templates.md` | 30-second answers, traps, key numbers, final readiness checklist |
-| 26 | `05-Scenario-Practice/React-Native-Tricky-Behavior-Questions-Gold-Sheet.md` | 15 code-snippet questions: state batching, stale closure, Array.push trap, React.memo failures, fetch not throwing |
-| 27 | `05-Scenario-Practice/React-Native-LLD-Machine-Coding-Design-Gold-Sheet.md` | 4 full LLD designs: offline cart, real-time chat, photo gallery, feature flag system |
-| 28 | `05-Scenario-Practice/React-Native-Production-Debugging-Case-Studies-Gold-Sheet.md` | 5 narrative case studies: frozen Android, memory leak, iOS HTTPS block, navigation state loss, 7-second launch |
+| 31 | `05-Scenario-Practice/React-Native-MAANG-Interview-Scenario-Bank.md` | Scenario questions with strong answers and follow-ups |
+| 32 | `05-Scenario-Practice/React-Native-Machine-Coding-Mini-Labs.md` | Hands-on hooks, retry, forms, list optimization, offline queue, navigation typing |
+| 33 | `05-Scenario-Practice/React-Native-Quick-Revision-Answer-Templates.md` | 30-second answers, traps, key numbers, final readiness checklist |
+| 34 | `05-Scenario-Practice/React-Native-Tricky-Behavior-Questions-Gold-Sheet.md` | Code-snippet questions: batching, stale closure, mutation traps, memo failures, fetch behavior |
+| 35 | `05-Scenario-Practice/React-Native-LLD-Machine-Coding-Design-Gold-Sheet.md` | Full LLD designs: offline cart, real-time chat, photo gallery, feature flag system |
+| 36 | `05-Scenario-Practice/React-Native-Production-Debugging-Case-Studies-Gold-Sheet.md` | Case studies: frozen Android, memory leak, HTTPS block, navigation state loss, slow launch |
 
 Scenario target:
 - You can answer under pressure.
 - You can implement common mobile patterns quickly.
 - You can connect React Native mechanics to real production incidents.
-- You can sound senior without overcomplicating every answer.
 - You can spot React behavior traps in code snippets without running the code.
 
 ---
 
-## 6. Gold-Level Completeness Path (4 files)
+## 6. Gold-Level Completeness Path (7 files)
 
-These close the gaps that usually appear after a first React Native track: production networking, practical debugging, release ownership, upgrades, accessibility, and global product readiness.
+These close advanced production gaps: networking, debugging, release, modern Expo, compliance, monorepos, accessibility, and global product readiness.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 29 | `06-Gold-Level-Completeness/React-Native-Networking-API-Clients-Realtime-Gold-Sheet.md` | API clients, timeouts, cancellation, auth refresh, HTTPS, WebSockets, uploads, error taxonomy |
-| 30 | `06-Gold-Level-Completeness/React-Native-Debugging-DevTools-Native-Release-Gold-Sheet.md` | DevTools, LogBox, native logs, release-build debugging, source maps, crash triage |
-| 31 | `06-Gold-Level-Completeness/React-Native-Build-Release-Upgrades-CICD-Gold-Sheet.md` | EAS/native builds, iOS/Android release, app signing, OTA boundaries, upgrades, CI/CD |
-| 32 | `06-Gold-Level-Completeness/React-Native-Accessibility-I18n-Design-Systems-Gold-Sheet.md` | Accessibility props, dynamic text, focus, RTL, pluralization, global design-system primitives |
+| 37 | `06-Gold-Level-Completeness/React-Native-Networking-API-Clients-Realtime-Gold-Sheet.md` | API clients, timeouts, cancellation, auth refresh, HTTPS, WebSockets, uploads, error taxonomy |
+| 38 | `06-Gold-Level-Completeness/React-Native-Debugging-DevTools-Native-Release-Gold-Sheet.md` | DevTools, LogBox, native logs, release-build debugging, source maps, crash triage |
+| 39 | `06-Gold-Level-Completeness/React-Native-Build-Release-Upgrades-CICD-Gold-Sheet.md` | EAS/native builds, iOS/Android release, app signing, OTA boundaries, upgrades, CI/CD |
+| 40 | `06-Gold-Level-Completeness/React-Native-Modern-Expo-EAS-CNG-Config-Plugins-Gold-Sheet.md` | Expo framework workflow, development builds, CNG/prebuild, config plugins, EAS Build/Submit/Update |
+| 41 | `06-Gold-Level-Completeness/React-Native-App-Store-Compliance-Privacy-Metadata-Gold-Sheet.md` | App Store privacy, Google Play Data Safety, SDK inventory, permission copy, metadata, rejection playbook |
+| 42 | `06-Gold-Level-Completeness/React-Native-Enterprise-Monorepo-Release-Governance-Gold-Sheet.md` | Workspaces, Metro, shared packages, native dependency governance, release trains, ownership |
+| 43 | `06-Gold-Level-Completeness/React-Native-Accessibility-I18n-Design-Systems-Gold-Sheet.md` | Accessibility props, dynamic text, focus, RTL, pluralization, global design-system primitives |
 
 Gold completeness target:
 - You can design a real mobile networking layer instead of scattering `fetch`.
 - You can debug JS, native, release-only, and production crash issues.
 - You can own app-store release, OTA, versioning, upgrades, and CI/CD conversations.
-- You can make accessibility and i18n scale through reusable primitives.
+- You can use modern Expo correctly instead of treating Expo as only a beginner tool.
+- You can handle app store compliance, privacy metadata, and enterprise governance.
 
 ---
 
 ## 7. Practice Upgrade (5 files)
 
-Active recall, labs, mock interviews, scoring rubrics, and study plans. Use these throughout — not just at the end.
+Active recall, labs, mock interviews, scoring rubrics, and study plans. Use these throughout, not just at the end.
 
 | # | File | What It Builds |
 |---:|---|---|
-| 33 | `07-Practice-Upgrade/React-Native-Active-Recall-Question-Bank.md` | 29 questions across foundations/hooks/navigation/performance/security — cover-and-answer format |
-| 34 | `07-Practice-Upgrade/React-Native-Runnable-Mini-Labs.md` | 7 timed labs: 3 foundation (5 min), 2 intermediate (15 min), 2 senior (30 min) with full solutions |
-| 35 | `07-Practice-Upgrade/React-Native-Mock-Interview-Scripts.md` | 5 timed mock rounds (25-40 min each) — Foundation, Hooks, Architecture, Performance, Senior System Design |
-| 36 | `07-Practice-Upgrade/React-Native-Interview-Scoring-Rubrics.md` | 9 rubrics on 1-5 scale — readiness gates for mid-level, senior, and MAANG |
-| 37 | `07-Practice-Upgrade/React-Native-2-Week-4-Week-Mastery-Roadmaps.md` | Daily schedule for 2-week sprint and 4-week deep mastery — file-by-file study plan |
+| 44 | `07-Practice-Upgrade/React-Native-Active-Recall-Question-Bank.md` | Questions across foundations/hooks/navigation/performance/security using cover-and-answer format |
+| 45 | `07-Practice-Upgrade/React-Native-Runnable-Mini-Labs.md` | Timed labs with full solutions |
+| 46 | `07-Practice-Upgrade/React-Native-Mock-Interview-Scripts.md` | Timed mock rounds: Foundation, Hooks, Architecture, Performance, Senior System Design |
+| 47 | `07-Practice-Upgrade/React-Native-Interview-Scoring-Rubrics.md` | Rubrics on 1-5 scale and readiness gates |
+| 48 | `07-Practice-Upgrade/React-Native-2-Week-4-Week-Mastery-Roadmaps.md` | Daily schedule for 2-week sprint and 4-week deep mastery |
 
 Practice target:
 - You can recall answers without looking at notes.
 - You have built every lab pattern from scratch at least once.
-- You have completed all 5 mock interview rounds and scored rubrics.
+- You have completed mock interviews and scored the rubrics.
 - You know which topics need more study before your interview.
-- You have a daily study plan and are following it.
+
+---
+
+## 8. Production Capstone Path (1 file)
+
+Finish here after the core and senior paths.
+
+| # | File | What It Builds |
+|---:|---|---|
+| 49 | `08-Capstone/React-Native-Production-Capstone-App.md` | Integrated production app spec with auth, navigation, offline sync, device APIs, observability, release, testing, compliance |
+
+Capstone target:
+- You can integrate the full track into one production-style app.
+- You can explain architecture, trade-offs, failure modes, release strategy, and observability.
+- You can prove mastery through a build, not only notes.
 
 ---
 
@@ -250,6 +298,7 @@ image loading, and pagination based on measured JS/UI FPS in a release build.
 - Forms, validation, and keyboard behavior.
 - API calls, loading states, error states, retries.
 - Offline and poor-network UX.
+- Modern React feature compatibility in a React Native host environment.
 
 ### Native Mobile Awareness
 
@@ -257,7 +306,7 @@ image loading, and pagination based on measured JS/UI FPS in a release build.
 - Permissions and privacy prompts.
 - Secure storage vs normal storage.
 - Push notifications and background constraints.
-- App state changes: foreground, background, inactive.
+- Device APIs: camera, location, files, BLE, NFC, sensors, payments.
 - Native dependency installation and linking.
 - New Architecture concepts: Fabric, TurboModules, JSI, Codegen.
 
@@ -271,6 +320,16 @@ image loading, and pagination based on measured JS/UI FPS in a release build.
 - HTTPS, cleartext restrictions, and certificate operational risk.
 - WebSocket reconnect, heartbeat, token refresh, and missed-event recovery.
 - Upload/download progress and cancellation.
+
+### Offline And Local Data
+
+- Local database selection.
+- Mutation queue design.
+- Sync cursor and tombstones.
+- Conflict resolution.
+- Schema migration.
+- Queue observability.
+- OTA/native compatibility for storage changes.
 
 ### Performance
 
@@ -290,21 +349,25 @@ image loading, and pagination based on measured JS/UI FPS in a release build.
 - Xcode and Android Studio native logs.
 - Release-build reproduction.
 - Source maps and native symbolication.
-- Crash triage by app version, build, device, OS, and breadcrumbs.
+- Crash triage by app version, build, device, OS, runtime, update id, and breadcrumbs.
 
 ### Production Engineering
 
 - Crash reporting and source maps.
-- Structured client telemetry.
+- Structured client telemetry and mobile RUM.
+- OAuth/OIDC with PKCE, callback validation, token refresh, passkeys, and biometric trade-offs.
 - Feature flags and staged rollout.
+- Visual regression, device-farm testing, release-build smoke, and performance gates.
 - App store release process.
 - OTA update risk boundaries.
 - API version compatibility.
 - Security: tokens, PII, deep links, certificates, dependency hygiene.
 - Accessibility and internationalization.
+- App store privacy, Play Data Safety, SDK inventory, and metadata.
 - CI/CD for iOS and Android.
 - App signing, TestFlight, Play tracks, staged rollout, and rollback planning.
 - React Native upgrades, native dependency hygiene, and New Architecture compatibility checks.
+- Monorepo ownership, release trains, and mobile platform governance.
 
 ---
 
@@ -312,18 +375,23 @@ image loading, and pagination based on measured JS/UI FPS in a release build.
 
 - React Native Introduction: https://reactnative.dev/docs/getting-started
 - React Native Environment Setup: https://reactnative.dev/docs/environment-setup
-- React Native Navigation: https://reactnative.dev/docs/navigation
-- React Native Networking: https://reactnative.dev/docs/network
-- React Native Accessibility: https://reactnative.dev/docs/accessibility
-- React Native AppState: https://reactnative.dev/docs/appstate
 - React Native Debugging: https://reactnative.dev/docs/debugging
 - React Native Performance: https://reactnative.dev/docs/performance
-- React Native Render Pipeline: https://reactnative.dev/architecture/render-pipeline
+- React Native Releases: https://reactnative.dev/docs/releases
+- React Native Codegen: https://reactnative.dev/docs/the-new-architecture/using-codegen
+- React Native Turbo Native Modules: https://reactnative.dev/docs/turbo-native-modules-introduction
 - React Native Testing: https://reactnative.dev/docs/testing-overview
 - React Native iOS Publishing: https://reactnative.dev/docs/publishing-to-app-store
 - React Native Android Publishing: https://reactnative.dev/docs/signed-apk-android
-- React Native Upgrading: https://reactnative.dev/docs/upgrading
-- React Native Metro: https://reactnative.dev/docs/metro
-- React Navigation: https://reactnavigation.org/docs/getting-started/
-- Expo Router: https://docs.expo.dev/router/introduction/
-- Expo Application Services: https://docs.expo.dev/eas/
+- Expo Environment Setup: https://docs.expo.dev/get-started/set-up-your-environment/
+- Expo App Config: https://docs.expo.dev/workflow/configuration/
+- Expo Config Plugins: https://docs.expo.dev/config-plugins/introduction/
+- Expo EAS Build: https://docs.expo.dev/deploy/build-project/
+- Expo EAS Submit: https://docs.expo.dev/deploy/submit-to-app-stores/
+- Expo OTA Updates: https://docs.expo.dev/deploy/send-over-the-air-updates/
+- Expo Monitoring: https://docs.expo.dev/monitoring/services/
+- Expo App Store Metadata: https://docs.expo.dev/deploy/app-stores-metadata/
+- Expo Monorepos: https://docs.expo.dev/guides/monorepos/
+- Google Play Data Safety: https://support.google.com/googleplay/android-developer/answer/10787469
+- Apple Privacy Manifest Files: https://developer.apple.com/documentation/bundleresources/privacy-manifest-files
+- React Compiler: https://react.dev/learn/react-compiler

@@ -1,6 +1,6 @@
 # React Native Core Foundations - Master Sheet
 
-> Track File #1 of 20 - Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Level: beginner to interview-ready | Mode: understand what React Native really is
 
 ---
@@ -484,7 +484,8 @@ Expo Managed Workflow (recommended for most apps):
   - Use expo install to add modules — Expo handles native compatibility
   - app.json / app.config.ts for all native configuration
   - No Xcode or Android Studio required for most development
-  - Limitation: if a required native module is not in Expo SDK, you need to eject
+  - Limitation: Expo Go only includes the Expo SDK runtime; custom native modules
+    require a development build, config plugin, or generated native project path
   
   Best for: teams without native mobile expertise, B2B apps, rapid prototyping
 
@@ -517,7 +518,8 @@ Expo Router (file-based navigation):
 Expo Go:
   - Prebuilt app on App Store/Play Store — scan QR to run your app inside it
   - No native code compilation required
-  - Limitation: only supports official Expo SDK modules — custom native code not supported
+  - Best for learning and quick checks
+  - Limitation: only supports the native modules bundled into Expo Go
   
 Development Client (npx expo run:ios / run:android):
   - Builds a custom dev client app that includes your specific native dependencies
@@ -529,6 +531,11 @@ EAS Build (cloud builds):
   - Build iOS and Android in the cloud — no Xcode/Android Studio required locally
   - Free tier available
   - Fastest path to TestFlight and Google Play internal testing
+
+Modern Expo interview answer:
+Do not say "eject" as the default. Most production Expo apps move from Expo Go
+to development builds, config plugins, CNG/prebuild, and EAS before choosing full
+bare ownership.
 ```
 
 ---
@@ -574,4 +581,3 @@ React Native Web (react-native-web):
 - Expo CNG: app.config.ts + config plugins → Expo generates native projects
 - Bare React Native: full native code ownership, maximum flexibility
 - App startup flow: native init → Hermes load → bundle load → module eval → first render → hydration
-

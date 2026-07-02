@@ -1,6 +1,6 @@
 # React Native Testing And Quality Gates - Gold Sheet
 
-> Track File #11 of 20 - Group 4: Senior MAANG
+> Track Module - Group 4: Senior MAANG
 > Level: testing strategy for production mobile teams
 
 ---

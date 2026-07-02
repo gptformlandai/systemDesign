@@ -1,6 +1,6 @@
 # React Native TypeScript Deep Dive — Gold Sheet
 
-> Track File #10 of 37 · Group 2: App Architecture
+> Track Module - Group 2: App Architecture
 > Level: intermediate to senior | Mode: write fully typed React Native code that survives scale
 
 ---

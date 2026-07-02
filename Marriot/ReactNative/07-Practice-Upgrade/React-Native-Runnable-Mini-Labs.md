@@ -1,6 +1,6 @@
 # React Native Runnable Mini Labs — Gold Sheet
 
-> Track File #26 of 37 · Group 7: Practice Upgrade
+> Track Module - Group 7: Practice Upgrade
 > Level: all levels | Mode: build it yourself — reading is not enough
 
 ---

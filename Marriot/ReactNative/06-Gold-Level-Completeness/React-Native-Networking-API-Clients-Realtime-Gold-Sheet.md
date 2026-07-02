@@ -1,6 +1,6 @@
 # React Native Networking, API Clients, And Realtime - Gold Sheet
 
-> Track File #17 of 20 - Group 6: Gold-Level Completeness
+> Track Module - Group 6: Gold-Level Completeness
 > Level: production mobile networking and interview-ready reliability
 
 ---

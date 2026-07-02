@@ -1,6 +1,6 @@
 # React Native TanStack Query (React Query) — Data Fetching Internals — Gold Sheet
 
-> Track File #11 of 37 · Group 2: App Architecture
+> Track Module - Group 2: App Architecture
 > Level: intermediate to senior | Mode: master server-state management for mobile
 
 ---

@@ -1,6 +1,6 @@
 # React Native Production Debugging Case Studies — Gold Sheet
 
-> Track File #23 of 37 · Group 5: Scenario Practice
+> Track Module - Group 5: Scenario Practice
 > Level: senior / MAANG | Mode: think like an on-call engineer, not a feature developer
 
 ---

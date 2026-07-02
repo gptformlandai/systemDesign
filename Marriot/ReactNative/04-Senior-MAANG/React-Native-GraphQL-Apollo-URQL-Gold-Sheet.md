@@ -1,6 +1,6 @@
 # React Native GraphQL — Apollo Client & URQL — Gold Sheet
 
-> Track File #18 of 37 · Group 4: Senior / MAANG Path
+> Track Module - Group 4: Senior / MAANG Path
 > Level: senior | Mode: understand GraphQL in the mobile context and make the right client choice
 
 ---

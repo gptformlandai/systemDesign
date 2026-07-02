@@ -1,6 +1,6 @@
 # React Native Error Handling & Error Boundaries — Gold Sheet
 
-> Track File #6 of 37 · Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Level: beginner to interview-ready | Mode: handle errors safely in every layer
 
 ---
@@ -46,7 +46,7 @@ An Error Boundary is a class component that catches JavaScript errors in its chi
 
 ### Why Class Component?
 
-Error Boundaries require two class lifecycle methods (`getDerivedStateFromError` and `componentDidCatch`) that have no hook equivalents. You always write them as class components. React 19 is working on `use(Promise)` and `useError` patterns, but class components remain the standard.
+Error Boundaries require two class lifecycle methods (`getDerivedStateFromError` and `componentDidCatch`) that have no hook equivalents in stable React. You still write Error Boundaries as class components. Modern React has newer async and Suspense primitives, but there is no stable hook replacement for a production Error Boundary.
 
 ### The Standard Error Boundary
 

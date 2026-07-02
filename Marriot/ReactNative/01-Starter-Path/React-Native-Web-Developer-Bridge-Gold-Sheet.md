@@ -1,6 +1,6 @@
 # React Native Web Developer Bridge — Gold Sheet
 
-> Track File #4 of 37 · Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Audience: web/React developer entering mobile | Level: beginner to interview-ready
 > Mode: map every web assumption to its React Native reality before touching any code
 

@@ -1,6 +1,6 @@
 # React Native Platform-Specific Patterns — Gold Sheet
 
-> Track File #14 of 37 · Group 3: Native Device & Internals
+> Track Module - Group 3: Native Device & Internals
 > Level: intermediate to senior | Mode: write code that handles iOS and Android differences correctly
 
 ---

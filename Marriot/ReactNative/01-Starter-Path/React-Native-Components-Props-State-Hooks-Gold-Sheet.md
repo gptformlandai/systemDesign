@@ -1,6 +1,6 @@
 # React Native Components, Props, State, And Hooks - Gold Sheet
 
-> Track File #2 of 20 - Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Level: React fundamentals applied to mobile screens
 
 ---

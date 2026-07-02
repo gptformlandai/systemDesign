@@ -1,6 +1,6 @@
 # React Native 2-Week & 4-Week Mastery Roadmaps — Gold Sheet
 
-> Track File #29 of 37 · Group 7: Practice Upgrade
+> Track Module - Group 7: Practice Upgrade
 > Level: beginner to pro | Mode: follow this schedule, not your mood
 
 ---

@@ -1,6 +1,6 @@
 # React Native Animations, Gestures, And Lists - Gold Sheet
 
-> Track File #9 of 20 - Group 3: Native Device And Internals
+> Track Module - Group 3: Native Device And Internals
 > Level: smooth interaction and list performance
 
 ---

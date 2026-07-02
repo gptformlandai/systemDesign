@@ -1,6 +1,6 @@
 # React Native Hooks Deep Dive — Gold Sheet
 
-> Track File #5 of 37 · Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Level: beginner to interview-ready | Mode: master React hooks in a mobile context
 > Prerequisite: React-Native-Components-Props-State-Hooks-Gold-Sheet.md
 

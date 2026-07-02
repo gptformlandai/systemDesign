@@ -1,6 +1,6 @@
 # React Native Machine Coding Mini Labs
 
-> Track File #15 of 20 - Group 5: Scenario Practice
+> Track Module - Group 5: Scenario Practice
 > Level: hands-on patterns for interviews and real apps
 
 ---

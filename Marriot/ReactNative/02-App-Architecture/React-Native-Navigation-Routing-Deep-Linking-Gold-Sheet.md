@@ -1,6 +1,6 @@
 # React Native Navigation, Routing, And Deep Linking - Gold Sheet
 
-> Track File #4 of 20 - Group 2: App Architecture
+> Track Module - Group 2: App Architecture
 > Level: production navigation design and interview-ready routing judgment
 
 ---

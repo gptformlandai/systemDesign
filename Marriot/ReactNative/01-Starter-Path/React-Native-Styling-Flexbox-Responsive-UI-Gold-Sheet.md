@@ -1,6 +1,6 @@
 # React Native Styling, Flexbox, And Responsive UI - Gold Sheet
 
-> Track File #3 of 20 - Group 1: Starter Path
+> Track Module - Group 1: Starter Path
 > Level: mobile layout foundations and interview-ready styling judgment
 
 ---

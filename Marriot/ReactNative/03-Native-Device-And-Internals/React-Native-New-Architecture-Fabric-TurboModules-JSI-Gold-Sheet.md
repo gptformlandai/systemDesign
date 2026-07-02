@@ -1,6 +1,6 @@
 # React Native New Architecture, Fabric, TurboModules, And JSI - Gold Sheet
 
-> Track File #8 of 20 - Group 3: Native Device And Internals
+> Track Module - Group 3: Native Device And Internals
 > Level: senior internals and interview architecture vocabulary
 
 ---

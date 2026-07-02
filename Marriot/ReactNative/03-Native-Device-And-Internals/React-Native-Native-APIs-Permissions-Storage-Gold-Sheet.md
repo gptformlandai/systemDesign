@@ -1,6 +1,6 @@
 # React Native Native APIs, Permissions, And Storage - Gold Sheet
 
-> Track File #7 of 20 - Group 3: Native Device And Internals
+> Track Module - Group 3: Native Device And Internals
 > Level: mobile capability design and production safety
 
 ---

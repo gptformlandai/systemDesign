@@ -1,6 +1,6 @@
 # React Native Mock Interview Scripts — Gold Sheet
 
-> Track File #27 of 37 · Group 7: Practice Upgrade
+> Track Module - Group 7: Practice Upgrade
 > Level: all levels | Mode: timed mock rounds — simulate real interview pressure
 
 ---

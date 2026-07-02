@@ -1,6 +1,6 @@
 # React Native Accessibility, Internationalization, And Design Systems - Gold Sheet
 
-> Track File #20 of 20 - Group 6: Gold-Level Completeness
+> Track Module - Group 6: Gold-Level Completeness
 > Level: inclusive product quality and global mobile readiness
 
 ---

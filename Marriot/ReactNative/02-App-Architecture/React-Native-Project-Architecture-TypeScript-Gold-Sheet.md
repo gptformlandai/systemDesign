@@ -1,6 +1,6 @@
 # React Native Project Architecture And TypeScript - Gold Sheet
 
-> Track File #6 of 20 - Group 2: App Architecture
+> Track Module - Group 2: App Architecture
 > Level: scalable codebase structure for production teams
 
 ---

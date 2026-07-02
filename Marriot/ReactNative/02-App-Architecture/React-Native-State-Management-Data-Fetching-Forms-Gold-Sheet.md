@@ -1,6 +1,6 @@
 # React Native State Management, Data Fetching, And Forms - Gold Sheet
 
-> Track File #5 of 20 - Group 2: App Architecture
+> Track Module - Group 2: App Architecture
 > Level: production state choices and mobile data UX
 
 ---

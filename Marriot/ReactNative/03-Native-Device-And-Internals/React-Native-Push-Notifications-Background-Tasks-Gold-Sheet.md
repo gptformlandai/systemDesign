@@ -1,6 +1,6 @@
 # React Native Push Notifications & Background Tasks — Gold Sheet
 
-> Track File #13 of 37 · Group 3: Native Device & Internals
+> Track Module - Group 3: Native Device & Internals
 > Level: intermediate to senior | Mode: understand the full notification and background execution model
 
 ---

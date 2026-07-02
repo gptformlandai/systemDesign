@@ -1,6 +1,6 @@
 # React Native Debugging, DevTools, Native Logs, And Release Builds - Gold Sheet
 
-> Track File #18 of 20 - Group 6: Gold-Level Completeness
+> Track Module - Group 6: Gold-Level Completeness
 > Level: practical debugging workflow for real teams
 
 ---

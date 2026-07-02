@@ -1,6 +1,6 @@
 # React Native MAANG Interview Scenario Bank
 
-> Track File #14 of 20 - Group 5: Scenario Practice
+> Track Module - Group 5: Scenario Practice
 > Level: spoken interview answers with follow-up depth
 
 ---

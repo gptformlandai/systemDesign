@@ -1,6 +1,6 @@
 # React Native Build, Release, Upgrades, And CI/CD - Gold Sheet
 
-> Track File #19 of 20 - Group 6: Gold-Level Completeness
+> Track Module - Group 6: Gold-Level Completeness
 > Level: mobile delivery ownership for senior engineers
 
 ---
