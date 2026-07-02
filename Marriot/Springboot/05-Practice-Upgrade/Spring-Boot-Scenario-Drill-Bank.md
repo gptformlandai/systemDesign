@@ -536,13 +536,132 @@ Answer:
 
 ---
 
-## 11. Capstone Scenario
+### Scenario 28: Boot 4.1 Readiness
 
 Prompt:
 
 ```text
-Design and implement a Spring Boot hotel booking service with REST API, JPA, security,
-Testcontainers, outbox/Kafka, cache, observability, Docker/Kubernetes runtime, and safe rollout.
+Your team wants to upgrade a critical Spring Boot 3.5 service to Spring Boot 4.1.
+What do you verify before migration?
+```
+
+Answer:
+
+- Java, Spring Framework, Maven/Gradle, Servlet container, and GraalVM baselines
+- Spring Cloud and third-party compatibility
+- tests: unit, slice, integration, contract, migration, security
+- Actuator, metrics, traces, SBOM, image scan
+- canary, rollback, backward-compatible migrations
+
+---
+
+## 11. Setup, Security, Supply Chain, And Protocol Scenarios
+
+### Scenario 29: New Service Setup
+
+Prompt:
+
+```text
+Create a new Spring Boot service from scratch with reproducible local and CI builds.
+```
+
+Answer:
+
+- approved JDK and Boot version
+- Spring Initializr/company template
+- Maven/Gradle wrapper committed
+- minimal starters
+- root package layout
+- first endpoint and slice test
+- CI uses wrapper verify command
+
+---
+
+### Scenario 30: Browser BFF Security
+
+Prompt:
+
+```text
+A React booking app calls a Spring Boot BFF. Where do tokens live and how are writes protected?
+```
+
+Answer:
+
+- OIDC login through BFF
+- HttpOnly/Secure/SameSite session cookie
+- CSRF token for state-changing requests
+- no access token in local storage
+- exact CORS origins
+- downstream token relay plus service-side authorization
+
+---
+
+### Scenario 31: Critical CVE Response
+
+Prompt:
+
+```text
+A critical transitive dependency vulnerability is announced. How do you find and patch affected services?
+```
+
+Answer:
+
+- query SBOM/dependency inventory
+- confirm runtime scope and exploitability
+- patch through Boot BOM or approved override
+- run tests, scans, and image rebuild
+- canary deploy and monitor
+- add prevention policy
+
+---
+
+### Scenario 32: Protocol Choice
+
+Prompt:
+
+```text
+The hotel platform needs booking commands, flexible search, internal pricing, durable events,
+and live status updates. Which protocols do you choose?
+```
+
+Answer:
+
+- REST for booking commands
+- GraphQL through BFF if flexible search needs it
+- gRPC for internal pricing only if platform supports HTTP/2, tracing, retries
+- Kafka/Pulsar for durable booking events
+- SSE for one-way status push, WebSocket only for bidirectional realtime
+
+---
+
+### Scenario 33: Modulith Before Microservices
+
+Prompt:
+
+```text
+The team wants to split booking, payment, inventory, and notification into microservices.
+Would you do it now?
+```
+
+Answer:
+
+- start with modular monolith unless independent deploy/scale/ownership pressure is clear
+- define module APIs and package boundaries
+- prevent cross-module repository access
+- use domain events for local side effects
+- use outbox for durable integration events
+- split later when boundary and pressure are proven
+
+---
+
+## 12. Capstone Scenario
+
+Prompt:
+
+```text
+Design and implement a Spring Boot hotel booking service with REST API, JPA, data access
+choices, BFF/JWT security, Testcontainers, outbox/Kafka, cache, observability, SBOM,
+Docker/Kubernetes runtime, Boot 4.1 readiness, Modulith boundaries, and safe rollout.
 ```
 
 Must include:
@@ -552,10 +671,15 @@ Must include:
 - ProblemDetail errors
 - transaction boundaries
 - DB constraints/locks
-- JWT resource server + method security
+- data access choice for writes, reports, cache, and search
+- JWT resource server + BFF/session security + method security
 - Testcontainers + WireMock/Pact where needed
 - outbox/idempotent consumer
 - cache key/invalidation
+- protocol choices
 - Actuator/Micrometer/OpenTelemetry
+- SBOM/dependency/image scan gate
 - graceful shutdown and probes
+- Boot 4.1 migration posture
+- module boundaries and extraction decision
 - canary/rollback

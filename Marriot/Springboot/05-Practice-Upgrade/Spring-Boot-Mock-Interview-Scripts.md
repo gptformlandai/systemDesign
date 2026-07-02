@@ -29,16 +29,18 @@ Time: 30 minutes
 
 ### Questions
 
-1. What problem does Spring Boot solve?
-2. Explain `@SpringBootApplication`.
-3. What is dependency injection?
-4. Constructor injection vs field injection?
-5. What is auto-configuration?
-6. What is a starter dependency?
-7. What is the embedded server?
-8. How do profiles work?
-9. What is Actuator?
-10. How would you create a basic REST endpoint?
+1. How would you create a new Spring Boot service from scratch?
+2. Why commit the Maven or Gradle wrapper?
+3. What problem does Spring Boot solve?
+4. Explain `@SpringBootApplication`.
+5. What is dependency injection?
+6. Constructor injection vs field injection?
+7. What is auto-configuration?
+8. What is a starter dependency?
+9. What is the embedded server?
+10. How do profiles work?
+11. What is Actuator?
+12. How would you create and test a basic REST endpoint?
 
 ### Strong Signal
 
@@ -126,7 +128,7 @@ Time: 45 minutes
 ### Prompt
 
 ```text
-Secure the Booking API for customers, admins, and service-to-service calls.
+Secure the Booking API for customers, admins, browser users, and service-to-service calls.
 ```
 
 ### Interviewer Follow-Ups
@@ -141,12 +143,17 @@ Secure the Booking API for customers, admins, and service-to-service calls.
 8. What about CORS and CSRF?
 9. What happens during key rotation?
 10. How do you audit sensitive actions?
+11. Where should a browser SPA store tokens?
+12. What does a BFF change?
+13. How do HttpOnly, Secure, and SameSite cookies help?
 
 ### Excellent Answer Includes
 
 - OAuth2 Resource Server
+- OAuth2 login/BFF when browser session is needed
 - issuer/audience/signature/expiry validation
 - method security
+- CSRF protection for cookie-authenticated writes
 - tenant-aware repository/service filters
 - audit logging
 - key rotation/JWKS troubleshooting
@@ -328,43 +335,81 @@ Time: 45 minutes
 ### Prompt
 
 ```text
-How would you modernize this service for Spring Boot 3/4, AOT, native image, and virtual threads?
+How would you modernize this service for Spring Boot 4.1, AOT, native image, and virtual threads?
 ```
 
 ### Interviewer Follow-Ups
 
 1. What changed in Boot 3?
 2. What is Jakarta migration?
-3. What is AOT?
-4. What breaks native image?
-5. When is native image worth it?
-6. What do virtual threads improve?
-7. What remains bottlenecked?
-8. WebFlux vs virtual threads?
-9. How do you validate an upgrade?
-10. How do you roll it out safely?
+3. What current Java, Spring Framework, Maven/Gradle, Servlet, and GraalVM baselines matter for Boot 4.1?
+4. What is AOT?
+5. What breaks native image?
+6. When is native image worth it?
+7. What do virtual threads improve?
+8. What remains bottlenecked?
+9. WebFlux vs virtual threads?
+10. How do you validate an upgrade?
+11. How do you verify Actuator, SBOM, metrics, and traces?
+12. How do you roll it out safely?
 
 ### Excellent Answer Includes
 
-- Java 17+/Jakarta awareness
+- Java 17+/Jakarta/Boot 4.1 baseline awareness
 - dependency compatibility
 - native-image trade-offs
 - virtual thread limits
+- observability and SBOM verification
 - canary and rollback plan
 
 ---
 
-## 12. Full MAANG Loop
+## 12. Round 11: Supply Chain, Protocols, And Modulith
+
+Time: 60 minutes
+
+### Prompt
+
+```text
+Review the hotel booking platform for release security, communication protocols, and module boundaries.
+```
+
+### Interviewer Follow-Ups
+
+1. What is an SBOM?
+2. How do you respond to a critical transitive dependency CVE?
+3. Why scan both dependencies and container images?
+4. What should block a release?
+5. REST vs GraphQL for hotel search?
+6. gRPC for internal pricing: when is it worth it?
+7. Kafka vs Pulsar for booking events?
+8. SSE vs WebSocket for booking status updates?
+9. What is Spring Modulith?
+10. When would you split booking/payment/inventory into microservices?
+
+### Excellent Answer Includes
+
+- SBOM inventory and release policy
+- dependency/image scan and patch rollout
+- exact protocol choices with failure modes
+- outbox and idempotent consumers for durable events
+- module boundaries and boundary tests
+- clear criteria for service extraction
+
+---
+
+## 13. Full MAANG Loop
 
 Run these back-to-back:
 
-1. 15 min fundamentals lightning.
+1. 15 min setup/fundamentals lightning.
 2. 45 min booking API design.
 3. 45 min transaction/JPA drill.
-4. 45 min security drill.
+4. 45 min security/BFF drill.
 5. 45 min testing and quality gates.
 6. 45 min resilience/Kafka drill.
 7. 45 min production debugging.
+8. 45 min supply-chain/protocol/Modulith drill.
 
 Pass criteria:
 

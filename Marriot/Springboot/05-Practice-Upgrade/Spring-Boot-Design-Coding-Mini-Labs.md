@@ -388,7 +388,160 @@ Produce runbook:
 
 ---
 
-## 22. Completion Gate
+## 22. Lab 21: First App Setup And Build Reproducibility
+
+Build/sketch:
+
+- Spring Initializr dependency choices
+- Maven or Gradle wrapper committed
+- root package layout
+- first controller
+- first `@WebMvcTest`
+- CI command using wrapper
+
+Deliverable:
+
+```text
+A one-page explanation from JDK -> wrapper -> starter -> ApplicationContext -> endpoint -> test.
+```
+
+---
+
+## 23. Lab 22: Data Access Decision Matrix
+
+Given workloads:
+
+- booking writes
+- search UI
+- nightly revenue report
+- hot price lookup
+- reactive notification stream
+
+Deliverable:
+
+```text
+Choose JPA, JdbcClient, jOOQ, R2DBC, Redis, MongoDB, or Elasticsearch/OpenSearch for each,
+with consistency, latency, test, and failure-mode notes.
+```
+
+---
+
+## 24. Lab 23: Browser BFF Security Design
+
+Build/sketch:
+
+- OAuth2 login flow
+- HttpOnly/Secure/SameSite session cookie
+- CSRF token flow for POST/PUT/DELETE
+- exact CORS policy
+- downstream token relay
+- method/domain authorization checks
+
+Test:
+
+- unauthenticated browser request redirects or returns 401 as designed
+- missing CSRF token fails for state-changing request
+- wrong tenant/domain access returns 403
+
+---
+
+## 25. Lab 24: SBOM And Dependency Security Gate
+
+Build/sketch:
+
+- SBOM generation step
+- dependency scan
+- container image scan
+- severity policy
+- override process
+- release evidence stored with artifact
+
+Deliverable:
+
+```text
+CI gate design showing what blocks release, what warns, and how a critical CVE response works.
+```
+
+---
+
+## 26. Lab 25: Boot 4.1 Upgrade Decision Memo
+
+Given:
+
+```text
+A Spring Boot 3.5 service on Java 21 with Spring Cloud, JPA, Web MVC, Actuator,
+Testcontainers, and a containerized Kubernetes deployment.
+```
+
+Produce:
+
+- baseline inventory
+- Java/Framework/build/Servlet/GraalVM requirement check
+- dependency compatibility plan
+- test plan
+- Actuator/observability/SBOM verification
+- canary and rollback plan
+
+---
+
+## 27. Lab 26: Protocol Choice For Hotel Platform
+
+Given system needs:
+
+- customer booking command
+- flexible hotel search UI
+- internal pricing call
+- booking-created event
+- live booking status update
+
+Deliverable:
+
+```text
+Choose REST, GraphQL, gRPC, Kafka/Pulsar, SSE, or WebSocket for each need and defend the
+trade-offs, failure modes, auth, tracing, and testing strategy.
+```
+
+---
+
+## 28. Lab 27: Spring Modulith Boundary Test
+
+Build/sketch:
+
+- modules: booking, inventory, payment, notification, settlement
+- allowed dependency direction
+- domain event from booking to notification
+- outbox boundary for external events
+- architecture/module test idea
+
+Deliverable:
+
+```text
+A module dependency diagram plus one example of a forbidden repository access across modules.
+```
+
+---
+
+## 29. Lab 28: Capstone Request Lifecycle Walkthrough
+
+Walk through:
+
+```text
+POST /bookings -> security -> validation -> idempotency -> transaction -> inventory lock
+-> booking row -> outbox row -> commit -> relay -> event consumer -> metrics/traces/logs
+-> Kubernetes rollout and rollback evidence.
+```
+
+Deliverable:
+
+- 5-minute spoken explanation
+- failure table
+- tests per stage
+- observability per stage
+- what changes for Boot 4.1 readiness
+
+---
+
+## 30. Completion Gate
 
 You completed the labs when you can:
 
@@ -397,4 +550,10 @@ You completed the labs when you can:
 3. Design quality gates around contracts and migrations.
 4. Explain cache/async/scheduling operational risks.
 5. Design Kafka outbox/consumer reliability.
-6. Debug runtime incidents with metrics and JVM evidence.
+6. Choose data access tools by workload instead of defaulting blindly to JPA.
+7. Secure browser/BFF and resource-server paths correctly.
+8. Explain SBOM/dependency/image scanning release gates.
+9. Choose REST/GraphQL/gRPC/Pulsar/SSE/WebSocket intentionally.
+10. Explain Boot 4.1 upgrade readiness and Modulith boundaries.
+11. Debug runtime incidents with metrics and JVM evidence.
+12. Defend the full capstone request lifecycle without notes.

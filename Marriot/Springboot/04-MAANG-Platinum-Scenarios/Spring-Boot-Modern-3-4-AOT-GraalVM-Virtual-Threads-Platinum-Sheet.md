@@ -1,7 +1,7 @@
 # Spring Boot Modern 3 4 AOT GraalVM Virtual Threads Platinum Sheet
 
 > Track: Spring Boot Interview Track - MAANG Platinum Scenarios  
-> Goal: understand modern Spring Boot direction: Boot 3.x, Boot 4 readiness, AOT, native images, virtual threads, and reactive trade-offs.
+> Goal: understand modern Spring Boot direction: Boot 3.x, Boot 4/4.1 readiness, AOT, native images, virtual threads, and reactive trade-offs.
 
 Use this for senior interviews that probe current Spring platform awareness.
 
@@ -50,9 +50,9 @@ javax-to-jakarta namespace migration issues.
 
 ---
 
-## 3. Spring Boot 4 Readiness
+## 3. Spring Boot 4/4.1 Readiness
 
-Spring Boot 4 readiness means tracking:
+Spring Boot 4/4.1 readiness means tracking:
 
 - supported Java versions
 - Spring Framework generation
@@ -61,6 +61,13 @@ Spring Boot 4 readiness means tracking:
 - observability and security defaults
 - test dependency upgrades
 - native image/AOT behavior
+- build tool and servlet/native-image baselines
+
+For current facts, pair this sheet with:
+
+```text
+Spring-Boot-4-1-Modern-Platform-Update-Platinum-Sheet.md
+```
 
 Interview answer:
 

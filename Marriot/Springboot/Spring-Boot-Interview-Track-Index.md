@@ -8,9 +8,9 @@ secured, tested, deployed, observed, debugged, and evolved in production.
 
 Current structure:
 
-- 28 topic/practice sheets plus this root index
-- 5 learning layers from starter to practice upgrade
-- coverage for fundamentals, production engineering, distributed workloads, MAANG scenarios, and active recall
+- 39 topic/practice sheets plus this root index
+- 7 learning layers from setup to capstone
+- coverage for fundamentals, production engineering, distributed workloads, modern Boot 4.1 readiness, supply-chain security, MAANG scenarios, active recall, and capstone design
 
 ---
 
@@ -18,6 +18,7 @@ Current structure:
 
 | Order | Document | Why This Order |
 |---:|---|---|
+| 0 | `00-Setup/Spring-Boot-Install-Initializr-Maven-Gradle-First-App-Gold-Sheet.md` | Build the first clean local Spring Boot app: JDK, Initializr, Maven/Gradle wrapper, starters, package layout, first endpoint, first test |
 | 1 | `01-Starter-Path/Spring-Boot-Core-Interview-Master-Sheet.md` | Learn IoC, DI, beans, MVC, AOP, transactions, validation, and request flow |
 | 2 | `01-Starter-Path/Spring-Boot-REST-API-Design-Validation-Error-Handling-Gold-Sheet.md` | Turn core Spring knowledge into clean API design, DTOs, ProblemDetail, pagination, idempotency, and OpenAPI |
 | 3 | `01-Starter-Path/Spring-Data-JPA-Hibernate-Interview-Master-Sheet.md` | Learn persistence context, mappings, lazy loading, N+1, transactions, locking, and performance |
@@ -30,29 +31,47 @@ Current structure:
 | 10 | `02-Intermediate-Production-Features/Spring-Boot-Observability-Actuator-Micrometer-Interview-Master-Sheet.md` | Learn Actuator, health, metrics, logs, traces, correlation IDs, SLOs, and alerting basics |
 | 11 | `03-Senior-Distributed-Workloads/Spring-Batch-Interview-Master-Sheet.md` | Learn Job/Step, chunk processing, restartability, skip/retry, partitioning, and batch monitoring |
 | 12 | `03-Senior-Distributed-Workloads/Spring-Boot-Messaging-Kafka-RabbitMQ-Interview-Master-Sheet.md` | Learn Kafka/RabbitMQ fundamentals, ordering, retries, DLQ/DLT, idempotency, and outbox |
-| 13 | `03-Senior-Distributed-Workloads/Spring-Kafka-Schema-Registry-Exactly-Once-Gold-Sheet.md` | Production Kafka: exactly-once semantics (idempotent+transactional producer, EOS consumer), Schema Registry (Avro, compatibility modes), consumer group rebalancing, CooperativeStickyAssignor, offset management, lag monitoring, high-scale tuning |
-| 13b | `03-Senior-Distributed-Workloads/Spring-Boot-Kafka-Batch-Advanced-Operations-Gold-Sheet.md` | Add senior Kafka/Batch operations: listener containers, ack modes, lag debugging, schema evolution, and restartable jobs |
-| 13c | `03-Senior-Distributed-Workloads/Spring-Data-JPA-Advanced-Locking-Performance-Gold-Sheet.md` | Advanced JPA: optimistic locking (@Version, retry), pessimistic locking (SELECT FOR UPDATE, deadlock), N+1 all solutions (EntityGraph, fetch join, @BatchSize, subselect), batch operations (SEQUENCE strategy, flush/clear), interface/class projections, stateless sessions, read-only transactions |
-| 14 | `03-Senior-Distributed-Workloads/Spring-Security-Advanced-Resource-Server-Authorization-Server-Multitenancy-Gold-Sheet.md` | Add advanced resource server, authorization server awareness, service-to-service auth, tenant isolation, and auditing |
-| 15 | `03-Senior-Distributed-Workloads/Spring-Cloud-Microservices-Interview-Master-Sheet.md` | Learn Spring Cloud Config, Gateway, OpenFeign, discovery, load balancing, and Kubernetes alternatives |
-| 16 | `03-Senior-Distributed-Workloads/Spring-Boot-Production-Runtime-Docker-Kubernetes-JVM-Gold-Sheet.md` | Learn Docker/buildpacks, JVM containers, probes, graceful shutdown, resource limits, config/secrets, and runtime diagnostics |
-| 17 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Internals-AutoConfiguration-Proxies-Transactions-Platinum-Sheet.md` | Learn Boot internals, conditions, proxies, transaction traps, and diagnostics |
-| 18 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Advanced-Internals-Proxies-Transactions-Diagnostics-Platinum-Sheet.md` | Add deeper BeanDefinition, post-processor, advisor ordering, propagation, isolation, lazy-loading, and transaction debugging depth |
-| 19 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Production-Debugging-Case-Studies-Platinum-Sheet.md` | Learn production case studies around startup, DB, memory, cache, security, and slow APIs |
-| 20 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Production-Debugging-Runbooks-JFR-Hikari-Platinum-Sheet.md` | Add incident runbooks for first 10 minutes, Hikari, CPU, memory, thread starvation, GC, JFR, and postmortems |
-| 21 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Modern-3-4-AOT-GraalVM-Virtual-Threads-Platinum-Sheet.md` | Learn Boot 3/4, Jakarta migration, AOT, GraalVM native image, virtual threads, WebFlux, R2DBC, and Modulith trade-offs |
-| 22 | `04-MAANG-Platinum-Scenarios/Spring-Boot-MAANG-Scenario-Based-Architecture-Questions-Platinum-Sheet.md` | Practice full scenario answers for booking, payment, cache, batch, security, and production design rounds |
-| 22b | `04-MAANG-Platinum-Scenarios/Spring-Boot-Distributed-Architecture-Saga-CQRS-EventSourcing-Platinum-Sheet.md` | Distributed transactions: Saga choreography + orchestration (Kafka-based, compensation, timeout), CQRS (command+query separation, outbox, read projections), Event Sourcing (aggregate with reconstitute, optimistic concurrency), eventual consistency UI patterns, correlation ID propagation, idempotency/deduplication |
-| 23 | `05-Practice-Upgrade/Spring-Boot-Active-Recall-Question-Bank.md` | Convert notes into retrieval memory with question banks across every major topic |
-| 24 | `05-Practice-Upgrade/Spring-Boot-Scenario-Drill-Bank.md` | Practice realistic design, debugging, security, testing, Kafka, Batch, and runtime scenarios |
-| 25 | `05-Practice-Upgrade/Spring-Boot-Design-Coding-Mini-Labs.md` | Build small labs for APIs, idempotency, transactions, security, Testcontainers, WireMock, cache, async, outbox, Batch, runtime, and modernization |
-| 26 | `05-Practice-Upgrade/Spring-Boot-Mock-Interview-Scripts.md` | Run simulated interview rounds from starter fundamentals to MAANG production debugging |
-| 27 | `05-Practice-Upgrade/Spring-Boot-Interview-Scoring-Rubrics.md` | Score readiness by area and identify Red gaps honestly |
-| 28 | `05-Practice-Upgrade/Spring-Boot-2-Week-4-Week-Mastery-Roadmaps.md` | Follow a 2-week sprint or 4-week mastery plan with daily practice loops |
+| 13 | `03-Senior-Distributed-Workloads/Spring-Kafka-Schema-Registry-Exactly-Once-Gold-Sheet.md` | Production Kafka: exactly-once semantics, Schema Registry, rebalancing, offset management, lag monitoring, and high-scale tuning |
+| 14 | `03-Senior-Distributed-Workloads/Spring-Boot-Kafka-Batch-Advanced-Operations-Gold-Sheet.md` | Add senior Kafka/Batch operations: listener containers, ack modes, lag debugging, schema evolution, and restartable jobs |
+| 15 | `03-Senior-Distributed-Workloads/Spring-Data-JPA-Advanced-Locking-Performance-Gold-Sheet.md` | Advanced JPA: optimistic/pessimistic locking, N+1 fixes, batch operations, projections, stateless sessions, read-only transactions |
+| 16 | `03-Senior-Distributed-Workloads/Spring-Boot-Data-Access-Beyond-JPA-JdbcClient-jOOQ-R2DBC-NoSQL-Gold-Sheet.md` | Learn when to use JdbcClient, jOOQ, R2DBC, Redis, MongoDB, Elasticsearch, Neo4j, Cassandra, or plain JPA |
+| 17 | `03-Senior-Distributed-Workloads/Spring-Security-Advanced-Resource-Server-Authorization-Server-Multitenancy-Gold-Sheet.md` | Add advanced resource server, authorization server awareness, service-to-service auth, tenant isolation, and auditing |
+| 18 | `03-Senior-Distributed-Workloads/Spring-Boot-Browser-BFF-Session-Security-Gold-Sheet.md` | Cover browser-specific security: BFF, sessions, cookies, CSRF, SameSite, OAuth2 login, SAML2 awareness, and token relay |
+| 19 | `03-Senior-Distributed-Workloads/Spring-Cloud-Microservices-Interview-Master-Sheet.md` | Learn Spring Cloud Config, Gateway, OpenFeign, discovery, load balancing, and Kubernetes alternatives |
+| 20 | `03-Senior-Distributed-Workloads/Spring-Boot-Production-Runtime-Docker-Kubernetes-JVM-Gold-Sheet.md` | Learn Docker/buildpacks, JVM containers, probes, graceful shutdown, resource limits, config/secrets, and runtime diagnostics |
+| 21 | `03-Senior-Distributed-Workloads/Spring-Boot-Supply-Chain-SBOM-Dependency-Security-Gold-Sheet.md` | Add SBOM, dependency scanning, image scanning, signed/provenance-aware artifacts, Actuator SBOM, and release gates |
+| 22 | `03-Senior-Distributed-Workloads/Spring-Boot-Protocol-Modules-GraphQL-gRPC-Pulsar-Integration-Gold-Sheet.md` | Cover GraphQL, gRPC, Pulsar, Spring Integration, SSE/WebSocket/RSocket, and protocol decision trade-offs |
+| 23 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Internals-AutoConfiguration-Proxies-Transactions-Platinum-Sheet.md` | Learn Boot internals, conditions, proxies, transaction traps, and diagnostics |
+| 24 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Advanced-Internals-Proxies-Transactions-Diagnostics-Platinum-Sheet.md` | Add deeper BeanDefinition, post-processor, advisor ordering, propagation, isolation, lazy-loading, and transaction debugging depth |
+| 25 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Production-Debugging-Case-Studies-Platinum-Sheet.md` | Learn production case studies around startup, DB, memory, cache, security, and slow APIs |
+| 26 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Production-Debugging-Runbooks-JFR-Hikari-Platinum-Sheet.md` | Add incident runbooks for first 10 minutes, Hikari, CPU, memory, thread starvation, GC, JFR, and postmortems |
+| 27 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Modern-3-4-AOT-GraalVM-Virtual-Threads-Platinum-Sheet.md` | Learn Boot 3/4, Jakarta migration, AOT, GraalVM native image, virtual threads, WebFlux, R2DBC, and Modulith trade-offs |
+| 28 | `04-MAANG-Platinum-Scenarios/Spring-Boot-4-1-Modern-Platform-Update-Platinum-Sheet.md` | Update current platform facts: Boot 4.1.0, Java/Framework/build baselines, Servlet/GraalVM requirements, OTel, SBOM, gRPC, GraphQL, Pulsar |
+| 29 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Modulith-Domain-Events-Boundaries-Platinum-Sheet.md` | Learn modular monolith boundaries, domain events, module tests, and when to split into microservices |
+| 30 | `04-MAANG-Platinum-Scenarios/Spring-Boot-MAANG-Scenario-Based-Architecture-Questions-Platinum-Sheet.md` | Practice full scenario answers for booking, payment, cache, batch, security, and production design rounds |
+| 31 | `04-MAANG-Platinum-Scenarios/Spring-Boot-Distributed-Architecture-Saga-CQRS-EventSourcing-Platinum-Sheet.md` | Distributed transactions: Saga, CQRS, Event Sourcing, eventual consistency UI patterns, correlation IDs, idempotency/deduplication |
+| 32 | `05-Practice-Upgrade/Spring-Boot-Active-Recall-Question-Bank.md` | Convert notes into retrieval memory with question banks across every major topic |
+| 33 | `05-Practice-Upgrade/Spring-Boot-Scenario-Drill-Bank.md` | Practice realistic design, debugging, security, testing, Kafka, Batch, and runtime scenarios |
+| 34 | `05-Practice-Upgrade/Spring-Boot-Design-Coding-Mini-Labs.md` | Build small labs for APIs, idempotency, transactions, security, Testcontainers, WireMock, cache, async, outbox, Batch, runtime, supply chain, and modernization |
+| 35 | `05-Practice-Upgrade/Spring-Boot-Mock-Interview-Scripts.md` | Run simulated interview rounds from starter fundamentals to MAANG production debugging |
+| 36 | `05-Practice-Upgrade/Spring-Boot-Interview-Scoring-Rubrics.md` | Score readiness by area and identify Red gaps honestly |
+| 37 | `05-Practice-Upgrade/Spring-Boot-2-Week-4-Week-Mastery-Roadmaps.md` | Follow a 2-week sprint or 4-week mastery plan with daily practice loops |
+| 38 | `06-Capstone/Spring-Boot-Hotel-Booking-Production-Reference-Project.md` | Tie the entire track together in one end-to-end production-style hotel booking reference project |
 
 ---
 
 ## 2. What Each Layer Builds
+
+### 00-Setup
+
+This layer builds first-mile confidence.
+
+You should be able to explain and build:
+
+- local JDK, Spring Initializr, Maven/Gradle wrapper, and first app setup
+- starter dependencies, Boot BOM/parent, wrapper reproducibility, and package layout
+- first controller, first validation rule, first slice test, and first `application.yml`
+- how to run, debug, and verify a Spring Boot app locally and in CI
 
 ### 01-Starter-Path
 
@@ -90,9 +109,13 @@ You should be able to explain and operate:
 - Spring Batch jobs, chunk processing, restartability, skip/retry, and partitioning
 - Kafka/RabbitMQ listeners, ack modes, retries, DLT, ordering, schema evolution, and lag debugging
 - outbox pattern and idempotent consumers for reliable business effects
+- data access beyond JPA: JdbcClient, jOOQ, R2DBC, Redis, MongoDB, Elasticsearch/OpenSearch, Neo4j, Cassandra
 - advanced resource server security, tenant isolation, auditing, and service-to-service auth
+- browser/BFF security: sessions, cookies, CSRF, SameSite, OAuth2 login, SAML2 awareness, and token relay
 - Spring Cloud Gateway, Config, OpenFeign, discovery, load balancing, and Kubernetes replacements
 - Docker/buildpacks, JVM containers, probes, graceful shutdown, config/secrets, CPU limits, and Hikari tuning
+- supply-chain security: SBOM, dependency/image scanning, provenance, signed artifacts, and CI release gates
+- protocol modules: GraphQL, gRPC, Pulsar, Spring Integration, SSE/WebSocket/RSocket, and protocol trade-offs
 
 ### 04-MAANG-Platinum-Scenarios
 
@@ -107,6 +130,8 @@ You should be able to explain:
 - transaction propagation, isolation, rollback, flush vs commit, and external-call traps
 - production incident triage with JFR, heap dumps, thread dumps, Hikari metrics, DB plans, and traces
 - Spring Boot 3/4, Jakarta migration, AOT, native image, virtual threads, WebFlux, R2DBC, and Modulith
+- Spring Boot 4.1 platform facts: Java/Framework/build baselines, Servlet/GraalVM requirements, SBOM, OTel, gRPC, GraphQL, Pulsar
+- modular monolith design with Spring Modulith, domain events, module boundary tests, and extraction decisions
 - MAANG-style system design plus implementation answers
 
 ### 05-Practice-Upgrade
@@ -122,9 +147,33 @@ You should use it to:
 - score readiness with rubrics
 - follow 2-week or 4-week study plans
 
+### 06-Capstone
+
+This layer turns the whole track into one end-to-end system.
+
+You should use it to:
+
+- connect REST, security, JPA, idempotency, payment, outbox, messaging, batch, observability, runtime, and supply chain
+- practice one full hotel booking platform explanation without notes
+- identify any weak area that still breaks the request lifecycle story
+
 ---
 
 ## 3. Level-Wise Learning Plan
+
+### Setup Path
+
+Read:
+
+1. Install/Initializr/Maven/Gradle/first app setup
+2. Backend build tools Maven and Gradle cross-links if build tooling is weak
+
+Setup goal:
+
+```text
+I can generate, run, test, and explain a minimal Spring Boot app with a pinned JDK,
+wrapper, starter dependencies, package layout, config, and CI command.
+```
 
 ### Starter Path
 
@@ -165,16 +214,20 @@ Add:
 
 1. Spring Batch
 2. Kafka/RabbitMQ messaging and outbox
-3. advanced security and multitenancy
-4. Spring Cloud and Kubernetes-era alternatives
-5. Docker/Kubernetes/JVM runtime operations
-6. Boot internals, proxies, transaction diagnostics, and production debugging
+3. data access beyond JPA and workload-based persistence choices
+4. advanced resource server, browser/BFF security, and multitenancy
+5. Spring Cloud and Kubernetes-era alternatives
+6. Docker/Kubernetes/JVM runtime operations
+7. SBOM, dependency/image scanning, and release security
+8. GraphQL/gRPC/Pulsar/Spring Integration protocol choices
+9. Boot internals, proxies, transaction diagnostics, and production debugging
 
 Senior goal:
 
 ```text
 I can design reliable services that handle async workflows, batch jobs, messaging,
-downstream failure, tenant/security boundaries, deployment safety, and production debugging.
+downstream failure, tenant/security boundaries, data access choices, protocol choices,
+deployment safety, supply-chain security, and production debugging.
 ```
 
 ### MAANG-Ready Path
@@ -242,13 +295,17 @@ requirements -> model/API -> transaction/security boundaries -> failure handling
 
 | Area | Covered By |
 |---|---|
+| First-mile setup | setup gold sheet, BackendBuildTools Maven/Gradle cross-links |
+| Maven/Gradle wrapper and reproducible builds | setup gold sheet, BackendBuildTools Java/JVM build sheets |
 | Core Spring container | Core sheet, internals platinum sheets |
 | REST API development | Core sheet, REST API design sheet, scenario drills, labs |
 | Validation and error handling | REST API design sheet, ProblemDetail labs |
 | DTO/entity/API boundaries | REST API design sheet, capstone labs |
 | JPA/Hibernate | JPA sheet, internals diagnostics sheets, production debugging sheets |
 | Transactions and locking | JPA sheet, internals sheets, scenario drills, double-booking lab |
+| Data access beyond JPA | non-JPA data access sheet, REST/WebFlux/R2DBC sheet, capstone roadmap |
 | Security/JWT/OAuth2 | Security sheet, advanced resource server sheet, security mock rounds |
+| Browser/BFF/session security | BFF/session security sheet, security sheet, capstone roadmap |
 | Multitenancy and domain auth | advanced security sheet, scenario drills, mini-labs |
 | Testing | testing sheet, API contracts sheet, mini-labs, scoring rubrics |
 | Testcontainers | testing sheet, labs, quality gates sheet |
@@ -260,13 +317,15 @@ requirements -> model/API -> transaction/security boundaries -> failure handling
 | Spring events | cache/async sheets, outbox comparison |
 | Batch processing | Batch master sheet, Kafka/Batch advanced sheet, Batch lab |
 | REST clients | REST/WebFlux/Resilience sheet, WireMock payment client lab |
-| WebFlux/R2DBC | REST/WebFlux/Resilience sheet, modern Boot sheet |
+| WebFlux/R2DBC | REST/WebFlux/Resilience sheet, modern Boot sheet, non-JPA data access sheet, adjacent `Spring-Webflux/index.md` deep track |
 | Resilience4j patterns | REST/WebFlux/Resilience sheet, scenario drills |
 | Kafka | Messaging sheet, Kafka/Batch advanced operations sheet, labs |
 | RabbitMQ | Messaging sheet |
 | Outbox and idempotent consumers | Messaging sheet, Kafka/Batch sheet, labs |
+| GraphQL/gRPC/Pulsar/Spring Integration | protocol modules sheet, Boot 4.1 update sheet |
 | Actuator | Observability sheet, production runtime sheet |
 | Metrics/tracing/logging | Observability sheet, debugging runbooks, dashboard lab |
+| SBOM and supply-chain security | supply-chain/SBOM sheet, Boot 4.1 update sheet, BackendBuildTools Docker/image scanning sheet |
 | Spring Cloud | Spring Cloud sheet |
 | Kubernetes runtime | production runtime sheet, runtime lab |
 | JVM diagnostics | production runtime sheet, debugging runbooks |
@@ -274,8 +333,10 @@ requirements -> model/API -> transaction/security boundaries -> failure handling
 | Auto-configuration diagnostics | internals platinum sheets |
 | Proxy/self-invocation traps | internals platinum sheets |
 | Production incidents | production debugging sheets, JFR/Hikari runbooks |
-| Boot 3/4 and modern Spring | modern Boot platinum sheet, modernization lab |
+| Boot 3/4 and modern Spring | modern Boot platinum sheet, Boot 4.1 update sheet, modernization lab |
+| Spring Modulith and module boundaries | Modulith platinum sheet, API contracts sheet, capstone roadmap |
 | Active recall and mocks | all `05-Practice-Upgrade` sheets |
+| Capstone architecture | capstone reference project, roadmap, labs, mocks |
 
 ---
 
@@ -285,17 +346,19 @@ After each concept layer, practice immediately.
 
 | Stage | Practice |
 |---|---|
+| After Setup | create and explain a minimal app with wrapper, starter, first endpoint, first test |
 | After Starter | answer Core, REST, JPA, Security, Testing recall questions |
 | After Intermediate | run cache/async/client/observability scenario drills |
-| After Senior | complete Kafka, Batch, security, runtime labs |
-| After Platinum | run production debugging and modernization mock rounds |
+| After Senior | complete Kafka, Batch, data-access, BFF security, supply-chain, protocol, and runtime labs |
+| After Platinum | run production debugging, Boot 4.1, Modulith, and modernization mock rounds |
+| After Capstone | explain the hotel booking platform from request to deployment without notes |
 | Before interviews | use scoring rubrics and 2-week/4-week roadmaps |
 
 Minimum MAANG practice set:
 
-1. 150+ active recall questions.
-2. 15+ scenario drills.
-3. 10+ design/coding mini-labs.
+1. 220+ active recall questions.
+2. 18+ scenario drills.
+3. 15+ design/coding mini-labs.
 4. 3+ mock interview loops.
 5. One complete capstone explanation without notes.
 
@@ -339,38 +402,46 @@ Use each area like this:
 
 | Area | Capstone Work |
 |---|---|
+| Setup | JDK, wrapper, Initializr, package layout, first endpoint, first test |
 | Core | REST API, service layer, validation, exceptions |
 | REST API design | DTOs, ProblemDetail, pagination, OpenAPI, idempotency |
 | JPA | booking/payment/customer entities, constraints, locks, N+1 fixes |
-| Security | JWT/OAuth2, scopes, roles, ownership checks, tenant isolation |
+| Data access beyond JPA | JdbcClient/jOOQ reporting, Redis price cache, search projection, R2DBC decision |
+| Security | JWT/OAuth2, BFF/session security, CSRF, scopes, roles, ownership checks, tenant isolation |
 | Testing | unit, slice, integration, Testcontainers, contracts, migrations |
 | Cache/Async | hotel/rate cache, confirmation async, distributed scheduled cleanup |
 | REST clients | payment/inventory clients with timeout, retry, circuit breaker, bulkhead |
+| Protocols | REST for commands, GraphQL for flexible search if needed, gRPC for internal pricing if justified, SSE/WebSocket for live status |
 | Messaging | BookingCreated events, Kafka/Rabbit, outbox, DLT, idempotent consumer |
 | Batch | nightly settlement and reconciliation with restartability |
 | Observability | health, metrics, logs, traces, dashboards, alerts |
 | Spring Cloud/runtime | gateway/config/discovery awareness, Kubernetes probes, graceful shutdown |
+| Supply chain | SBOM, dependency scanning, image scanning, artifact provenance, release gates |
 | Internals | auto-configuration, proxies, transactions, self-invocation diagnostics |
 | Production Debugging | startup failures, slow APIs, Hikari, JVM, memory, CPU, security, cache |
-| Modern Boot | Boot 3/4, AOT, native image, virtual threads, WebFlux/R2DBC trade-offs |
+| Modern Boot | Boot 3/4/4.1, AOT, native image, virtual threads, WebFlux/R2DBC trade-offs |
+| Modulith | booking/inventory/payment/notification/settlement module boundaries and domain events |
 
 Final capstone interview prompt:
 
 ```text
 Design and implement a Spring Boot hotel booking platform that supports customer booking,
-payment authorization, room inventory, email notification, nightly settlement, JWT security,
-observability, and production-safe deployments.
+payment authorization, room inventory, email notification, nightly settlement, JWT/BFF
+security, observability, SBOM-backed release safety, and production-safe deployments.
 ```
 
 Strong answer must include:
 
 - clear layered architecture
+- clean setup and reproducible build with wrapper
 - DTO boundaries
 - service transaction boundaries
+- workload-based data access decisions
 - database constraints and locking
-- security at URL, method, tenant, and domain level
+- security at URL, method, browser/session, tenant, and domain level
 - idempotency for retries
 - outbox for reliable events
+- protocol choices with REST/GraphQL/gRPC/messaging/realtime trade-offs
 - idempotent consumers
 - Testcontainers for real DB tests
 - WireMock/Pact/OpenAPI quality gates
@@ -378,8 +449,10 @@ Strong answer must include:
 - cache invalidation and stampede strategy
 - downstream timeout/retry/circuit breaker/bulkhead
 - Actuator/Micrometer/OpenTelemetry/tracing
+- SBOM, dependency/image scanning, and artifact provenance
 - Docker/Kubernetes readiness, liveness, graceful shutdown, and rollback safety
-- Boot 3/4 modernization and virtual-thread/native-image decision
+- Spring Modulith boundaries and extraction decision
+- Boot 3/4/4.1 modernization and virtual-thread/native-image decision
 
 ---
 
@@ -397,20 +470,20 @@ One-stop answer:
 
 ```text
 Yes. This is now a one-stop Spring Boot track for MAANG-level preparation. It covers
-fundamentals, REST API design, JPA/transactions, Security, testing, migrations, contracts,
-cache, async, scheduling, REST clients, WebFlux, resilience, Kafka, RabbitMQ, Batch,
-Spring Cloud, observability, Docker/Kubernetes/JVM runtime, Boot internals, production
-debugging, Boot 3/4 modernization, AOT/native image, virtual threads, scenario drills,
-mini-labs, mocks, rubrics, and 2-week/4-week mastery roadmaps.
+setup, fundamentals, REST API design, JPA/transactions, data access beyond JPA, Security,
+BFF/session security, testing, migrations, contracts, cache, async, scheduling, REST clients,
+WebFlux, resilience, GraphQL, gRPC, Pulsar, Spring Integration, Kafka, RabbitMQ, Batch,
+Spring Cloud, observability, SBOM/supply-chain security, Docker/Kubernetes/JVM runtime,
+Boot internals, production debugging, Boot 3/4/4.1 modernization, AOT/native image, virtual
+threads, Spring Modulith, scenario drills, mini-labs, mocks, rubrics, roadmaps, and an
+end-to-end capstone reference project.
 ```
 
-Optional future add-ons only if a role explicitly needs them:
+Adjacent deep tracks to use when the interview or role asks for extra depth:
 
-- Spring GraphQL
-- gRPC with Spring Boot
-- Spring Integration deep dive
-- R2DBC deep dive beyond the modern Boot overview
-- full runnable reference project
+- `Spring-Webflux/index.md` for deep reactive, HTTP interface, RSocket, SSE/WebSocket, and WebTestClient practice
+- `Marriot/BackendBuildTools/02-Java-JVM-Builds` for Maven, Gradle, Java artifacts, Spring Boot config, Hikari/JPA, and JVM build/runtime depth
+- `Marriot/BackendBuildTools/06-Production-CICD-Logs` for Docker, image scanning, CI/CD, structured logging, Micrometer, and OpenTelemetry depth
 
-These are optional because the current track already covers the high-frequency Spring Boot
-interview surface and the senior production ownership depth expected in serious backend rounds.
+The current Spring Boot track now covers the high-frequency interview surface and the senior
+production ownership depth expected in serious backend rounds.

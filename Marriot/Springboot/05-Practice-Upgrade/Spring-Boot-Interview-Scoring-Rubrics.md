@@ -32,12 +32,13 @@ Passing targets:
 |---:|---|
 | 1 | says Boot is only "less boilerplate" |
 | 2 | explains annotations but not startup/auto-config |
-| 3 | explains IoC, DI, starters, embedded server, profiles |
+| 3 | explains IoC, DI, starters, embedded server, profiles, and wrapper-based setup |
 | 4 | debugs auto-config/bean conflicts using reports and conditions |
 | 5 | explains BeanDefinition, post-processors, proxy behavior, AOT impact |
 
 Must-have topics:
 
+- JDK, Initializr, Maven/Gradle wrapper
 - `@SpringBootApplication`
 - auto-configuration
 - bean lifecycle
@@ -95,9 +96,9 @@ Must-have topics:
 |---:|---|
 | 1 | only knows `permitAll`/`authenticated` |
 | 2 | can configure basic JWT but misses authorization details |
-| 3 | resource server, scopes/roles, 401/403, method security |
-| 4 | tenant isolation, audit, service-to-service auth, key rotation debugging |
-| 5 | designs zero-trust service auth and domain authorization under scale |
+| 3 | resource server, scopes/roles, 401/403, method security, basic CSRF/CORS |
+| 4 | tenant isolation, BFF/session security, audit, service-to-service auth, key rotation debugging |
+| 5 | designs zero-trust service auth, browser security, and domain authorization under scale |
 
 Must-have topics:
 
@@ -105,8 +106,30 @@ Must-have topics:
 - JWT/JWKS validation
 - scopes/authorities
 - method security
-- CSRF/CORS
+- BFF, HttpOnly cookies, SameSite, CSRF/CORS
+- OAuth2 login vs resource server
 - tenant isolation
+
+---
+
+## 5b. Data Access Beyond JPA
+
+| Score | Evidence |
+|---:|---|
+| 1 | forces every data problem through JPA |
+| 2 | knows JDBC/Redis names but cannot choose intentionally |
+| 3 | chooses JPA, JdbcClient, Redis, or search for common cases |
+| 4 | explains jOOQ, R2DBC, NoSQL/search projections, consistency, and tests |
+| 5 | designs polyglot persistence with clear invariants, ownership, observability, and failure modes |
+
+Must-have topics:
+
+- JPA default vs explicit SQL
+- JdbcClient and jOOQ use cases
+- R2DBC end-to-end non-blocking constraint
+- Redis cache vs source of truth
+- Elasticsearch/OpenSearch projection
+- Testcontainers with real engines
 
 ---
 
@@ -215,47 +238,73 @@ Must-have topics:
 
 ---
 
-## 11. Modern Spring Boot
+## 11. Supply Chain, Protocols, And Modular Architecture
+
+| Score | Evidence |
+|---:|---|
+| 1 | ignores dependency/image/security release risks and protocol trade-offs |
+| 2 | knows SBOM/GraphQL/gRPC terms but cannot apply them |
+| 3 | explains SBOM, scans, REST vs GraphQL vs gRPC basics, and simple module boundaries |
+| 4 | designs CI release gates, protocol choices, outbox-backed events, and Modulith boundary tests |
+| 5 | handles CVE response, artifact provenance, protocol operations, and service extraction decisions |
+
+Must-have topics:
+
+- SBOM and CVE response
+- dependency and image scanning
+- artifact provenance/signing awareness
+- REST, GraphQL, gRPC, Pulsar/Kafka, SSE/WebSocket trade-offs
+- Spring Integration awareness
+- Spring Modulith and module boundary tests
+
+---
+
+## 12. Modern Spring Boot
 
 | Score | Evidence |
 |---:|---|
 | 1 | unaware of Boot 3/Jakarta changes |
 | 2 | knows Boot 3 exists but cannot plan upgrade |
 | 3 | explains Java 17/Jakarta and dependency migration |
-| 4 | evaluates AOT/native image/virtual threads/WebFlux trade-offs |
-| 5 | designs upgrade/modernization path with tests, performance evidence, and rollout safety |
+| 4 | evaluates Boot 4.1 baseline, AOT/native image/virtual threads/WebFlux trade-offs |
+| 5 | designs Boot 4.1 upgrade/modernization path with tests, performance evidence, SBOM/observability checks, and rollout safety |
 
 Must-have topics:
 
 - Boot 3 migration
-- Boot 4 readiness
+- Boot 4.1 readiness
+- Java/Framework/Maven/Gradle/Servlet/GraalVM baselines
 - AOT/native image
 - virtual threads
 - WebFlux/R2DBC trade-offs
-- Spring Modulith
+- canary and rollback
 
 ---
 
-## 12. Self-Assessment Sheet
+## 13. Self-Assessment Sheet
 
 Fill after each mock:
 
 | Area | Score | Evidence | Red Gap | Next Drill |
 |---|---:|---|---|---|
+| Setup/Build Reproducibility |  |  |  |  |
 | Core Boot |  |  |  |  |
 | REST APIs |  |  |  |  |
 | JPA/Transactions |  |  |  |  |
+| Data Access Beyond JPA |  |  |  |  |
 | Security |  |  |  |  |
 | Testing |  |  |  |  |
 | Cache/Async/Scheduling |  |  |  |  |
 | Clients/Resilience/WebFlux |  |  |  |  |
 | Kafka/Batch |  |  |  |  |
 | Runtime/Debugging |  |  |  |  |
+| Supply Chain/Protocols/Modulith |  |  |  |  |
 | Modern Boot |  |  |  |  |
+| Capstone Lifecycle |  |  |  |  |
 
 ---
 
-## 13. MAANG Readiness Gate
+## 14. MAANG Readiness Gate
 
 You are interview-ready when:
 
@@ -263,5 +312,8 @@ You are interview-ready when:
 2. No category is below 4.
 3. You can solve the booking capstone without notes.
 4. You can debug p99, Hikari, CPU, memory, and security incidents aloud.
-5. You can defend trade-offs between MVC, WebFlux, virtual threads, Kafka, Batch, JPA, and native image.
-6. You can explain how tests and quality gates prevent production regressions.
+5. You can defend trade-offs between MVC, WebFlux, virtual threads, Kafka/Pulsar, Batch, JPA, JdbcClient/jOOQ/R2DBC, and native image.
+6. You can explain BFF/session security, CSRF, CORS, and token storage clearly.
+7. You can explain SBOM, dependency/image scanning, and CVE patch rollout.
+8. You can choose REST/GraphQL/gRPC/SSE/WebSocket intentionally.
+9. You can explain how tests and quality gates prevent production regressions.

@@ -262,7 +262,82 @@ definition -> runtime behavior -> code/config shape -> trap -> production trade-
 
 ---
 
-## 11. Modern Boot Platinum
+## 11. Setup And Build Reproducibility
+
+1. What JDK, build tool, and wrapper files should a new Spring Boot project pin?
+2. Why should CI use `./mvnw` or `./gradlew` instead of a globally installed tool?
+3. What does Spring Initializr generate for you?
+4. What is a Spring Boot starter?
+5. What is the difference between Boot parent and Boot BOM?
+6. Why should the main application class sit at the root package?
+7. What belongs in `application.yml` vs environment variables?
+8. What is the smallest useful first test for a controller?
+9. How do you debug "controller endpoint returns 404" in a new project?
+10. How do you explain a first Spring Boot app from build file to embedded server startup?
+
+---
+
+## 12. Data Access Beyond JPA
+
+1. When is JPA the right default?
+2. When should you use JdbcClient instead of JPA?
+3. When is jOOQ a strong fit?
+4. When is R2DBC relevant?
+5. Why does R2DBC require end-to-end reactive discipline?
+6. When should Redis be a cache instead of source of truth?
+7. When is Elasticsearch/OpenSearch appropriate?
+8. Why should search indexes usually be projections?
+9. How do you test database-specific SQL safely?
+10. How do you choose between JPA, JdbcClient, jOOQ, R2DBC, Redis, MongoDB, and search?
+
+---
+
+## 13. Browser BFF Session Security
+
+1. Resource server vs OAuth2 login?
+2. What is a BFF?
+3. Why avoid storing access tokens in local storage?
+4. What does HttpOnly protect?
+5. What does SameSite protect?
+6. When does CSRF matter?
+7. Why is CORS not authorization?
+8. How should a BFF call downstream APIs?
+9. How do you coordinate logout for app session and identity provider?
+10. How do method/domain authorization relate to browser login?
+
+---
+
+## 14. Supply Chain, SBOM, And Release Security
+
+1. What is an SBOM?
+2. CycloneDX vs SPDX at a high level?
+3. Why scan both JAR dependencies and container images?
+4. How do you find services affected by a new critical CVE?
+5. What should block a production release?
+6. Why can dependency scanner results be noisy?
+7. What is artifact provenance?
+8. Why use an internal artifact repository proxy?
+9. How do you avoid leaking secrets in image layers?
+10. How should Actuator SBOM exposure be secured?
+
+---
+
+## 15. Protocol Modules
+
+1. When is REST the best answer?
+2. When is GraphQL a good fit?
+3. What GraphQL failure mode resembles N+1?
+4. When is gRPC a good internal protocol?
+5. What operational support does gRPC need?
+6. Kafka vs Pulsar at a high level?
+7. When would you use Spring Integration?
+8. SSE vs WebSocket?
+9. Why should durable events use outbox/idempotent consumers?
+10. How do you choose protocols for hotel search, booking, pricing, events, and live status?
+
+---
+
+## 16. Modern Boot Platinum
 
 1. What changed in Spring Boot 3?
 2. Why does Jakarta namespace matter?
@@ -273,23 +348,46 @@ definition -> runtime behavior -> code/config shape -> trap -> production trade-
 7. When do virtual threads help Spring MVC?
 8. Virtual threads vs WebFlux?
 9. What remains a bottleneck with virtual threads?
-10. What is Spring Modulith?
-11. What does Boot 4 readiness mean?
-12. How do you plan a major Boot upgrade?
+10. What official platform facts matter for Spring Boot 4.1?
+11. What Java, Spring Framework, Maven, Gradle, Servlet, and GraalVM baselines matter for Boot 4.1?
+12. What does Boot 4.1 readiness mean?
+13. How do you plan a major Boot upgrade?
+14. How do you verify Actuator, metrics, traces, and SBOM behavior after upgrade?
+15. Why should a Boot upgrade use canary and rollback planning?
 
 ---
 
-## 12. Final Readiness Gate
+## 17. Spring Modulith And Capstone Thinking
+
+1. What is a modular monolith?
+2. What problem does Spring Modulith solve?
+3. How do module boundary tests help?
+4. Why should one module not call another module's repository?
+5. Domain event vs integration event?
+6. When is in-process event enough?
+7. When do you need outbox?
+8. When should a module become a microservice?
+9. What are good modules in a hotel booking platform?
+10. Explain the full capstone request flow from `POST /bookings` to event consumer.
+
+---
+
+## 18. Final Readiness Gate
 
 You are ready when you can answer without notes:
 
-1. Explain Spring Boot startup and auto-configuration.
-2. Design a booking REST API with DTOs, validation, ProblemDetail, and idempotency.
-3. Prevent double booking with transaction and DB constraints.
-4. Secure API with JWT resource server and method/domain authorization.
-5. Build test pyramid with Testcontainers, WireMock, Pact, ArchUnit, migrations.
-6. Design cache/async/scheduling safely in Kubernetes.
-7. Configure safe outbound client with timeout/retry/circuit breaker.
-8. Explain Kafka listener ack/retry/DLT/idempotent consumer.
-9. Debug p99, Hikari exhaustion, memory leak, high CPU, and startup failure.
-10. Explain Boot 3/4, AOT/native image, virtual threads, WebFlux trade-offs.
+1. Generate and explain a first Spring Boot app with wrapper, starter, endpoint, config, and test.
+2. Explain Spring Boot startup and auto-configuration.
+3. Design a booking REST API with DTOs, validation, ProblemDetail, and idempotency.
+4. Prevent double booking with transaction and DB constraints.
+5. Choose JPA vs JdbcClient vs jOOQ vs R2DBC vs Redis/Search for different workloads.
+6. Secure API with JWT resource server, BFF/session security, CSRF, method/domain authorization.
+7. Build test pyramid with Testcontainers, WireMock, Pact, ArchUnit, migrations.
+8. Design cache/async/scheduling safely in Kubernetes.
+9. Configure safe outbound client with timeout/retry/circuit breaker.
+10. Explain Kafka listener ack/retry/DLT/idempotent consumer.
+11. Choose REST/GraphQL/gRPC/Pulsar/SSE/WebSocket intentionally.
+12. Debug p99, Hikari exhaustion, memory leak, high CPU, and startup failure.
+13. Explain SBOM, dependency/image scanning, and CVE response.
+14. Explain Boot 3/4/4.1, AOT/native image, virtual threads, WebFlux trade-offs.
+15. Explain Spring Modulith boundaries and the full capstone request lifecycle.
