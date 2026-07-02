@@ -4,7 +4,7 @@
 
 ---
 
-## � Copilot CLI (`gh copilot`) — Terminal Surface
+## Copilot CLI (`gh copilot`) - Terminal Command Help
 
 Install once: `gh extension install github/gh-copilot`
 Set up aliases: `gh copilot alias -- zsh` (or `bash` / `fish`)
@@ -57,7 +57,56 @@ git? "cherry-pick commits abc123 and def456 onto current branch"
 
 ---
 
-## �🔑 Essential Keyboard Shortcuts
+## Modern Copilot CLI - Agentic Terminal Surface
+
+Use this when your installed Copilot CLI supports agentic sessions. Verify current commands with:
+
+```bash
+copilot --help
+gh copilot --help
+```
+
+### Safe terminal-agent loop
+```bash
+git status
+git add . && git commit -m "checkpoint: before copilot cli - [task]"
+copilot --help
+```
+
+Then prompt:
+
+```md
+Plan only. Do not edit files yet.
+
+Task: [small terminal/code task]
+Scope: [allowed paths]
+Not allowed: new dependencies, production config, secrets, broad rewrites
+Validation: [test command]
+Output: plan, files to inspect, files to edit, risks
+```
+
+### Use CLI when
+| Scenario | Why |
+|---|---|
+| Debugging shell/CI/test commands | Terminal context is native |
+| Preparing PR summaries from branch diff | Git and GitHub state are close |
+| Running repeatable automation | CLI can be scripted with guardrails |
+| Working in remote terminal | IDE may not be available |
+| Need sandbox-aware execution | CLI can use local/cloud sandbox controls where enabled |
+
+### CLI safety defaults
+| Action | Default |
+|---|---|
+| Read files | Allow in trusted repo |
+| Edit files | Require plan and scope |
+| Install packages | Deny unless explicitly approved |
+| Delete files | Deny unless explicitly approved |
+| Push/create PR | Ask before remote side effects |
+| External network calls | Deny unless the system is approved |
+
+---
+
+## Essential Keyboard Shortcuts
 
 | Action | Mac | Windows/Linux |
 |---|---|---|
@@ -124,6 +173,8 @@ Save prompt files to `.github/prompts/*.prompt.md` — they appear here:
 | `/daily-planner` | Morning session planning |
 | `/bootstrap-project` | Scaffold a new project |
 | `/commit-message` | Conventional commit message |
+| `/cloud-agent-task` | Convert vague request into cloud-agent-ready issue |
+| `/enterprise-copilot-governance-audit` | Audit repo/workflow for enterprise Copilot readiness |
 
 ---
 
@@ -139,6 +190,8 @@ Save prompt files to `.github/prompts/*.prompt.md` — they appear here:
 | `@documentation-writer` | READMEs, docstrings, API docs, ADRs |
 | `@productivity-assistant` | Session planning and task prioritization |
 | `@project-builder` | New project scaffolding with Agent Mode |
+| `@cloud-agent-issue-fixer` | Scoped issue implementation with tests and PR summary |
+| `@enterprise-governance-reviewer` | Copilot policy, MCP, data, and agentic readiness review |
 
 ---
 
@@ -157,6 +210,10 @@ Save prompt files to `.github/prompts/*.prompt.md` — they appear here:
 | Understand error | Chat Ask + stack trace | "Explain this error: [paste] Code: #selection" |
 | Generate commit message | Source Control ✨ | Click sparkle icon in Source Control |
 | Daily planning | Chat / `/daily-planner` | "Today I'm working on: [task]. Plan it." |
+| Background issue implementation | Cloud agent | Use `/cloud-agent-task` first; assign a scoped issue |
+| Terminal-heavy workflow | Modern Copilot CLI | "Plan only. Do not edit files yet..." |
+| External tool/data context | MCP | "Use MCP read-only; do not write/comment/merge." |
+| Governance readiness review | Chat / @enterprise-governance-reviewer | Run `/enterprise-copilot-governance-audit` |
 
 ---
 
@@ -182,6 +239,45 @@ Plan only (no code yet):
 
 Task: [your goal]
 Constraints: [what must not change]
+```
+
+### Pattern: Cloud-agent-ready issue
+```
+Goal: [specific behavior]
+
+User-visible behavior:
+- Given [state], when [action], then [result]
+
+Scope:
+- Allowed paths: [paths]
+- Not allowed: dependencies, public API changes, auth/billing/prod config
+
+Existing patterns:
+- Follow [file/path]
+
+Validation:
+- Add tests for [cases]
+- Run [command]
+
+Review notes:
+- Summarize changed files, tests run, assumptions, and risks
+```
+
+### Pattern: MCP read-only context
+```
+Use MCP only for read context.
+
+Allowed:
+- Read [issues/PRs/docs/schema]
+
+Not allowed:
+- Do not comment, merge, close, write, publish, delete, or trigger external actions.
+
+Output:
+- Evidence used
+- Findings
+- Missing evidence
+- Recommended next step
 ```
 
 ### Pattern: Compact refactor
@@ -229,6 +325,10 @@ Fix: specific code change (not generic advice)
 | Agent Mode wrong changes | Stop → `git checkout .` → re-prompt with tighter constraints |
 | Context window exceeded | `Cmd+L` to start new chat; summarize previous context |
 | Hallucinated API method | Check docs; tell Copilot: "X doesn't exist, correct is Y" |
+| Cloud agent PR too broad | Split issue; add path constraints and explicit non-goals |
+| MCP tool too powerful | Switch to read-only toolset or disable write tools |
+| Hook blocks valid work | Narrow matcher/path rule; keep denial message actionable |
+| Memory is stale | Review/delete Memory; promote critical rules into instructions |
 
 ---
 
@@ -241,6 +341,8 @@ Fix: specific code change (not generic advice)
 [ ] Full test suite passes
 [ ] No hardcoded values, no PII in logs, no shell=True with user input
 [ ] Diff reviewed — no unexpected changes, no deleted error handling
+[ ] Agent/cloud/CLI work has changed files, tests run, and assumptions listed
+[ ] MCP/tools used were read-only or explicitly approved
 ```
 
 ---

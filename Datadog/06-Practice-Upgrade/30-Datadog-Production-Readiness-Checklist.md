@@ -1,9 +1,9 @@
 # 30. Datadog Production Readiness Checklist
 
 Score yourself: each item is worth 1 point.
-35+ / 45 = production ready.
-40+ / 45 = MAANG ready.
-45 / 45 = Datadog SME level.
+60+ / 75 = production ready.
+68+ / 75 = MAANG ready.
+75 / 75 = Datadog platform SME level.
 
 ---
 
@@ -96,14 +96,51 @@ Score yourself: each item is worth 1 point.
 
 ---
 
+## Section 9: Advanced Datadog Platform Products (16 points)
+
+- [ ] Can define a Software Catalog entity with owner, lifecycle, tier, contacts, runbook, repository, and dashboard links.
+- [ ] Can design a service scorecard for ownership, SLOs, monitors, runbooks, security, cost tags, and deployment visibility.
+- [ ] Can explain Universal Service Monitoring, when to use it before APM, and what visibility it cannot provide.
+- [ ] Can use Continuous Profiler to compare CPU, wall-time, allocation, or lock profiles across versions.
+- [ ] Can safely design a Dynamic Instrumentation probe with scope, condition, expiration, and PII controls.
+- [ ] Can use Error Tracking to group repeated exceptions, identify first-seen version, suspected commit, and impacted users.
+- [ ] Can connect CI Visibility data to pipeline duration, flaky tests, deployment markers, and DORA metrics.
+- [ ] Can design an Observability Pipelines Worker flow for redaction, enrichment, sampling, routing, archiving, and dual shipping.
+- [ ] Can monitor Lambda cold starts, timeouts, memory, throttles, DLQs, Step Functions, and async event source lag.
+- [ ] Can debug Kafka/SQS/Kinesis/RabbitMQ pipeline delay using Data Streams Monitoring topology, lag, latency, and payload size.
+- [ ] Can distinguish Datadog usage cost control from Cloud Cost Management and explain unit economics.
+- [ ] Can prioritize cloud spend by service/team/env, deployment correlation, resource type, and cost per business unit.
+- [ ] Can explain App/API Protection, API posture, credential stuffing, account takeover, and runtime attack detection.
+- [ ] Can explain Code Security coverage across SAST, SCA, IAST, IaC scanning, secret scanning, and SBOM.
+- [ ] Can define LLM observability metrics for token cost, model latency, prompt template version, RAG retrieval, tool calls, and safety.
+- [ ] Can explain when network monitoring or mobile RUM is needed beyond backend APM.
+
+---
+
+## Section 10: Platform Governance And Operations (10 points)
+
+- [ ] Can route alerts and incidents by service/team/env/tier tags instead of monitor names alone.
+- [ ] Can run an incident using declaration, severity, commander, affected services, evidence, mitigation, verification, and postmortem.
+- [ ] Can use Workflow Automation to gather incident evidence without unsafe automatic remediation.
+- [ ] Can explain Watchdog/Event correlation and how to verify AI-assisted incident summaries before trusting them.
+- [ ] Can define RBAC roles for viewers, service owners, platform admins, security admins, and incident commanders.
+- [ ] Can explain SSO, SCIM, API/application key rotation, restricted data access, and audit trail.
+- [ ] Can manage monitors, dashboards, SLOs, synthetics, pipelines, and roles using Terraform/API as code.
+- [ ] Can write quality rules for as-code Datadog resources: owner tags, runbook, scoped query, pager route, and no secrets.
+- [ ] Can connect Software Catalog ownership to incident routing, security findings, cost attribution, and scorecards.
+- [ ] Can design a Datadog platform operating model for 50+ teams with templates, governance, cost controls, and lifecycle standards.
+
+---
+
 ## Scoring Rubric
 
 | Score | Meaning |
 |---|---|
-| 30-34 | Strong foundations. Ready for junior SRE/DevOps Datadog roles. |
-| 35-39 | Production ready. Ready for mid-level SRE/backend engineer roles with Datadog on the stack. |
-| 40-44 | Senior level. Can own observability strategy for a team of 5-10 services. |
-| 45 | MAANG level. Can design and own the observability platform for a 50+ service organization. |
+| 45-54 | Strong foundations. Ready for junior SRE/DevOps Datadog roles. |
+| 55-59 | Strong production observability. Ready for mid-level SRE/backend roles with Datadog on the stack. |
+| 60-67 | Production ready. Can own Datadog instrumentation, dashboards, monitors, SLOs, and incident workflows for a team. |
+| 68-74 | MAANG ready. Can design observability, service ownership, delivery correlation, security, cost, and incident response across many services. |
+| 75 | Datadog platform SME level. Can design and govern Datadog as an enterprise engineering platform for 50+ teams. |
 
 ---
 
@@ -116,3 +153,7 @@ If missing Section 3 items: build the OTel project from Project 3 in sheet 29.
 If missing Section 5 items: build the dashboard from Project 1 and write one composite monitor.
 
 If missing Section 8 items: simulate each scenario in the datadog-mastery-lab environments.
+
+If missing Section 9 items: work through the `07-Advanced-Platform` sheets in order and map each product to one real production use case.
+
+If missing Section 10 items: create a small platform-as-code repository with one dashboard, one monitor, one SLO, one synthetic test, one team tag policy, and one incident workflow template.

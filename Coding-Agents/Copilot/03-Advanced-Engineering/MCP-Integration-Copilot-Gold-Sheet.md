@@ -22,6 +22,12 @@
 
 ## 2. What MCP Is
 
+This sheet teaches MCP foundations. For the newer production layer - GitHub MCP
+Server, registries, toolsets, allowlists, repository indexing, and content
+exclusion - read:
+
+`04-Pro-MAANG-Level/Copilot-MCP-Registry-Toolsets-Repository-Indexing-Gold-Sheet.md`
+
 ### Must Know
 
 ```

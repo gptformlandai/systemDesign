@@ -32,34 +32,50 @@ Senior / MAANG focus:
 
 ```text
 Format: MAJOR.MINOR.PATCH
-  1.29.3  → major=1, minor=29, patch=3
+  1.36.3  -> major=1, minor=36, patch=3
 
 Minor version: released 3 times per year (~every 4 months)
-Support window: ~14 months (current + 2 previous minor versions maintained)
+Upstream project support: the most recent 3 minor release branches are maintained
 
-Active versions (example as of 2024):
-  1.30 — current
-  1.29 — supported
-  1.28 — supported (EOL ~July 2025)
-  1.27 — EOL (no security patches)
+Example as of July 2026:
+  Kubernetes docs current: 1.36
+  Kubernetes docs also publish: 1.35, 1.34, 1.33, 1.32
+
+Amazon EKS support model:
+  Standard support: 14 months from EKS release
+  Extended support: additional 12 months, extra cost
+  Current EKS standard support examples: 1.36, 1.35, 1.34, 1.33
+  Current EKS extended support examples: 1.32, 1.31, 1.30
+
+Always verify current provider support before planning:
+  aws eks describe-cluster-versions
 ```
 
 ## 2. Upgrade Rules
 
 ```text
 Rule 1: Can only upgrade one minor version at a time.
-  ❌ 1.27 → 1.30 (skip 2 minor versions)
-  ✅ 1.27 → 1.28 → 1.29 → 1.30
+  Bad:  1.32 -> 1.36 (skip multiple minor versions)
+  Good: 1.32 -> 1.33 -> 1.34 -> 1.35 -> 1.36
 
 Rule 2: Control plane must be upgraded before worker nodes.
   API server cannot be older than worker node kubelet.
 
-Rule 3: kubelet can be at most 2 minor versions below API server.
-  API server: 1.29 → kubelet can be 1.27, 1.28, 1.29
+Rule 3: kubelet must not be newer than API server.
+  Modern kubelet can be up to 3 minor versions older than API server.
+  API server: 1.36 -> kubelet can be 1.33, 1.34, 1.35, 1.36
 
-Rule 4: kube-proxy must match kubelet version.
+Rule 4: kube-proxy must not be newer than API server.
+  Modern kube-proxy can be up to 3 minor versions older than API server.
 
-EKS: AWS enforces these rules; GUI/CLI prevents invalid upgrades.
+Rule 5: kube-controller-manager, kube-scheduler, and cloud-controller-manager
+  should match API server and may be up to 1 minor version older during upgrade.
+
+Rule 6: kubectl should generally stay within +/- 1 minor version of API server.
+
+EKS:
+  AWS enforces many invalid upgrade paths, but you still own add-on and node
+  upgrade planning. Provider support windows can be stricter than upstream.
 ```
 
 ## 3. Deprecation and API Changes
@@ -93,7 +109,7 @@ Check for deprecated APIs before upgrade:
 4. Backup: etcd snapshot (self-managed) or Velero backup
 
 5. Upgrade control plane (EKS does this automatically):
-   aws eks update-cluster-version --name prod-cluster --kubernetes-version 1.29
+   aws eks update-cluster-version --name prod-cluster --kubernetes-version 1.36
    Wait: 20-30 minutes (EKS control plane upgrade is zero-downtime)
 
 6. Update add-ons:
@@ -117,7 +133,7 @@ Check for deprecated APIs before upgrade:
 aws eks update-nodegroup-version \
   --cluster-name prod-cluster \
   --nodegroup-name general-purpose \
-  --kubernetes-version 1.29
+  --kubernetes-version 1.36
 
 # EKS automatically:
 # 1. Launches new nodes with new AMI

@@ -1,6 +1,6 @@
 # Docker Compose: Services, Environment, Dependencies - Gold Sheet
 
-> Track File #9 of 30 - Group 02: Intermediate Practical
+> Track File #9 of 40 - Group 02: Intermediate Practical
 > For: multi-container local systems | Level: intermediate | Mode: Compose workflow
 
 ## 1. Core Idea

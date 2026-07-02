@@ -1,6 +1,6 @@
 # Docker Mental Model: Images, Containers, Daemon, Registry - Hot Sheet
 
-> Track File #1 of 30 - Group 01: Foundations
+> Track File #1 of 40 - Group 01: Foundations
 > For: beginners and interviews | Level: beginner | Mode: mental model
 
 ## 1. Core Idea

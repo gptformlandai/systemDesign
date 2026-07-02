@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "matcher": "bash|create|edit|str_replace_editor|apply_patch",
+        "bash": "payload=$(cat); if printf '%s' \"$payload\" | grep -Eiq '(AKIA[0-9A-Z]{16}|-----BEGIN (RSA|OPENSSH|EC|DSA)? ?PRIVATE KEY-----|password[[:space:]]*[=:]|api[_-]?key[[:space:]]*[=:]|secret[[:space:]]*[=:]|\\.env([^.]|$)|secrets/|prod[^/]*\\.ya?ml)'; then printf '%s\\n' '{\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Denied by Copilot guardrail: possible secret, .env, secrets path, or production config detected. Use synthetic values, update examples only, or ask for explicit human approval with a narrower scope.\"}'; else printf '%s\\n' '{}'; fi",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}
+

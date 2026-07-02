@@ -11,6 +11,7 @@
 Allocate 45-60 minutes per day, 5 days per week.
 Each week builds on the previous. Do not skip weeks.
 Complete the success criteria before moving to the next week.
+If you want production/enterprise mastery, complete the Pro+ extension after Week 4.
 
 ---
 
@@ -169,6 +170,46 @@ Complete the success criteria before moving to the next week.
 
 ---
 
+## Week 5 — Pro+ Agentic Platform And Enterprise Readiness
+
+**Goal:** You can use cloud agent, modern Copilot CLI, hooks, Memory, MCP, and enterprise guardrails safely.
+
+### Day 21
+- Read: Copilot Cloud Agent / Coding Agent Gold Sheet
+- Exercise: Convert one vague task into a cloud-agent-ready issue using `/cloud-agent-task`
+- Review: Add scope, non-goals, validation, and review notes
+
+### Day 22
+- Read: Copilot Modern CLI And Sandboxes Gold Sheet
+- Exercise: Run a terminal-first planning session for one small task
+- Safety: Create a Git checkpoint and define which commands require approval
+
+### Day 23
+- Read: Copilot Memory, Hooks, And Skills Gold Sheet
+- Exercise: Add the hook examples to a practice repo under `.github/hooks/`
+- Exercise: Review `release-manager.skill.md` and adapt it for one release workflow
+
+### Day 24
+- Read: Copilot MCP, Registry, Toolsets, And Repository Indexing Gold Sheet
+- Exercise: Review `mcp.example.json` and write a least-privilege MCP setup note
+- Practice: Decide when to use `#file`, `#selection`, `#codebase`, repository indexing, or MCP
+
+### Day 25
+- Read: Copilot Enterprise Governance, Metrics, And Billing Gold Sheet
+- Read: Copilot Feature Matrix, Surfaces, And Integrations Gold Sheet
+- Exercise: Run `/enterprise-copilot-governance-audit` against your practice repo
+- Complete: Production Capstone
+
+**Week 5 Success Criteria:**
+- [ ] One cloud-agent-ready issue written
+- [ ] Modern CLI safety loop practiced with checkpoint + review
+- [ ] Hook examples understood and adapted
+- [ ] MCP permissions reviewed with least-privilege mindset
+- [ ] Feature matrix/surface choice explained from memory
+- [ ] Production Capstone completed with 80+/100 score
+
+---
+
 ## After Week 4 — Ongoing Practice
 
 ```
@@ -186,6 +227,7 @@ Monthly (30 min):
   - Prompt library prune and improve
   - Review Copilot changelog for new features
   - Rotate MCP tokens
+  - Re-check official Copilot feature matrix for surface/model changes
 
 Signs you've reached Pro level:
   ✓ Copilot is faster for you than manual coding for most boilerplate
@@ -194,4 +236,5 @@ Signs you've reached Pro level:
   ✓ You catch Copilot errors before running code (visual review habit)
   ✓ You have daily notes going back 30+ days
   ✓ Someone on your team has adopted a prompt or agent you shared
+  ✓ You can explain cloud agent, CLI, Memory, hooks, sandboxes, MCP, and enterprise controls
 ```

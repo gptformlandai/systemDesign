@@ -152,6 +152,86 @@ Set a schedule:
 
 ---
 
+## Level 5: Advanced Platform Recall
+
+**What problem does Software Catalog solve that APM alone does not?**
+
+> APM shows runtime behavior. Software Catalog shows ownership, lifecycle, tier, contacts, runbooks, dependencies, scorecards, and standards for each service.
+
+---
+
+**When would you use Universal Service Monitoring before APM?**
+
+> When you need fast service discovery and basic request/error/latency visibility without code changes, especially for legacy or uninstrumented services. Use APM later for flame graphs, custom spans, and code-level debugging.
+
+---
+
+**What is the difference between APM and Continuous Profiler?**
+
+> APM shows request spans and dependency timing. Continuous Profiler shows which code paths consume CPU, wall time, memory allocations, heap, or locks while the application runs.
+
+---
+
+**What safety checks should you apply before adding a Dynamic Instrumentation probe in production?**
+
+> Scope it narrowly, add a condition, avoid PII/secrets, set expiration, control rate/sampling, verify RBAC, and remove it after investigation.
+
+---
+
+**Why is Error Tracking better than alerting on every exception log?**
+
+> It groups repeated exceptions into issues, shows first-seen time, impacted users/requests, suspected commits, service/env/version context, and issue lifecycle.
+
+---
+
+**What tags connect CI Visibility to production regressions?**
+
+> service, env, version, team, repository, branch, and git.commit.sha. Runtime must also emit `DD_VERSION` so deploys can correlate with APM, Error Tracking, SLOs, and incidents.
+
+---
+
+**What is the main difference between Datadog log pipelines and Observability Pipelines?**
+
+> Datadog log pipelines process logs after they reach Datadog. Observability Pipelines process telemetry inside your infrastructure before routing, enabling pre-ingestion redaction, enrichment, sampling, archiving, and dual shipping.
+
+---
+
+**Name five serverless signals that matter beyond Lambda error count.**
+
+> Cold starts, duration, timeouts, memory/OOM, throttles, async queue lag, DLQ depth, Step Functions failures, retries, and cost.
+
+---
+
+**What does Data Streams Monitoring show that normal HTTP APM may miss?**
+
+> Producer-to-consumer topology, end-to-end event latency, consumer lag, backlog, payload size, and faulty edges across Kafka/SQS/Kinesis/RabbitMQ-style pipelines.
+
+---
+
+**What is unit cost in Cloud Cost Management?**
+
+> Cost normalized by business volume, such as cost per order, cost per 1,000 requests, cost per job processed, or cost per active user.
+
+---
+
+**How should runtime vulnerabilities be prioritized?**
+
+> By severity, exploitability, internet exposure, service criticality, whether the vulnerable code is actually running or called, data sensitivity, and service owner.
+
+---
+
+**What makes an LLM observability trace different from a normal API trace?**
+
+> It includes prompt assembly, retrieval, reranking, model calls, token counts, tool calls, safety checks, prompt template version, model/provider tags, and quality/cost signals.
+
+---
+
+**What is the Datadog platform-as-code rule of thumb?**
+
+> Critical monitors, SLOs, dashboards, synthetics, pipelines, roles, and integrations should be version-controlled with owner tags, runbooks, scoped queries, pager routes, and no secrets.
+
+---
+
 ## Flash Card Summary
 
 | Concept | Answer |
@@ -170,3 +250,17 @@ Set a schedule:
 | Cardinality trap | user_id / request_id as metric tag |
 | K8s DaemonSet purpose | per-node metrics, logs, traces |
 | K8s Cluster Agent purpose | cluster metrics, external metrics API, Admission Controller |
+| Software Catalog | ownership, scorecards, runbooks, dependencies |
+| USM | code-free service discovery and RED metrics |
+| Profiler | code-level CPU/wall/memory/lock hotspots |
+| Dynamic Instrumentation | temporary live probes without redeploy |
+| Error Tracking | grouped issues from repeated exceptions |
+| CI Visibility | pipeline/test/deploy telemetry |
+| Observability Pipelines | pre-ingestion processing and routing |
+| Serverless traps | cold starts, throttles, timeouts, DLQ, lag |
+| Data Streams | async pipeline latency and consumer lag |
+| Cloud Cost | service/team spend and unit economics |
+| App/API Protection | runtime attack and API abuse detection |
+| Code Security | SAST/SCA/IAST/IaC/secrets/SBOM |
+| LLM Observability | token cost, prompt/model/RAG/tool/safety signals |
+| Governance | RBAC, SSO/SCIM, audit, Terraform/API, tag policy |

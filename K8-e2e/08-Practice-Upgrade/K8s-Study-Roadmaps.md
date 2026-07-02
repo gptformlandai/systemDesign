@@ -17,25 +17,25 @@
 | Day 2 | Workloads | K8s-Workloads-Deployments-StatefulSets-Jobs | Write a Deployment + StatefulSet YAML from memory |
 | Day 3 | Networking Services | K8s-Networking-Services-Ingress-DNS | Trace a request from pod A → Service → pod B end-to-end |
 | Day 4 | ConfigMaps + Secrets | K8s-ConfigMaps-Secrets-Environment | Explain ESO vs CSI Secrets driver from memory |
-| Day 5 | Storage | K8s-Storage-Volumes-PVC-StorageClass | Explain WaitForFirstConsumer and when it matters |
+| Day 5 | Storage | K8s-Storage-Volumes-PVC-StorageClass + Advanced CSI | Explain WaitForFirstConsumer, snapshots, expansion, and VolumeAttributesClass |
 | Day 6 | Resources + QoS | K8s-Resource-Requests-Limits-QoS | Draw OOM kill sequence and QoS eviction order |
-| Day 7 | Review + Q&A drill | Question Bank Q1–Q36 | Target 85% accuracy on Section 1-3 |
+| Day 7 | Sidecars + review drill | Native Sidecars + Question Bank Q1-Q36 | Explain native sidecars and ephemeral containers from memory |
 
 ### Week 2: Security, Observability, Production
 
 | Day | Focus | Gold Sheet(s) | Active Recall Goal |
 |---|---|---|---|
-| Day 8 | Scheduling + Autoscaling | K8s-Scheduling-Affinity + K8s-HPA-VPA-KEDA | Write nodeAffinity + TopologySpreadConstraints YAML |
+| Day 8 | Scheduling + Autoscaling | K8s-Scheduling-Affinity + K8s-HPA-VPA-KEDA + DRA | Explain HPA/KEDA plus GPU/DRA placement trade-offs |
 | Day 9 | Network Policies + RBAC | K8s-Network-Policies-CNI + K8s-RBAC | Write default-deny + payment-service NetworkPolicy from memory |
-| Day 10 | Pod Security + OPA | K8s-Pod-Security-Standards-OPA-Gatekeeper | Explain PSA enforcement + Kyverno image signing check |
-| Day 11 | Observability | K8s-Logging-Metrics + K8s-Health-Probes | Write Prometheus alert rule for CrashLooping pod |
-| Day 12 | GitOps + Production | K8s-Helm-Kustomize-GitOps + K8s-EKS-Production | Design 3-environment promotion pipeline verbally |
+| Day 10 | Pod Security + Admission | Pod Security + ValidatingAdmissionPolicy/CEL | Explain PSA vs CEL vs Kyverno/Gatekeeper |
+| Day 11 | Observability | Logging/Metrics + Health Probes + OTel/SLOs | Write a user-impact burn-rate alert |
+| Day 12 | GitOps + Production | Helm/GitOps + EKS Production + Modern EKS | Design 3-environment promotion pipeline verbally |
 | Day 13 | Scenario Drills | Scenario Drill Bank (all 10) | Complete Scenarios 1-5 in writing (timed 15 min each) |
 | Day 14 | Mock Interview | Mock Interview Scripts Round 1-3 | Record yourself, self-grade with rubric |
 
 ---
 
-## Roadmap B: 4-Week Comprehensive Mastery
+## Roadmap B: 5-Week Comprehensive Mastery
 
 *Assumes 1-1.5 hours per day. Target: L6 Senior / Staff platform engineering role.*
 
@@ -53,9 +53,10 @@
 | Day | Topic | Depth Target |
 |---|---|---|
 | Day 8-9 | Storage deep dive — CSI, StorageClass, access modes | Write StatefulSet with volumeClaimTemplates YAML |
-| Day 10 | Resource management — requests/limits, QoS | Explain all three QoS classes and eviction order |
-| Day 11-12 | Scheduling — affinity, taints, topology spread | Write pod with nodeAffinity + TopologySpreadConstraints |
-| Day 13-14 | Autoscaling — HPA, VPA, KEDA, Karpenter | Design KEDA ScaledObject for SQS queue |
+| Day 10 | Advanced storage operations | Explain VolumeAttributesClass, snapshots, clone, expansion, wrong-zone PV |
+| Day 11 | Resource management — requests/limits, QoS | Explain all three QoS classes and eviction order |
+| Day 12-13 | Scheduling — affinity, taints, topology spread | Write pod with nodeAffinity + TopologySpreadConstraints |
+| Day 14 | Autoscaling and DRA | Design KEDA ScaledObject and explain GPU ResourceClaims |
 
 ### Week 3: Security and Observability
 
@@ -63,8 +64,8 @@
 |---|---|---|
 | Day 15-16 | RBAC + ServiceAccounts + IRSA | Design RBAC model for 5-team cluster (least privilege) |
 | Day 17 | Network Policies | Write default-deny + layered allow policies |
-| Day 18-19 | Pod Security Standards + OPA/Gatekeeper | Write ConstraintTemplate for registry allowlist |
-| Day 20 | Observability — metrics, logging, tracing | Design kube-prometheus-stack architecture |
+| Day 18-19 | Pod Security Standards + OPA/Gatekeeper + CEL | Write CEL policy and explain when Gatekeeper is still needed |
+| Day 20 | Observability — metrics, logging, tracing, SLOs | Design kube-prometheus-stack plus OTel Collector architecture |
 | Day 21 | Health probes + lifecycle hooks | Explain all 5 probe types, write zero-downtime config |
 
 ### Week 4: Advanced and Production Patterns
@@ -77,6 +78,18 @@
 | Day 25 | Multi-tenancy + EKS production architecture | Design hub/spoke cluster model |
 | Day 26-27 | CI/CD pipeline + supply chain security | Design full pipeline with Cosign + Trivy + SBOM |
 | Day 28 | Full mock interview (all 5 rounds) | Score with rubric; identify weakest 2 dimensions |
+
+### Week 5: Modern Platform Depth and Capstone
+
+| Day | Topic | Depth Target |
+|---|---|---|
+| Day 29 | Native sidecars + ephemeral debugging | Convert failing Job sidecar pattern and debug distroless pod |
+| Day 30 | API machinery | Explain APF, server-side apply, managedFields, audit policy |
+| Day 31 | Modern EKS operations | Design EKS Pod Identity + Karpenter v1 NodePools |
+| Day 32 | Admission policy | Roll out ValidatingAdmissionPolicy in Warn/Audit/Deny phases |
+| Day 33 | Production observability | Build SLO burn-rate alert and cardinality budget |
+| Day 34 | Hands-on capstone | Build, break, secure, observe, and recover a platform slice |
+| Day 35 | Staff-level mock | Present upgrade, DR, cost, and failure-mode strategy |
 
 ---
 
@@ -128,7 +141,7 @@ ETCDCTL_API=3 etcdctl snapshot restore /tmp/etcd-backup.db \
 
 # kubeadm upgrade:
 kubeadm upgrade plan
-kubeadm upgrade apply v1.28.0
+kubeadm upgrade apply v1.36.0
 # Then: apt-mark unhold kubelet kubectl; apt upgrade kubelet kubectl
 
 # Network policy — default deny all:
@@ -245,6 +258,13 @@ kubectl rollout resume deployment/myapp
 | EKS Production Architecture | High | **Critical** | High | Low | High |
 | Cluster Upgrades and DR | **Critical** | **Critical** | Medium | Low | High |
 | Supply Chain Security | Medium | High | High | Low | Medium |
+| Native Sidecars and Ephemeral Debug | High | High | Medium | Medium | High |
+| ValidatingAdmissionPolicy and CEL | High | **Critical** | Medium | Low | High |
+| Dynamic Resource Allocation / GPUs | Medium | High | Low | Low | Advanced |
+| API Machinery and APF | High | **Critical** | Low | Low | Advanced |
+| EKS Pod Identity and Karpenter v1 | High | **Critical** | High | Low | High |
+| SLOs and OTel Collector | **Critical** | High | Medium | Medium | High |
+| Capstone Labs | **Critical** | **Critical** | High | Medium | **Core** |
 
 ---
 

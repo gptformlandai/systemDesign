@@ -41,7 +41,7 @@ What it can do:
 What it cannot do:
   ✗ Access external systems without MCP tools configured
   ✗ Make network requests to APIs (unless via MCP)
-  ✗ Remember previous sessions (no persistent memory)
+  ✗ Reliably remember previous sessions unless Copilot Memory is enabled and supported on that surface
   ✗ Guarantee correctness — it can make wrong architectural decisions
   ✗ Replace human judgment on complex trade-offs
   ✗ Run indefinitely without getting stuck
@@ -52,6 +52,16 @@ Critical difference from Edits mode:
   
   Agent mode has more autonomy and more risk.
 ```
+
+### Local Agent Mode vs Cloud Agent
+
+| Surface | Runs Where | Best For |
+|---|---|---|
+| IDE Agent Mode | Your local workspace/editor | Hands-on multi-file work where you want immediate local diff review |
+| Copilot cloud agent | GitHub-managed cloud environment | Issue-sized delegated work that should become a branch/PR/session |
+| Copilot CLI | Terminal/local or automated context | Shell-heavy tasks, GitHub workflows, scripted agent sessions |
+
+Use this sheet for local IDE Agent Mode safety. Use the cloud-agent and modern CLI gold sheets for delegated PR work and terminal-agent workflows.
 
 ---
 

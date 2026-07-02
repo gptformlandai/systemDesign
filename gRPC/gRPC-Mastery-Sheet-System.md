@@ -3,7 +3,7 @@
 gRPC mastery means designing typed RPC contracts, generating safe client/server code, operating HTTP/2-based calls under deadlines, and explaining production behavior clearly.
 
 ```text
-.proto + generated stubs + channel + deadline + metadata + status + observability = production gRPC service
+.proto + generated stubs + channel + deadline + metadata + status + gateway + observability = production gRPC service
 ```
 
 ---
@@ -45,6 +45,9 @@ observability proves latency, status, and dependency behavior
 | status | canonical RPC result code and message |
 | deadline | max time budget for the RPC |
 | interceptor | middleware around client/server calls |
+| service config | client policy for timeout/retry/LB/health behavior |
+| xDS | dynamic control-plane APIs for routing/LB/security policy |
+| gateway | bridge for gRPC-Web, JSON transcoding, auth/rate limits |
 
 ---
 
@@ -69,6 +72,8 @@ It introduces tradeoffs:
 - proxy/load-balancer behavior matters
 - streaming introduces flow-control/backpressure complexity
 - public APIs may need REST/JSON transcoding alongside gRPC
+- channel, resolver, and service config behavior can surprise teams
+- graceful shutdown must handle long-lived HTTP/2 connections and streams
 
 ---
 
@@ -107,6 +112,9 @@ Strong gRPC answers connect:
 - observability
 - schema evolution
 - deployment through proxies/mesh/gateways
+- Protobuf Editions, field presence, well-known types, and JSON mapping
+- channel state, service config, xDS, Channelz/admin debugging
+- graceful shutdown, draining, and gRPC-Web/transcoding patterns
 
 Weak answers only describe protobuf syntax.
 
@@ -119,7 +127,7 @@ gRPC is typed RPC over HTTP/2.
 .proto is the contract.
 Generated stubs reduce client/server drift.
 Deadlines and status codes make failure explicit.
-Production readiness depends on schema governance, retries, load balancing, mTLS, observability, and proxy/mesh behavior.
+Production readiness depends on schema governance, channel policy, retries, load balancing, mTLS, observability, gateway behavior, and proxy/mesh rollout safety.
 ```
 
 ---

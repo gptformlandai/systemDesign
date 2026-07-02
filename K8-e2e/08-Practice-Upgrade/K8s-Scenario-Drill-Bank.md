@@ -358,19 +358,19 @@ Prevention: always use RF≥2 for important topics
 ## Scenario 7: Cluster Upgrade Gone Wrong
 
 **Situation:**
-During EKS upgrade from 1.27 to 1.28, you notice that `payment-ingress` is no longer routing traffic. The Ingress resource still exists but returns 502. **What happened?**
+During an EKS upgrade from 1.35 to 1.36, you notice that `payment-ingress` is no longer routing traffic. The Ingress resource still exists but returns 502. **What happened?**
 
 **Model Answer:**
 
 **Root Cause — API version removed:**
 ```text
 Most likely scenario:
-  Ingress resource was using networking.k8s.io/v1beta1 (removed in K8s 1.22)
-  But this version may still have a conversion layer.
+  Ingress controller, AWS Load Balancer Controller, or NGINX controller version
+  is not compatible with the new Kubernetes minor version.
 
-More likely for 1.28:
-  Custom annotations or IngressClass behavior changed.
-  Or: NGINX Ingress Controller version incompatibility with 1.28.
+Also check:
+  IngressClass, annotations, Gateway/Ingress controller CRDs, admission webhooks,
+  EndpointSlices, target group health, and controller RBAC.
 ```
 
 **Diagnosis:**
@@ -391,10 +391,11 @@ kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx --tail=50
 
 **Resolution:**
 ```bash
-# Upgrade NGINX Ingress Controller to K8s 1.28-compatible version
+# Upgrade NGINX Ingress Controller to a version compatible with the new K8s minor
 helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
-  --namespace ingress-nginx \
-  --version 4.9.0    # check compatibility matrix
+  --namespace ingress-nginx
+
+# In production, pin the chart version after checking the compatibility matrix.
 
 # Or: re-apply Ingress with updated annotations
 kubectl replace -f payment-ingress.yaml
@@ -473,18 +474,18 @@ Add Gatekeeper constraint:
 
 ---
 
-## Scenario 9: Zero-Downtime Migration From Kubernetes 1.x to New Cluster
+## Scenario 9: Zero-Downtime Migration From Old Kubernetes to New Cluster
 
 **Situation:**
-You need to migrate all workloads from an old EKS cluster (1.26, end of support) to a new EKS cluster (1.29). You have 30 microservices and stateful databases. **Design the migration strategy.**
+You need to migrate all workloads from an old EKS cluster (1.30, extended support) to a new EKS cluster on a current standard-supported version such as 1.36. You have 30 microservices and stateful databases. **Design the migration strategy.**
 
 **Model Answer:**
 
 **Phase 1 — Preparation (2 weeks before)**
 ```text
 1. Audit deprecated APIs: run kubent on old cluster
-2. Update all Helm charts and manifests for 1.29 API changes
-3. Set up new EKS cluster 1.29 with same VPC, same node sizes
+2. Update all Helm charts and manifests for current API versions
+3. Set up new EKS cluster on a current standard-supported version with matching network reachability
 4. Deploy ArgoCD to new cluster pointing to GitOps repo
 5. Set up new cluster networking:
    - Same subnets (pods need VPC connectivity between clusters)

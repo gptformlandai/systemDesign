@@ -22,6 +22,7 @@ Senior / MAANG focus:
 - High-cardinality metric explosions
 - Prometheus remote write for long-term storage (Thanos/Mimir/Cortex)
 - Distributed tracing: OpenTelemetry, Tempo, Jaeger
+- SLO burn-rate alerting and RED/USE dashboards
 - Kubernetes Events as observability signal
 - Cost-effective observability at scale
 
@@ -96,8 +97,11 @@ spec:
           volumeMounts:
             - name: varlog
               mountPath: /var/log
-            - name: varlibdockercontainers
-              mountPath: /var/lib/docker/containers
+            - name: varlogcontainers
+              mountPath: /var/log/containers
+              readOnly: true
+            - name: varlogpods
+              mountPath: /var/log/pods
               readOnly: true
             - name: config
               mountPath: /fluent-bit/etc
@@ -105,12 +109,22 @@ spec:
         - name: varlog
           hostPath:
             path: /var/log
-        - name: varlibdockercontainers
+        - name: varlogcontainers
           hostPath:
-            path: /var/lib/docker/containers
+            path: /var/log/containers
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
         - name: config
           configMap:
             name: fluent-bit-config
+```
+
+Note:
+```text
+Modern clusters usually use containerd and expose container logs through
+/var/log/containers and /var/log/pods. The legacy
+/var/lib/docker/containers path only applies to Docker-runtime clusters.
 ```
 
 Fluent Bit config:
@@ -452,3 +466,6 @@ Alert page-worthy items only to on-call:
 - kube-prometheus-stack: <https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack>
 - OpenTelemetry: <https://opentelemetry.io/docs/>
 - Grafana Loki: <https://grafana.com/docs/loki/>
+
+See also:
+- Advanced production observability: `K8s-OpenTelemetry-SLOs-Production-Observability-Gold-Sheet.md`

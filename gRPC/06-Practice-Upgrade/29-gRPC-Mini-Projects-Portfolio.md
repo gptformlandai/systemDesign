@@ -101,15 +101,42 @@ Portfolio proof:
 
 ---
 
+## Project 6: Runnable Java And Go Payment Service
+
+Build a runnable payment service using the blueprint in [37-gRPC-Runnable-Java-Go-Lab-Guide.md](37-gRPC-Runnable-Java-Go-Lab-Guide.md).
+
+Required:
+
+- shared `payments.v1.PaymentService` proto
+- Java or Go server
+- Java or Go client with deadline
+- `GetPayment`, `CapturePayment`, and `WatchPayments`
+- idempotency key behavior
+- grpcurl smoke tests
+- health and local reflection
+- status-code contract tests
+- Docker or compose run path
+
+Portfolio proof:
+
+- run commands
+- grpcurl output
+- failing request mapped to `INVALID_ARGUMENT`
+- duplicate capture demo
+- stream cancellation demo
+- readiness/shutdown notes
+
+---
+
 ## Portfolio Review Rubric
 
 | Area | Evidence |
 |---|---|
 | contract design | clear proto, field-number safety, versioning |
-| implementation | generated stubs used cleanly |
+| implementation | generated stubs used cleanly, runnable server/client exists |
 | reliability | deadlines, cancellation, retries/idempotency |
 | security | TLS/mTLS/auth metadata/authz |
 | observability | metrics, traces, logs, SLOs |
 | operations | grpcurl, runbooks, incident response |
 
-Complete at least three projects for strong interview signal.
+Complete at least three projects for strong interview signal. Complete Project 6 for the strongest practical signal.

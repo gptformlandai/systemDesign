@@ -374,12 +374,12 @@ kubectl exec payment-service-xxx -- env | grep DB_URL
 
 ---
 
-**Q3: Walk me through upgrading an EKS cluster from 1.27 to 1.28.**
+**Q3: Walk me through upgrading an EKS cluster from 1.35 to 1.36.**
 
 *(6 min) — Ordered steps:*
 1. Pre-upgrade: `kubent` (check deprecated APIs), run in dev cluster first
-2. Review AWS EKS 1.28 changelog for breaking changes
-3. Upgrade control plane: `eksctl upgrade cluster --name=prod --version=1.28 --approve`
+2. Review AWS EKS 1.36 changelog for breaking changes and add-on compatibility
+3. Upgrade control plane: `eksctl upgrade cluster --name=prod --version=1.36 --approve`
 4. Wait for control plane healthy
 5. Upgrade add-ons: CoreDNS, kube-proxy, VPC CNI → via eksctl or console
 6. Upgrade worker nodes:

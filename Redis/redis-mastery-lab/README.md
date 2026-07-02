@@ -29,20 +29,23 @@ redis-mastery-lab/
 │   ├── lab-07-replication-setup.md
 │   ├── lab-08-security-acl.md
 │   ├── lab-09-observability.md
-│   └── lab-10-advanced-patterns.md
+│   ├── lab-10-advanced-patterns.md
+│   └── lab-11-modern-redis-json-search-functions-client-cache.md
 ├── PROJECTS/
 │   ├── project-01-rate-limiter.md
 │   ├── project-02-leaderboard.md
 │   ├── project-03-session-store.md
 │   ├── project-04-job-queue.md
-│   └── project-05-event-feed.md
+│   ├── project-05-event-feed.md
+│   └── project-06-product-discovery-modern-redis.md
 ├── CHEATSHEETS/
 │   ├── cs-01-data-structure-commands.md
 │   ├── cs-02-expiry-memory-commands.md
 │   ├── cs-03-streams-commands.md
 │   ├── cs-04-admin-observability-commands.md
 │   ├── cs-05-cluster-sentinel-commands.md
-│   └── cs-06-security-acl-commands.md
+│   ├── cs-06-security-acl-commands.md
+│   └── cs-07-modern-redis-stack-functions-client-cache.md
 ├── INTERVIEW_PREP/
 │   ├── ip-01-beginner-questions.md
 │   ├── ip-02-intermediate-questions.md
@@ -62,7 +65,8 @@ redis-mastery-lab/
 
 ## Prerequisites
 
-- Redis 7.x installed locally or Docker: `docker run -p 6379:6379 redis:7-alpine`
+- Redis 7.x or 8.x installed locally, or Docker: `docker run -p 6379:6379 redis:7-alpine`
+- Redis Stack, Redis Cloud, or a compatible managed offering for JSON/Search/TimeSeries/probabilistic labs
 - redis-cli available on PATH
 - bash or zsh shell for scripts
 
@@ -78,4 +82,9 @@ cat LABS/lab-01-strings-ttl-basics.md
 
 # Run health check script.
 ./SCRIPTS/01-redis-info-snapshot.sh
+
+# Check which modern commands your Redis supports.
+redis-cli COMMAND INFO JSON.SET
+redis-cli COMMAND INFO FT.CREATE
+redis-cli COMMAND INFO FUNCTION
 ```

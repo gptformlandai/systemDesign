@@ -1,6 +1,6 @@
 # Docker Images, Layers, Containers, and Lifecycle - Gold Sheet
 
-> Track File #3 of 30 - Group 01: Foundations
+> Track File #3 of 40 - Group 01: Foundations
 > For: Docker internals basics | Level: beginner to intermediate | Mode: image/container lifecycle
 
 ## 1. Core Idea

@@ -1,4 +1,4 @@
-# Kubernetes Active Recall Question Bank — 80 Questions
+# Kubernetes Active Recall Question Bank — 110 Questions
 
 > Track: K8s Interview Track — Phase 8: Practice Upgrade
 > Technique: Cover each question. Recall the answer from memory. Check. Repeat weak areas.
@@ -275,3 +275,97 @@ A: Control plane first (etcd, API server, scheduler, controller-manager), then a
 
 **Q80. What is the supply chain security role of Cosign in a K8s pipeline?**
 A: Signs container images after build. Admission policies (Kyverno) verify the signature at deploy time. Prevents unauthorized or tampered images from running in the cluster.
+
+---
+
+## Section 9: Modern Platform and Pro-Level Depth (Q81-Q110)
+
+**Q81. What is a native sidecar container?**
+A: An init container with container-level `restartPolicy: Always`. Kubernetes starts it in init order, keeps it running beside app containers, and treats it with sidecar lifecycle semantics.
+
+**Q82. Why are native sidecars useful for Jobs?**
+A: A normal sidecar can keep a Job pod running forever after the main task exits. A native sidecar can support the Job without blocking Job completion.
+
+**Q83. What is an ephemeral container used for?**
+A: Temporary debugging of an existing pod, especially distroless images that lack shell tools. It is added through the `ephemeralcontainers` subresource and should not serve traffic.
+
+**Q84. What RBAC permission should be guarded for debug container use?**
+A: `pods/ephemeralcontainers`. Grant it only to trusted SRE/platform roles and audit usage.
+
+**Q85. What is VolumeAttributesClass?**
+A: A storage API that lets admins define mutable storage attribute classes, such as IOPS or throughput tiers, that a PVC can reference when the CSI driver supports it.
+
+**Q86. How is VolumeAttributesClass different from StorageClass?**
+A: StorageClass controls provisioning-time volume parameters and is immutable on a PVC. `volumeAttributesClassName` can be changed on a PVC, while the class parameters themselves are immutable.
+
+**Q87. Why is `WaitForFirstConsumer` important for zonal disks?**
+A: It delays volume provisioning until the scheduler picks a node/zone, preventing a PV from being created in the wrong zone.
+
+**Q88. What does a VolumeSnapshot prove, and what does it not prove?**
+A: It proves a snapshot object was created. It does not prove DR readiness until restore is tested.
+
+**Q89. What is Dynamic Resource Allocation (DRA)?**
+A: A Kubernetes API model for allocating specialized resources such as GPUs or other devices through objects like `DeviceClass`, `ResourceClaim`, `ResourceClaimTemplate`, and driver-published device inventory.
+
+**Q90. When is classic `nvidia.com/gpu` extended resource scheduling enough?**
+A: When workloads only need simple whole-device GPU allocation and do not need rich device selection, claim lifecycle, sharing, or advanced health/topology-aware behavior.
+
+**Q91. What does `ResourceClaim` represent in DRA?**
+A: A workload's request for one or more specialized devices. The scheduler and DRA driver coordinate allocation before the pod runs.
+
+**Q92. What is ValidatingAdmissionPolicy?**
+A: Built-in Kubernetes validating admission using CEL expressions. It can reject invalid API requests without running an external webhook.
+
+**Q93. When should you prefer ValidatingAdmissionPolicy over a webhook?**
+A: For simple deterministic field validations, such as requiring resource requests, blocking `latest`, or restricting Service type.
+
+**Q94. What is a safe rollout strategy for admission policy?**
+A: Start with `Warn`/`Audit`, scope by namespace selector, fix violations, then move production to `Deny`.
+
+**Q95. What is CEL in Kubernetes admission?**
+A: Common Expression Language, used to write deterministic validation expressions over admission request objects.
+
+**Q96. What is API Priority and Fairness (APF)?**
+A: API server flow control that classifies requests, allocates concurrency, and queues lower-priority traffic so noisy clients do not starve critical control-plane operations.
+
+**Q97. What is server-side apply?**
+A: An apply mode where the API server performs merging and tracks field ownership in `metadata.managedFields`.
+
+**Q98. Why can GitOps and HPA fight over `spec.replicas`?**
+A: GitOps may try to restore the replica count from Git while HPA updates replicas dynamically. Let HPA own replicas or configure GitOps to ignore that field.
+
+**Q99. What is an audit policy used for?**
+A: It controls which API requests are logged and at what detail level, helping answer who did what to which Kubernetes object.
+
+**Q100. What is a storage version in Kubernetes API machinery?**
+A: The API version used to persist an object in etcd, which may differ from the versions served to clients.
+
+**Q101. What is the current modern kubelet version-skew rule?**
+A: Kubelet must not be newer than kube-apiserver and may be up to 3 minor versions older for modern supported versions.
+
+**Q102. What is the EKS standard vs extended support model?**
+A: EKS standard support lasts 14 months after an EKS Kubernetes release; extended support adds 12 more months, usually with extra cost and eventual forced control-plane upgrade after lifecycle end.
+
+**Q103. What does EKS Pod Identity do?**
+A: It maps a Kubernetes ServiceAccount to an IAM role through EKS associations and the Pod Identity Agent, giving pods AWS credentials without static keys.
+
+**Q104. Why might EKS Pod Identity be simpler than IRSA?**
+A: It avoids the per-cluster OIDC provider association flow and uses an EKS-managed association model with `pods.eks.amazonaws.com` trust.
+
+**Q105. What are Karpenter v1's core objects?**
+A: `NodePool`, `EC2NodeClass`, and `NodeClaim`, plus disruption concepts such as consolidation, drift, expiration, and interruption replacement.
+
+**Q106. Why split Karpenter NodePools by workload class?**
+A: Different workloads need different cost, disruption, capacity, and security behavior: system add-ons, critical APIs, spot stateless workloads, and GPUs should not share one generic pool.
+
+**Q107. What is the RED method in observability?**
+A: Rate, Errors, Duration. It is used for service-level request health and SLO dashboards.
+
+**Q108. What is the USE method in observability?**
+A: Utilization, Saturation, Errors. It is used for infrastructure resources such as nodes, disks, network, and queues.
+
+**Q109. Why are high-cardinality metrics dangerous?**
+A: Unbounded labels like user ID or request ID can create millions of time series, causing memory spikes, slow queries, missed scrapes, and high cost.
+
+**Q110. What makes a Kubernetes capstone production-ready?**
+A: It can be deployed from Git, debugged under failure, secured with RBAC/policy/network controls, observed with SLOs, and recovered through tested backup/upgrade/DR plans.

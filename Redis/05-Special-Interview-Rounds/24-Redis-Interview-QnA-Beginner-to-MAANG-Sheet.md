@@ -76,6 +76,31 @@ A: Run Cluster in parallel, use `CLUSTER MEET` and slot migration, route reads t
 
 ---
 
+## Modern Redis Pro Level
+
+**Q: When would you use Redis JSON instead of storing JSON as a string?**
+A: Use Redis JSON when you need path-level reads/updates or indexing over document fields. If the value is small, opaque, and always read/written as a whole, a normal string may be simpler and cheaper.
+
+**Q: What is the difference between TAG and TEXT fields in Redis search?**
+A: TAG fields are for exact filtering such as tenant, brand, category, or status; TEXT fields are tokenized for full-text search. Choosing TEXT for exact filters wastes index behavior, and choosing TAG for natural language search gives poor search semantics.
+
+**Q: How do you decide whether Redis is a good vector search layer?**
+A: Redis is a good fit for hot, low-latency vector search when the corpus and vector index fit in memory. For billion-scale corpora, long retention, complex ranking, or cheaper storage, use a dedicated vector/search platform and keep Redis as cache or hot reranker.
+
+**Q: What is client-side caching in Redis?**
+A: Client-side caching is server-assisted near-caching: the app stores local copies of Redis reads and Redis sends invalidation messages when tracked keys change. It reduces hot-key pressure but requires TTLs, size bounds, and cache flush on reconnect or failover.
+
+**Q: Why use Redis Functions instead of EVALSHA everywhere?**
+A: Functions are named, persistent, introspectable, and can be deployed as versioned libraries. EVALSHA depends on script cache lifecycle and can fail with NOSCRIPT unless clients reload scripts correctly.
+
+**Q: What do you check before upgrading Redis 7 to Redis 8?**
+A: Verify client library support, command compatibility, persistence restore/rollback, Cluster/Sentinel behavior, monitoring/exporter parsing, ACL rules, and managed-provider support. Canary the upgrade and avoid downgrade rollback if new data types or formats are written.
+
+**Q: How is managed Redis different from self-managed Redis in architecture interviews?**
+A: Managed Redis reduces infrastructure work but does not remove data-model, TTL, eviction, client, failover, security, cost, or backup responsibility. You still need to test provider failover and understand provider command/version limits.
+
+---
+
 ## Interview Sound Bite
 
 Answer with one clear sentence, then add depth: failure modes, tradeoffs, and production decisions. Interviewers at senior levels test whether you have faced these problems in production, not just studied them.

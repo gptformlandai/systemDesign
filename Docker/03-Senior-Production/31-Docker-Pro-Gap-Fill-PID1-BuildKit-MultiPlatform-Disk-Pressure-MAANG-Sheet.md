@@ -1,6 +1,6 @@
 # Docker Pro Gap Fill: PID 1, BuildKit, Multi-Platform, OCI, Disk Pressure - MAANG Deep Dive
 
-> Track appendix #31 - Group 03: Senior Production
+> Track File #31 of 40 - Group 03: Senior Production Appendix
 > For: senior Docker/platform interviews | Level: pro | Mode: production internals
 
 This appendix fills the senior-level gaps that usually separate "I know Docker commands" from "I can reason about containers in production."

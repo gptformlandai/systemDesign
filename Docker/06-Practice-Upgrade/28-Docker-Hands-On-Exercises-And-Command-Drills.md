@@ -1,6 +1,6 @@
 # Docker Hands-On Exercises and Command Drills
 
-> Track File #28 of 30 - Group 06: Practice Upgrade
+> Track File #28 of 40 - Group 06: Practice Upgrade
 > For: command fluency | Level: beginner to pro | Mode: hands-on drills
 
 ## 1. Drill Rules

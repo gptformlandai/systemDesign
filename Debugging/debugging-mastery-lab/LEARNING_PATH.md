@@ -98,9 +98,37 @@ Goal: Know what you can and cannot do in production.
 
 ---
 
+## Stage 10: Production Systems Debugging (Days 18-23)
+
+Goal: Debug real systems when an IDE breakpoint is not available or not safe.
+
+1. Read Sheet 32 for the production observability workflow: logs, metrics, traces, profiles, dumps, deploy markers
+2. Read Sheet 33 and practice explaining a microservice timeout with retries, timeouts, and circuit breakers
+3. Read Sheet 34 and rehearse `kubectl describe`, `logs --previous`, events, probes, OOMKilled, and ephemeral debug containers
+4. Read Sheet 35 and practice DNS/TCP/TLS/HTTP/CORS isolation with `dig`, `nc`, `curl -v`, and `openssl s_client`
+5. Read Sheet 36 and practice separating slow query, lock wait, pool exhaustion, and N+1 query symptoms
+6. Read Sheet 37 and record one browser Performance profile for a slow frontend interaction
+
+---
+
+## Stage 11: Advanced Profiling, Queues, And Incident Safety (Days 24-27)
+
+Goal: Handle hard production failures and keep debugging safe.
+
+1. Read Sheet 38 for OS-level debugging: signals, core dumps, lsof, strace/dtruss, perf, eBPF
+2. Read Sheet 39 for JVM/Python/Node runtime profiling: JFR, async-profiler, tracemalloc, diagnostic reports
+3. Read Sheet 40 for queue debugging: Kafka/SQS/RabbitMQ/Celery lag, DLQ, poison messages, idempotency
+4. Read Sheet 41 for safe debugging, incident response, RCA, secrets, PII, and dump handling
+5. Re-run Sheet 30 Q41-Q60 until answers are instant
+6. Re-score yourself with Sheet 31
+
+---
+
 ## Interview Preparation Mode (Final 2 Days)
 
 1. Re-read all "Interview Sound Bite" sections (one per sheet)
 2. Time yourself: can you explain a Java deadlock investigation in 90 seconds?
 3. Time yourself: can you explain async Promise leaks in Node.js in 90 seconds?
-4. Do the Speed Drill (Sheet 30) until all shortcuts are instant
+4. Time yourself: can you explain a production outage investigation using metrics, traces, logs, deployment markers, and mitigation?
+5. Time yourself: can you explain CrashLoopBackOff, OOMKilled, DNS/TLS/CORS, DB lock waits, and queue DLQs?
+6. Do the Speed Drill (Sheet 30) until all shortcuts are instant

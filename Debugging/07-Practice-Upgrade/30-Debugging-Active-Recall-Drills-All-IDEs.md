@@ -142,6 +142,70 @@ Cover the answer column. Read the question. Answer out loud or write it. Then un
 
 ---
 
+## Production Systems Drills
+
+**Q41**: In production, why is a debugger attach usually the wrong first move?
+**A**: It can pause or mutate live traffic and may expose privileged process control. Start with logs, metrics, traces, profiles, dumps, and deployment metadata.
+
+**Q42**: What four fields must appear in production logs for correlation?
+**A**: `service`, `env`, `version`, and `correlation_id` or `trace_id`/`span_id`.
+
+**Q43**: What does a wide span in a distributed trace usually mean?
+**A**: Most request latency is spent there. It identifies the slow boundary or operation, not always the root cause.
+
+**Q44**: Name three retry-storm protections.
+**A**: Exponential backoff, jitter, retry budget, idempotency key, circuit breaker, load shedding.
+
+**Q45**: What Kubernetes command gives the most useful first look at CrashLoopBackOff?
+**A**: `kubectl describe pod <pod> -n <namespace>` plus `kubectl logs <pod> --previous`.
+
+**Q46**: What does `OOMKilled` mean in Kubernetes?
+**A**: The container exceeded its cgroup memory limit and was killed, often with exit code 137.
+
+**Q47**: What command checks TLS certificate/SNI behavior from the terminal?
+**A**: `openssl s_client -connect host:443 -servername host`
+
+**Q48**: What is the difference between connection refused and connection timeout?
+**A**: Refused means the host responded but no process/listener accepted the port. Timeout means the connection attempt did not receive a response, often firewall/routing/security group.
+
+**Q49**: What database evidence separates slow query execution from connection pool exhaustion?
+**A**: Slow query execution shows long DB execution/EXPLAIN issues. Pool exhaustion shows app pool active=max, pending waiters, acquisition timeouts, while DB may be normal.
+
+**Q50**: What does an N+1 query look like in a trace?
+**A**: One request contains many repeated similar DB spans, often one query per row/item.
+
+**Q51**: In Chrome DevTools, which panel diagnoses main-thread freezes?
+**A**: Performance panel. Look for long tasks, scripting, layout, paint, and GC.
+
+**Q52**: What browser symptom suggests service worker or cache problems?
+**A**: Hard refresh fixes it, only some users see stale UI, or Application panel shows old service worker/cache entries.
+
+**Q53**: What does exit code 139 usually mean?
+**A**: SIGSEGV, usually a segmentation fault/native crash.
+
+**Q54**: Which tool shows Linux syscalls for a running process?
+**A**: `strace -p <pid>` on Linux; `dtruss -p <pid>` is a rough macOS equivalent.
+
+**Q55**: What is JFR used for?
+**A**: Java Flight Recorder captures low-overhead runtime events such as CPU, allocation, locks, socket I/O, exceptions, GC, and thread activity.
+
+**Q56**: What Python tool compares memory allocation snapshots by line?
+**A**: `tracemalloc`.
+
+**Q57**: What Node.js artifact captures heap stats, stacks, libuv handles, and environment for debugging?
+**A**: Node.js diagnostic report.
+
+**Q58**: Why should consumers be idempotent in queue systems?
+**A**: Most queues provide at-least-once delivery, so duplicate messages are normal and must not duplicate side effects.
+
+**Q59**: Why should you not blindly redrive a DLQ?
+**A**: If the consumer is still broken, redrive recreates the failure or amplifies duplicate side effects.
+
+**Q60**: Why are heap dumps sensitive artifacts?
+**A**: They can contain tokens, passwords, cookies, PII, payloads, and business data from process memory.
+
+---
+
 ## Speed Drill: Shortcuts Summary
 
 ```text

@@ -1,6 +1,6 @@
 # Docker Networking, Ports, DNS, and Bridge Networks - Gold Sheet
 
-> Track File #8 of 30 - Group 02: Intermediate Practical
+> Track File #8 of 40 - Group 02: Intermediate Practical
 > For: local and production debugging | Level: intermediate | Mode: container networking
 
 ## 1. Core Idea

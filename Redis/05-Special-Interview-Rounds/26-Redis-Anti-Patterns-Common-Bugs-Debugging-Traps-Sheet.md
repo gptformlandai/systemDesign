@@ -150,6 +150,73 @@ Evictions silently lose data. Cache-aside applications may not notice immediatel
 
 ---
 
+## Anti-Pattern 11: Indexing Every JSON Field
+
+```text
+Bad: create a search index over every field because "we might query it later."
+
+Why it hurts:
+- every indexed field consumes memory
+- writes become more expensive
+- rebuilds and migrations take longer
+
+Better:
+- index only access-pattern fields
+- separate exact filters (TAG) from full-text fields (TEXT)
+- capacity-plan index memory before production
+```
+
+---
+
+## Anti-Pattern 12: Vector Search Without Memory Math
+
+```text
+Bad: store millions of 1536-dimensional FLOAT32 vectors without estimating RAM.
+
+Raw memory:
+1,000,000 * 1536 * 4 bytes ~= 6.1 GB before index overhead.
+
+Better:
+- estimate raw vector and index overhead
+- version embeddings by model
+- expire or archive cold vectors
+- use a dedicated vector/search platform if corpus is too large
+```
+
+---
+
+## Anti-Pattern 13: Near-Cache Without Invalidation Discipline
+
+```text
+Bad: local in-process Redis cache with no invalidation, no TTL, and no reconnect flush.
+
+Better:
+- use CLIENT TRACKING where supported
+- enforce local TTL and max size
+- flush local cache after reconnect/failover
+- avoid near-cache for write-hot or correctness-critical keys
+```
+
+---
+
+## Anti-Pattern 14: Functions As Heavy Business Logic
+
+```text
+Bad: Redis Function loops through thousands of records or performs complex domain workflow.
+
+Why it hurts:
+- FCALL blocks Redis command execution while running
+- deployment and rollback become Redis operations
+- Cluster cross-slot constraints surprise teams
+
+Better:
+- keep functions short and bounded
+- version function libraries
+- keep heavy workflow in application workers
+```
+
+---
+
 ## Debugging Traps
 
 | Trap | Symptom | Investigation |
@@ -160,6 +227,9 @@ Evictions silently lose data. Cache-aside applications may not notice immediatel
 | Cluster MOVED in hot path | slow commands | client slot map stale, force refresh |
 | AOF fsync=always blocking | high write latency | INFO persistence, check aof_delayed_fsync |
 | replica full resync loop | bandwidth spike | increase repl-backlog-size |
+| stale near-cache | app returns old value | verify invalidations, TTL, reconnect flush |
+| slow FCALL | Redis-wide latency | SLOWLOG, function review, bound work |
+| index memory growth | OOM/eviction | FT.INFO, MEMORY STATS, index field audit |
 
 ---
 

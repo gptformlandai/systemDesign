@@ -2,7 +2,7 @@
 
 ## What Is Datadog
 
-Datadog is a cloud-scale observability and security platform that collects metrics, logs, traces, real user monitoring data, synthetic test results, and security signals — all correlated by a unified tagging system.
+Datadog is a cloud-scale observability, security, service management, and engineering platform that collects metrics, logs, traces, real user monitoring data, synthetic test results, security signals, CI/CD signals, cost signals, and service ownership metadata - all correlated by a unified tagging system.
 
 ```text
 Infrastructure metrics  -> what is happening (CPU, memory, network)
@@ -11,9 +11,38 @@ Distributed traces      -> how a request moved through services
 RUM                     -> what the user experienced
 Synthetic tests         -> what would happen if a user visited right now
 Security signals        -> what threats are active
+CI/CD signals           -> how code moved from commit to production
+Cost signals            -> where cloud and observability spend comes from
+Catalog metadata        -> who owns each service and what standards it meets
 ```
 
-All six signal types share the same tag vocabulary and can be navigated to each other from any view.
+All platform signals share the same tag vocabulary and can be navigated to each other from any view.
+
+---
+
+## Full Platform Mental Model
+
+```text
+Runtime observability:
+  metrics + logs + traces + RUM + synthetics + profiles + data streams
+
+Ownership and operations:
+  Software Catalog + scorecards + incidents + on-call + workflow automation
+
+Delivery:
+  CI Visibility + test optimization + deployment tracking + Error Tracking
+
+Security:
+  Cloud SIEM + CSPM + CWS + App/API Protection + Code Security + Sensitive Data Scanner
+
+Cost:
+  Datadog usage attribution + Cloud Cost Management + unit economics
+
+Governance:
+  RBAC + SSO/SCIM + audit trail + Terraform/API as code + tag policy
+```
+
+The senior Datadog mindset is not "which dashboard do I open?" It is "which signal, owner, workflow, and control loop will reduce time to detect, time to understand, time to mitigate, and time to prevent?"
 
 ---
 
@@ -43,6 +72,19 @@ Metrics tell you *something is wrong*. Logs tell you *what happened*. Traces tel
 | Is my SLO at risk? | SLO burn rate alert |
 | What did the real user experience? | RUM |
 | Is my API endpoint broken? | synthetic test |
+| Which team owns this failing service? | Software Catalog |
+| Which uninstrumented service is talking to my app? | Universal Service Monitoring |
+| Which method is burning CPU? | Continuous Profiler |
+| Can I add a debug log without redeploying? | Dynamic Instrumentation |
+| Is this exception new after the deploy? | Error Tracking |
+| Which pipeline or test is slowing delivery? | CI Visibility |
+| Should this log be redacted before ingestion? | Observability Pipelines |
+| Is Lambda latency caused by cold starts or throttles? | Serverless Monitoring |
+| Where is my Kafka/SQS pipeline lagging? | Data Streams Monitoring |
+| Which service/team caused the cloud cost spike? | Cloud Cost Management |
+| Is this API under attack or exposing sensitive behavior? | App/API Protection |
+| Which incident workflow should run? | Incident Management / On-Call |
+| Why did LLM token cost spike? | LLM Observability |
 
 ---
 
@@ -82,7 +124,7 @@ team:platform
 region:us-east-1
 ```
 
-High-cardinality tags (user IDs, request IDs, IP addresses) should NEVER be used as metric tags — they cause cardinality explosion and cost spikes.
+High-cardinality tags (user IDs, request IDs, IP addresses) should NEVER be used as metric tags - they cause cardinality explosion and cost spikes.
 
 ---
 
@@ -132,4 +174,5 @@ The Datadog libraries auto-inject trace/span IDs when the logging framework is s
 | Intermediate | Instrument an app with APM, correlate logs + traces |
 | Practitioner | Build dashboards, add monitors, create SLOs |
 | Senior | Kubernetes monitoring, OTel migration, cost governance |
-| Pro/MAANG | Production incident resolution, SLO burn rate design, tag governance at scale |
+| Pro | Production incident resolution, SLO burn rate design, tag governance at scale |
+| Platform/MAANG | Service catalog ownership, USM discovery, profiler/debugging, CI-to-prod correlation, pipelines, serverless, streams, FinOps, AppSec, incident automation, AI observability, governance as code |

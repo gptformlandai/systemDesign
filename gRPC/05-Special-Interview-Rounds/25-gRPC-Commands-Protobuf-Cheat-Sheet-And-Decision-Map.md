@@ -36,6 +36,7 @@ grpcurl -plaintext \
 buf lint
 buf breaking --against '.git#branch=main'
 buf generate
+buf format -w proto
 ```
 
 ---
@@ -50,6 +51,68 @@ protoc --proto_path=. \
 ```
 
 Language plugins differ, but the shape is always: include proto path, select output plugin, pass proto files.
+
+---
+
+## grpcui
+
+```bash
+# Browser UI for a local/dev service with reflection enabled.
+grpcui -plaintext localhost:50051
+
+# Use explicit proto when reflection is disabled.
+grpcui -plaintext \
+  -proto proto/orders/v1/order.proto \
+  localhost:50051
+```
+
+Use only against local, dev, or protected environments.
+
+---
+
+## Load And Failure Tests
+
+```bash
+# Example shape with ghz.
+ghz \
+  --insecure \
+  --proto proto/payments/v1/payment.proto \
+  --call payments.v1.PaymentService.GetPayment \
+  -d '{"payment_id":"pay_123"}' \
+  -c 20 \
+  -n 1000 \
+  localhost:50051
+```
+
+Measure:
+
+- p95/p99 latency
+- status distribution
+- retry amplification
+- message sizes
+- active streams
+- slow-consumer behavior
+
+---
+
+## Channel And Gateway Debug Checks
+
+```bash
+# DNS target check.
+dig payment.prod.svc.cluster.local
+
+# TLS/ALPN check.
+openssl s_client -connect api.example.com:443 -alpn h2
+
+# Kubernetes endpoint check.
+kubectl get endpointslices -n prod -l kubernetes.io/service-name=payment
+
+# Envoy admin examples, if access is allowed.
+curl localhost:15000/clusters
+curl localhost:15000/config_dump
+```
+
+If Channelz/admin endpoints are enabled, protect them and use them to inspect channel, subchannel, socket, and server state.
 
 ---
 
@@ -93,6 +156,7 @@ Language plugins differ, but the shape is always: include proto path, select out
 | many chunks, one result | client streaming |
 | ongoing conversation | bidirectional streaming |
 | public browser API | gRPC-Web or REST/JSON gateway |
+| long-running operation | start operation + poll/get status |
 
 ---
 
@@ -106,9 +170,12 @@ Language plugins differ, but the shape is always: include proto path, select out
 | `DEADLINE_EXCEEDED` | deadline, route timeout, server trace, dependencies, retries |
 | streaming stalls | slow consumer, flow control, cancellation, proxy idle timeout |
 | wrong data with `OK` | proto compatibility, field numbers, generated code version |
+| browser cannot read status | CORS exposed headers, grpc-web filter, gateway error mapping |
+| traffic sticks to one backend | channel reuse, LB policy, subchannel state, connection drain |
+| rollout breaks streams | health drain, GOAWAY, stream resume, proxy idle/drain timeout |
 
 ---
 
 ## One-Minute Interview Summary
 
-Use grpcurl for reachability and method calls, Buf for lint/breaking/generation, protoc or language plugins for generated code, canonical status codes for failure contracts, and proto evolution rules to keep old and new clients safe.
+Use grpcurl/grpcui for reachability and method calls, Buf for lint/breaking/generation, protoc or language plugins for generated code, ghz or a client harness for load tests, canonical status codes for failure contracts, and proto evolution rules to keep old and new clients safe.

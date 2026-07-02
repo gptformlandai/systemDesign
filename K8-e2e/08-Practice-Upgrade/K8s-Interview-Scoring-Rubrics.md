@@ -2,7 +2,7 @@
 
 > Track: K8s Interview Track — Phase 8: Practice Upgrade
 > Use this to self-grade your mock interview answers or have a peer grade your session.
-> Score each dimension 1–4. Total max: 24 points. Strong hire: 18+. No hire: <12.
+> Score each dimension 1–4. Total max: 32 points. Strong hire: 24+. No hire: <16.
 
 ---
 
@@ -16,6 +16,8 @@
 | Scalability Thinking | Medium | Design for 10x, not just current load |
 | Debugging Approach | High | Systematic, calm, methodical |
 | Communication Clarity | Medium | Explain to non-expert, structure |
+| Modern Platform Currency | High | Current K8s/EKS/Karpenter/admission/storage knowledge |
+| Hands-On Production Maturity | High | Can build, break, secure, observe, recover |
 
 ---
 
@@ -194,6 +196,55 @@
 
 ---
 
+## Dimension 7: Modern Platform Currency
+
+**Score 1 (No hire):**
+- Anchors answers on stale Kubernetes versions and cannot explain support windows
+- Has not heard of ValidatingAdmissionPolicy, native sidecars, DRA, or EKS Pod Identity
+- Copies old Karpenter v0 examples without checking compatibility
+
+**Score 2 (Below bar):**
+- Recognizes some modern features but cannot place them in production design
+- Knows admission webhooks but not built-in CEL policy trade-offs
+- Mentions Karpenter but cannot explain NodePool, NodeClass, or NodeClaim
+
+**Score 3 (Meets bar):**
+- Explains current version-skew rules and one-minor upgrade discipline
+- Can choose between PSA, ValidatingAdmissionPolicy, Kyverno, Gatekeeper, and webhooks
+- Understands native sidecars, ephemeral debug containers, VolumeAttributesClass, and EKS Pod Identity at decision level
+- Knows Karpenter v1 concepts and basic disruption controls
+
+**Score 4 (Exceeds bar):**
+- Designs modern platform guardrails with current APIs and migration paths
+- Explains DRA vs device plugins for accelerator platforms
+- Plans EKS upgrades with add-ons, node rotation, Karpenter drift, and extended support cost
+- Proactively calls out version-sensitive assumptions and verifies against official docs
+
+---
+
+## Dimension 8: Hands-On Production Maturity
+
+**Score 1 (No hire):**
+- Cannot translate theory into commands, manifests, or debug steps
+- Has no concrete plan for rollback, restore, or incident mitigation
+
+**Score 2 (Below bar):**
+- Can deploy happy-path YAML but struggles with broken states
+- Mentions observability and security generally but cannot operationalize them
+
+**Score 3 (Meets bar):**
+- Can build a working app path with Deployment, Service, config, secret, probes, RBAC, NetworkPolicy, HPA, and PVC
+- Can debug ImagePullBackOff, CrashLoopBackOff, Pending, zero endpoints, probe failures, and RBAC denies
+- Can define SLO alerts, PDBs, backup/restore tests, and upgrade runbooks
+
+**Score 4 (Exceeds bar):**
+- Can run a capstone-style platform slice end to end from GitOps
+- Intentionally breaks the system and recovers under time pressure
+- Explains security, observability, cost, failure modes, and trade-offs while debugging
+- Produces clear runbooks and post-incident improvements
+
+---
+
 ## Scoring Table
 
 | Dimension | Score (1-4) | Notes |
@@ -204,7 +255,9 @@
 | Scalability Thinking | | |
 | Debugging Approach | | |
 | Communication Clarity | | |
-| **Total** | **/24** | |
+| Modern Platform Currency | | |
+| Hands-On Production Maturity | | |
+| **Total** | **/32** | |
 
 ---
 
@@ -212,11 +265,11 @@
 
 | Total | Decision | Notes |
 |---|---|---|
-| 21-24 | Strong Hire | Outstanding across all dimensions |
-| 18-20 | Hire | Solid, one minor gap acceptable |
-| 15-17 | Weak Hire / Lean | Good foundation, growth needed in 1-2 areas |
-| 12-14 | No Hire | Significant gaps in core areas |
-| <12 | No Hire | Foundational knowledge missing |
+| 29-32 | Strong Hire | Outstanding across all dimensions |
+| 24-28 | Hire | Solid, one minor gap acceptable |
+| 20-23 | Weak Hire / Lean | Good foundation, growth needed in 1-2 areas |
+| 16-19 | No Hire | Significant gaps in core or production areas |
+| <16 | No Hire | Foundational knowledge missing |
 
 ---
 
@@ -228,6 +281,9 @@ Any of these should shift the decision toward No Hire regardless of total score:
 - Proposes running as root because "it's easier"
 - Doesn't know how to roll back a failed deployment
 - Can't explain what happens when a pod crashes (doesn't know about ReplicaSet reconciliation)
+- Treats stale Kubernetes or EKS version notes as current without checking
+- Cannot name a safe rollout strategy for admission policy
+- Ignores restore testing and assumes snapshots equal backups
 - Says "I'd just restart the cluster" as a first response to a pod issue
 - Gets defensive when interviewer questions a design choice
 - Copies from memory a K8s template without understanding what it does
@@ -245,3 +301,5 @@ These elevate a candidate from Hire to Strong Hire:
 - Can estimate rough numbers ("iptables starts degrading around 10k services")
 - Has opinions based on experience, not just textbook knowledge
 - Proactively mentions cost implications ("LoadBalancer per service costs $18/month each; Ingress consolidates")
+- Calls out current APIs such as ValidatingAdmissionPolicy, native sidecars, DRA, VolumeAttributesClass, and Karpenter v1 when relevant
+- Can demo or describe a capstone: deploy, break, debug, secure, observe, and recover

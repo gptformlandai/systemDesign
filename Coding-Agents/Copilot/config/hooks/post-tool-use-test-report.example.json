@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      {
+        "type": "command",
+        "matcher": "create|edit|str_replace_editor|apply_patch",
+        "bash": "printf '%s\\n' '{\"additionalContext\":\"File changes were made. Before claiming completion, summarize changed files, run the most relevant tests or explain why tests were not run, and call out assumptions.\"}'",
+        "timeoutSec": 5
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "type": "command",
+        "matcher": "bash|create|edit|str_replace_editor|apply_patch",
+        "bash": "printf '%s\\n' '{\"additionalContext\":\"A tool failed. Do not retry blindly. Explain the failure, reduce scope, and propose the next safe command or edit.\"}'",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}
+

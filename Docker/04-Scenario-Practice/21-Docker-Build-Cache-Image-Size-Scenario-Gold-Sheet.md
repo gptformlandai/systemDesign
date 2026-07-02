@@ -1,6 +1,6 @@
 # Docker Build Cache and Image Size Scenario - Gold Sheet
 
-> Track File #21 of 30 - Group 04: Scenario Practice
+> Track File #21 of 40 - Group 04: Scenario Practice
 > For: build optimization interviews | Level: intermediate to senior | Mode: slow builds and bloated images
 
 ## 1. Scenario

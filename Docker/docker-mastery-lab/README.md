@@ -24,7 +24,8 @@ This lab turns the study sheets into repeatable command practice, safe diagnosti
 3. Run the scripts in [SCRIPTS](SCRIPTS) on a safe local Docker environment.
 4. Build and run [EXAMPLES/hello-web](EXAMPLES/hello-web).
 5. Complete the labs, projects, and runbooks.
-6. Use interview prep to turn command fluency into clear answers.
+6. Complete the production capstone in [../06-Practice-Upgrade/40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md](../06-Practice-Upgrade/40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md).
+7. Use interview prep to turn command fluency into clear answers.
 
 ## Safety Rules
 
@@ -46,5 +47,5 @@ This lab turns the study sheets into repeatable command practice, safe diagnosti
 You have completed this lab when you can explain:
 
 ```text
-How an image is built, secured, tagged, shipped, run, observed, debugged, limited, and rolled back.
+How an image is built, cached, secured, attested, scanned, tagged, shipped by digest, run, observed, debugged, limited, and rolled back.
 ```

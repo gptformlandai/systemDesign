@@ -59,6 +59,10 @@ Production implications:
 | Membership test | Bloom filter via RedisBloom module |
 | Full-text search | RediSearch module |
 | Time series | RedisTimeSeries module |
+| Nested documents | Redis JSON when path updates and indexing matter |
+| Similarity search | vector search / Vector Sets when corpus fits in memory |
+| Server-side reusable logic | Redis Functions for short atomic operations |
+| Local hot-read reduction | client-side caching with invalidation tracking |
 
 ---
 
@@ -91,6 +95,7 @@ Production implications:
 | stream durability | Kafka if Redis durability is not enough |
 | complex queries | dedicated database; use Redis as cache layer |
 | ML-scale similarity | dedicated vector DB; RediSearch for smaller workloads |
+| long-running business logic | application workers; Redis Functions only for short bounded logic |
 
 ---
 

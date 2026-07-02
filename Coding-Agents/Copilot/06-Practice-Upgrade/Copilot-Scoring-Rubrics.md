@@ -90,17 +90,73 @@
 
 ---
 
+## Rubric 7 — Agentic Platform Usage (1-5)
+
+| Score | Description |
+|---|---|
+| 1 | Treats all Copilot surfaces as the same. Uses Agent Mode/cloud agent for vague tasks |
+| 2 | Knows cloud agent and CLI exist but has no task framing or review process |
+| 3 | Can choose IDE Agent Mode vs cloud agent vs CLI for common tasks |
+| 4 | Writes cloud-agent-ready issues with scope, validation, and non-goals. Uses CLI with checkpoints |
+| 5 | Runs agentic workflows with hooks, branch protection, CI, review gates, and rollback discipline |
+
+**Your current score**: ___/5
+
+---
+
+## Rubric 8 — MCP, Indexing, And Tool Governance (1-5)
+
+| Score | Description |
+|---|---|
+| 1 | Connects tools casually with broad tokens or unclear permissions |
+| 2 | Understands MCP basics but exposes too many tools or writes real config with secrets |
+| 3 | Uses example MCP configs, env vars, and read-only permissions for practice |
+| 4 | Designs least-privilege toolsets and knows when to use `#file`, `#selection`, `#codebase`, indexing, or MCP |
+| 5 | Can explain registry/allowlist strategy, content exclusion limits, and safe MCP rollout for a team |
+
+**Your current score**: ___/5
+
+---
+
+## Rubric 9 — Memory, Hooks, And Skills Maturity (1-5)
+
+| Score | Description |
+|---|---|
+| 1 | Relies on repeated prompts only; no reusable guardrails |
+| 2 | Has instructions but no distinction between memory, hooks, and skills |
+| 3 | Understands Memory as stable facts, hooks as guardrails, skills as playbooks |
+| 4 | Uses hooks for secrets/protected paths and keeps skills procedural and reusable |
+| 5 | Maintains a layered customization system: instructions for policy, Memory for facts, hooks for enforcement, skills for repeatable workflows |
+
+**Your current score**: ___/5
+
+---
+
+## Rubric 10 — Enterprise Readiness (1-5)
+
+| Score | Description |
+|---|---|
+| 1 | No awareness of policies, budgets, audit logs, or data governance |
+| 2 | Knows enterprise settings exist but cannot explain rollout risks |
+| 3 | Can identify access, content exclusion, model, MCP, and agentic policy needs |
+| 4 | Can design a pilot rollout with metrics, cost controls, training, and review gates |
+| 5 | Can lead governance review: policy conflicts, model availability, MCP allowlists, cloud agent readiness, auditability, AI credits, and quality metrics |
+
+**Your current score**: ___/5
+
+---
+
 ## Total Score and Readiness Gates
 
 | Total | Level | Action |
 |---|---|---|
-| 6-12 | Beginner | Focus on: Foundations + Safe Prompting + Quick Wins |
-| 13-18 | Intermediate | Focus on: Custom Instructions + Prompt Files + Agent Mode |
-| 19-24 | Advanced | Focus on: Custom Agents + Context Engineering + Token Optimization |
-| 25-28 | Pro | Focus on: Daily rituals + Prompt library maintenance + Team sharing |
-| 29-30 | Operating System | Maintain + evolve. Share with team. Write a team playbook |
+| 10-20 | Beginner | Focus on: Foundations + Safe Prompting + Quick Wins |
+| 21-30 | Intermediate | Focus on: Custom Instructions + Prompt Files + Agent Mode |
+| 31-38 | Advanced | Focus on: Custom Agents + Context Engineering + Token Optimization |
+| 39-44 | Pro | Focus on: Daily rituals + Prompt library maintenance + Team sharing |
+| 45-50 | Production / Enterprise Ready | Maintain + evolve. Share with team. Write a team playbook and governance notes |
 
-**Your total**: ___/30
+**Your total**: ___/50
 
 ---
 
@@ -108,8 +164,8 @@
 
 Re-run this scoring rubric every 30 days.
 
-| Date | Prompts | Context | Review | Safety | Config | Workflow | Total |
-|---|---|---|---|---|---|---|---|
-| | | | | | | | /30 |
-| | | | | | | | /30 |
-| | | | | | | | /30 |
+| Date | Prompts | Context | Review | Safety | Config | Workflow | Agentic | MCP | Hooks/Memory | Enterprise | Total |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| | | | | | | | | | | | /50 |
+| | | | | | | | | | | | /50 |
+| | | | | | | | | | | | /50 |

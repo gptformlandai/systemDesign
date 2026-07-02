@@ -1,6 +1,6 @@
 # Docker Mini Projects Portfolio
 
-> Track File #29 of 30 - Group 06: Practice Upgrade
+> Track File #29 of 40 - Group 06: Practice Upgrade
 > For: portfolio and interview proof | Level: intermediate to pro | Mode: projects
 
 ## 1. Project 1: Containerize A Web API
@@ -95,3 +95,26 @@ Interview proof:
 ```text
 I can debug Docker using evidence instead of guessing.
 ```
+
+---
+
+## 6. Project 6: Production Docker Capstone
+
+Deliverables:
+
+- cache-aware Dockerfile with non-root runtime
+- advanced Compose file with profiles and health checks
+- Buildx build command with cache strategy
+- SBOM/provenance or documented equivalent
+- vulnerability scan and policy decision
+- registry tag plus digest promotion record
+- hardening proof with read-only filesystem, tmpfs, and minimized capabilities
+- daemon/network/storage/runbook notes
+
+Interview proof:
+
+```text
+I can explain Docker as an end-to-end production workflow: build, trust, ship, run, observe, debug, recover, and roll back by digest.
+```
+
+Use [40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md](40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md) as the project rubric.

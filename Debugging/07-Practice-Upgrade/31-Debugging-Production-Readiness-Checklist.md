@@ -232,6 +232,88 @@ You cannot use a debugger in production. You must plan for:
 
 ---
 
+## Production Systems Debugging Readiness
+
+### Observability And Distributed Systems
+
+- [ ] Every production request has a correlation ID or trace ID.
+- [ ] Logs include `service`, `env`, `version`, level, timestamp, and stack traces for errors.
+- [ ] Dashboards expose request rate, error rate, p95/p99 latency, and saturation.
+- [ ] Deployment events or version tags are visible during incidents.
+- [ ] Distributed traces include downstream HTTP, DB, cache, and queue spans.
+- [ ] Timeout budgets are documented across caller, gateway, proxy, and downstream services.
+- [ ] Retry policies have backoff, jitter, limits, and idempotency guarantees.
+- [ ] Circuit breaker and fallback behavior is monitored, not hidden.
+
+### Kubernetes
+
+- [ ] Can debug `CrashLoopBackOff` with `describe`, `logs --previous`, exit code, and events.
+- [ ] Can debug `OOMKilled` using pod limits, app heap settings, previous logs, and memory trend.
+- [ ] Can distinguish startup, readiness, and liveness probe failures.
+- [ ] Can inspect Service endpoints and DNS from a temporary debug pod.
+- [ ] Can use ephemeral debug containers safely when the app image has no shell/tools.
+- [ ] Can roll back a Deployment and verify recovery.
+
+### Network And HTTP
+
+- [ ] Can separate DNS, TCP connect, TLS handshake, HTTP response, and browser policy failures.
+- [ ] Can use `curl -v`, `dig`, `nc`, `lsof`, and `openssl s_client`.
+- [ ] Can explain connection refused vs connection timeout.
+- [ ] Can debug 502/503/504 by identifying which proxy or upstream generated the response.
+- [ ] Can debug CORS preflight failures in the browser Network panel.
+- [ ] Can identify connection pool exhaustion vs downstream service slowness.
+
+### Database
+
+- [ ] Can read a trace and identify the slow DB span.
+- [ ] Can use `EXPLAIN` / `EXPLAIN ANALYZE` to inspect query plans.
+- [ ] Can identify lock waits and blocking transactions.
+- [ ] Can debug connection pool active/idle/pending/timeout metrics.
+- [ ] Can recognize N+1 queries from repeated DB spans.
+- [ ] Can explain safe migration strategy: expand, backfill, switch, contract.
+
+### Browser And Frontend
+
+- [ ] Can use Chrome Network panel to inspect headers, payload, timing, redirects, cache, cookies.
+- [ ] Can use Performance panel to identify long tasks and main-thread blocking.
+- [ ] Can use Memory panel to compare heap snapshots and find detached DOM/listener leaks.
+- [ ] Can use Application panel to inspect cookies, localStorage, IndexedDB, service workers, and cache.
+- [ ] Can debug Core Web Vitals: LCP, INP, CLS, TTFB.
+- [ ] Can use React Profiler to identify expensive or unnecessary renders.
+
+### Runtime And OS-Level Profiling
+
+- [ ] Can capture and analyze JFR for Java CPU, allocation, lock, socket, and GC evidence.
+- [ ] Can use async-profiler or equivalent flame graph tooling for Java hotspots.
+- [ ] Can use GC logs to distinguish allocation churn from retained-object leaks.
+- [ ] Can use `tracemalloc`, `py-spy`, or `cProfile` appropriately in Python.
+- [ ] Can use Node.js diagnostic reports, heap snapshots, event-loop delay, and clinic.js.
+- [ ] Can interpret exit codes 137, 139, and 143.
+- [ ] Can use `lsof` for file/socket leaks and `strace`/`dtruss` for syscall-level hangs.
+- [ ] Can explain when core dumps, gdb/lldb, perf, and eBPF are appropriate.
+
+### Messaging And Queue Systems
+
+- [ ] Can debug producer success vs consumer failure separately.
+- [ ] Can inspect queue depth, consumer lag, age of oldest message, DLQ depth, and retry attempts.
+- [ ] Can identify poison messages and schema-version mismatches.
+- [ ] Can explain why consumers must be idempotent.
+- [ ] Can debug Kafka hot partitions and consumer-group lag.
+- [ ] Can debug SQS visibility timeout vs consumer processing time.
+- [ ] Can debug RabbitMQ unacked messages and Celery active/reserved/scheduled tasks.
+
+### Safe Debugging And Incident Response
+
+- [ ] Can decide when mitigation should happen before root-cause depth.
+- [ ] Can preserve evidence before restart/rollback when time allows.
+- [ ] Can handle heap dumps, core dumps, HAR files, logs, and packet captures as sensitive artifacts.
+- [ ] Can redact secrets, auth headers, cookies, tokens, and PII from shared evidence.
+- [ ] Can explain break-glass rules for production shell/debug access.
+- [ ] Can choose rollback vs fix-forward based on impact and reversibility.
+- [ ] Can write an RCA with timeline, root cause, contributing factors, detection gap, and action items.
+
+---
+
 ## Final Interview Sound Bite
 
-Production debugging readiness means: structured JSON logs with correlation IDs, metrics covering error rate and thread/memory health, and the ability to take thread dumps and heap dumps without restarting. JVM flags for production must include `-XX:+HeapDumpOnOutOfMemoryError` to capture the moment of failure automatically. JDWP must never be exposed in production — it gives full JVM control. For Python, `py-spy` enables sampling profiler output on live processes without code changes. For Node.js, `kill -USR1 <pid>` enables the V8 inspector on a running process. The concurrency checklist: every shared state has a lock, every async function has error handling, no unbounded queues, no ThreadLocal leaks, and lock ordering prevents deadlocks.
+Production debugging readiness means: structured JSON logs with correlation IDs, metrics covering error rate and thread/memory health, traces across service boundaries, deployment metadata, and the ability to take thread dumps, heap dumps, profiles, and runtime diagnostics without unsafe process control. JDWP, debugpy, and Node inspector ports must never be publicly exposed in production. Senior debugging also includes Kubernetes state, network/TLS/CORS isolation, database locks and pool metrics, browser performance tools, queue/DLQ evidence, runtime profilers, OS-level tools, and safe incident/RCA discipline. Mitigate active customer impact first, preserve enough evidence to learn, then prevent recurrence.

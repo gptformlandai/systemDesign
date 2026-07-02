@@ -17,6 +17,13 @@
 | proximity search | geo | `stores:{city}` |
 | durable event log | stream | `events:{domain}` |
 | fire-and-forget broadcast | Pub/Sub channel | `notifications:{topic}` |
+| nested document | JSON | `product:{id}` |
+| full-text / faceted search | Search index | `idx:products` |
+| semantic similarity | vector field / Vector Set | `doc:{id}` |
+| metrics with retention | Time Series | `metrics:{service}:{name}` |
+| approximate membership | Bloom/Cuckoo | `bf:seen:{name}` |
+| reusable server-side logic | Function | `library_name:function_name` |
+| local near-cache invalidation | client-side caching | `CLIENT TRACKING` |
 
 ---
 
@@ -152,6 +159,58 @@ SCRIPT EXISTS sha1 [sha1...]
 SCRIPT FLUSH
 ```
 
+### Functions
+
+```bash
+FUNCTION LOAD library-code
+FUNCTION LIST
+FCALL function numkeys [key...] [arg...]
+FCALL_RO function numkeys [key...] [arg...]
+FUNCTION DELETE library-name
+```
+
+### JSON
+
+```bash
+JSON.SET key path json
+JSON.GET key [path...]
+JSON.DEL key [path]
+JSON.NUMINCRBY key path number
+JSON.ARRAPPEND key path value [value...]
+```
+
+### Search And Query
+
+```bash
+FT.CREATE index ON JSON|HASH PREFIX n prefix SCHEMA field AS alias TYPE
+FT.SEARCH index query [RETURN n field...] [LIMIT offset count]
+FT.INFO index
+FT.DROPINDEX index [DD]
+```
+
+### Time Series And Probabilistic
+
+```bash
+TS.CREATE key [RETENTION ms] [LABELS label value...]
+TS.ADD key timestamp value
+TS.RANGE key from to [AGGREGATION type bucket]
+
+BF.ADD key item
+BF.EXISTS key item
+CMS.INCRBY key item increment
+TOPK.ADD key item [item...]
+TDIGEST.ADD key value [value...]
+```
+
+### Client-Side Caching
+
+```bash
+HELLO 3
+CLIENT TRACKING ON
+CLIENT TRACKING ON BCAST PREFIX user: PREFIX product:
+CLIENT TRACKING OFF
+```
+
 ### Admin
 
 ```bash
@@ -210,3 +269,6 @@ ACL CAT [category]
 | ZRANGE/ZRANGEBYSCORE | O(log N + M) |
 | KEYS | O(N) — blocks, avoid in production |
 | SORT | O(N+M log M) |
+| FT.SEARCH | depends on index/query/result size |
+| JSON.GET/JSON.SET | depends on document/path size |
+| FCALL | depends on function body; blocks while running |

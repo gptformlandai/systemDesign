@@ -38,6 +38,8 @@
 ## Phase 6: Portfolio And Interview Readiness
 
 - Complete each file in [PROJECTS](PROJECTS).
+- Complete [../06-Practice-Upgrade/40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md](../06-Practice-Upgrade/40-Docker-Production-Capstone-Secure-Build-Compose-Registry-Runbook.md).
+- Review senior gap-fill sheets #32-#39 for Compose, daemon operations, security hardening, supply chain, Buildx/Bake, networking, storage, and platform boundaries.
 - Memorize [INTERVIEW_PREP/SENIOR_ANSWER_PATTERNS.md](INTERVIEW_PREP/SENIOR_ANSWER_PATTERNS.md).
 - Practice [INTERVIEW_PREP/DOCKER_QUESTION_BANK.md](INTERVIEW_PREP/DOCKER_QUESTION_BANK.md).
 - Use the runbooks until your troubleshooting flow is automatic.

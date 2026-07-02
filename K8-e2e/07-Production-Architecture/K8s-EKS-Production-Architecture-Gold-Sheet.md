@@ -1,7 +1,7 @@
 # Kubernetes EKS Production Architecture Gold Sheet
 
 > Track: K8s Interview Track — Phase 7: Production Architecture
-> Goal: Design and operate production-grade EKS clusters — Karpenter, IRSA, managed node groups, multi-AZ, networking — as a Staff Engineer or Platform Lead would.
+> Goal: Design and operate production-grade EKS clusters - Karpenter v1, EKS Pod Identity/IRSA, managed node groups, multi-AZ, networking - as a Staff Engineer or Platform Lead would.
 
 ---
 
@@ -21,6 +21,7 @@ Intermediate focus:
 Senior / MAANG focus:
 - Multi-AZ HA design: control plane, nodes, storage
 - Karpenter NodePool design for cost optimization
+- EKS Pod Identity vs IRSA workload identity decisions
 - EKS with private API endpoint and VPN/DirectConnect
 - EKS Anywhere and EKS on Outposts
 - EKS upgrade strategy and zero-downtime
@@ -80,10 +81,10 @@ kind: ClusterConfig
 metadata:
   name: prod-cluster
   region: us-east-1
-  version: "1.29"
+  version: "1.36"   # verify current EKS standard-supported versions before use
 
 iam:
-  withOIDC: true    # MUST be enabled for IRSA
+  withOIDC: true    # required for IRSA; EKS Pod Identity uses a different path
 
 vpc:
   id: vpc-12345
@@ -198,9 +199,29 @@ spec:
 
 ---
 
-# Topic 3: IRSA (IAM Roles for Service Accounts)
+# Topic 3: Workload Identity - IRSA and EKS Pod Identity
 
-## 1. Full IRSA Setup
+## 1. The Problem
+
+```text
+Bad:
+  Store AWS keys in Kubernetes Secrets.
+  Many pods share one broad node instance role.
+
+Good:
+  Each workload gets the minimum IAM permissions it needs through its
+  Kubernetes ServiceAccount.
+```
+
+## 2. IRSA (IAM Roles for Service Accounts)
+
+```text
+IRSA:
+  Uses the cluster OIDC provider and projected service account token.
+  The AWS SDK exchanges the token for role credentials.
+```
+
+### Full IRSA Setup
 
 ```bash
 # 1. OIDC provider already enabled via eksctl withOIDC: true
@@ -242,9 +263,42 @@ metadata:
     eks.amazonaws.com/role-arn: arn:aws:iam::123456:role/eksctl-prod-cluster-addon-iamserviceaccount-Role1-...
 ```
 
+## 3. EKS Pod Identity
+
+```text
+EKS Pod Identity:
+  Maps a Kubernetes ServiceAccount to an IAM role using an EKS association.
+  The EKS Pod Identity Agent runs on nodes and provides credentials to pods.
+```
+
+Why teams use it:
+- Simpler than IRSA for many new EKS platforms.
+- Does not require a per-cluster OIDC provider flow for each association.
+- IAM role trust can use `pods.eks.amazonaws.com`.
+- Credential assumption load is reduced through the EKS auth service and node agent.
+
+Operational considerations:
+- The EKS Pod Identity Agent is required unless EKS Auto Mode handles it.
+- Associations are eventually consistent; do not create them in hot request paths.
+- Add the agent link-local endpoint to `NO_PROXY` for proxied pods.
+- Containers are not a security boundary; keep node isolation and RBAC strong.
+- Check current EKS restrictions before using it on Fargate, Windows, Outposts, or non-EKS clusters.
+
+Decision:
+```text
+New EKS platform:
+  Prefer EKS Pod Identity where supported.
+
+Existing IRSA estate:
+  Keep IRSA unless there is a clear migration benefit.
+
+Portability outside EKS:
+  Favor OIDC-based identity patterns.
+```
+
 ---
 
-# Topic 4: Karpenter on EKS
+# Topic 4: Karpenter v1 on EKS
 
 ## 1. Karpenter vs Cluster Autoscaler
 
@@ -262,12 +316,25 @@ Karpenter:
   Handles spot interruptions: cordons and replaces nodes automatically
 ```
 
-## 2. Karpenter Setup
+## 2. Karpenter v1 Concepts
+
+| Concept | Meaning |
+|---|---|
+| NodePool | Workload scheduling, capacity, and disruption policy |
+| EC2NodeClass | AWS-specific config: AMI, subnets, security groups, IAM role, block devices |
+| NodeClaim | Concrete node request created by Karpenter |
+| Disruption | Consolidation, drift, expiration, interruption replacement |
+| NodeOverlay | Advanced customization layer in newer Karpenter docs |
+
+## 3. Karpenter Setup
 
 ```bash
 # Install Karpenter via Helm
+# Pin a current compatible v1.x chart from the Karpenter compatibility matrix.
+# Do not copy old v0.x versions into new clusters.
+KARPENTER_VERSION=v1.13.0  # verify the latest compatible patch before running
 helm install karpenter oci://public.ecr.aws/karpenter/karpenter \
-  --version v0.36 \
+  --version "${KARPENTER_VERSION}" \
   --namespace kube-system \
   --set settings.clusterName=prod-cluster \
   --set settings.interruptionQueue=prod-karpenter-interruption \
@@ -275,7 +342,7 @@ helm install karpenter oci://public.ecr.aws/karpenter/karpenter \
   --set controller.resources.requests.memory=1Gi
 ```
 
-## 3. NodePool Configuration
+## 4. NodePool Configuration
 
 ```yaml
 apiVersion: karpenter.sh/v1
@@ -312,8 +379,8 @@ spec:
           values: ["us-east-1a", "us-east-1b", "us-east-1c"]
       expireAfter: 720h    # replace nodes after 30 days (security + drift)
   disruption:
-    consolidationPolicy: WhenUnderutilized
-    consolidateAfter: 1m    # consolidate after 1 minute of underutilization
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 5m    # reduce churn while still saving cost
   limits:
     cpu: 1000               # max 1000 vCPUs in this NodePool
     memory: 4000Gi
@@ -341,7 +408,7 @@ spec:
         encrypted: true
 ```
 
-## 4. Spot + On-Demand Blend Strategy
+## 5. Spot + On-Demand Blend Strategy
 
 ```yaml
 # Prioritize spot; fall back to on-demand
@@ -471,10 +538,12 @@ Recommended production:
 - Prefix Delegation: increases pods per node by assigning /28 prefixes to ENIs
 - Security Groups for Pods: per-pod SG for fine-grained AWS security group policies
 - IRSA: per-SA AWS IAM role via OIDC; use `eksctl create iamserviceaccount`
-- Karpenter: direct EC2 Fleet provisioning; faster than Cluster Autoscaler; consolidation support
-- EKS NodePool: specify instance families, capacity type (spot/on-demand), AZ spread
+- EKS Pod Identity: simpler ServiceAccount-to-IAM mapping for supported EKS workloads
+- Karpenter v1: NodePool + EC2NodeClass + NodeClaim + disruption controls
+- EKS NodePool: specify instance families, capacity type (spot/on-demand), AZ spread, disruption budget
 - Control plane logs: api, audit, scheduler, controllerManager → CloudWatch
 - HA: 3 AZ spread + TopologySpreadConstraints + PDB + WaitForFirstConsumer storage
+- Modern EKS operations: keep cluster version, add-ons, node AMIs, CNI, CSI, and Karpenter chart versions intentionally upgraded
 
 ## Official Source Notes
 
@@ -482,4 +551,5 @@ Recommended production:
 - Karpenter: <https://karpenter.sh/docs/>
 - VPC CNI: <https://github.com/aws/amazon-vpc-cni-k8s>
 - IRSA: <https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html>
+- EKS Pod Identity: <https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html>
 - EKS Best Practices: <https://aws.github.io/aws-eks-best-practices/>

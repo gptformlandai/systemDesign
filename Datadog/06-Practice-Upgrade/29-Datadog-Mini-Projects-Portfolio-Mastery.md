@@ -138,7 +138,7 @@ java \
   -jar orders-service.jar
 ```
 
-**Portfolio Output**: Comparison screenshot — same endpoint, same traffic, OTel vs dd-java-agent trace views side-by-side.
+**Portfolio Output**: Comparison screenshot - same endpoint, same traffic, OTel vs dd-java-agent trace views side-by-side.
 
 ---
 
@@ -251,6 +251,169 @@ SLO status reported to stakeholders.
 
 ---
 
+## Project 6: Software Catalog And Production Scorecards
+
+**Goal**: Build a service ownership layer for three services and evaluate them with a production readiness scorecard.
+
+### What To Build
+
+```text
+Services:
+  - orders-service
+  - payments-service
+  - inventory-service
+
+For each service:
+  - entity definition file
+  - owner/team/lifecycle/tier metadata
+  - repository, runbook, dashboard, Slack, PagerDuty links
+  - SLO and monitor references
+  - scorecard checks for ownership, observability, reliability, security, and cost tags
+```
+
+### Portfolio Output
+
+Repository folder with `datadog/service-catalog/*.yaml`, a scorecard design document, and a diagram showing service dependencies and ownership routing.
+
+---
+
+## Project 7: Profiler, Error Tracking, And Dynamic Instrumentation Debug Lab
+
+**Goal**: Create a controlled production-style bug and debug it using Datadog's advanced APM tools.
+
+### What To Build
+
+```text
+Application:
+  checkout API with one intentionally inefficient code path
+
+Scenarios:
+  - CPU spike caused by inefficient discount calculation
+  - new NullPointerException after version change
+  - rare incorrect discount calculation with missing logs
+
+Datadog tools:
+  - Continuous Profiler to find CPU hotspot
+  - Error Tracking to group exception and connect to version
+  - Dynamic Instrumentation probe to capture safe runtime state
+```
+
+### Portfolio Output
+
+Before/after profile comparison, Error Tracking issue screenshot, probe design notes, and a short incident-style write-up.
+
+---
+
+## Project 8: CI Visibility And Deployment Regression Correlation
+
+**Goal**: Show how code moves from commit to production and how Datadog links failed tests or bad deploys to runtime impact.
+
+### What To Build
+
+```text
+Pipeline:
+  - GitHub Actions or Jenkins
+  - unit test report upload
+  - one intentionally flaky test
+  - deployment marker with service/env/version/git SHA
+
+Dashboard:
+  - pipeline duration
+  - test failures
+  - flaky tests
+  - deployment events
+  - service error rate by version
+```
+
+### Portfolio Output
+
+CI config, test report upload command, deployment marker script, and dashboard showing a bad version correlated to increased errors.
+
+---
+
+## Project 9: Observability Pipelines Cost And Redaction Design
+
+**Goal**: Design a telemetry pipeline that reduces noisy logs, redacts sensitive fields, archives full fidelity data, and routes high-value logs to Datadog.
+
+### What To Build
+
+```text
+Pipeline design:
+  - input from application logs
+  - redact emails, tokens, credit-card-like values
+  - drop health checks
+  - sample INFO logs
+  - keep all ERROR and security logs
+  - send operational stream to Datadog
+  - send full stream to S3/archive
+  - monitor Worker health
+```
+
+### Portfolio Output
+
+Architecture diagram, pipeline rules, before/after log volume estimate, PII redaction examples, and Worker health monitor definitions.
+
+---
+
+## Project 10: Serverless And Data Streams Incident Simulation
+
+**Goal**: Simulate delayed order processing through Lambda, SQS/Kafka, and workers, then debug with serverless metrics and Data Streams Monitoring.
+
+### What To Build
+
+```text
+Architecture:
+  API Gateway or HTTP API
+    -> order-ingest Lambda
+    -> SQS or Kafka topic
+    -> fulfillment worker
+    -> notification worker
+
+Incidents:
+  - Lambda cold start latency
+  - queue backlog
+  - DLQ growth
+  - consumer lag
+  - poison message retry loop
+```
+
+### Portfolio Output
+
+Runbook showing how to identify whether the delay is cold start, throttling, queue lag, consumer error, hot partition, or downstream dependency failure.
+
+---
+
+## Project 11: Cloud Cost, LLM Observability, And Governance As Code
+
+**Goal**: Build an enterprise-style control plane for cost, AI telemetry, and Datadog configuration governance.
+
+### What To Build
+
+```text
+FinOps:
+  - service/team/env cost allocation
+  - unit cost dashboard
+  - cost anomaly monitor
+
+LLM observability:
+  - model/provider/prompt template tags
+  - latency, token count, estimated cost, safety metric
+  - RAG retrieval trace shape
+
+Governance:
+  - Terraform monitor
+  - Terraform dashboard
+  - Terraform SLO
+  - required tags and runbook policy
+  - RBAC role matrix
+```
+
+### Portfolio Output
+
+Terraform folder, cost dashboard mock, LLM telemetry schema, governance checklist, and one-page platform operating model.
+
+---
+
 ## Interview Sound Bite
 
-Portfolio projects demonstrate practical Datadog mastery better than any certification. Five projects cover the full stack: Java APM instrumentation, multi-language cross-service tracing, OpenTelemetry portability, Kubernetes monitoring, and SLO-driven incident response. Each project produces a shareable artifact (GitHub repo, dashboard JSON, Helm values, runbook) that answers the interview question "show me something you built with Datadog."
+Portfolio projects demonstrate practical Datadog mastery better than any certification. The full set covers Java APM instrumentation, multi-language tracing, OpenTelemetry portability, Kubernetes monitoring, SLO-driven incident response, Software Catalog ownership, profiler/error/debugging tools, CI-to-production correlation, Observability Pipelines, serverless, data streams, cloud cost, LLM observability, and governance as code. Each project produces a shareable artifact that answers the interview question "show me something you built with Datadog."

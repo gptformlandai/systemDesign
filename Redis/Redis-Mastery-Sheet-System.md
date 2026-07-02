@@ -49,6 +49,10 @@ Redis serves many roles:
 | Probabilistic store | HyperLogLog for cardinality, Bloom for membership |
 | Full-text search | RediSearch module |
 | Time series | RedisTimeSeries module |
+| JSON document store | nested documents and partial path updates |
+| Vector search | semantic similarity, recommendations, semantic cache |
+| Server-side functions | persistent, versioned Lua function libraries |
+| Near-cache coordinator | client-side caching invalidation via tracking |
 
 ---
 
@@ -65,6 +69,9 @@ Redis serves many roles:
 | HyperLogLog | approximate unique count |
 | geospatial | proximity search, location data |
 | stream | append-only event log with consumer groups |
+| JSON | nested documents and indexed product/profile data |
+| vector | embeddings and similarity search when corpus fits in memory |
+| probabilistic | approximate membership, frequency, top-k, percentiles |
 
 ---
 
@@ -99,6 +106,7 @@ Strong Redis answers connect:
 - Redlock tradeoffs to fencing token alternatives
 - hot-key and stampede mitigations to production scale
 - INFO/SLOWLOG/keyspace to incident evidence
+- modern Redis features to memory, index, client, and provider constraints
 
 Weak answers only describe `SET`/`GET` or mention Redis as a cache without tradeoffs.
 
@@ -111,7 +119,7 @@ Redis is an in-memory data structure server.
 Single-threaded command execution makes commands atomic but slow commands block.
 Persistence is optional: RDB for snapshots, AOF for durability, hybrid for both.
 Sentinel provides HA; Cluster provides horizontal scale.
-Beyond cache: pub/sub, streams, locks, queues, leaderboards, geospatial, HLL, Bloom.
+Beyond cache: pub/sub, streams, locks, queues, leaderboards, geospatial, HLL, Bloom, JSON, Search, vectors, Functions.
 ```
 
 ---
@@ -122,4 +130,5 @@ Beyond cache: pub/sub, streams, locks, queues, leaderboards, geospatial, HLL, Bl
 2. Complete `01-Foundations` in order.
 3. Practice `02-Intermediate-Practical` with the lab.
 4. Study `03-Senior-Production` before system design interviews.
-5. Use scenarios and runbooks until incident debugging is automatic.
+5. Study Sheets 32-36 for modern Redis and managed-cloud production depth.
+6. Use scenarios and runbooks until incident debugging is automatic.

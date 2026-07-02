@@ -1,6 +1,6 @@
 # Dockerfile Layers, Cache, Multi-Stage Builds, and Best Practices - Gold Sheet
 
-> Track File #6 of 30 - Group 02: Intermediate Practical
+> Track File #6 of 40 - Group 02: Intermediate Practical
 > For: image build quality | Level: intermediate | Mode: Dockerfile optimization
 
 ## 1. Core Idea

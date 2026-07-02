@@ -77,15 +77,15 @@ metadata:
   labels:
     # enforce: reject violating pods
     pod-security.kubernetes.io/enforce: restricted
-    pod-security.kubernetes.io/enforce-version: v1.28
+    pod-security.kubernetes.io/enforce-version: v1.36
 
     # audit: log violations (don't reject)
     pod-security.kubernetes.io/audit: restricted
-    pod-security.kubernetes.io/audit-version: v1.28
+    pod-security.kubernetes.io/audit-version: v1.36
 
     # warn: show warnings to kubectl users
     pod-security.kubernetes.io/warn: restricted
-    pod-security.kubernetes.io/warn-version: v1.28
+    pod-security.kubernetes.io/warn-version: v1.36
 ```
 
 Modes:

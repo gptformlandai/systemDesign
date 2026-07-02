@@ -11,10 +11,12 @@ Audience:
 
 Goal:
 - Master every Copilot surface: inline suggestions, Chat, Edits, Agent Mode, Code Review,
-  prompt files, custom instructions, custom agents, MCP, and GitHub Actions integration.
+  cloud agent, Copilot CLI, prompt files, custom instructions, custom agents, MCP,
+  hooks, Memory, sandboxes, and GitHub Actions integration.
 - Build reusable prompt libraries, instruction files, and agent definitions.
 - Develop a disciplined, token-efficient, safe daily workflow.
-- Reach the level where Copilot accelerates every stage of the SDLC.
+- Reach the level where Copilot accelerates every stage of the SDLC without bypassing
+  review, security, cost, or governance controls.
 
 Use this index as the reading and practice order.
 
@@ -168,6 +170,12 @@ These are the professional operating system patterns.
 | 25 | `04-Pro-MAANG-Level/Agent-Governance-Output-Evaluation-Gold-Sheet.md` | Output scoring rubrics, hallucination detection, agent quality gates, team-level governance |
 | 26 | `04-Pro-MAANG-Level/Team-Ready-Instructions-Gold-Sheet.md` | Monorepo strategy, multi-language instructions, team instruction onboarding, conflict resolution |
 | 27 | `04-Pro-MAANG-Level/Responsible-AI-Safe-Usage-Gold-Sheet.md` | Privacy principles, no-secrets discipline, code review requirements, dependency safety, data handling |
+| 27a | `04-Pro-MAANG-Level/Copilot-Cloud-Agent-Coding-Agent-Gold-Sheet.md` | Cloud agent mental model, issue-sized task delegation, PR review protocol, safety controls, metrics |
+| 27b | `04-Pro-MAANG-Level/Copilot-Modern-CLI-And-Sandboxes-Gold-Sheet.md` | Modern Copilot CLI as an agent platform, terminal automation, rollback, local/cloud sandboxes |
+| 27c | `04-Pro-MAANG-Level/Copilot-Memory-Hooks-Skills-Gold-Sheet.md` | Copilot Memory, hook guardrails, skills/playbooks, runtime policy enforcement |
+| 27d | `04-Pro-MAANG-Level/Copilot-Enterprise-Governance-Metrics-Billing-Gold-Sheet.md` | Enterprise policy, model controls, content exclusion, MCP governance, AI credits, metrics |
+| 27e | `04-Pro-MAANG-Level/Copilot-MCP-Registry-Toolsets-Repository-Indexing-Gold-Sheet.md` | MCP registry/allowlists, toolset design, GitHub MCP, repository indexing, content exclusion |
+| 27f | `04-Pro-MAANG-Level/Copilot-Feature-Matrix-Surfaces-Integrations-Gold-Sheet.md` | Surface selection across IDEs, GitHub.com, Mobile, CLI, app, Spark, SDK, third-party integrations |
 
 Pro target:
 - You operate a personal Copilot system with daily rituals and a reusable prompt library.
@@ -176,6 +184,9 @@ Pro target:
 - You can evaluate Copilot output quality before accepting it.
 - You can set up team-ready instructions for a multi-developer project.
 - You apply responsible AI principles as non-negotiable defaults.
+- You can delegate issue-sized work to cloud agent with clear scope and review gates.
+- You can use modern Copilot CLI safely with checkpoints, hooks, and sandbox awareness.
+- You can explain Memory, hooks, skills, MCP, repository indexing, content exclusion, and enterprise controls.
 
 ---
 
@@ -210,12 +221,14 @@ Use these alongside and after the concept sheets. They convert passive reading i
 | 35 | `06-Practice-Upgrade/Copilot-Scoring-Rubrics.md` | 1-5 scoring rubrics for prompt quality, context efficiency, output review, and workflow maturity |
 | 36 | `06-Practice-Upgrade/Copilot-4-Week-Mastery-Roadmap.md` | Realistic 4-week plan from beginner to pro operating level |
 | 37 | `06-Practice-Upgrade/Copilot-MAANG-Interview-Prep-Gold-Sheet.md` | L3–L7 interview Q&A for "how do you use AI tools" — behavioral, depth, team/org, and strategy questions |
+| 38 | `06-Practice-Upgrade/Copilot-Production-Capstone-Cloud-Agent-Enterprise-Workflow.md` | Production capstone covering issue framing, agentic workflow, review, tests, governance, and PR communication |
 
 Practice target:
 - You can answer questions about Copilot modes, context, and instructions from memory.
 - You have a personal prompt library of at least 10 reusable prompts.
 - You can score your own Copilot usage honestly and improve weak areas.
 - You complete the 4-week roadmap and can articulate your Copilot operating system.
+- You complete one production-style capstone using modern Copilot guardrails.
 
 ---
 
@@ -245,6 +258,8 @@ config/
     write-pr-description.prompt.md       — /write-pr-description (from Practice Upgrade templates)
     generate-learning-notes.prompt.md    — /generate-learning-notes (from Practice Upgrade templates)
     create-github-action.prompt.md       — /create-github-action
+    cloud-agent-task.prompt.md           — /cloud-agent-task
+    enterprise-copilot-governance-audit.prompt.md — /enterprise-copilot-governance-audit
 
   agents/                                — copy to .github/agents/ in your project
     codebase-navigator.agent.md          — @codebase-navigator: codebase exploration
@@ -252,6 +267,15 @@ config/
     test-engineer.agent.md               — @test-engineer: test generation + gap analysis
     security-reviewer.agent.md           — @security-reviewer: OWASP-aligned security review
     architecture-advisor.agent.md        — @architecture-advisor: SOLID + coupling + scalability
+    cloud-agent-issue-fixer.agent.md     — @cloud-agent-issue-fixer: scoped issue implementation
+    enterprise-governance-reviewer.agent.md — @enterprise-governance-reviewer: policy/MCP/agent readiness review
+
+  hooks/                                 — copy to .github/hooks/ in your project
+    pre-tool-use-security-scan.example.json — deny secrets/protected paths before agent tool use
+    post-tool-use-test-report.example.json  — remind agent to summarize changes and validation
+
+  skills/                                — copy to the skill location supported by your Copilot surface
+    release-manager.skill.md             — release readiness, changelog, rollback, and approval playbook
 ```
 
 ---
@@ -299,3 +323,33 @@ config/
 - Creates end-of-day learning notes.
 - Maintains a prompt library that grows with experience.
 - Reviews and prunes custom instructions quarterly.
+
+### Agentic Platform Mastery
+
+- Can distinguish IDE Agent Mode, cloud agent, Copilot CLI, code review, and Copilot app workflows.
+- Frames cloud agent tasks as small, testable, reviewable issues.
+- Uses hooks, sandboxes, branch protection, and CI as guardrails around agentic work.
+- Understands Copilot Memory and knows when to promote a repeated fact into instructions.
+- Treats MCP as tool access requiring least privilege, not just "more context."
+- Checks the official feature matrix before assuming support on every IDE or plan.
+
+### Enterprise Readiness
+
+- Can explain access, model, content exclusion, MCP, agentic, budget, and audit controls.
+- Measures quality outcomes instead of only generated lines or prompt count.
+- Knows that policy conflicts, plan differences, and surface differences affect feature availability.
+
+---
+
+## 9. Official Source Anchors
+
+Fast-moving Copilot features change often. Re-check these when updating the track:
+
+- https://docs.github.com/en/copilot
+- https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent
+- https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-copilot-cli
+- https://docs.github.com/en/copilot/concepts/agents/copilot-memory
+- https://docs.github.com/en/copilot/concepts/agents/hooks
+- https://docs.github.com/en/copilot/concepts/about-cloud-and-local-sandboxes
+- https://docs.github.com/en/copilot/concepts/context/mcp
+- https://docs.github.com/en/copilot/reference/copilot-feature-matrix

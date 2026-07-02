@@ -58,6 +58,19 @@ Cover each question. Write your answer before revealing the answer below. Revisi
 
 ---
 
+## Round 5: Modern Redis Pro
+
+1. What is the difference between storing JSON as a string and using Redis JSON?
+2. When would you choose TAG versus TEXT in a search index?
+3. Why can vector search become expensive in Redis?
+4. What is the main risk of using a Bloom filter as final authority?
+5. Why are Redis Functions safer operationally than ad-hoc EVALSHA-only deployments?
+6. What should an application do with its near-cache after Redis reconnect or failover?
+7. Name three things to verify before a Redis 8 upgrade.
+8. What is the key difference between managed cache Redis and durable managed Redis?
+
+---
+
 ## Answer Key: Round 1
 
 1. GET O(1), SET O(1), HGETALL O(N), KEYS O(N) and blocks.
@@ -107,3 +120,16 @@ Cover each question. Write your answer before revealing the answer below. Revisi
 6. `allkeys-lru` or `allkeys-lfu`.
 7. Use ziplist/listpack encoding for small sorted sets; trim with ZREMRANGEBYSCORE regularly.
 8. Replica promoted automatically; if no replica, slot range becomes unavailable.
+
+---
+
+## Answer Key: Round 5
+
+1. A JSON string is opaque to Redis; Redis JSON supports path reads/updates and indexing with query/search features.
+2. TAG is for exact filtering like brand/category/tenant. TEXT is tokenized full-text search.
+3. Vector memory scales with count x dimensions x bytes, plus index overhead; approximate indexes also add tuning complexity.
+4. Bloom filters can return false positives, so they should not be final authority for critical denial/approval decisions.
+5. Functions are named, persisted, introspectable, and deployable as versioned libraries; EVALSHA depends on script cache lifecycle.
+6. Flush the local near-cache unless the client guarantees invalidation continuity through reconnect.
+7. Verify client support, command compatibility, persistence restore/rollback, monitoring, ACLs, Cluster/Sentinel behavior, and provider support.
+8. Managed cache Redis accelerates another source of truth; durable managed Redis may be designed as primary state but still has Redis data-model constraints.

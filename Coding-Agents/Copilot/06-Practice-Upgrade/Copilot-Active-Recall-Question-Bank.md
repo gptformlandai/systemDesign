@@ -315,6 +315,129 @@
 
 ---
 
+## Pro+ Agentic Platform And Enterprise Readiness (Sheets 27a-27f + Capstone)
+
+**Q51:** What is the main difference between IDE Agent Mode and Copilot cloud agent?
+
+**A51:** IDE Agent Mode runs in your local editor/workspace and is best for hands-on multi-file work. Copilot cloud agent runs in a GitHub-managed cloud environment and is best for issue-sized delegated tasks that produce branch/PR output for human review.
+
+---
+
+**Q52:** What are the 6 required parts of a cloud-agent-ready issue?
+
+**A52:** Goal, user-visible behavior, scope, explicit non-goals, existing patterns to follow, and validation/review notes. Without these, the agent is more likely to drift, over-edit, or produce a PR that is hard to review.
+
+---
+
+**Q53:** What should you review first in an agent-created PR?
+
+**A53:** Start with intent and diff shape: does the PR solve the original issue, and are the changed files expected? Then review correctness, security, tests, maintainability, and operational risk.
+
+---
+
+**Q54:** Why is modern Copilot CLI more than `gh copilot suggest/explain`?
+
+**A54:** The older `gh copilot` flow helps explain or suggest terminal commands. The modern Copilot CLI is an agentic command-line surface that can work with files, run tools, manage sessions, use custom agents, MCP, hooks, programmatic execution, rollback, and sandboxes where enabled.
+
+---
+
+**Q55:** What is the safe CLI operating loop?
+
+**A55:** Check repo state, create a checkpoint, start a bounded task, ask for a plan before edits, approve tools deliberately, review `git diff`, run tests, and commit only code you can explain.
+
+---
+
+**Q56:** What are cloud and local sandboxes for?
+
+**A56:** They isolate Copilot tool execution from the broader machine or environment. Local sandboxes restrict local execution; cloud sandboxes provide ephemeral cloud environments. They reduce blast radius but do not remove the need for review.
+
+---
+
+**Q57:** What is Copilot Memory, and what are the two main memory types?
+
+**A57:** Copilot Memory stores stable facts and preferences to improve future responses. The two main types are repository-level facts, such as build commands and architecture rules, and user-level preferences, such as preferred response style.
+
+---
+
+**Q58:** When should a fact go into instructions instead of Memory?
+
+**A58:** Put non-negotiable or security-critical rules in instructions. Let Memory hold stable helpful facts. If violating the fact could break production, leak data, or weaken security, make it explicit in instructions and guardrails.
+
+---
+
+**Q59:** What are hooks in Copilot agent workflows?
+
+**A59:** Hooks are configured commands that run at strategic points in an agent workflow, such as before a tool call, after a tool call, at session start/end, or when a prompt is submitted. They can block unsafe actions, add context, scan for secrets, log events, or enforce policy.
+
+---
+
+**Q60:** What is the difference between `preToolUse` and `postToolUse` hooks?
+
+**A60:** `preToolUse` runs before a tool executes and can allow, deny, ask, or modify tool arguments. `postToolUse` runs after successful tool execution and can modify the result or add context for the model.
+
+---
+
+**Q61:** What is an agent skill?
+
+**A61:** A skill is a reusable playbook or packaged expertise for a recurring workflow, such as release management, incident review, migration safety, accessibility audit, or dependency upgrade review.
+
+---
+
+**Q62:** What is MCP in one sentence?
+
+**A62:** MCP is an open standard that lets Copilot connect to external data sources and tools through configured servers, so the agent can use approved context and actions beyond the current prompt.
+
+---
+
+**Q63:** What is the safest starting policy for MCP?
+
+**A63:** Start read-only, use fine-grained credentials, expose only the tools needed for the workflow, prefer approved registries/allowlists, and require human approval before write-capable side effects.
+
+---
+
+**Q64:** When should you use repository indexing instead of `#file`?
+
+**A64:** Use repository indexing or `#codebase` when you need discovery by meaning and do not know the exact files. Use `#file`, `#selection`, or `#sym` when you already know the exact context.
+
+---
+
+**Q65:** What is content exclusion used for, and why is it not enough by itself?
+
+**A65:** Content exclusion tells Copilot to ignore configured sensitive paths where supported. It is not enough by itself because support varies by surface/mode, and secrets should still be kept out of repos, scanned, and protected by hooks and review discipline.
+
+---
+
+**Q66:** What enterprise controls should exist before broad cloud agent rollout?
+
+**A66:** Access policy, model policy, content exclusion, MCP allowlists, branch protection, CI, CODEOWNERS/review gates, hooks for unsafe paths/actions, budget/AI credit monitoring, audit visibility, and developer training.
+
+---
+
+**Q67:** Why are lines of code generated a weak Copilot success metric?
+
+**A67:** Lines generated rewards volume, not value. Better metrics include PR cycle time, review-ready rate, defect/revert rate, test coverage delta, security findings, agent PR quality, AI credits, and Actions minutes per useful outcome.
+
+---
+
+**Q68:** What is the capability verification protocol when a Copilot feature is missing?
+
+**A68:** Check plan/license, org/enterprise policy, IDE support matrix, extension version, preview status, repository trust/workspace state, network/firewall, logs, and official docs.
+
+---
+
+**Q69:** What is the best surface for each: selected-code explanation, 3-file refactor, background issue implementation, terminal debugging?
+
+**A69:** Selected-code explanation: IDE Chat. 3-file refactor: Edits. Background issue implementation: cloud agent. Terminal debugging: Copilot CLI.
+
+---
+
+**Q70:** What does the production capstone prove?
+
+**A70:** It proves you can frame a real task, choose the right Copilot surface, configure context and guardrails, use agentic workflow safely, review output, validate tests, communicate a PR, and explain governance decisions.
+
+
+---
+
 ## Foundations (Sheets 1-6)
 
 **Q1:** What are the 6 Copilot surfaces? Name each and its best use case.
@@ -428,3 +551,47 @@
 **Q49:** What is the GREEN / YELLOW / RED data classification scheme?
 
 **Q50:** What are the 4 categories in the AI output evaluation standard?
+
+---
+
+## Pro+ Agentic Platform And Enterprise Readiness (Sheets 27a-27f + Capstone)
+
+**Q51:** What is the main difference between IDE Agent Mode and Copilot cloud agent?
+
+**Q52:** What are the 6 required parts of a cloud-agent-ready issue?
+
+**Q53:** What should you review first in an agent-created PR?
+
+**Q54:** Why is modern Copilot CLI more than `gh copilot suggest/explain`?
+
+**Q55:** What is the safe CLI operating loop?
+
+**Q56:** What are cloud and local sandboxes for?
+
+**Q57:** What is Copilot Memory, and what are the two main memory types?
+
+**Q58:** When should a fact go into instructions instead of Memory?
+
+**Q59:** What are hooks in Copilot agent workflows?
+
+**Q60:** What is the difference between `preToolUse` and `postToolUse` hooks?
+
+**Q61:** What is an agent skill?
+
+**Q62:** What is MCP in one sentence?
+
+**Q63:** What is the safest starting policy for MCP?
+
+**Q64:** When should you use repository indexing instead of `#file`?
+
+**Q65:** What is content exclusion used for, and why is it not enough by itself?
+
+**Q66:** What enterprise controls should exist before broad cloud agent rollout?
+
+**Q67:** Why are lines of code generated a weak Copilot success metric?
+
+**Q68:** What is the capability verification protocol when a Copilot feature is missing?
+
+**Q69:** What is the best surface for each: selected-code explanation, 3-file refactor, background issue implementation, terminal debugging?
+
+**Q70:** What does the production capstone prove?

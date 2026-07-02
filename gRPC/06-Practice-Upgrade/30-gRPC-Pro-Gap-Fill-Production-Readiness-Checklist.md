@@ -14,6 +14,10 @@ Use this file to find gaps after you think you know gRPC.
 - [ ] Enum zero values are `UNSPECIFIED`.
 - [ ] Large payloads use pagination, streaming, field masks, or references.
 - [ ] Field masks are documented, validated, authorized, and tested when partial reads or patch updates exist.
+- [ ] Field presence is understood for update/patch semantics.
+- [ ] Well-known types are used for timestamps, durations, field masks, and empty messages where appropriate.
+- [ ] JSON mapping behavior is tested when gateways or gRPC-Web expose the API.
+- [ ] Protobuf Editions vs proto3 choice is documented for new APIs.
 - [ ] Side-effecting methods have idempotency design if retryable.
 - [ ] Breaking-change checks run in CI.
 - [ ] Generated code is reproducible.
@@ -33,6 +37,8 @@ Use this file to find gaps after you think you know gRPC.
 - [ ] Hedging is limited to selected safe methods.
 - [ ] Streaming methods have backpressure and cancellation tests.
 - [ ] Message size, metadata size, compression, keepalive, and concurrent-stream limits are explicit.
+- [ ] Channel lifecycle is documented: reuse, shutdown, state, backoff, and resolver scheme.
+- [ ] Service config examples exist for timeouts, retries, hedging, and load balancing.
 
 ---
 
@@ -45,6 +51,7 @@ Use this file to find gaps after you think you know gRPC.
 - [ ] Cert rotation is automated and tested.
 - [ ] Tokens and sensitive metadata are redacted from logs.
 - [ ] Reflection exposure is reviewed.
+- [ ] Channelz/admin debugging exposure is protected if enabled.
 
 ---
 
@@ -58,6 +65,9 @@ Use this file to find gaps after you think you know gRPC.
 - [ ] Load-balancing policy is explicit.
 - [ ] Service config/xDS retry, hedging, timeout, and load-balancing policy is governed and canaried.
 - [ ] Gateway mode is documented: native gRPC, gRPC-Web, or transcoding.
+- [ ] Graceful shutdown flips health/readiness before terminating.
+- [ ] Long-lived streams have heartbeat, max age, drain, and resume behavior.
+- [ ] CORS/auth/header rules are documented for gRPC-Web.
 
 ---
 
@@ -70,6 +80,19 @@ Use this file to find gaps after you think you know gRPC.
 - [ ] SLOs exist for critical methods.
 - [ ] Alerts exist for `UNAVAILABLE`, `DEADLINE_EXCEEDED`, `INTERNAL`, and auth spikes.
 - [ ] Active stream and slow-consumer signals exist for streaming methods.
+- [ ] OTel client/server call, per-attempt, retry/hedge, and message-size metrics are reviewed.
+- [ ] Channel/LB/xDS debug evidence is available during incidents.
+
+---
+
+## Implementation Readiness
+
+- [ ] At least one runnable Java or Go service exists.
+- [ ] A client sets deadlines and metadata.
+- [ ] grpcurl smoke tests are documented.
+- [ ] Status-code contract tests run.
+- [ ] Docker or compose run path exists.
+- [ ] Reflection and health behavior differ correctly between local/dev and production.
 
 ---
 
@@ -84,12 +107,13 @@ Score each area from 0 to 3.
 | security | vague | TLS/auth basics | mTLS/authz | cert/policy ops |
 | deployment | local only | basic K8s | proxy/mesh aware | rollout/debug expert |
 | observability | logs only | metrics | traces/SLOs | RCA-ready |
+| implementation | design only | sample proto | runnable service | tested local platform |
 
 Target score:
 
 - 8+: practical
 - 11+: senior
-- 14+: MAANG-ready
+- 17+: MAANG-ready
 
 ---
 

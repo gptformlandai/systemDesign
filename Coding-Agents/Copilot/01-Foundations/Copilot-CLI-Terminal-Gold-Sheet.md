@@ -10,6 +10,12 @@
 
 ## 0. How To Read This Sheet
 
+This foundation sheet focuses on `gh copilot explain` and `gh copilot suggest`.
+Those are still useful for command-line help. For the newer agentic Copilot CLI
+surface with file edits, sessions, hooks, MCP, rollback, and sandboxes, read:
+
+`04-Pro-MAANG-Level/Copilot-Modern-CLI-And-Sandboxes-Gold-Sheet.md`
+
 **Beginner focus:**
 - What `gh copilot` is and how it differs from VS Code Copilot
 - Installing the extension and running your first `explain` and `suggest`

@@ -1,6 +1,6 @@
 # Docker Anti-Patterns and Debugging Traps - MAANG Sheet
 
-> Track File #26 of 30 - Group 05: Special Interview Rounds
+> Track File #26 of 40 - Group 05: Special Interview Rounds
 > For: production maturity | Level: senior | Mode: traps and safer alternatives
 
 ## 1. Dangerous Anti-Patterns
@@ -15,6 +15,12 @@
 | no `.dockerignore` | slow builds and secret leaks | explicit ignore file |
 | storing DB data in writable layer | data loss on recreation | named volume or external datastore |
 | `compose down -v` casually | deletes named volumes | know volume lifecycle and backups |
+| exposing daemon on unauthenticated TCP | remote host control risk | SSH context or mutually authenticated TLS |
+| mounting Docker socket in untrusted CI | job can control host daemon | isolated runner or rootless/remote builder |
+| relying on mutable release tags | deployment drift and weak rollback | deploy by digest and enforce tag immutability |
+| disabling seccomp/AppArmor blindly | larger kernel attack surface | keep defaults, relax with evidence |
+| using one Compose file for every mode without profiles | debug/admin tools run accidentally | profiles for optional services |
+| unbounded build/log cache | host disk pressure | log rotation, BuildKit cache retention, safe prune runbook |
 
 ---
 
@@ -23,9 +29,14 @@
 - `EXPOSE` documents a port but does not publish it
 - container `localhost` is not host `localhost`
 - `depends_on` is not readiness
+- `.env` is not automatically the final container environment
 - shell exists in dev image but not slim/distroless image
 - bind mount can hide image files
+- Docker Desktop networking/filesystem behavior is not identical to native Linux Engine
+- current Docker context may point to a different daemon
 - tag does not prove exact image content
+- a signed image can still contain vulnerable packages
+- Kubernetes may run the image with containerd/CRI-O, not Docker Engine
 - restarting hides crash-loop evidence
 
 ---
@@ -41,7 +52,7 @@ I would first identify the Docker object involved: image, container, network, vo
 ## 4. Interview Summary
 
 ```text
-Senior Docker maturity means avoiding mutable tags, secrets in images, root/privileged containers, manual container mutation, unmanaged volumes, and assumption-driven networking. I prefer immutable images, least privilege, explicit config, observability, and reproducible builds.
+Senior Docker maturity means avoiding mutable tags, secrets in images, root/privileged containers, exposed sockets, manual container mutation, unmanaged volumes, unbounded daemon disk growth, and assumption-driven networking. I prefer immutable images, least privilege, explicit config, digest promotion, observability, reproducible builds, and evidence-based runbooks.
 ```
 
 ---

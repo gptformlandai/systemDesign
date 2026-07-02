@@ -1,6 +1,6 @@
 # Docker Interview Q&A: Beginner To Pro - MAANG Sheet
 
-> Track File #24 of 30 - Group 05: Special Interview Rounds
+> Track File #24 of 40 - Group 05: Special Interview Rounds
 > For: Docker interviews | Level: beginner to senior | Mode: direct Q&A
 
 ## 1. What is Docker?
@@ -58,3 +58,39 @@ A tag is a mutable human-readable pointer. A digest is immutable content identit
 ## 14. What makes a Docker answer senior-level?
 
 It covers image construction, runtime config, Linux isolation, resource limits, security, registry identity, observability, CI/CD, rollback, and production failure modes.
+
+## 15. What is the first thing you check before a serious Docker incident?
+
+The active daemon/context. `docker context show`, `docker info`, and `docker version` prevent debugging the wrong host or Desktop VM.
+
+## 16. Why is mounting `/var/run/docker.sock` risky?
+
+The Docker socket lets a container control the Docker daemon. A process with socket access can often start privileged containers or mount host paths, so treat it like root-equivalent infrastructure access.
+
+## 17. What is the difference between tag, digest, SBOM, provenance, and signature?
+
+A tag is a human-friendly pointer. A digest is exact content identity. An SBOM lists dependencies. Provenance describes build source and process. A signature or attestation proves an identity approved or produced a specific artifact.
+
+## 18. What is Buildx used for?
+
+Buildx manages advanced BuildKit builds: builders, drivers, multi-platform images, cache exporters/importers, secret mounts, SSH mounts, SBOM/provenance, and Bake-based multi-target builds.
+
+## 19. How do Compose profiles help?
+
+Profiles keep optional services such as admin UIs, debug tools, profilers, seeders, and load-test tools out of the default app while preserving them in the same Compose model.
+
+## 20. What is the env precedence trap in Compose?
+
+`.env` is mainly an interpolation source. Final container env can come from CLI `-e`, interpolated values, `environment`, `env_file`, or Dockerfile `ENV`, with precedence deciding the winner.
+
+## 21. When would you use `--read-only` and tmpfs?
+
+Use `--read-only` to prevent persistent writes to the root filesystem, then add tmpfs or explicit volumes only for paths the app truly needs to write, such as `/tmp` or cache directories.
+
+## 22. Why can Docker behave differently on macOS/Windows than Linux?
+
+Docker Desktop usually runs Linux containers inside a VM. File sharing, networking, CPU/memory/disk limits, architecture, and host access can differ from native Linux Docker Engine.
+
+## 23. Does Kubernetes run Docker?
+
+Modern Kubernetes commonly runs containers through containerd or CRI-O via the CRI. Docker may still be used to build images or for local development, but production runtime must be checked explicitly.

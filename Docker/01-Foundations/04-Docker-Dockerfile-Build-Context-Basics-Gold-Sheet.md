@@ -1,6 +1,6 @@
 # Dockerfile and Build Context Basics - Gold Sheet
 
-> Track File #4 of 30 - Group 01: Foundations
+> Track File #4 of 40 - Group 01: Foundations
 > For: first image builds | Level: beginner | Mode: Dockerfile basics
 
 ## 1. Core Idea

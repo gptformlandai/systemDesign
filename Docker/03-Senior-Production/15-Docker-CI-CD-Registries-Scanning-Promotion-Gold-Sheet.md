@@ -1,6 +1,6 @@
 # Docker CI/CD, Registries, Scanning, and Promotion - Gold Sheet
 
-> Track File #15 of 30 - Group 03: Senior Production
+> Track File #15 of 40 - Group 03: Senior Production
 > For: platform/DevOps interviews | Level: senior | Mode: container delivery pipeline
 
 ## 1. Core Idea

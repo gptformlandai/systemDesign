@@ -234,6 +234,153 @@ Fix: set DD_APM_NON_LOCAL_TRAFFIC=true and DD_AGENT_HOST=datadog-agent-container
 
 ---
 
+## Drill 8: Software Catalog Entity And Scorecard
+
+**Practice**: Write the minimum metadata for a production service and define scorecard checks.
+
+```yaml
+apiVersion: v3
+kind: service
+metadata:
+  name: orders-service
+  displayName: Orders Service
+  tags:
+    - service:orders-service
+    - team:checkout
+    - env:production
+spec:
+  owner: checkout-platform
+  lifecycle: production
+  tier: critical
+  type: web
+  contacts:
+    slack: "#team-checkout-alerts"
+    pagerduty: checkout-platform-primary
+  links:
+    repo: https://github.com/company/orders-service
+    runbook: https://wiki.company.com/runbooks/orders-service
+    dashboard: https://app.datadoghq.com/dashboard/orders
+```
+
+```text
+Scorecard checks:
+  - owner exists
+  - service/env/version tags exist
+  - SLO exists
+  - monitor routes to owner
+  - runbook link exists
+  - no critical security findings
+  - deployment events visible
+```
+
+---
+
+## Drill 9: Profiler And Error Tracking Diagnosis
+
+**Practice**: Given the evidence, identify the tool and root-cause path.
+
+```text
+Symptom A:
+  CPU is 95%.
+  APM shows slow application span but no slow downstream dependency.
+  Regression started after version 2.4.1.
+
+Tool: Continuous Profiler.
+Action:
+  compare CPU profiles for version 2.4.0 vs 2.4.1.
+  find widest new frame.
+  fix the expensive method.
+
+Symptom B:
+  20,000 Java exceptions appear after deploy.
+  Many logs are duplicates.
+  Need one actionable issue.
+
+Tool: Error Tracking.
+Action:
+  group exceptions into issues.
+  filter env:production service:orders-service.
+  sort by new/high-impact issue.
+  inspect first_seen, suspected commit, stack trace, impacted requests.
+```
+
+---
+
+## Drill 10: Observability Pipelines Routing Plan
+
+**Practice**: Design a pipeline for this requirement.
+
+```text
+Requirement:
+  Reduce log cost by 40%.
+  Redact email/token/card data before logs leave the VPC.
+  Preserve complete logs for compliance.
+  Keep all errors and security audit logs in Datadog.
+
+Answer:
+  app logs -> Observability Pipelines Worker
+    -> redact email/token/card fields
+    -> enrich service/team/env/account tags
+    -> drop health check logs
+    -> sample INFO logs at 10%
+    -> keep ERROR and security logs at 100%
+    -> send operational stream to Datadog
+    -> send full stream to S3 archive
+    -> monitor Worker drops, delivery errors, buffer usage, input/output rate
+```
+
+---
+
+## Drill 11: Serverless And Data Stream Delay
+
+**Practice**: Diagnose this event-driven incident.
+
+```text
+Symptom:
+  Users report delayed order confirmation.
+  orders-api p95 is normal.
+  Lambda error rate is low.
+  SQS age of oldest message is 18 minutes.
+  DLQ depth is increasing.
+
+Likely area:
+  async processing path, not the synchronous API.
+
+Check:
+  - Lambda duration, throttles, timeouts, memory
+  - queue age and visible messages
+  - DLQ message samples
+  - retry count and visibility timeout
+  - consumer version/deployment
+  - downstream dependency latency
+
+Datadog tools:
+  Serverless Monitoring + Data Streams Monitoring + APM for consumer code.
+```
+
+---
+
+## Drill 12: Cloud Cost And LLM Cost Spike
+
+**Practice**: Explain investigation steps.
+
+```text
+Symptom:
+  AI support chatbot cost tripled.
+  Traffic increased only 10%.
+  Release introduced prompt template v7.
+
+Steps:
+  1. Split LLM cost by service, model, prompt.template, version, customer_tier.
+  2. Compare prompt_tokens and completion_tokens before/after v7.
+  3. Inspect RAG retrieval span count and document sizes.
+  4. Check model/provider changes and retry/rate-limit behavior.
+  5. Verify PII redaction and prompt logging policy.
+  6. Roll back prompt template or cap retrieval/context/token budget.
+```
+
+---
+
 ## Interview Sound Bite
 
-Practical drills reinforce what theory alone cannot: the exact init order for dd-trace (Node.js first import), the command-line syntax for dd-java-agent (-javaagent with -Ddd.service), the query structure for error rate formulas, and the math behind SLO burn rate calculations. Drilling these until they are automatic is what separates a candidate who "knows Datadog" from one who can implement it correctly on the first try.
+Practical drills reinforce what theory alone cannot: the exact init order for dd-trace (Node.js first import), the command-line syntax for dd-java-agent (-javaagent with -Ddd.service), the query structure for error rate formulas, the math behind SLO burn rate calculations, and the operating judgment behind Software Catalog, Profiler, Error Tracking, Observability Pipelines, Serverless, Data Streams, Cloud Cost, and LLM Observability. Drilling these until they are automatic is what separates a candidate who "knows Datadog" from one who can implement and operate it correctly.

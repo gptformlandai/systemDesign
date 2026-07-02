@@ -12,6 +12,7 @@ Use this track if:
 - You want to instrument Java, Node.js, and Python applications with Datadog APM and OpenTelemetry.
 - You want to understand trace correlation, spanID/traceID injection into logs, and distributed tracing across microservices.
 - You want MAANG-level answers on SLOs, monitors, alert fatigue, and production incident resolution.
+- You want modern Datadog platform depth: Software Catalog, USM, Profiler, Dynamic Instrumentation, Error Tracking, CI Visibility, Observability Pipelines, Serverless, Data Streams, Cloud Cost, App/API Security, Incident Management, LLM Observability, and governance.
 - You want hands-on labs, runbooks, portfolio projects, and scenario drills.
 
 ---
@@ -38,6 +39,7 @@ Datadog mastery is not about knowing the UI. It is about instrumenting systems c
 | 4 | `04-Scenario-Practice` | High latency, log spikes, OOMKilled, slow queries, alert fatigue, SLO burn, broken traces |
 | 5 | `05-Special-Interview-Rounds` | Q&A, query/command cheatsheet, anti-patterns |
 | 6 | `06-Practice-Upgrade` | Active recall, drills, mini projects, production readiness checklist |
+| 7 | `07-Advanced-Platform` | Software Catalog, USM, Profiler, Dynamic Instrumentation, Error Tracking, CI/CD, Observability Pipelines, Serverless, Data Streams, FinOps, Security, Incidents, LLM Observability, Governance |
 | Lab | `datadog-mastery-lab` | Examples, scripts, labs, projects, cheatsheets, interview prep, runbooks |
 
 ---
@@ -137,7 +139,34 @@ Scenario target:
 
 ---
 
-## 9. Datadog Mastery Lab
+## 9. Advanced Platform Path
+
+| Order | File | What It Builds |
+|---:|---|---|
+| 31 | [07-Advanced-Platform/31-Datadog-Software-Catalog-IDP-Service-Ownership-Scorecards-MAANG-Sheet.md](07-Advanced-Platform/31-Datadog-Software-Catalog-IDP-Service-Ownership-Scorecards-MAANG-Sheet.md) | Software Catalog, service ownership, entity definitions, scorecards, internal developer portal |
+| 32 | [07-Advanced-Platform/32-Datadog-Universal-Service-Monitoring-USM-Code-Free-Service-Discovery-Gold-Sheet.md](07-Advanced-Platform/32-Datadog-Universal-Service-Monitoring-USM-Code-Free-Service-Discovery-Gold-Sheet.md) | USM, code-free service discovery, baseline RED metrics, APM rollout prioritization |
+| 33 | [07-Advanced-Platform/33-Datadog-Continuous-Profiler-Code-Hotspots-Production-Performance-MAANG-Sheet.md](07-Advanced-Platform/33-Datadog-Continuous-Profiler-Code-Hotspots-Production-Performance-MAANG-Sheet.md) | Continuous Profiler, CPU/wall/allocation/lock profiles, code hotspots, version comparison |
+| 34 | [07-Advanced-Platform/34-Datadog-Dynamic-Instrumentation-Live-Debugging-Probes-MAANG-Sheet.md](07-Advanced-Platform/34-Datadog-Dynamic-Instrumentation-Live-Debugging-Probes-MAANG-Sheet.md) | live debugging, dynamic logs, metric probes, snapshots, RBAC and safety |
+| 35 | [07-Advanced-Platform/35-Datadog-Error-Tracking-Issue-Grouping-Exception-Replay-Gold-Sheet.md](07-Advanced-Platform/35-Datadog-Error-Tracking-Issue-Grouping-Exception-Replay-Gold-Sheet.md) | Error Tracking, grouped issues, suspected commits, impact, exception replay, frontend/backend triage |
+| 36 | [07-Advanced-Platform/36-Datadog-CI-Visibility-Test-Optimization-DORA-Software-Delivery-Gold-Sheet.md](07-Advanced-Platform/36-Datadog-CI-Visibility-Test-Optimization-DORA-Software-Delivery-Gold-Sheet.md) | CI Visibility, flaky tests, pipeline traces, deployment correlation, DORA metrics |
+| 37 | [07-Advanced-Platform/37-Datadog-Observability-Pipelines-Worker-Redaction-Dual-Shipping-MAANG-Sheet.md](07-Advanced-Platform/37-Datadog-Observability-Pipelines-Worker-Redaction-Dual-Shipping-MAANG-Sheet.md) | Observability Pipelines Worker, redaction, enrichment, sampling, routing, archives, dual shipping |
+| 38 | [07-Advanced-Platform/38-Datadog-Serverless-Lambda-Extension-Forwarder-Step-Functions-Gold-Sheet.md](07-Advanced-Platform/38-Datadog-Serverless-Lambda-Extension-Forwarder-Step-Functions-Gold-Sheet.md) | serverless monitoring, Lambda Extension/Forwarder, cold starts, timeouts, Step Functions, async queues |
+| 39 | [07-Advanced-Platform/39-Datadog-Data-Streams-Monitoring-Kafka-SQS-Kinesis-RabbitMQ-Gold-Sheet.md](07-Advanced-Platform/39-Datadog-Data-Streams-Monitoring-Kafka-SQS-Kinesis-RabbitMQ-Gold-Sheet.md) | Data Streams Monitoring, Kafka/SQS/Kinesis/RabbitMQ topology, end-to-end latency, consumer lag |
+| 40 | [07-Advanced-Platform/40-Datadog-Cloud-Cost-Management-FinOps-Unit-Economics-MAANG-Sheet.md](07-Advanced-Platform/40-Datadog-Cloud-Cost-Management-FinOps-Unit-Economics-MAANG-Sheet.md) | Cloud Cost Management, FinOps, tag rules, cost monitors, unit economics, service/team spend |
+| 41 | [07-Advanced-Platform/41-Datadog-Application-API-Protection-Code-Security-DevSecOps-MAANG-Sheet.md](07-Advanced-Platform/41-Datadog-Application-API-Protection-Code-Security-DevSecOps-MAANG-Sheet.md) | App/API Protection, API posture, runtime vulnerabilities, Code Security, SAST/SCA/IAST/IaC/secrets |
+| 42 | [07-Advanced-Platform/42-Datadog-Incident-Management-On-Call-Workflow-Automation-Watchdog-BitsAI-Gold-Sheet.md](07-Advanced-Platform/42-Datadog-Incident-Management-On-Call-Workflow-Automation-Watchdog-BitsAI-Gold-Sheet.md) | Incident Management, On-Call, Workflow Automation, Watchdog/Event correlation, Bits AI usage |
+| 43 | [07-Advanced-Platform/43-Datadog-LLM-Observability-AI-RAG-Token-Cost-Safety-Gold-Sheet.md](07-Advanced-Platform/43-Datadog-LLM-Observability-AI-RAG-Token-Cost-Safety-Gold-Sheet.md) | LLM Observability, RAG traces, model latency, token cost, prompt versions, safety signals |
+| 44 | [07-Advanced-Platform/44-Datadog-Network-Mobile-RUM-Platform-Governance-As-Code-MAANG-Sheet.md](07-Advanced-Platform/44-Datadog-Network-Mobile-RUM-Platform-Governance-As-Code-MAANG-Sheet.md) | Network monitoring, mobile RUM, product analytics, RBAC, audit, Terraform/API as code |
+
+Advanced target:
+
+- You can use Datadog as a full engineering platform, not only an observability UI.
+- You can connect ownership, delivery, runtime behavior, cost, security, incidents, and governance.
+- You can explain where each Datadog product fits and when it is the wrong tool.
+
+---
+
+## 10. Datadog Mastery Lab
 
 - [datadog-mastery-lab/README.md](datadog-mastery-lab/README.md)
 - [datadog-mastery-lab/LEARNING_PATH.md](datadog-mastery-lab/LEARNING_PATH.md)
@@ -146,7 +175,7 @@ Lab covers: Java/Node/Python instrumentation examples, OTel setup examples, log 
 
 ---
 
-## 10. Interview Answer Pattern
+## 11. Interview Answer Pattern
 
 For Datadog design and debugging answers, use this shape:
 
@@ -162,7 +191,7 @@ For Datadog design and debugging answers, use this shape:
 
 ---
 
-## 11. Recommended Study Orders
+## 12. Recommended Study Orders
 
 ### 2-Week Practical Path
 
@@ -178,6 +207,15 @@ For Datadog design and debugging answers, use this shape:
 3. Week 3: monitors, SLOs, Kubernetes, security, RUM, cost.
 4. Week 4: scenarios, runbooks, projects, interview practice.
 
+### 6-Week Platform Mastery Path
+
+1. Week 1: foundations, agent, metrics, logs, tagging.
+2. Week 2: APM, language instrumentation, OTel, log correlation.
+3. Week 3: dashboards, monitors, SLOs, Kubernetes, RUM, security.
+4. Week 4: scenario practice and production incident drills.
+5. Week 5: Software Catalog, USM, Profiler, Dynamic Instrumentation, Error Tracking.
+6. Week 6: CI Visibility, Observability Pipelines, Serverless, Data Streams, Cloud Cost, Incident Management, LLM Observability, Governance.
+
 ### Production Operator Path
 
 1. Learn agent setup, metric collection, and log pipelines.
@@ -187,7 +225,7 @@ For Datadog design and debugging answers, use this shape:
 
 ---
 
-## 12. Readiness Gate
+## 13. Readiness Gate
 
 You are Datadog interview-ready when you can do all of this without notes:
 
@@ -205,3 +243,17 @@ You are Datadog interview-ready when you can do all of this without notes:
 - Correlate a log error spike to a specific trace and span.
 - Debug broken distributed traces caused by missing context propagation.
 - Explain cardinality explosion and how to prevent it with tag governance.
+- Use Software Catalog to connect service ownership, scorecards, runbooks, SLOs, and dependencies.
+- Explain when to use USM before APM and what visibility USM cannot provide.
+- Debug high CPU or allocation regressions with Continuous Profiler.
+- Add safe Dynamic Instrumentation probes for production-only bugs.
+- Use Error Tracking to group repeated exceptions into deploy-linked issues.
+- Connect CI pipeline/test failures and deployment markers to production regressions.
+- Design an Observability Pipelines Worker flow for redaction, sampling, archiving, and dual shipping.
+- Monitor serverless cold starts, timeouts, throttles, DLQs, Step Functions, and async queue lag.
+- Debug Kafka/SQS/Kinesis delays with Data Streams Monitoring.
+- Correlate cloud cost with service/team tags, deployments, infrastructure usage, and unit economics.
+- Explain App/API Protection, Code Security, runtime vulnerability prioritization, and DevSecOps workflow.
+- Run an incident with Datadog Incident Management, On-Call, Workflow Automation, Watchdog/Event correlation, and verified AI assistance.
+- Define LLM observability metrics for latency, errors, token cost, prompt versions, RAG retrieval, tool calls, and safety.
+- Govern Datadog as a platform using RBAC, SSO/SCIM, audit trail, tag policy, Terraform/API as code, and resource ownership.

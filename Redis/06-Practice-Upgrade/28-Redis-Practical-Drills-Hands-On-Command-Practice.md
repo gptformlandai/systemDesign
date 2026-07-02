@@ -210,3 +210,59 @@ PUBLISH events:orders '{"order_id":"5001","status":"placed"}'
 # 2) "events:orders"
 # 3) '{"order_id":"5001","status":"placed"}'
 ```
+
+---
+
+## Drill 12: Modern Redis Compatibility Check
+
+```bash
+INFO server
+COMMAND INFO JSON.SET
+COMMAND INFO FT.CREATE
+COMMAND INFO FUNCTION
+COMMAND INFO CLIENT
+COMMAND INFO TS.ADD
+COMMAND INFO BF.ADD
+```
+
+Expected:
+
+```text
+Supported commands return command metadata.
+Unsupported commands return empty output.
+```
+
+Reflection:
+
+- Which modern Redis features does your local/serverless/managed Redis support?
+- Which application features would break if you assumed JSON/Search/TimeSeries existed?
+- Which client library version is needed for Functions or client-side caching?
+
+---
+
+## Drill 13: Function Deployment Smoke Test
+
+Create a small function library and load it:
+
+```lua
+#!lua name=hello_v1
+
+redis.register_function('hello', function(keys, args)
+  return 'hello ' .. args[1]
+end)
+```
+
+```bash
+FUNCTION LOAD "$(cat hello_v1.lua)"
+FCALL hello 0 redis
+# Expected: "hello redis"
+
+FUNCTION LIST
+FUNCTION DELETE hello_v1
+```
+
+Reflection:
+
+- How would you version `hello_v2`?
+- Who should be allowed to run `FUNCTION LOAD` in production?
+- What monitoring would catch a slow `FCALL`?

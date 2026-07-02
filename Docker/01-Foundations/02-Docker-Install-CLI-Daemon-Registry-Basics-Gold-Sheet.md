@@ -1,6 +1,6 @@
 # Docker Install, CLI, Daemon, and Registry Basics - Gold Sheet
 
-> Track File #2 of 30 - Group 01: Foundations
+> Track File #2 of 40 - Group 01: Foundations
 > For: setup and first commands | Level: beginner | Mode: Docker environment
 
 ## 1. Core Idea

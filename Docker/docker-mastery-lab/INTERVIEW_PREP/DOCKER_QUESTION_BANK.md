@@ -28,3 +28,12 @@
 6. How would you design Docker image promotion in CI/CD?
 7. How do you debug a production container incident?
 8. When is Compose enough, and when do you need Kubernetes or another orchestrator?
+9. How do Compose profiles, override files, and env precedence affect local platforms?
+10. What is the risk of the Docker socket and remote daemon API?
+11. How do seccomp, AppArmor, SELinux, user namespaces, and capabilities work together?
+12. How do Buildx, BuildKit, cache exporters, and Bake improve CI builds?
+13. What is the difference between SBOM, provenance, signature, digest, and scanner result?
+14. How do you debug Docker DNS, port publishing, firewall/NAT, and host gateway issues?
+15. How do overlay2, writable layers, volumes, bind mounts, and tmpfs differ?
+16. What Docker Desktop differences matter for macOS, Windows, WSL2, amd64, and arm64?
+17. When is Docker only a build/developer tool while production uses containerd or CRI-O?

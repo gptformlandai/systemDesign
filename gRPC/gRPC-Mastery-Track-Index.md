@@ -35,7 +35,7 @@ gRPC mastery is not memorizing `protoc`. It is understanding how a typed service
 |---:|---|---|
 | 1 | `01-Foundations` | gRPC mental model, tooling, Protocol Buffers, RPC types |
 | 2 | `02-Intermediate-Practical` | codegen, stubs, errors, deadlines, streaming, discovery, auth, testing |
-| 3 | `03-Senior-Production` | schema governance, performance, resilience, security, observability, deployment |
+| 3 | `03-Senior-Production` | schema governance, performance, resilience, security, observability, deployment, gateway/platform depth |
 | 4 | `04-Scenario-Practice` | API design, deadline incidents, streaming issues, auth, schema evolution, production debugging |
 | 5 | `05-Special-Interview-Rounds` | Q&A, command maps, anti-patterns, debugging traps |
 | 6 | `06-Practice-Upgrade` | active recall, drills, mini projects, production readiness checklist |
@@ -88,10 +88,15 @@ Practical target:
 | 15 | [03-Senior-Production/15-gRPC-Security-mTLS-Cert-Rotation-SPIFFE-Authz-MAANG-Sheet.md](03-Senior-Production/15-gRPC-Security-mTLS-Cert-Rotation-SPIFFE-Authz-MAANG-Sheet.md) | mTLS, cert rotation, SPIFFE/SPIRE, metadata safety, authz |
 | 16 | [03-Senior-Production/16-gRPC-Deployment-Envoy-Service-Mesh-Kubernetes-Gateways-MAANG-Sheet.md](03-Senior-Production/16-gRPC-Deployment-Envoy-Service-Mesh-Kubernetes-Gateways-MAANG-Sheet.md) | Kubernetes, Envoy, service mesh, gateways, gRPC-Web, HTTP transcoding |
 | 31 | [03-Senior-Production/31-gRPC-Pro-Gap-Fill-Health-WaitForReady-ServiceConfig-RichErrors-FieldMasks-MAANG-Sheet.md](03-Senior-Production/31-gRPC-Pro-Gap-Fill-Health-WaitForReady-ServiceConfig-RichErrors-FieldMasks-MAANG-Sheet.md) | health protocol, wait-for-ready, service config/xDS, rich errors, field masks, limits |
+| 32 | [03-Senior-Production/32-gRPC-Protobuf-Editions-WellKnownTypes-JSON-Mapping-MAANG-Sheet.md](03-Senior-Production/32-gRPC-Protobuf-Editions-WellKnownTypes-JSON-Mapping-MAANG-Sheet.md) | Protobuf Editions, field presence, well-known types, JSON mapping, API shape |
+| 33 | [03-Senior-Production/33-gRPC-Channel-Internals-ServiceConfig-xDS-Deep-Dive-MAANG-Sheet.md](03-Senior-Production/33-gRPC-Channel-Internals-ServiceConfig-xDS-Deep-Dive-MAANG-Sheet.md) | channel states, resolver, service config, LB policy, xDS, subchannel debugging |
+| 34 | [03-Senior-Production/34-gRPC-Graceful-Shutdown-Draining-Kubernetes-Envoy-MAANG-Sheet.md](03-Senior-Production/34-gRPC-Graceful-Shutdown-Draining-Kubernetes-Envoy-MAANG-Sheet.md) | graceful shutdown, health drain, Kubernetes readiness, Envoy drain, long streams |
+| 35 | [03-Senior-Production/35-gRPC-OpenTelemetry-Channelz-Production-Debugging-MAANG-Sheet.md](03-Senior-Production/35-gRPC-OpenTelemetry-Channelz-Production-Debugging-MAANG-Sheet.md) | OTel metrics, retry/attempt metrics, Channelz/admin debugging, RCA workflow |
+| 36 | [03-Senior-Production/36-gRPC-Web-Gateway-Transcoding-External-API-Patterns-MAANG-Sheet.md](03-Senior-Production/36-gRPC-Web-Gateway-Transcoding-External-API-Patterns-MAANG-Sheet.md) | gRPC-Web, CORS, JSON transcoding, external API decision map |
 
 Senior target:
 
-- You can explain gRPC in production: schema governance, performance, resilience, health semantics, security, observability, deployment, and mesh/gateway tradeoffs.
+- You can explain gRPC in production: schema governance, performance, resilience, health semantics, security, observability, channel behavior, graceful draining, deployment, and mesh/gateway tradeoffs.
 
 ---
 
@@ -135,6 +140,7 @@ Special-round target:
 | 28 | [06-Practice-Upgrade/28-gRPC-Hands-On-Exercises-And-RPC-Drills.md](06-Practice-Upgrade/28-gRPC-Hands-On-Exercises-And-RPC-Drills.md) | proto/RPC/debugging drills |
 | 29 | [06-Practice-Upgrade/29-gRPC-Mini-Projects-Portfolio.md](06-Practice-Upgrade/29-gRPC-Mini-Projects-Portfolio.md) | portfolio-ready gRPC projects |
 | 30 | [06-Practice-Upgrade/30-gRPC-Pro-Gap-Fill-Production-Readiness-Checklist.md](06-Practice-Upgrade/30-gRPC-Pro-Gap-Fill-Production-Readiness-Checklist.md) | senior readiness checklist and scoring rubric |
+| 37 | [06-Practice-Upgrade/37-gRPC-Runnable-Java-Go-Lab-Guide.md](06-Practice-Upgrade/37-gRPC-Runnable-Java-Go-Lab-Guide.md) | runnable Java/Go service blueprint, grpcurl smoke tests, Docker, load/failure tests |
 
 Practice target:
 
@@ -195,12 +201,13 @@ For gRPC debugging and interview answers, use this shape:
 3. Scenario files 17-23.
 4. Cheat sheet, exercises, and interview Q&A.
 
-### 4-Week Pro Path
+### 5-Week Pro Path
 
 1. Week 1: gRPC mental model, Protocol Buffers, tooling, RPC types.
 2. Week 2: codegen, status/errors, deadlines, streaming, discovery, auth, testing.
 3. Week 3: proto governance, performance, resilience, security, observability, deployment.
-4. Week 4: production scenarios, runbooks, mini projects, interview practice.
+4. Week 4: protobuf editions, channel/xDS, graceful shutdown, OTel/Channelz, gateways.
+5. Week 5: runnable Java/Go lab, production scenarios, runbooks, mini projects, interview practice.
 
 ### Production Operator Path
 
@@ -225,4 +232,21 @@ You are gRPC interview-ready when you can do all of this without notes:
 - Explain observability with RPC metrics, traces, logs, status-code SLOs, and dependency evidence.
 - Explain production deployment with Kubernetes, Envoy, gateways, gRPC-Web, HTTP transcoding, and proxy timeouts.
 - Explain `wait_for_ready`, service config/xDS policy, structured rich errors, field masks, and operational limit policies.
+- Explain Protobuf Editions, field presence, well-known types, JSON mapping, and external API compatibility.
+- Explain channel states, subchannels, resolver behavior, xDS evidence, and retry/hedge attempt metrics.
+- Explain graceful shutdown, health drain, Kubernetes readiness, Envoy drain, GOAWAY, and long-stream resume.
+- Build or walk through a runnable Java/Go gRPC service with Buf, grpcurl, tests, Docker, health, reflection, and deadlines.
 - Handle production gRPC incidents with evidence, mitigation, and prevention.
+
+---
+
+## 13. Current Source Anchors
+
+- gRPC core concepts: <https://grpc.io/docs/what-is-grpc/core-concepts/>
+- gRPC guides: <https://grpc.io/docs/guides/>
+- gRPC service config: <https://grpc.io/docs/guides/service-config/>
+- gRPC OpenTelemetry metrics: <https://grpc.io/docs/guides/opentelemetry-metrics/>
+- gRPC request hedging: <https://grpc.io/docs/guides/request-hedging/>
+- Protobuf Editions: <https://protobuf.dev/programming-guides/editions/>
+- Protobuf best practices: <https://protobuf.dev/best-practices/dos-donts/>
+- Buf docs: <https://buf.build/docs/>

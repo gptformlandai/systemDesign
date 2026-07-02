@@ -81,6 +81,9 @@ This checklist gates production readiness. Every item has a rationale.
 - [ ] Lua scripts tested for correctness and timing under load
 - [ ] Connection error handling: retry with backoff, circuit breaker for Redis down
 - [ ] No hardcoded primary address (Sentinel-aware client discovery)
+- [ ] Redis client version supports the server version and required protocol/features
+- [ ] Reconnect/failover behavior tested under load
+- [ ] Local/near-cache is bounded, TTL-based, invalidated, and flushed on reconnect
 
 ---
 
@@ -91,6 +94,33 @@ This checklist gates production readiness. Every item has a rationale.
 - [ ] Client handles MOVED and ASK redirects
 - [ ] Slot migration tested
 - [ ] `cluster-require-full-coverage` set appropriately
+- [ ] Functions/Lua scripts pass all keys explicitly and stay within one slot
+
+---
+
+## Modern Redis Features (If Using JSON/Search/Vector/TimeSeries)
+
+- [ ] Server/provider supports required commands (`COMMAND INFO` verified)
+- [ ] Client library supports required command surface and protocol mode
+- [ ] Indexed fields are tied to known access patterns
+- [ ] Index memory overhead estimated
+- [ ] Vector memory estimated: count x dimensions x bytes plus index overhead
+- [ ] Embedding model versioning and rebuild plan documented
+- [ ] Time-series retention and rollup policy configured
+- [ ] Probabilistic error bounds documented and not used as final authority for critical decisions
+- [ ] Query limits, pagination, and broad-query guardrails implemented
+
+---
+
+## Redis Functions (If Using FCALL)
+
+- [ ] Function source stored in git
+- [ ] Function libraries versioned
+- [ ] Staging load and latency test completed
+- [ ] Old function version kept through rollback window
+- [ ] `FUNCTION LOAD`/`FUNCTION DELETE` limited to deploy/admin role
+- [ ] `FCALL` latency and errors monitored
+- [ ] Functions avoid unbounded loops and cross-slot key access
 
 ---
 
@@ -100,6 +130,20 @@ This checklist gates production readiness. Every item has a rationale.
 - [ ] Write throughput measured against Redis throughput limits
 - [ ] Replication bandwidth measured
 - [ ] Backup and restore time tested
+- [ ] Provider/node reserved memory, fork overhead, replication backlog, and network limits reviewed
+
+---
+
+## Managed Redis (If Using Cloud Provider)
+
+- [ ] Cache vs durable source-of-truth role explicitly documented
+- [ ] Private subnet/network placement confirmed
+- [ ] TLS/auth/ACL configured according to provider support
+- [ ] Backup schedule and restore test completed
+- [ ] Failover event tested with real application clients
+- [ ] Upgrade process and rollback process documented
+- [ ] Provider limits documented: max connections, item size, shards, command support
+- [ ] Cost drivers reviewed: RAM, replicas, shards, backup storage, cross-AZ traffic, index memory
 
 ---
 

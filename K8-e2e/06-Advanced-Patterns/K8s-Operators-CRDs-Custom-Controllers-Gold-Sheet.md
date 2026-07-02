@@ -404,6 +404,13 @@ Support multiple versions for backward compatibility:
 Conversion webhook:
   Converts between versions when stored version differs from requested version.
   Required for multiple versions with different schemas.
+
+Storage version:
+  The version persisted in etcd. Changing it requires a migration plan.
+
+Server-side apply:
+  Useful for controllers because field ownership is tracked in managedFields.
+  Avoid multiple controllers fighting for the same field.
 ```
 
 ---
@@ -418,6 +425,7 @@ Conversion webhook:
 - Leader election: one active controller replica at a time; prevents concurrent reconciliation conflicts
 - Validation webhook: reject bad CRD specs at admission time
 - Status subresource: separate update endpoint for status (prevents spec conflicts)
+- API machinery depth: APF, server-side apply, managedFields, audit policy, storage versions, and conversion are covered in `K8s-API-Machinery-APF-SSA-Audit-Storage-Version-Gold-Sheet.md`
 
 ## Official Source Notes
 

@@ -49,3 +49,16 @@ Outcome: you can design streaming APIs with operational boundaries.
 - Score yourself against the production readiness checklist.
 
 Outcome: you can explain gRPC like a production owner.
+
+---
+
+## Phase 6: Runnable Implementation Proof
+
+- Build Project 06: Runnable Java And Go gRPC Services.
+- Generate code from the shared proto.
+- Run a local server and client.
+- Prove behavior with grpcurl.
+- Add tests for status codes, deadline/cancellation, idempotency, and streaming cancellation.
+- Add Docker or compose run instructions.
+
+Outcome: you can move from design explanation to executable gRPC ownership.

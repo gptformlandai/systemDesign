@@ -1,6 +1,6 @@
 # Debugging Mastery Track — IntelliJ · VS Code · PyCharm
 
-From zero to production-grade debugging across Java (IntelliJ), JavaScript/Node.js/Python (VS Code), and Python (PyCharm). Every sheet focuses on real debug workflows, keyboard shortcuts, multithreading/concurrency debugging, and scenario-based walkthroughs.
+From zero to production-grade debugging across Java (IntelliJ), JavaScript/Node.js/Python (VS Code), Python (PyCharm), and real production systems. Every sheet focuses on real debug workflows, keyboard shortcuts, multithreading/concurrency debugging, observability-driven production debugging, and scenario-based walkthroughs.
 
 ```text
 observe symptom -> set targeted breakpoint -> step through execution -> inspect state
@@ -20,6 +20,7 @@ observe symptom -> set targeted breakpoint -> step through execution -> inspect 
 | 5 | `05-Concurrency-Threading` | Concurrency deep dive across all three |
 | 6 | `06-Scenario-Practice` | Full scenario walkthroughs |
 | 7 | `07-Practice-Upgrade` | Drills, recall, production readiness |
+| 8 | `08-Production-Systems-Debugging` | Observability, distributed systems, Kubernetes, network, database, browser performance, OS/native, profiling, queues, incident safety |
 | Lab | `debugging-mastery-lab` | Cheatsheets, examples, scripts |
 
 ---
@@ -110,7 +111,26 @@ Use this bridge when the problem is not tied to one IDE. It teaches the debugger
 
 ---
 
-## 9. Lab
+## 9. Production Systems Debugging Path
+
+This lane turns IDE debugging into real production debugging. Use it when the issue crosses process, service, container, network, database, browser, queue, or incident-response boundaries.
+
+| Sheet | File | What It Builds |
+|---:|---|---|
+| 32 | [08-Production-Systems-Debugging/32-Production-Debugging-Observability-Logs-Metrics-Traces-Gold-Sheet.md](08-Production-Systems-Debugging/32-Production-Debugging-Observability-Logs-Metrics-Traces-Gold-Sheet.md) | production debugging with logs, metrics, traces, correlation IDs, deployment markers |
+| 33 | [08-Production-Systems-Debugging/33-Distributed-Systems-Debugging-Microservices-Traces-Retries-Gold-Sheet.md](08-Production-Systems-Debugging/33-Distributed-Systems-Debugging-Microservices-Traces-Retries-Gold-Sheet.md) | microservice boundary debugging, trace reading, retries, timeouts, circuit breakers |
+| 34 | [08-Production-Systems-Debugging/34-Kubernetes-Debugging-Pods-CrashLoop-OOMKilled-DNS-Probes-Gold-Sheet.md](08-Production-Systems-Debugging/34-Kubernetes-Debugging-Pods-CrashLoop-OOMKilled-DNS-Probes-Gold-Sheet.md) | CrashLoopBackOff, OOMKilled, pod events, probes, DNS, ephemeral debug containers |
+| 35 | [08-Production-Systems-Debugging/35-Network-HTTP-Debugging-DNS-TLS-CORS-Timeouts-Gold-Sheet.md](08-Production-Systems-Debugging/35-Network-HTTP-Debugging-DNS-TLS-CORS-Timeouts-Gold-Sheet.md) | DNS, TCP, TLS, HTTP status codes, CORS, connection pools, packet tools |
+| 36 | [08-Production-Systems-Debugging/36-Database-Debugging-Slow-Queries-Locks-Transactions-Pools-Gold-Sheet.md](08-Production-Systems-Debugging/36-Database-Debugging-Slow-Queries-Locks-Transactions-Pools-Gold-Sheet.md) | slow queries, EXPLAIN, locks, transactions, connection pools, N+1, migrations |
+| 37 | [08-Production-Systems-Debugging/37-Browser-DevTools-Performance-Memory-Network-Frontend-Debugging-Gold-Sheet.md](08-Production-Systems-Debugging/37-Browser-DevTools-Performance-Memory-Network-Frontend-Debugging-Gold-Sheet.md) | Chrome DevTools Network, Performance, Memory, Application, React Profiler, Core Web Vitals |
+| 38 | [08-Production-Systems-Debugging/38-Native-OS-Debugging-Core-Dumps-Strace-Perf-EBPF-Gold-Sheet.md](08-Production-Systems-Debugging/38-Native-OS-Debugging-Core-Dumps-Strace-Perf-EBPF-Gold-Sheet.md) | signals, core dumps, lsof, strace/dtruss, perf, eBPF, container OS debugging |
+| 39 | [08-Production-Systems-Debugging/39-Advanced-Runtime-Profiling-JVM-Python-NodeJS-JFR-Tracemalloc-DiagnosticReports.md](08-Production-Systems-Debugging/39-Advanced-Runtime-Profiling-JVM-Python-NodeJS-JFR-Tracemalloc-DiagnosticReports.md) | JFR, async-profiler, GC logs, tracemalloc, py-spy, Node diagnostic reports, heap snapshots |
+| 40 | [08-Production-Systems-Debugging/40-Messaging-Queue-Debugging-Kafka-SQS-RabbitMQ-Celery-DLQ-Gold-Sheet.md](08-Production-Systems-Debugging/40-Messaging-Queue-Debugging-Kafka-SQS-RabbitMQ-Celery-DLQ-Gold-Sheet.md) | Kafka/SQS/RabbitMQ/Celery lag, DLQs, poison messages, retries, idempotency |
+| 41 | [08-Production-Systems-Debugging/41-Safe-Debugging-Incident-RCA-Secrets-PII-Runbooks-MAANG-Sheet.md](08-Production-Systems-Debugging/41-Safe-Debugging-Incident-RCA-Secrets-PII-Runbooks-MAANG-Sheet.md) | safe debugging, incident workflow, RCA, secrets/PII, dump handling, rollback vs fix forward |
+
+---
+
+## 10. Lab
 
 - [debugging-mastery-lab/README.md](debugging-mastery-lab/README.md)
 - [debugging-mastery-lab/CHEATSHEETS/](debugging-mastery-lab/CHEATSHEETS/)
@@ -118,7 +138,7 @@ Use this bridge when the problem is not tied to one IDE. It teaches the debugger
 
 ---
 
-## 10. Core Debugging Mental Model
+## 11. Core Debugging Mental Model
 
 ```text
 1. REPRODUCE: make the bug happen reliably (understand the trigger)
@@ -131,9 +151,20 @@ Use this bridge when the problem is not tied to one IDE. It teaches the debugger
 8. PREVENT:   add test that catches this regression
 ```
 
+For production systems, extend it:
+
+```text
+1. IMPACT:    who is affected and how badly?
+2. TIMEBOX:   when did it start and what changed?
+3. CORRELATE: logs, metrics, traces, deploys, configs, events
+4. MITIGATE:  rollback, disable flag, scale, fail over, drain, redrive safely
+5. VERIFY:    user-facing metrics and SLO recovery
+6. PREVENT:   test, monitor, runbook, guardrail, RCA action item
+```
+
 ---
 
-## 11. IDE Selection Guide
+## 12. Debugging Surface Selection Guide
 
 | Scenario | Best IDE |
 |---|---|
@@ -147,3 +178,12 @@ Use this bridge when the problem is not tied to one IDE. It teaches the debugger
 | Multithreaded Java | IntelliJ Threads view + jstack |
 | Python asyncio | PyCharm async debug or VS Code |
 | Node.js Worker threads | VS Code + node --inspect |
+| Production outage | metrics + logs + traces + deployment markers |
+| Microservice timeout | distributed trace + retry/timeout budget |
+| Kubernetes CrashLoop/OOM | kubectl describe/logs/events/top + previous logs |
+| DNS/TLS/CORS issue | curl -v, dig, openssl, browser Network panel |
+| Slow database call | trace DB span + EXPLAIN + lock/pool metrics |
+| Browser freeze | Chrome Performance panel + React Profiler |
+| Native crash | signal/core dump + gdb/lldb + runtime crash file |
+| Queue delay | lag/depth/DLQ/attempt count + consumer health |
+| SEV incident | incident timeline + mitigation + RCA workflow |

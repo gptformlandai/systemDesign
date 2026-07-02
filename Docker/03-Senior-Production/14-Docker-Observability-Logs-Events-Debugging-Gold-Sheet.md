@@ -1,6 +1,6 @@
 # Docker Observability: Logs, Events, Inspect, and Debugging - Gold Sheet
 
-> Track File #14 of 30 - Group 03: Senior Production
+> Track File #14 of 40 - Group 03: Senior Production
 > For: Docker incident response | Level: senior | Mode: evidence gathering
 
 ## 1. Core Idea

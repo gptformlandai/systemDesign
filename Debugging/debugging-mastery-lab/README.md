@@ -30,6 +30,8 @@ debugging-mastery-lab/
     runbook-async-hang.md
 ```
 
+The main track also includes `08-Production-Systems-Debugging`, which extends the lab mindset to production systems: observability, distributed traces, Kubernetes, network/HTTP, database, browser DevTools, OS-level tooling, runtime profiling, queues, and incident safety.
+
 ---
 
 ## Quick Start

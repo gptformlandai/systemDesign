@@ -1,6 +1,6 @@
 # Docker Production Incident Container Debugging Scenario - MAANG Sheet
 
-> Track File #23 of 30 - Group 04: Scenario Practice
+> Track File #23 of 40 - Group 04: Scenario Practice
 > For: on-call and SRE interviews | Level: senior | Mode: production incident response
 
 ## 1. Scenario

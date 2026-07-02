@@ -50,6 +50,7 @@ Follow this sequence. Each item builds on the previous. Mark items complete as y
 - [ ] Read: Sheet 16 — Advanced Patterns
 - [ ] Lab: lab-10-advanced-patterns.md
 - [ ] Drill: Drills 6, 7, 8 from Sheet 28
+- [ ] Read: Sheet 31 — Pro Gap-Fill, Bitmaps, Encodings, Redis 7
 
 ---
 
@@ -64,13 +65,28 @@ Follow this sequence. Each item builds on the previous. Mark items complete as y
 
 ---
 
-## Phase 5: Projects And Mastery (Days 18-25)
+## Phase 5: Modern Redis Pro (Days 18-21)
+
+- [ ] Read: Sheet 32 — Redis 8 Modern Features And Upgrade Readiness
+- [ ] Read: Sheet 33 — JSON, Search, Vector, Time Series, Probabilistic Structures
+- [ ] Read: Sheet 34 — Client-Side Caching, RESP3, Smart Clients
+- [ ] Read: Sheet 35 — Redis Functions Production Lifecycle
+- [ ] Read: Sheet 36 — Managed Redis Cloud Runbook
+- [ ] Lab: lab-11-modern-redis-json-search-functions-client-cache.md
+- [ ] Cheatsheet: cs-07-modern-redis-stack-functions-client-cache.md
+- [ ] Drill: Drills 12 and 13 from Sheet 28
+- [ ] Practice: Answer Round 5 questions from Sheet 27 without looking
+
+---
+
+## Phase 6: Projects And Mastery (Days 22-30)
 
 - [ ] Build: project-01-rate-limiter.md
 - [ ] Build: project-02-leaderboard.md
 - [ ] Build: project-03-session-store.md
 - [ ] Build: project-04-job-queue.md
 - [ ] Build: project-05-event-feed.md
+- [ ] Build: project-06-product-discovery-modern-redis.md
 - [ ] Review: Sheet 30 — Production Readiness Checklist
 - [ ] Run: SCRIPTS/06-incident-evidence-template.sh on local Redis
 - [ ] Simulate: Sentinel failover using RUNBOOKS/rb-03-sentinel-failover.md
@@ -87,3 +103,5 @@ You are interview-ready when you can:
 - Explain why Redlock has known failure modes and name the fencing token pattern
 - Implement a sliding-window rate limiter Lua script from memory
 - Debug a production latency spike using SLOWLOG and commandstats
+- Explain JSON/Search/vector index memory tradeoffs
+- Explain Functions rollout and near-cache invalidation behavior

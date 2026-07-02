@@ -26,7 +26,7 @@ Use this lab to practice `.proto` design, RPC debugging, deadlines, status codes
 2. Inspect [EXAMPLES/greeter/greeter.proto](EXAMPLES/greeter/greeter.proto).
 3. Run the safe scripts in `SCRIPTS` to generate local review templates.
 4. Complete `LABS` in order.
-5. Build at least two `PROJECTS`.
+5. Build at least two `PROJECTS`; include Project 06 if you want runnable implementation proof.
 6. Practice `RUNBOOKS` until incident debugging becomes automatic.
 
 ---
@@ -40,6 +40,8 @@ Optional tools:
 - `protoc`
 - `buf`
 - `grpcurl`
+- `grpcui`
+- `ghz` or another gRPC load-test tool
 - language-specific gRPC plugins
 - Docker or Kubernetes for deployment practice
 

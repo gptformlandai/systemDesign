@@ -1,6 +1,6 @@
 # Docker Registry, CI/CD, and Deployment Scenario - MAANG Sheet
 
-> Track File #22 of 30 - Group 04: Scenario Practice
+> Track File #22 of 40 - Group 04: Scenario Practice
 > For: platform and deployment interviews | Level: senior | Mode: image delivery
 
 ## 1. Scenario

@@ -1,6 +1,6 @@
 # Docker Volumes, Bind Mounts, and Persistence - Gold Sheet
 
-> Track File #7 of 30 - Group 02: Intermediate Practical
+> Track File #7 of 40 - Group 02: Intermediate Practical
 > For: stateful container practice | Level: intermediate | Mode: storage and mounts
 
 ## 1. Core Idea

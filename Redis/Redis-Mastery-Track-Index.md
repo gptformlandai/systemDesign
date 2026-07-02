@@ -33,11 +33,11 @@ Redis mastery is not memorizing `SET`/`GET`. It is understanding which data stru
 |---:|---|---|
 | 1 | `01-Foundations` | Redis mental model, CLI, strings/numbers/TTLs, collection types |
 | 2 | `02-Intermediate-Practical` | cache patterns, pub/sub, streams, transactions, scripting, persistence |
-| 3 | `03-Senior-Production` | replication, Sentinel, Cluster, security, observability, advanced patterns |
+| 3 | `03-Senior-Production` | replication, Sentinel, Cluster, security, observability, advanced patterns, Redis 8, modern data types |
 | 4 | `04-Scenario-Practice` | rate limiter, stampede, memory pressure, streams, locks, HA incidents |
 | 5 | `05-Special-Interview-Rounds` | Q&A, command/data-structure decision map, anti-patterns |
 | 6 | `06-Practice-Upgrade` | active recall, drills, mini projects, production readiness checklist |
-| Lab | `redis-mastery-lab` | CLI examples, scripts, labs, projects, cheatsheets, interview prep, runbooks |
+| Lab | `redis-mastery-lab` | CLI examples, scripts, labs, projects, cheatsheets, interview prep, runbooks, modern Redis exercises |
 
 ---
 
@@ -87,11 +87,16 @@ Practical target:
 | 15 | [03-Senior-Production/15-Redis-Observability-INFO-SLOWLOG-MONITOR-Keyspace-Latency-Gold-Sheet.md](03-Senior-Production/15-Redis-Observability-INFO-SLOWLOG-MONITOR-Keyspace-Latency-Gold-Sheet.md) | INFO sections, SLOWLOG, MONITOR, keyspace events, latency histogram |
 | 16 | [03-Senior-Production/16-Redis-Advanced-Patterns-RateLimiting-Locks-Leaderboard-Geo-Bloom-MAANG-Sheet.md](03-Senior-Production/16-Redis-Advanced-Patterns-RateLimiting-Locks-Leaderboard-Geo-Bloom-MAANG-Sheet.md) | rate limiter, Redlock, sessions, leaderboard, geo, HyperLogLog, Bloom |
 | 31 | [03-Senior-Production/31-Redis-Pro-Gap-Fill-Bitmaps-Encoding-Internals-Redis7-MAANG-Sheet.md](03-Senior-Production/31-Redis-Pro-Gap-Fill-Bitmaps-Encoding-Internals-Redis7-MAANG-Sheet.md) | bitmaps, OBJECT ENCODING internals, Redis 7 commands, diagnostic CLI flags |
+| 32 | [03-Senior-Production/32-Redis-8-Modern-Features-Upgrade-Readiness-MAANG-Sheet.md](03-Senior-Production/32-Redis-8-Modern-Features-Upgrade-Readiness-MAANG-Sheet.md) | Redis 8 learning surface, upgrade readiness, hot-key and stream idempotency |
+| 33 | [03-Senior-Production/33-Redis-JSON-Search-Vector-TimeSeries-Probabilistic-MAANG-Sheet.md](03-Senior-Production/33-Redis-JSON-Search-Vector-TimeSeries-Probabilistic-MAANG-Sheet.md) | JSON, Search/query, vector search, Vector Sets, Time Series, probabilistic structures |
+| 34 | [03-Senior-Production/34-Redis-Client-Side-Caching-RESP3-Smart-Clients-MAANG-Sheet.md](03-Senior-Production/34-Redis-Client-Side-Caching-RESP3-Smart-Clients-MAANG-Sheet.md) | CLIENT TRACKING, RESP3, near-cache invalidation, smart clients, retries |
+| 35 | [03-Senior-Production/35-Redis-Functions-Production-Lifecycle-MAANG-Sheet.md](03-Senior-Production/35-Redis-Functions-Production-Lifecycle-MAANG-Sheet.md) | Redis Functions, FCALL, versioned rollout, script governance |
+| 36 | [03-Senior-Production/36-Redis-Managed-Cloud-ElastiCache-MemoryDB-RedisCloud-Runbook.md](03-Senior-Production/36-Redis-Managed-Cloud-ElastiCache-MemoryDB-RedisCloud-Runbook.md) | managed Redis operations, ElastiCache/MemoryDB/Redis Cloud, failover, backups, cost |
 
 Senior target:
 
 - You can design Redis for high availability, horizontal scale, security, and observability.
-- You can explain advanced Redis patterns and their tradeoffs.
+- You can explain advanced Redis patterns, modern Redis features, and their tradeoffs.
 
 ---
 
@@ -139,7 +144,7 @@ Scenario target:
 - [redis-mastery-lab/README.md](redis-mastery-lab/README.md)
 - [redis-mastery-lab/LEARNING_PATH.md](redis-mastery-lab/LEARNING_PATH.md)
 
-Lab covers: CLI drills, cache-aside example, rate limiter example, stream consumer example, scripts, labs, projects, cheatsheets, interview prep, and runbooks.
+Lab covers: CLI drills, cache-aside example, rate limiter example, stream consumer example, scripts, labs, modern Redis exercises, projects, cheatsheets, interview prep, and runbooks.
 
 ---
 
@@ -174,7 +179,14 @@ For Redis design and debugging answers, use this shape:
 1. Week 1: mental model, data structures, TTL, persistence.
 2. Week 2: cache patterns, pub/sub, streams, transactions, scripting.
 3. Week 3: replication, Sentinel, Cluster, security, observability, advanced patterns.
-4. Week 4: scenarios, runbooks, projects, interview practice.
+4. Week 4: Redis 8, JSON/Search/vector/Time Series, Functions, client-side caching, scenarios, runbooks, projects.
+
+### Modern Redis Pro Add-On
+
+1. Read Sheets 32-36 after the classic senior path.
+2. Run `redis-mastery-lab/LABS/lab-11-modern-redis-json-search-functions-client-cache.md`.
+3. Build `redis-mastery-lab/PROJECTS/project-06-product-discovery-modern-redis.md`.
+4. Update your interview answers to mention memory/index/client/provider tradeoffs.
 
 ### Production Operator Path
 
@@ -200,6 +212,11 @@ You are Redis interview-ready when you can do all of this without notes:
 - Implement bitmap-based presence/activity tracking with SETBIT/BITCOUNT/BITOP.
 - Explain memory encoding internals (listpack, hashtable, intset) and OBJECT ENCODING.
 - Name Redis 7 additions: LMPOP, ZMPOP, GETEX, GETDEL, SINTERCARD, COPY, Functions.
+- Explain Redis 8 upgrade readiness: clients, persistence, monitoring, rollback, provider compatibility.
+- Choose JSON, Search, vector search, Time Series, and probabilistic structures only when memory/index tradeoffs fit.
+- Explain CLIENT TRACKING, RESP3 push invalidation, near-cache TTL, and reconnect flush behavior.
+- Deploy Redis Functions with versioned rollout, FCALL/FCALL_RO, ACL controls, and latency monitoring.
+- Compare self-managed Redis, managed cache Redis, durable managed Redis, and Redis Cloud-style offerings.
 - Explain security with ACL, TLS, and command restrictions.
 - Operate Redis with INFO, SLOWLOG, keyspace events, and latency monitoring.
 - Handle production Redis incidents: OOM, eviction storms, hot keys, Sentinel failover, cluster MOVED errors.
