@@ -52,8 +52,9 @@ Key mindset for MAANG interviews:
 
 Java developer trap:
   Java JIT compiles hot paths to native code — micro-optimizations matter less.
-  Python has no JIT (CPython) — each bytecode instruction is interpreted.
-  Small Python loops over millions of items are genuinely slow; use numpy.
+  Default CPython should not be assumed to have JVM-style hot-path JIT optimization.
+  Small Python loops over millions of items are genuinely slow; use built-ins, native/vectorized
+  libraries, better algorithms, or validate a runtime/build-specific JIT path.
 ```
 
 ---
@@ -953,10 +954,10 @@ asyncio.run(profile_async())
 | GC tuning | `-Xms`, `-Xmx`, GC flags | `gc.set_threshold()`, `gc.disable()` |
 | String concat | `StringBuilder` | `"".join([...])` |
 | lazy evaluation | Java streams (lazy pipeline) | Generator expressions, `itertools` |
-| JIT | HotSpot JIT — hot paths compiled | No JIT in CPython; PyPy has JIT |
+| JIT | HotSpot JIT — hot paths compiled | Default CPython has no HotSpot-style always-on JIT assumption; PyPy has JIT; Python 3.13+ has experimental CPython JIT work |
 | Bytecode viewer | `javap -c MyClass.class` | `dis.dis(function)` |
 | Interning | `String.intern()` | Automatic for small ints, short identifiers |
-| Method hoisting | JIT auto-hoists (JVM does it) | Manual hoist to local variable (interpreter doesn't JIT) |
+| Method hoisting | JIT auto-hoists in many JVM cases | Manual hoist to local variable only after profiling; do not assume CPython will optimize it like HotSpot |
 
 ---
 
@@ -1032,7 +1033,7 @@ A: The standard approach: (1) `tracemalloc` — take a snapshot at two points in
 - [ ] `__slots__` ≈ Java record/value type — compact memory layout
 - [ ] `lru_cache` ≈ Guava Cache / `@Cacheable` in Spring
 - [ ] `"".join(parts)` ≈ `StringBuilder` — same reason: avoids O(n²) string copies
-- [ ] CPython has no JIT — manual hoisting of globals to locals is necessary (JVM JIT does this automatically)
+- [ ] Default CPython does not optimize hot paths like HotSpot; manual hoisting is only worth considering after profiling
 
 ---
 

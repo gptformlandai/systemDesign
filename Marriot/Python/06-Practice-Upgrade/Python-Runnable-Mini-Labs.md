@@ -990,7 +990,188 @@ Cannot mutate frozen: FrozenInstanceError
 
 ---
 
-## 18. Final Revision Checklist
+## 18. Lab 17 - Pattern Matching Capture Trap
+
+**Goal:** See why bare names in `case` patterns capture instead of compare.
+
+```python
+def classify(status: str) -> str:
+    expected = "PAID"
+
+    match status:
+        case "FAILED":
+            return "failed"
+        case expected:
+            return f"captured {expected}"
+
+
+print(classify("PAID"))
+print(classify("PENDING"))
+```
+
+**Expected Output:**
+
+```text
+captured PAID
+captured PENDING
+```
+
+**Fix:** Use literals or dotted enum constants.
+
+```python
+from enum import StrEnum
+
+
+class PaymentStatus(StrEnum):
+    PAID = "PAID"
+    FAILED = "FAILED"
+
+
+def classify_safe(status: PaymentStatus) -> str:
+    match status:
+        case PaymentStatus.PAID:
+            return "paid"
+        case PaymentStatus.FAILED:
+            return "failed"
+```
+
+> Linked sheet: Python-Pattern-Matching-Match-Case-Gold-Sheet.md
+
+---
+
+## 19. Lab 18 - Money And Time Correctness
+
+**Goal:** Observe why `float` and naive datetimes are weak defaults for production data.
+
+```python
+from datetime import UTC, datetime
+from decimal import Decimal, ROUND_HALF_UP
+
+
+print(0.1 + 0.2)
+
+total = Decimal("19.99") * (Decimal("1") + Decimal("0.0825"))
+print(total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+naive = datetime.now()
+aware = datetime.now(UTC)
+
+print(naive.tzinfo)
+print(aware.tzinfo)
+print(aware.isoformat())
+```
+
+**Expected Output Shape:**
+
+```text
+0.30000000000000004
+21.64
+None
+UTC
+2026-...+00:00
+```
+
+> Linked sheet: Python-Time-Money-UUID-Locale-Gold-Sheet.md
+
+---
+
+## 20. Lab 19 - ContextVar Request IDs
+
+**Goal:** See why async request context should not rely on one global variable.
+
+```python
+import asyncio
+from contextvars import ContextVar
+
+request_id: ContextVar[str] = ContextVar("request_id", default="-")
+
+
+async def handle(name: str, delay: float) -> None:
+    token = request_id.set(name)
+    try:
+        await asyncio.sleep(delay)
+        print(name, "sees", request_id.get())
+    finally:
+        request_id.reset(token)
+
+
+async def main() -> None:
+    await asyncio.gather(
+        handle("req-1", 0.2),
+        handle("req-2", 0.1),
+    )
+
+
+asyncio.run(main())
+```
+
+**Expected Output Shape:**
+
+```text
+req-2 sees req-2
+req-1 sees req-1
+```
+
+> Linked sheet: Python-Observability-OpenTelemetry-Logging-Metrics-Gold-Sheet.md
+
+---
+
+## 21. Lab 20 - Idempotency Key Simulation
+
+**Goal:** Model how APIs prevent duplicate side effects on retry.
+
+```python
+import hashlib
+import json
+from uuid import uuid4
+
+responses: dict[str, tuple[str, dict]] = {}
+
+
+def stable_hash(payload: dict) -> str:
+    raw = json.dumps(payload, sort_keys=True).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
+def create_order(idempotency_key: str, payload: dict) -> dict:
+    request_hash = stable_hash(payload)
+
+    if idempotency_key in responses:
+        previous_hash, previous_response = responses[idempotency_key]
+        if previous_hash != request_hash:
+            raise ValueError("409 conflict: same key, different request")
+        return previous_response
+
+    response = {"order_id": str(uuid4()), "status": "CREATED"}
+    responses[idempotency_key] = (request_hash, response)
+    return response
+
+
+key = str(uuid4())
+body = {"sku": "book", "quantity": 1}
+
+print(create_order(key, body))
+print(create_order(key, body))
+
+try:
+    print(create_order(key, {"sku": "book", "quantity": 2}))
+except ValueError as exc:
+    print(exc)
+```
+
+**Expected Output Shape:**
+
+```text
+{'order_id': '...', 'status': 'CREATED'}
+{'order_id': 'same-id-as-above', 'status': 'CREATED'}
+409 conflict: same key, different request
+```
+
+> Linked sheet: Python-Capstone-Production-FastAPI-Service-Lab.md
+
+---
+
+## 22. Final Revision Checklist
 
 - [ ] Lab 01 — Can predict mutable default accumulation; explained `__defaults__`
 - [ ] Lab 02 — Can predict late binding output; fixed with default arg and `nonlocal`
@@ -1008,3 +1189,7 @@ Cannot mutate frozen: FrozenInstanceError
 - [ ] Lab 14 — Observed `groupby` duplicate groups without sort; fixed both ways
 - [ ] Lab 15 — Traced `else`/`finally` execution paths; observed exception chaining
 - [ ] Lab 16 — Compared plain class vs `@dataclass`; observed `frozen=True` hashability
+- [ ] Lab 17 — Observed match/case capture behavior and fixed it with enum constants
+- [ ] Lab 18 — Compared float money with Decimal and naive vs aware datetimes
+- [ ] Lab 19 — Observed ContextVar isolation across concurrent async tasks
+- [ ] Lab 20 — Simulated idempotent create-order retry behavior

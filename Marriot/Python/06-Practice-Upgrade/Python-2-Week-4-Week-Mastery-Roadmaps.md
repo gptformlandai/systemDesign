@@ -1,6 +1,6 @@
-# Python 2-Week & 4-Week Mastery Roadmaps — Gold Sheet
+# Python 2-Week & 4-Week Mastery Roadmaps - Gold Sheet
 
-> **Track File #31 of 31 · Group 6: Practice Upgrade**
+> **Track File #31 - Group 6: Practice Upgrade**
 > For: Java developer | Level: MAANG interview prep | Mode: follow the plan, mark days complete
 
 ---
@@ -9,10 +9,12 @@
 
 ### Prerequisites Checklist
 
-- [ ] Python 3.10+ installed (`python --version`)
+- [ ] Python 3.12+ installed for broad compatibility, or Python 3.14 for current-version practice (`python -VV`)
 - [ ] A working virtualenv (`python -m venv .venv && source .venv/bin/activate`)
+- [ ] uv installed or understood well enough to run `uv sync`, `uv add`, and `uv run`
 - [ ] VS Code with Python extension OR PyCharm installed
-- [ ] Packages installed: `pip install httpx pytest pytest-asyncio pydantic fastapi uvicorn`
+- [ ] Packages installed through the project tool: `uv add httpx pytest pytest-asyncio pydantic fastapi uvicorn` or `python -m pip install ...`
+- [ ] Read [Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md](../00-Setup/Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md) if `python`, `pip`, IDE interpreter, or virtualenv behavior feels unclear
 - [ ] Read [Python-For-Java-Developers-Gold-Sheet.md](../01-Starter-Path/Python-For-Java-Developers-Gold-Sheet.md) at minimum before Day 1
 
 ### Java Developer Acceleration
@@ -38,6 +40,17 @@ You have 6 years of Java. Skip the following as "already known concept, just che
 | Interview in 3–4 weeks | 4-Week Deep Dive |
 | Interview in 7 days | Use 2-Week Sprint, do Days 1–7 only; focus on Groups 1–3 |
 | Revisiting after a break | Jump to Weeks 3–4 of the 4-Week plan |
+
+### Optional Day 0 - Setup Stabilization
+
+Use this when you are new to Python or the machine is not trustworthy yet.
+
+| Time | Activity | File |
+|---|---|---|
+| 0:00-0:30 | Verify interpreter, `sys.executable`, `python -m pip`, and IDE interpreter | Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md |
+| 0:30-1:00 | Create `.venv` or uv project, run first script, run first pytest test | Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md |
+
+**Day 0 exit gate:** Terminal, IDE, and test runner use the same Python interpreter.
 
 ---
 
@@ -385,7 +398,7 @@ If any dimension < 3: re-read that day's sheet and re-run the corresponding mock
 - Mock Round 6 timed (20 min) — Senior Production Scenarios
 - Score Dimension 6 — record progress
 
-**Week 3 milestone:** Dimensions 3, 4, 6 ≥ 3. All 16 labs run at least once.
+**Week 3 milestone:** Dimensions 3, 4, 6 >= 3. Core labs run at least once; labs 17-20 can be completed during gap-fill review.
 
 ---
 
@@ -444,7 +457,7 @@ If any dimension < 3: re-read that day's sheet and re-run the corresponding mock
 |---|---|---|---|
 | 1 | 1–7 | Core Python foundation | All Group 1 sheets + 9 labs + Round 1, 8 mocks |
 | 2 | 8–14 | Intermediate backend | All Group 2 sheets + Rounds 2, 5 mocks |
-| 3 | 15–21 | Senior MAANG depth | Groups 3, 5 sheets + all 16 labs + Rounds 3, 4, 6 mocks |
+| 3 | 15-21 | Senior MAANG depth | Groups 3, 5 sheets + core labs + Rounds 3, 4, 6 mocks |
 | 4 | 22–28 | Integration + full mock | LLD, tricky output, 3 full mock days + readiness gate |
 
 ---
@@ -504,12 +517,21 @@ Use this in the 7 days before the actual interview.
 | #10 | Python-Modules-Packaging-Venv-Pip-Poetry | 5 | 10 |
 | #11 | Python-File-IO-Serialization-JSON-Pickle | 5 | 11 |
 | #12 | Python-Backend-APIs-FastAPI-Flask-Patterns | 10 | 12 |
+| #12a | Python-Data-Engineering-Pandas-Polars | 10 | 14 |
+| #12b | Python-Pattern-Matching-Match-Case | 11 | 14 |
+| #12c | Python-Time-Money-UUID-Locale | 11 | 14 |
 | #13 | Python-Internals-Memory-GC-GIL | 6 | 15 |
 | #14 | Python-Concurrency-Threading-Multiprocessing | 6 | 15 |
 | #15 | Python-AsyncIO-Modern-Concurrency | 7 | 16 |
 | #16 | Python-Performance-Profiling-Debugging | 8 | 17 |
 | #17 | Python-Testing-Pytest-Mocking-Testcontainers | 9 | 18 |
 | #18 | Python-Production-Engineering-Best-Practices | 10 | 21 |
+| #18a | Python-AsyncIO-Database-Drivers | 10 | 21 |
+| #18b | Python-Memory-Optimization-Slots-Object-Pooling | 8 | 17 |
+| #18c | Python-Modern-3-12-3-13-3-14-3-15 | 11 | 20 |
+| #18d | Python-Security-OWASP-Supply-Chain | 11 | 20 |
+| #18e | Python-Observability-OpenTelemetry-Logging-Metrics | 11 | 21 |
+| #18f | Python-Django-Celery-Redis-Worker-Patterns | 11 | 22 |
 | #19 | Python-Scenario-Based-Quick-Revision | 12 | 24 |
 | #20 | Python-Dict-List-Mutability-Request-Scenario | 10 | 13 |
 | #21 | Python-Async-API-Concurrency-Scenario | 10 | 21 |
@@ -523,6 +545,7 @@ Use this in the 7 days before the actual interview.
 | #29 | Python-Mock-Interview-Scripts | Rounds | Rounds |
 | #30 | Python-Interview-Scoring-Rubrics | Weekly | Weekly |
 | #31 | Python-2-Week-4-Week-Mastery-Roadmaps | This file | This file |
+| #32 | Python-Capstone-Production-FastAPI-Service-Lab | Stretch | Week 4 |
 
 ---
 
@@ -532,8 +555,10 @@ Use this in the 7 days before the actual interview.
 - [ ] Completed Prerequisites Checklist before Day 1
 - [ ] Reached Week 1 milestone on or before scheduled date
 - [ ] Reached Week 2 milestone on or before scheduled date
-- [ ] All 16 labs run at least once
+- [ ] All 20 labs run at least once
 - [ ] All 8 mock rounds completed at least once timed
+- [ ] Gap-fill sheets completed: setup, modern Python, security, observability, workers, pattern matching, time/money
+- [ ] Capstone lab either built or explained end to end from architecture, tests, security, and observability
 - [ ] Weekly Self-Assessment filled in at least twice
 - [ ] Identified and re-ran lowest 2 dimensions at least once
 - [ ] Phone screen readiness gate cleared (6/6 at ≥ 3)

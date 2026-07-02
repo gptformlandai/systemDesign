@@ -78,16 +78,16 @@ Executed line by line
 .py file  ->  CPython compiler  ->  .pyc bytecode  ->  PVM executes bytecode
 ```
 
-No JIT in standard CPython. PyPy has a JIT but is not the default.
+Default CPython should not be treated like a HotSpot-style JIT runtime. PyPy has a JIT, and Python 3.13+ has experimental CPython JIT work, but normal production answers should not assume JVM-like hot-path compilation.
 
 ### Strong Interview Answer
 
 ```text
 Python source files are compiled by CPython into bytecode, which is cached in .pyc files.
 The bytecode is then executed by the Python Virtual Machine, a loop inside the CPython
-interpreter. There is no Just-In-Time compiler in standard CPython, so Python does not
-optimize hot paths the way the JVM does. PyPy is an alternative implementation that adds
-a JIT compiler for performance-critical code.
+interpreter. For normal default CPython, I do not assume HotSpot-style JIT optimization
+of hot paths. PyPy has a JIT, and modern CPython has experimental JIT work, but that is
+version/build-specific and not the baseline interview answer.
 ```
 
 ### Java Developer Bridge
@@ -98,12 +98,12 @@ Similar to Java:
   Both have a VM that runs bytecode.
 
 Different in Python:
-  CPython does not have a JIT compiler. The JVM JIT-compiles hot methods into native code.
-  Python bytecode is always interpreted, making Python generally slower for CPU-heavy work.
+  Default CPython does not give the same always-on HotSpot-style JIT assumption as the JVM.
+  Python bytecode execution is generally slower for CPU-heavy pure Python work.
   Python compiles at import time, not as a separate build step like javac.
 
 Does not exist in Python:
-  JIT compilation in standard CPython.
+  A universal JVM-style JIT assumption across standard CPython deployments.
   JDK / JRE / JVM distinction. Python has one runtime: CPython (or PyPy/Jython/etc.).
   ClassLoader subsystem with parent delegation model.
 
@@ -114,8 +114,10 @@ Pythonic replacement:
 
 Interview trap for Java developers:
   Saying "Python compiles to bytecode just like Java so they are equivalent at runtime."
-  Python bytecode is interpreted by CPython with no JIT. Java bytecode is JIT-compiled by
-  the JVM into native machine code for hot paths. Python is generally slower for CPU work.
+  Default CPython bytecode execution should not be treated like JVM HotSpot JIT execution.
+  Java bytecode is JIT-compiled by the JVM into native machine code for hot paths. Python
+  is generally slower for pure Python CPU work unless you change the runtime strategy,
+  use native/vectorized libraries, or validate a version/build-specific JIT path.
 ```
 
 ### Python Tools To Know

@@ -1,19 +1,24 @@
 # Python Interview Track Index
 
-This folder is the Python language track for backend interviews.
+This folder is the Python language track for backend interviews and production Python mastery.
 
 Audience:
-- You have 6 years of Java backend experience.
-- You know Python syntax basics but do not feel fluent or interview-ready.
-- You want MAANG-level depth, not a beginner tutorial.
+- You may be a true Python beginner who needs setup and first-mile workflow.
+- You may be a Java backend developer moving into Python.
+- You may know Python syntax basics but do not feel fluent or interview-ready.
+- You want MAANG-level depth, not a shallow syntax-only tutorial.
 
 Goal:
-- Build Python from Java-developer fundamentals to MAANG-level production judgment.
+- Build Python from first install and CLI workflow to MAANG-level production judgment.
 - Surface every place Python behaves differently from Java so there are no blind spots.
 - Keep each topic modular so revision is fast.
 - Make the answer pattern repeatable: Java bridge, mental model, definition, internals, code, traps, strong answer, revision.
 
 Use this index as the reading order.
+
+If you are a true beginner, start at **0. Setup Path**.
+
+If you already write Python scripts comfortably, start at **1. Starter Path** and use setup only to fix tooling gaps.
 
 ---
 
@@ -84,6 +89,23 @@ Interview trap for Java developers:
 
 ---
 
+## 0. Setup Path
+
+Read this before the starter path if you are new to Python tooling or if your IDE/terminal environments drift.
+
+| Order | File | What It Builds |
+|---:|---|---|
+| 0 | `00-Setup/Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md` | Python installation verification, `python -m pip`, virtual environments, uv workflow, IDE interpreter setup, project execution, first tests |
+
+Setup target:
+- You can prove which Python interpreter is running.
+- You can create and use an isolated project environment.
+- You understand `pip` vs `python -m pip` vs uv.
+- Your IDE, terminal, and test runner use the same environment.
+- You can run a basic script and a basic pytest test.
+
+---
+
 ## 1. Starter Path
 
 Read these first. They build Python intuition using your Java foundation.
@@ -120,6 +142,8 @@ After the starter path, read these.
 | 11 | `02-Intermediate-Backend/Python-File-IO-Serialization-JSON-Pickle-Gold-Sheet.md` | File reading/writing, `pathlib`, `json`, `csv`, `pickle` dangers, encoding, buffered vs unbuffered |
 | 12 | `02-Intermediate-Backend/Python-Backend-APIs-FastAPI-Flask-Patterns-Gold-Sheet.md` | Request lifecycle, routing, validation, dependency injection, error handling, FastAPI and Flask patterns |
 | 12a | `02-Intermediate-Backend/Python-Data-Engineering-Pandas-Polars-Gold-Sheet.md` | `DataFrame` creation, `loc`/`iloc`, `groupby`, `merge`, `apply` trap, dtype memory optimization, chunked reading, pandas vs polars, polars lazy API |
+| 12b | `02-Intermediate-Backend/Python-Pattern-Matching-Match-Case-Gold-Sheet.md` | Structural pattern matching, capture traps, sequence/mapping/class patterns, guards, backend event dispatch |
+| 12c | `02-Intermediate-Backend/Python-Time-Money-UUID-Locale-Gold-Sheet.md` | `Decimal`, money as minor units, timezone-aware UTC, `zoneinfo`, UUID/idempotency, locale-safe APIs |
 
 Intermediate target:
 - You can explain how Python built-in data structures work internally.
@@ -128,6 +152,8 @@ Intermediate target:
 - You can create and ship Python packages and manage dependencies.
 - You can design backend API handlers with clean validation and error handling.
 - You can process tabular data with pandas and explain when polars is the better choice.
+- You can use `match`/`case` safely without confusing capture patterns with comparison.
+- You can model time, money, IDs, and locale-sensitive values correctly.
 
 ---
 
@@ -145,6 +171,10 @@ These are the pro sheets.
 | 18 | `03-Senior-MAANG/Python-Production-Engineering-Best-Practices-MAANG-Master-Sheet.md` | Logging, configuration, secrets, structured errors, retries, timeouts, packaging, observability, dependency safety |
 | 18a | `03-Senior-MAANG/Python-AsyncIO-Database-Drivers-Gold-Sheet.md` | asyncpg vs psycopg2, `AsyncEngine`, `AsyncSession`, `async_sessionmaker`, `expire_on_commit=False`, FastAPI `get_db` dependency, N+1 with selectinload/joinedload, connection pool sizing, Alembic with async |
 | 18b | `03-Senior-MAANG/Python-Memory-Optimization-Slots-Object-Pooling-Gold-Sheet.md` | `__dict__` overhead, `__slots__` mechanics, inheritance rules, pickling, small int/string interning, `weakref` caches, `__del__` pitfalls, object pooling patterns, `tracemalloc`, `objgraph`, generator vs list memory, production anti-patterns |
+| 18c | `03-Senior-MAANG/Python-Modern-3-12-3-13-3-14-3-15-MAANG-Master-Sheet.md` | Version-aware Python: type parameter syntax, free-threading, experimental JIT, deferred annotations, template strings, multiple interpreters |
+| 18d | `03-Senior-MAANG/Python-Security-OWASP-Supply-Chain-Gold-Sheet.md` | SQL/command injection, path traversal, SSRF, unsafe deserialization, JWT/CORS/CSRF, secrets, dependency scanning, supply chain |
+| 18e | `03-Senior-MAANG/Python-Observability-OpenTelemetry-Logging-Metrics-Gold-Sheet.md` | Structured logs, request IDs, metrics, traces, profiling runbooks, event loop lag, SQLAlchemy observability, alerting |
+| 18f | `03-Senior-MAANG/Python-Django-Celery-Redis-Worker-Patterns-Gold-Sheet.md` | Django architecture, ORM traps, Celery/RQ/ARQ, retries, idempotency, outbox, dead letters, worker observability |
 
 Senior target:
 - You can explain CPython internals including the GIL, reference counting, and cyclic GC.
@@ -155,6 +185,10 @@ Senior target:
 - You can write Python that survives production failure modes.
 - You can build async FastAPI services with correct SQLAlchemy async session lifecycle and connection pool strategy.
 - You can diagnose Python memory leaks and apply `__slots__`, `weakref`, and generator patterns to reduce memory footprint.
+- You can answer modern Python version questions without stale absolutes.
+- You can secure Python services across validation, authorization, deserialization, injection sinks, secrets, and dependencies.
+- You can operate Python services with logs, metrics, traces, profiles, and incident runbooks.
+- You can design background workers with idempotency, retry discipline, dead-letter handling, and outbox consistency.
 
 ---
 
@@ -207,12 +241,14 @@ Use these after or alongside the concept sheets. They convert the track from pas
 | 29 | `06-Practice-Upgrade/Python-Mock-Interview-Scripts.md` | Timed mock rounds for core Python, data structures, async, internals, LLD, tricky output, and senior scenarios |
 | 30 | `06-Practice-Upgrade/Python-Interview-Scoring-Rubrics.md` | 1-5 scoring rubrics for concepts, coding, scenarios, production debugging, and readiness gates |
 | 31 | `06-Practice-Upgrade/Python-2-Week-4-Week-Mastery-Roadmaps.md` | Realistic 2-week and 4-week study plans designed for a Java developer moving to Python interview readiness |
+| 32 | `06-Practice-Upgrade/Python-Capstone-Production-FastAPI-Service-Lab.md` | End-to-end production service lab tying FastAPI, Pydantic, SQLAlchemy async, Alembic, tests, idempotency, observability, and security |
 
 Practice target:
 - You can answer from memory, not just recognize notes.
 - You can run small Python scripts that expose the traps.
 - You can score your answers honestly and retest weak areas.
 - You can handle timed Python interview pressure with follow-up questions.
+- You can build and explain a production-shaped Python service end to end.
 
 ---
 
@@ -283,6 +319,7 @@ developers who expect something analogous to Java's local variable initializatio
 - `Protocol` for structural typing instead of interface inheritance.
 - Pydantic for runtime validation at API boundaries.
 - mypy/pyright for pre-production type checking.
+- Python 3.12+ type parameter syntax and version-aware compatibility.
 
 ### Concurrency
 
@@ -298,6 +335,9 @@ developers who expect something analogous to Java's local variable initializatio
 - Reference counting and cyclic garbage collection.
 - Object layout and small integer/string interning.
 - GIL: what it protects, when it is released, how to work around it.
+- Python 3.13+ free-threaded builds as an advanced caveat, not the baseline assumption.
+- Python 3.13+ experimental JIT work as a version/build-specific caveat, not a JVM-style default.
+- Python 3.14 deferred annotations, template strings, multiple interpreters, and runtime/debugging improvements.
 - Bytecode and `dis` module.
 - Module import system and `sys.path`.
 
@@ -311,6 +351,10 @@ developers who expect something analogous to Java's local variable initializatio
 - Retries, timeouts, and circuit breaker patterns.
 - Containerization and startup/health check patterns.
 - Dependency security and version pinning.
+- OWASP-style Python API security and supply-chain scanning.
+- Structured logs, metrics, traces, correlation IDs, and profiling runbooks.
+- Background job and worker correctness: idempotency, retries, dead letters, outbox.
+- Correct modeling for money, time, UUIDs, locale, and idempotency keys.
 
 ### Testing
 
@@ -357,8 +401,8 @@ Use this as a fast orientation when starting the track.
 | `@Override` | No equivalent annotation | Python has no compile-time override check; use ABCs or Protocol for intent |
 | `@FunctionalInterface` | No annotation needed | Any callable is usable; one-method class or `lambda` or function |
 | `ClassLoader` | `importlib` | Python import system; less frequently needed but similar concept |
-| JVM / bytecode | CPython / `.pyc` bytecode | Both compile to bytecode; CPython is interpreted + optimized, no JIT in standard CPython |
-| JIT compiler | No JIT in CPython | PyPy has a JIT; CPython does not |
+| JVM / bytecode | CPython / `.pyc` bytecode | Both compile to bytecode; default CPython does not provide a HotSpot-style always-on JIT assumption |
+| JIT compiler | Version/build-specific caveat in CPython | PyPy has a JIT; Python 3.13+ has experimental CPython JIT work, but do not assume JVM-like JIT behavior in normal deployments |
 | GC generations | Reference counting + cyclic GC | Python GC is reference counting first, not generational by default |
 | GIL | No direct Java equivalent | Default CPython threads share a global lock; Python 3.13+ has optional free-threaded builds as an advanced caveat |
 | `@Deprecated` | No standard annotation; docstring or `warnings.warn` | Convention-based, not enforced |
@@ -444,6 +488,16 @@ You are ready when you can answer these without notes:
 - What is a `Protocol`, and when is it better than an ABC?
 - What does Pydantic add over plain type hints?
 - What is `TypeVar` used for?
+- What changes with Python 3.12 type parameter syntax?
+- What changes with Python 3.14 deferred annotation evaluation?
+
+### Modern Python
+
+- What is the difference between default CPython and free-threaded CPython?
+- How do you identify a free-threaded build?
+- What is the correct caveat around Python 3.13+ experimental JIT work?
+- What are Python 3.14 template strings useful for?
+- When would you mention multiple interpreters, and why are they not the default concurrency answer?
 
 ### Concurrency
 
@@ -475,6 +529,13 @@ You are ready when you can answer these without notes:
 - How do you diagnose a memory leak in Python?
 - How do you diagnose a slow Python API?
 - What is the first thing you check for a blocking-in-async issue?
+- How do you prevent SQL injection and command injection?
+- Why is `pickle.loads()` unsafe for untrusted data?
+- What SSRF protections do you add around user-controlled URLs?
+- What should a Python service expose in logs, metrics, traces, and health endpoints?
+- How do Celery-style workers handle retries, idempotency, and dead letters?
+- Why should money not be modeled as `float`?
+- Why should production timestamps be timezone-aware?
 
 ### Special Rounds
 
@@ -490,10 +551,10 @@ You are ready when you can answer these without notes:
 
 | Level | What This Track Covers | Status |
 |---|---|---|
-| Beginner | Core Python for Java developers, mutability, types, functions, OOP, exceptions, comprehensions | Gold |
-| Intermediate | Data structure internals, type hints, packaging, IO, backend API patterns | Gold |
-| Senior | CPython internals, GIL, threading, multiprocessing, asyncio, performance profiling, testing, production engineering | Gold |
-| MAANG | Decorators, descriptors, metaclasses, machine coding, production debugging case studies, scenario delivery | Gold |
+| Beginner | Setup, CLI, IDE, uv/venv, core Python for Java developers, mutability, types, functions, OOP, exceptions, comprehensions | Gold |
+| Intermediate | Data structure internals, type hints, packaging, IO, backend API patterns, pattern matching, time/money/UUID correctness | Gold |
+| Senior | CPython internals, GIL, threading, multiprocessing, asyncio, performance profiling, testing, production engineering, modern Python versions, security, observability, workers | Gold |
+| MAANG | Decorators, descriptors, metaclasses, machine coding, production debugging case studies, scenario delivery, end-to-end production capstone | Gold |
 | Java Bridge | Every sheet includes explicit Java-to-Python comparisons, bridges, differences, missing concepts, and interview traps | Gold |
 | Practice | Active recall, runnable labs, timed mocks, scoring rubrics, 2-week and 4-week roadmaps | Gold |
 
@@ -505,6 +566,7 @@ What makes this one-stop:
 - Each advanced topic includes traps, trade-offs, and production judgment.
 - The Java-to-Python quick map makes orientation fast.
 - The practice upgrade path adds active recall, hands-on labs, mock interviews, scoring rubrics, and realistic mastery plans.
+- The capstone converts the notes into a production-shaped FastAPI service with security, observability, idempotency, and database correctness.
 
 ---
 
@@ -527,6 +589,13 @@ Use these sources when refreshing Python details:
 - Poetry documentation: `https://python-poetry.org/docs/`
 - CPython source (for internals): `https://github.com/python/cpython`
 - Python free-threading HOWTO: `https://docs.python.org/3/howto/free-threading-python.html`
+- Python 3.14 What's New: `https://docs.python.org/3/whatsnew/3.14.html`
+- Python 3.13 What's New: `https://docs.python.org/3/whatsnew/3.13.html`
+- uv documentation: `https://docs.astral.sh/uv/`
+- OWASP Cheat Sheet Series: `https://cheatsheetseries.owasp.org/`
+- OpenTelemetry Python: `https://opentelemetry.io/docs/languages/python/`
+- Celery documentation: `https://docs.celeryq.dev/`
+- Django documentation: `https://docs.djangoproject.com/`
 
 Interview safety line:
 

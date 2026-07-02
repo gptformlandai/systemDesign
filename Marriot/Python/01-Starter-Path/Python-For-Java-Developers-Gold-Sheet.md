@@ -43,7 +43,7 @@ How to use this:
 | Java | Python |
 |---|---|
 | Write `.java` → compile with `javac` → `.class` bytecode → JVM executes | Write `.py` → CPython compiles at import time → `.pyc` bytecode → PVM executes |
-| JIT compiler optimizes hot methods into native code | No JIT in CPython; PyPy has a JIT |
+| JIT compiler optimizes hot methods into native code | Default CPython has no HotSpot-style always-on JIT assumption; PyPy has a JIT; Python 3.13+ has experimental CPython JIT work |
 | JDK + JRE + JVM are distinct components | Python runtime is just CPython (one binary: `python3`) |
 | `java MyClass` to run | `python3 my_script.py` to run |
 | REPL: `jshell` | REPL: `python3` or `ipython` |
@@ -52,7 +52,7 @@ How to use this:
 ### What Does Not Exist In Python
 
 - No `javac` separate compile step in normal workflow.
-- No JIT in standard CPython (PyPy has one but is a separate runtime).
+- No JVM-style always-on JIT assumption in default CPython. PyPy has one, and modern CPython has experimental JIT work, but that is version/build-specific.
 - No JVM tiered compilation, JIT warmup, or method deoptimization.
 
 ### Interview Trap
@@ -60,10 +60,11 @@ How to use this:
 ```text
 Java developer says: "Python is compiled to bytecode just like Java so performance is similar."
 
-Correct answer: Python bytecode is always interpreted by the PVM with no JIT compilation in
-CPython. Java bytecode is JIT-compiled into native machine code for hot paths, giving Java
-significantly better throughput for CPU-bound work. Python's strengths are developer
-productivity, ecosystem, and IO-bound backend workloads, not raw CPU throughput.
+Correct answer: Python bytecode on default CPython should not be treated like HotSpot JIT
+bytecode. Java bytecode is JIT-compiled into native machine code for hot paths, giving Java
+strong throughput for CPU-bound work. Modern Python has PyPy and experimental CPython JIT
+caveats, but normal backend Python performance comes from architecture, native/vectorized
+libraries, async IO, caching, and clear workload separation.
 ```
 
 ---

@@ -9,7 +9,7 @@
 
 | Topic | Frequency | Why It Gets Java Developers |
 |---|---|---|
-| CPython execution pipeline | Very high | Java has JVM/JIT; CPython has interpreter + bytecode without standard JIT |
+| CPython execution pipeline | Very high | Java has JVM/JIT; default CPython has interpreter + bytecode without a HotSpot-style JIT assumption |
 | Object model: names point to objects | Very high | Java variables feel like typed containers; Python names are bindings |
 | Reference counting | Very high | Java GC is tracing-first; CPython frees most objects immediately |
 | Cyclic garbage collector | High | Python has refcount + cycle detector, not JVM-style heap tracing only |
@@ -65,13 +65,13 @@ The cache avoids recompiling unchanged modules. It does **not** make Python equi
 | Java | Python |
 |---|---|
 | `.java` -> `.class` bytecode -> JVM | `.py` -> code object bytecode -> CPython VM |
-| JVM usually has JIT optimization | CPython standard runtime has no JIT |
+| JVM usually has JIT optimization | Default CPython should not be assumed to have JVM-style always-on JIT behavior |
 | Static type checking at compile time | Runtime type checking unless tools like mypy/pyright are used |
 | Class loading is explicit JVM machinery | Import system executes module top-level code once and caches module object |
 
 ### Interview Answer
 
-> CPython parses Python source into an AST, compiles it to bytecode, then interprets that bytecode in the CPython VM. `.pyc` files cache bytecode compilation, not machine-code optimization. Unlike Java's HotSpot JVM, standard CPython does not use a JIT, so hot loops do not automatically become optimized native code.
+> CPython parses Python source into an AST, compiles it to bytecode, then executes that bytecode in the CPython VM. `.pyc` files cache bytecode compilation, not machine-code optimization. Unlike Java's HotSpot JVM, default CPython should not be assumed to JIT hot loops into optimized native code. PyPy and modern experimental CPython JIT work are runtime/build-specific caveats.
 
 ---
 
@@ -787,7 +787,7 @@ Fix:
 
 | Concern | Java Mental Model | Python / CPython Mental Model |
 |---|---|---|
-| Runtime | JVM with JIT | CPython interpreter, bytecode, no standard JIT |
+| Runtime | JVM with JIT | CPython interpreter and bytecode; no HotSpot-style always-on JIT assumption |
 | Variables | Typed local slots / fields | Names bound to objects |
 | Primitives | `int`, `long`, `boolean` primitives | Everything is an object |
 | Memory management | Tracing GC | Reference counting + cyclic GC |

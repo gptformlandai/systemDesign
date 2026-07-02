@@ -519,10 +519,89 @@ Sketch each answer in 30 seconds.
 
 ---
 
-## 15. Topic-to-File Cross-Reference
+## 15. Gap-Fill Mastery Rounds
+
+Use these after the new enrichment sheets.
+
+### Setup and Tooling
+
+🔴 **Q1:** Why is `python -m pip install` safer than bare `pip install` when debugging an environment issue?
+
+🔴 **Q2:** Which four commands prove exactly which Python interpreter and package environment are being used?
+
+🔴 **Q3:** What is the difference between `pyproject.toml` and a lockfile?
+
+🔴 **Q4:** In a uv-managed project, why should CI use `uv sync --frozen`?
+
+### Modern Python Versions
+
+🔴 **Q1:** How do you answer "Does CPython have a JIT?" in a version-aware way?
+
+🔴 **Q2:** What is the difference between default CPython and a free-threaded CPython build?
+
+🔴 **Q3:** Why can Python 3.14 deferred annotations affect decorators, serializers, and framework internals?
+
+🔴 **Q4:** When would you mention multiple interpreters, and why are they not your default backend concurrency answer?
+
+### Security
+
+🔴 **Q1:** Why is `pickle.loads()` unsafe for untrusted data?
+
+🔴 **Q2:** Name three mitigations for SSRF when a user controls an outbound URL.
+
+🔴 **Q3:** What is the difference between authentication and object-level authorization?
+
+🔴 **Q4:** Why is Pydantic validation not enough to prevent SQL injection?
+
+### Observability
+
+🔴 **Q1:** What is the difference between logs, metrics, traces, and profiles?
+
+🔴 **Q2:** Why should request IDs be stored in a `ContextVar` for async Python services?
+
+🔴 **Q3:** What metrics reveal DB connection pool exhaustion?
+
+🔴 **Q4:** A FastAPI service has high p95 latency, low CPU, and no errors. What do you inspect first?
+
+### Workers and Background Jobs
+
+🔴 **Q1:** Why should Celery/RQ/ARQ jobs be designed as at-least-once execution?
+
+🔴 **Q2:** What does the outbox pattern solve?
+
+🔴 **Q3:** Which failures should be retried, and which should go directly to dead letter?
+
+🔴 **Q4:** Why is queue age often a better alert than queue size alone?
+
+### Time, Money, Pattern Matching
+
+🔴 **Q1:** Why should money not be represented as `float`?
+
+🔴 **Q2:** What is the difference between storing a UTC instant and storing a user's wall-clock schedule?
+
+🔴 **Q3:** In pattern matching, why does `case expected:` not compare against the existing variable `expected`?
+
+🔴 **Q4:** When is `match` better than `if/elif`, and when is it worse?
+
+### Capstone
+
+🔴 **Q1:** In the capstone service, what belongs in the route handler vs the service layer?
+
+🔴 **Q2:** How does the idempotency table prevent duplicate order creation?
+
+🔴 **Q3:** What would you include in the minimum CI gate for a production Python service?
+
+🔴 **Q4:** How would you explain the capstone architecture in 90 seconds?
+
+> **Answer references:** Setup, Modern Python, Security, Observability, Django/Celery/Workers, Pattern Matching, Time/Money, and Capstone sheets.
+
+---
+
+## 16. Topic-to-File Cross-Reference
 
 | Topic | Primary File | Group |
 |---|---|---|
+| Setup / CLI / uv / venv | Python-Install-CLI-IDE-uv-venv-Gold-Sheet.md | 00 |
 | Python for Java devs | Python-For-Java-Developers-Gold-Sheet.md | 01 |
 | Core Python interview | Python-Core-Hot-Interview-Master-Sheet.md | 01 |
 | Mutability / data types | Python-Data-Types-Mutability-Deep-Dive.md | 01 |
@@ -535,10 +614,16 @@ Sketch each answer in 30 seconds.
 | Modules / packaging | Python-Modules-Packaging-Venv-Pip-Poetry-Gold-Sheet.md | 02 |
 | File I/O / serialization | Python-File-IO-Serialization-JSON-Pickle-Gold-Sheet.md | 02 |
 | Backend / FastAPI | Python-Backend-APIs-FastAPI-Flask-Patterns-Gold-Sheet.md | 02 |
+| Pattern matching | Python-Pattern-Matching-Match-Case-Gold-Sheet.md | 02 |
+| Time / money / UUID / locale | Python-Time-Money-UUID-Locale-Gold-Sheet.md | 02 |
 | Concurrency / threading | Python-Concurrency-Threading-Multiprocessing-MAANG-Master-Sheet.md | 03 |
 | AsyncIO | Python-AsyncIO-Modern-Concurrency-MAANG-Master-Sheet.md | 03 |
 | Performance / profiling | Python-Performance-Profiling-Debugging-MAANG-Master-Sheet.md | 03 |
 | Testing / pytest | Python-Testing-Pytest-Mocking-Testcontainers-Gold-Sheet.md | 03 |
+| Modern Python versions | Python-Modern-3-12-3-13-3-14-3-15-MAANG-Master-Sheet.md | 03 |
+| Security / OWASP / supply chain | Python-Security-OWASP-Supply-Chain-Gold-Sheet.md | 03 |
+| Observability | Python-Observability-OpenTelemetry-Logging-Metrics-Gold-Sheet.md | 03 |
+| Django / Celery / workers | Python-Django-Celery-Redis-Worker-Patterns-Gold-Sheet.md | 03 |
 | Scenario quick revision | Python-Scenario-Based-Quick-Revision-Gold-Sheet.md | 04 |
 | Mutability scenarios | Python-Dict-List-Mutability-Request-Scenario-Gold-Sheet.md | 04 |
 | Async scenarios | Python-Async-API-Concurrency-Scenario-Gold-Sheet.md | 04 |
@@ -547,10 +632,11 @@ Sketch each answer in 30 seconds.
 | Decorators/descriptors | Python-Decorators-Descriptors-Metaclasses-Deep-Dive-Gold-Sheet.md | 05 |
 | LLD / machine coding | Python-LLD-Machine-Coding-Patterns-Gold-Sheet.md | 05 |
 | Production debugging | Python-Production-Debugging-Case-Studies-Gold-Sheet.md | 05 |
+| Capstone production service | Python-Capstone-Production-FastAPI-Service-Lab.md | 06 |
 
 ---
 
-## 16. Final Revision Checklist
+## 17. Final Revision Checklist
 
 - [ ] Completed all Foundation questions without notes across all 13 topics
 - [ ] Completed all Intermediate questions with only minor hesitation
@@ -561,3 +647,4 @@ Sketch each answer in 30 seconds.
 - [ ] Marked every ❌ item for next-day revisit
 - [ ] Can explain every Java Bridge difference in at least 6 topic areas
 - [ ] Can name the correct sheet to revisit for any weak topic using the cross-reference table
+- [ ] Completed the gap-fill mastery rounds for setup, modern Python, security, observability, workers, time/money, pattern matching, and capstone
