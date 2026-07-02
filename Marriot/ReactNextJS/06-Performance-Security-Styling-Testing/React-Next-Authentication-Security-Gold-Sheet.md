@@ -1,6 +1,6 @@
 # React + Next.js Authentication And Security - Gold Sheet
 
-> Track File #13 of 24 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Covers: cookies vs tokens, session management, NextAuth basics, protecting routes, XSS, CSRF
 
 ---

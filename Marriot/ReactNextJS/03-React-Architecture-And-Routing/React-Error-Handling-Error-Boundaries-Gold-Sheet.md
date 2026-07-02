@@ -1,6 +1,6 @@
 # React Error Handling and Error Boundaries — Gold Sheet
 
-> Track File #28 of 40 · Group 3: React Architecture And Routing
+> Track Module - Group 3: React Architecture And Routing
 > Level: beginner → MAANG | render errors, async errors, production patterns
 
 ---

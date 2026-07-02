@@ -1,6 +1,6 @@
 # React + Next.js Frontend System Design - Gold Sheet
 
-> Track File #22 of 24 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Covers: scalable frontend apps, SSR vs CSR vs ISR trade-offs, data flow, caching decisions, performance vs scalability
 
 ---

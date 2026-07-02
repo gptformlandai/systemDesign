@@ -1,6 +1,6 @@
 # React + Next.js Deployment And Infrastructure - Gold Sheet
 
-> Track File #18 of 24 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Covers: Vercel deployment, CI/CD, environment variables, Edge functions
 
 ---

@@ -1,6 +1,6 @@
 # React Hooks Complete - Gold Sheet
 
-> Track File #3 of 24 - Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Covers: `useState`, `useEffect`, `useRef`, `useMemo`, `useCallback`, `useReducer`, custom hooks, rules and anti-patterns
 
 ---

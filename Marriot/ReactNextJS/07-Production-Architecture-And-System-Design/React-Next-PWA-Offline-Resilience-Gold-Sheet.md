@@ -1,6 +1,6 @@
 # React + Next.js PWA, Offline, And Client Resilience - Gold Sheet
 
-> Track File #45 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Level: intermediate -> senior | Progressive Web Apps, service workers, offline UX, sync queues, storage, and resilient client behavior
 
 ---

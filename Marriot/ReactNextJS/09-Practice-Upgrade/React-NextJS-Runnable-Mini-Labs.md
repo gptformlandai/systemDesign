@@ -1,6 +1,6 @@
 # React + Next.js Runnable Mini Labs — Gold Sheet
 
-> Track File #37 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Format: requirements → starter scaffold → reference solution → self-grading checklist
 
 ---

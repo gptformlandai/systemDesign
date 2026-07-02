@@ -1,6 +1,6 @@
 # Next.js Rendering Strategies Deep Dive - Gold Sheet
 
-> Track File #10 of 24 - Group 5: Next.js App Router And Data
+> Track Module - Group 5: Next.js App Router And Data
 > Covers: SSR, SSG, ISR, CSR, partial pre-rendering, streaming, when to use each
 
 ---

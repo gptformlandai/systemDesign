@@ -1,6 +1,6 @@
 # React + Next.js MAANG Interview Preparation - Gold Sheet
 
-> Track File #24 of 24 - Group 8: Projects And Interview Prep
+> Track Module - Group 8: Projects And Interview Prep
 > Covers: frontend system design questions, architecture decisions, trade-off techniques, debugging strategies
 
 ---

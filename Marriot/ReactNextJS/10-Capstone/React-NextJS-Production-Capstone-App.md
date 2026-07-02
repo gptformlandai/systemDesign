@@ -1,6 +1,6 @@
 # React + Next.js Production Capstone App
 
-> Track File #52 - Group 10: Capstone
+> Track Module - Group 10: Capstone
 > Level: beginner -> PRO validation | One end-to-end project that proves the whole track
 
 ---
@@ -278,11 +278,6 @@ import { db } from '@/lib/db';
 import { requireSession } from '@/lib/auth';
 
 export async function getProjectDTO(projectId: string) {
-  'use cache';
-
-  cacheLife('minutes');
-  cacheTag(`project:${projectId}`);
-
   const session = await requireSession();
 
   const project = await db.project.findFirstOrThrow({
@@ -299,6 +294,20 @@ export async function getProjectDTO(projectId: string) {
   });
 
   return project;
+}
+
+export async function getProjectActivitySummary(projectId: string) {
+  'use cache';
+
+  cacheLife('minutes');
+  cacheTag(`project:${projectId}`);
+  cacheTag(`tasks:${projectId}`);
+
+  return db.task.groupBy({
+    by: ['status'],
+    where: { projectId },
+    _count: { id: true },
+  });
 }
 ```
 
@@ -457,4 +466,3 @@ You are done only when:
 - Three keywords: route, boundary, evidence.
 - One interview trap: A working demo is not the same as a production-ready app.
 - One memory trick: Build it, break it, measure it, explain it.
-

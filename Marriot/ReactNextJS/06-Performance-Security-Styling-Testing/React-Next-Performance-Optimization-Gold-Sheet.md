@@ -1,6 +1,6 @@
 # React + Next.js Performance Optimization - Gold Sheet
 
-> Track File #15 of 24 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Covers: code splitting, lazy loading, tree shaking, bundle analysis, image optimization, Web Vitals
 
 ---

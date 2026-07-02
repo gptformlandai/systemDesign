@@ -1,6 +1,6 @@
 # React + Next.js 2-Week and 4-Week Mastery Roadmaps — Gold Sheet
 
-> Track File #40 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Two plans: 2-week sprint (interview imminent) and 4-week deep mastery
 
 ---

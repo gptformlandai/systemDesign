@@ -1,6 +1,6 @@
 # React Core Fundamentals - Gold Sheet
 
-> Track File #2 of 24 - Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Covers: JSX, components, props, state, function vs class components, lifecycle, reconciliation, keys, controlled/uncontrolled components
 
 ---

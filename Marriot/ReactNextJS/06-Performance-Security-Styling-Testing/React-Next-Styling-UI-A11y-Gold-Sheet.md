@@ -1,6 +1,6 @@
 # React + Next.js Styling, UI System, And Accessibility - Gold Sheet
 
-> Track File #14 of 24 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Covers: CSS fundamentals, Flexbox, Grid, Tailwind, CSS Modules, styled-components, design systems, accessibility
 
 ---

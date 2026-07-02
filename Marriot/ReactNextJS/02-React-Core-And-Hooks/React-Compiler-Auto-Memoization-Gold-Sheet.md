@@ -1,6 +1,6 @@
 # React Compiler And Auto Memoization - Gold Sheet
 
-> Track File #8 - Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Level: intermediate -> senior | React Compiler, auto memoization, directives, adoption, debugging, and performance trade-offs
 
 ---

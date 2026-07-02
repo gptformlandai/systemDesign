@@ -1,6 +1,6 @@
 # React + Next.js Mock Interview Scripts — Gold Sheet
 
-> Track File #38 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Format: timed round → interviewer questions → expected coverage → follow-ups
 
 ---

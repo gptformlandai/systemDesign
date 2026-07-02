@@ -1,6 +1,6 @@
 # React + Next.js Real-World Projects - Gold Sheet
 
-> Track File #23 of 24 - Group 8: Projects And Interview Prep
+> Track Module - Group 8: Projects And Interview Prep
 > Covers: SaaS dashboard, ecommerce app, GenAI frontend, design decisions
 
 ---

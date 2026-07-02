@@ -1,6 +1,6 @@
 # React Server State, TanStack Query, And SWR - Gold Sheet
 
-> Track File #8 of 24 - Group 4: Forms, Client State, And Server State
+> Track Module - Group 4: Forms, Client State, And Server State
 > Covers: server state vs client state, TanStack Query caching/background refetch/mutations, SWR basics, API consistency problems
 
 ---

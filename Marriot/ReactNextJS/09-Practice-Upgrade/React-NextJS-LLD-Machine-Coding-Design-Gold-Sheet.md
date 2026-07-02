@@ -1,6 +1,6 @@
 # React + Next.js LLD Machine Coding Design — Gold Sheet
 
-> Track File #34 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Format: requirements → approach → full implementation → review
 
 ---

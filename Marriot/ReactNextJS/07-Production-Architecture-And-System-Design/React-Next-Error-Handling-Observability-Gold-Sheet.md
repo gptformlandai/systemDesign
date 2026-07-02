@@ -1,6 +1,6 @@
 # React + Next.js Error Handling And Observability - Gold Sheet
 
-> Track File #20 of 24 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Covers: logging, monitoring, Sentry, error boundaries, API failures
 
 ---

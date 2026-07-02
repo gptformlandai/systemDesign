@@ -1,6 +1,6 @@
 # React + Next.js Realtime And Interactive Systems - Gold Sheet
 
-> Track File #17 of 24 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Covers: WebSockets, polling vs realtime updates, optimistic UI
 
 ---

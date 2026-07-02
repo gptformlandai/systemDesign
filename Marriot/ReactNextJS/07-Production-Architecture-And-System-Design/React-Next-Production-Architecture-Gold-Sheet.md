@@ -1,6 +1,6 @@
 # React + Next.js Production Architecture - Gold Sheet
 
-> Track File #19 of 24 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Covers: folder structure, feature-based architecture, component design patterns, monorepo, Turborepo
 
 ---

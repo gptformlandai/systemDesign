@@ -1,6 +1,6 @@
 # Next.js Data Fetching Architecture - Gold Sheet
 
-> Track File #11 of 24 - Group 5: Next.js App Router And Data
+> Track Module - Group 5: Next.js App Router And Data
 > Covers: `getStaticProps`, `getServerSideProps`, App Router async components, Server Actions, API routes, BFF pattern
 
 ---

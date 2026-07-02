@@ -1,6 +1,6 @@
 # React Custom Hooks Production Pattern Library — Gold Sheet
 
-> Track File #27 of 40 · Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Level: intermediate → senior | 18 production-ready hooks across 6 categories
 
 ---

@@ -1,6 +1,6 @@
 # React Advanced Internals, Fiber, Concurrency, Suspense - Gold Sheet
 
-> Track File #4 of 24 - Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Covers: Fiber, concurrent rendering, batching, Suspense, lazy loading, error boundaries, portals
 
 ---

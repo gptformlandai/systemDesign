@@ -1,6 +1,6 @@
 # React State Management Full Spectrum - Gold Sheet
 
-> Track File #7 of 24 - Group 4: Forms, Client State, And Server State
+> Track Module - Group 4: Forms, Client State, And Server State
 > Covers: local vs global state, Context API, Redux, Redux Toolkit, Zustand, Jotai, Recoil, decision tree
 
 ---

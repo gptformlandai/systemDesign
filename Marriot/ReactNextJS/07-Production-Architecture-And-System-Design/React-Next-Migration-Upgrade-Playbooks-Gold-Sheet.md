@@ -1,6 +1,6 @@
 # React + Next.js Migration And Upgrade Playbooks - Gold Sheet
 
-> Track File #44 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Level: senior -> architect | CRA/Vite to Next.js, Pages to App Router, React upgrades, Next 15/16, Middleware to Proxy, Cache Components
 
 ---

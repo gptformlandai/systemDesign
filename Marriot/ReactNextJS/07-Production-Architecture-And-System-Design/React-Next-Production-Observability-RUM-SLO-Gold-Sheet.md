@@ -1,6 +1,6 @@
 # React + Next.js Production Observability, RUM, And SLOs - Gold Sheet
 
-> Track File #43 - Group 7: Production Architecture And System Design
+> Track Module - Group 7: Production Architecture And System Design
 > Level: senior -> architect | Web Vitals, RUM, traces, logs, release health, SLOs, privacy, and incident debugging
 
 ---

@@ -1,6 +1,6 @@
 # React + Next.js Developer Environment - Gold Sheet
 
-> Track File #1 - Group 0: Setup And Tooling
+> Track Module - Group 0: Setup And Tooling
 > Level: beginner -> production-ready | First-mile setup, local workflow, scripts, TypeScript, linting, debugging, and project conventions
 
 ---

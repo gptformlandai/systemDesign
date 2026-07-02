@@ -1,6 +1,6 @@
 # React 18 & 19 — New Features, Concurrent Mode, and Modern APIs Gold Sheet
 
-> Track File #26 of 40 · Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Level: intermediate → MAANG | React 18 concurrent features, React 19 server model
 
 ---

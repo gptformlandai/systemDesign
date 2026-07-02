@@ -1,6 +1,6 @@
 # React TypeScript Deep Dive — Gold Sheet
 
-> Track File #25 of 40 · Group 2: React Core And Hooks
+> Track Module - Group 2: React Core And Hooks
 > Level: beginner TypeScript + React → MAANG-level typed architecture
 
 ---

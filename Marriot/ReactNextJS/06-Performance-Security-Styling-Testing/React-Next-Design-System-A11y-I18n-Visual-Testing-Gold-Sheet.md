@@ -1,6 +1,6 @@
 # React + Next.js Design System, Accessibility, I18n, And Visual Testing - Gold Sheet
 
-> Track File #34 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Level: intermediate -> staff frontend | Design tokens, component APIs, accessibility, internationalization, RTL, Storybook, and visual regression
 
 ---

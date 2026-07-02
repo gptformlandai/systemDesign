@@ -1,6 +1,6 @@
 # React Advanced Frontend Patterns - Gold Sheet
 
-> Track File #21 of 24 - Group 3: React Architecture And Routing
+> Track Module - Group 3: React Architecture And Routing
 > Covers: compound components, render props, higher order components, controlled vs uncontrolled patterns
 
 ---

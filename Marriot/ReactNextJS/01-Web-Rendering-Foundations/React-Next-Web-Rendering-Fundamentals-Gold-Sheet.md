@@ -1,6 +1,6 @@
 # Web And Rendering Fundamentals - Gold Sheet
 
-> Track File #1 of 24 - Group 1: Web And Rendering Foundations
+> Track Module - Group 1: Web And Rendering Foundations
 > Covers: DOM, CSSOM, render tree, critical rendering path, virtual DOM, hydration, event loop, SPA/MPA/hybrid, CSR/SSR/SSG/ISR
 
 ---

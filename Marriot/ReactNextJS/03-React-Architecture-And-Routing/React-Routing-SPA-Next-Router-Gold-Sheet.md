@@ -1,6 +1,6 @@
 # React Routing: SPA And Next.js Router - Gold Sheet
 
-> Track File #5 of 24 - Group 3: React Architecture And Routing
+> Track Module - Group 3: React Architecture And Routing
 > Covers: React Router data APIs, nested routing, lazy route loading, Next.js file-based routing, dynamic routes, route groups, navigation strategies
 
 ---

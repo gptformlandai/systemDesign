@@ -1,6 +1,6 @@
 # React + Next.js Production Debugging Case Studies — Gold Sheet
 
-> Track File #35 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Format: Incident → Investigation → Root Cause → Fix → Prevention → 60-second answer
 
 ---

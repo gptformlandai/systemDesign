@@ -1,6 +1,6 @@
 # Next.js App Router Core - Gold Sheet
 
-> Track File #9 of 24 - Group 5: Next.js App Router And Data
+> Track Module - Group 5: Next.js App Router And Data
 > Covers: App Router architecture, Server Components, Client Components, `use client`, `use server`, layouts, templates, file-based routing
 
 ---

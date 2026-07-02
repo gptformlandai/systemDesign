@@ -1,6 +1,6 @@
 # React + Next.js Testing - Gold Sheet
 
-> Track File #16 of 24 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Covers: Jest, React Testing Library, integration testing, E2E with Cypress/Playwright
 
 ---

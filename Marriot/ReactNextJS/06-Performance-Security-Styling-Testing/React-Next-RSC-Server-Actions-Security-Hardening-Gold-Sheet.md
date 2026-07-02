@@ -1,6 +1,6 @@
 # React Server Components And Server Actions Security Hardening - Gold Sheet
 
-> Track File #33 - Group 6: Performance, Security, Styling, And Testing
+> Track Module - Group 6: Performance, Security, Styling, And Testing
 > Level: senior -> architect | RSC data leaks, Server Actions hardening, DAL, DTOs, tainting, environment boundaries, and incident response
 
 ---
@@ -66,7 +66,6 @@ export async function getCurrentUserDTO() {
       name: true,
       email: true,
       role: true,
-      passwordHash: false,
     },
   });
 
@@ -436,4 +435,3 @@ called directly.
 - Three keywords: DTO, server-only, authz.
 - One interview trap: Authentication is not authorization.
 - One memory trick: Every action is an endpoint; every prop is a possible leak.
-

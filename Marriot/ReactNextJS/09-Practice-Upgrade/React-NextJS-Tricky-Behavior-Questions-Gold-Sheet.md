@@ -1,6 +1,6 @@
 # React + Next.js Tricky Behavior Questions — Gold Sheet
 
-> Track File #33 of 40 · Group 9: Practice Upgrade
+> Track Module - Group 9: Practice Upgrade
 > Format: code snippet → question → detailed answer | cover answer, then check
 
 ---
