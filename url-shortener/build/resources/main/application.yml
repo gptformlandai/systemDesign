@@ -1,0 +1,88 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: url-shortener
+
+  # ── R2DBC (Reactive PostgreSQL) ──────────────────────────────────────────────
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:urlshortener}
+    username: ${DB_USER:urlshortener}
+    password: ${DB_PASS:urlshortener}
+    pool:
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+      validation-query: SELECT 1
+
+  # ── Flyway (JDBC, runs at startup before Netty) ──────────────────────────────
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:urlshortener}
+    user: ${DB_USER:urlshortener}
+    password: ${DB_PASS:urlshortener}
+    locations: classpath:db/migration
+
+  # ── Redis ────────────────────────────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+
+  # ── Kafka ────────────────────────────────────────────────────────────────────
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
+
+# ── Actuator / Observability ─────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, info, metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    distribution:
+      percentiles-histogram:
+        url.redirect.latency: true
+      percentiles:
+        url.redirect.latency: 0.5, 0.95, 0.99
+
+# ── Application properties ───────────────────────────────────────────────────
+app:
+  base-url: ${BASE_URL:http://localhost:8080}
+
+  security:
+    jwt:
+      secret: ${JWT_SECRET:change-me-in-production-must-be-32-chars-minimum}
+      expiration-ms: 3600000  # 1 hour
+
+  codegen:
+    node-id: ${NODE_ID:1}   # Override per instance in production
+
+  kafka:
+    topics:
+      click-events: url-shortener.click-events
+
+  idempotency:
+    ttl: PT24H   # 24 hours
+
+  abuse:
+    blocked-domains: malware-example.com,phishing-test.io
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  pattern:
+    console: "%d{ISO8601} [%X{requestId}] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.urlshortener: DEBUG
+    io.r2dbc: INFO
+    reactor.kafka: INFO
