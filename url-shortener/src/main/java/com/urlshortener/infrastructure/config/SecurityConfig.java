@@ -42,7 +42,7 @@ public class SecurityConfig {
                         // Public: health + metrics
                         .pathMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         // Public: Swagger & OpenAPI docs
-                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/swagger-ui/**").permitAll()
+                        .pathMatchers("/swagger-ui", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**", "/webjars/**").permitAll()
                         // Protected: all management API routes
                         .pathMatchers("/v1/**").authenticated()
                         // Everything else denied

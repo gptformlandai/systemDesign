@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Hexagonal Architecture boundary tests" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-06T08:27:15" hostname="ARAVIND" time="0.313">
+<testsuite name="Hexagonal Architecture boundary tests" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-08-06T09:05:22" hostname="HDQBEAMQYGD4C" time="0.034">
   <properties/>
-  <testcase name="Domain layer has no Spring Framework dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.238"/>
-  <testcase name="Port interfaces have no adapter dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.015"/>
-  <testcase name="Domain objects are records or enums (immutability constraint)" classname="com.urlshortener.arch.ArchUnitTest" time="0.01"/>
-  <testcase name="Services depend only on domain and port interfaces — not on adapter implementations" classname="com.urlshortener.arch.ArchUnitTest" time="0.013"/>
-  <testcase name="Domain layer has no adapter dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.003"/>
-  <testcase name="Adapters do not import service layer (prevent circular dependency)" classname="com.urlshortener.arch.ArchUnitTest" time="0.017"/>
-  <system-out><![CDATA[13:57:11.366 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 21.0.2
+  <testcase name="Domain layer has no Spring Framework dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.023"/>
+  <testcase name="Port interfaces have no adapter dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.002"/>
+  <testcase name="Domain objects are records or enums (immutability constraint)" classname="com.urlshortener.arch.ArchUnitTest" time="0.001"/>
+  <testcase name="Services depend only on domain and port interfaces — not on adapter implementations" classname="com.urlshortener.arch.ArchUnitTest" time="0.003"/>
+  <testcase name="Domain layer has no adapter dependencies" classname="com.urlshortener.arch.ArchUnitTest" time="0.001"/>
+  <testcase name="Adapters do not import service layer (prevent circular dependency)" classname="com.urlshortener.arch.ArchUnitTest" time="0.003"/>
+  <system-out><![CDATA[14:35:21.625 [Test worker] INFO com.tngtech.archunit.core.PluginLoader -- Detected Java version 21.0.12
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="RedirectService unit tests" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-06T08:27:15" hostname="ARAVIND" time="3.119">
+<testsuite name="RedirectService unit tests" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-08-06T09:05:22" hostname="HDQBEAMQYGD4C" time="0.591">
   <properties/>
-  <testcase name="returns 404 for disabled mapping" classname="com.urlshortener.service.RedirectServiceTest" time="3.011"/>
-  <testcase name="redirect succeeds even if analytics publisher fails" classname="com.urlshortener.service.RedirectServiceTest" time="0.051"/>
-  <testcase name="returns 410 Gone for expired mapping" classname="com.urlshortener.service.RedirectServiceTest" time="0.01"/>
-  <testcase name="falls through to DB on cache miss" classname="com.urlshortener.service.RedirectServiceTest" time="0.022"/>
-  <testcase name="returns longUrl on cache hit (active mapping)" classname="com.urlshortener.service.RedirectServiceTest" time="0.004"/>
-  <testcase name="rejects invalid code format fast-path (no cache/DB hit)" classname="com.urlshortener.service.RedirectServiceTest" time="0.005"/>
-  <testcase name="returns 404 when code not found in cache or DB" classname="com.urlshortener.service.RedirectServiceTest" time="0.003"/>
-  <system-out><![CDATA[13:57:18.887 [boundedElastic-1] WARN com.urlshortener.service.RedirectService -- Analytics publish failed for code=abc1234, error=Kafka down
+  <testcase name="returns 404 for disabled mapping" classname="com.urlshortener.service.RedirectServiceTest" time="0.566"/>
+  <testcase name="redirect succeeds even if analytics publisher fails" classname="com.urlshortener.service.RedirectServiceTest" time="0.009"/>
+  <testcase name="returns 410 Gone for expired mapping" classname="com.urlshortener.service.RedirectServiceTest" time="0.002"/>
+  <testcase name="falls through to DB on cache miss" classname="com.urlshortener.service.RedirectServiceTest" time="0.005"/>
+  <testcase name="returns longUrl on cache hit (active mapping)" classname="com.urlshortener.service.RedirectServiceTest" time="0.001"/>
+  <testcase name="rejects invalid code format fast-path (no cache/DB hit)" classname="com.urlshortener.service.RedirectServiceTest" time="0.001"/>
+  <testcase name="returns 404 when code not found in cache or DB" classname="com.urlshortener.service.RedirectServiceTest" time="0.001"/>
+  <system-out><![CDATA[14:35:22.940 [boundedElastic-1] WARN com.urlshortener.service.RedirectService -- Analytics publish failed for code=abc1234, error=Kafka down
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

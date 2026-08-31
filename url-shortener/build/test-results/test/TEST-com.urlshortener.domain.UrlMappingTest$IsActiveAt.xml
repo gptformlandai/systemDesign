@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="isActiveAt()" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-06T08:27:15" hostname="ARAVIND" time="0.023">
+<testsuite name="isActiveAt()" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-06T09:05:22" hostname="HDQBEAMQYGD4C" time="0.002">
   <properties/>
-  <testcase name="returns true when ACTIVE and no expiry" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.006"/>
-  <testcase name="returns true when ACTIVE and expiry is in the future" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.003"/>
-  <testcase name="returns false when BLOCKED" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.001"/>
-  <testcase name="returns false when DISABLED regardless of expiry" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.002"/>
-  <testcase name="returns false when ACTIVE but expiry has passed" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.002"/>
+  <testcase name="returns true when ACTIVE and no expiry" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.0"/>
+  <testcase name="returns true when ACTIVE and expiry is in the future" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.0"/>
+  <testcase name="returns false when BLOCKED" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.0"/>
+  <testcase name="returns false when DISABLED regardless of expiry" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.001"/>
+  <testcase name="returns false when ACTIVE but expiry has passed" classname="com.urlshortener.domain.UrlMappingTest$IsActiveAt" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

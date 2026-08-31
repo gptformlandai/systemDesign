@@ -104,3 +104,7 @@ Gold bar for every problem:
 ## 11. AdTech / Advertising Systems
 
 - [Real-Time Ad Bidding System / Ad Aggregator](11-AdTech-Advertising-Systems/Real-Time-Ad-Bidding-Ad-Aggregator-End-to-End-System-Design.md)
+
+## 12. Financial / Trading Systems
+
+- [Stock Exchange / High-Frequency Trading System](12-Financial-Trading-Systems/Stock-Exchange-High-Frequency-Trading-End-to-End-System-Design.md)

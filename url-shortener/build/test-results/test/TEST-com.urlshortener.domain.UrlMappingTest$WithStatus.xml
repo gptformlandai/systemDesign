@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="withStatus()" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-06T08:27:15" hostname="ARAVIND" time="0.194">
+<testsuite name="withStatus()" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-06T09:05:22" hostname="HDQBEAMQYGD4C" time="0.019">
   <properties/>
-  <testcase name="produces a new instance with the updated status" classname="com.urlshortener.domain.UrlMappingTest$WithStatus" time="0.194"/>
+  <testcase name="produces a new instance with the updated status" classname="com.urlshortener.domain.UrlMappingTest$WithStatus" time="0.019"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

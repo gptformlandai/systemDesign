@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="create() — generated code" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-06T08:27:19" hostname="ARAVIND" time="0.037">
+<testsuite name="create() — generated code" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-08-06T09:05:23" hostname="HDQBEAMQYGD4C" time="0.011">
   <properties/>
-  <testcase name="rejects blank URL" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.006"/>
-  <testcase name="creates mapping with generated code on success" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.012"/>
-  <testcase name="retries code generation on collision" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.008"/>
-  <testcase name="rejects invalid URL scheme" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.002"/>
-  <testcase name="rejects past expiry timestamp" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.003"/>
+  <testcase name="rejects blank URL" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.002"/>
+  <testcase name="creates mapping with generated code on success" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.002"/>
+  <testcase name="retries code generation on collision" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.002"/>
+  <testcase name="rejects invalid URL scheme" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.001"/>
+  <testcase name="rejects past expiry timestamp" classname="com.urlshortener.service.UrlShorteningServiceTest$GeneratedCodeTests" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

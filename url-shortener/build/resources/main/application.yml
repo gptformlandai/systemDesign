@@ -55,6 +55,14 @@ management:
       percentiles:
         url.redirect.latency: 0.5, 0.95, 0.99
 
+# ── SpringDoc / Swagger UI ───────────────────────────────────────────────────
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+
 # ── Application properties ───────────────────────────────────────────────────
 app:
   base-url: ${BASE_URL:http://localhost:8080}
