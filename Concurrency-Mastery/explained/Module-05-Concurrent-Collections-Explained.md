@@ -4,6 +4,35 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: The Big Picture — Which Collection Do I Use?](#part-1-the-big-picture--which-collection-do-i-use)
+  - [1.1 The Decision Table](#11-the-decision-table)
+  - [1.2 The Mental Model](#12-the-mental-model)
+- [Part 2: ConcurrentHashMap — The Star of the Show](#part-2-concurrenthashmap--the-star-of-the-show)
+  - [2.1 The Hotel Analogy](#21-the-hotel-analogy)
+  - [2.2 Java 8+ Internals](#22-java-8-internals)
+  - [2.3 Treeification](#23-treeification)
+  - [2.4 Multi-Threaded Resize](#24-multi-threaded-resize)
+  - [2.5 Atomic Compound Operations](#25-atomic-compound-operations)
+  - [2.6 The computeIfAbsent Deadlock Trap](#26-the-computeifabsent-deadlock-trap)
+  - [2.7 size() Is Not Exact](#27-size-is-not-exact)
+- [Part 3: Blocking Queues](#part-3-blocking-queues)
+  - [3.1 ArrayBlockingQueue](#31-arrayblockingqueue)
+  - [3.2 LinkedBlockingQueue](#32-linkedblockingqueue)
+  - [3.3 SynchronousQueue](#33-synchronousqueue)
+  - [3.4 DelayQueue](#34-delayqueue)
+  - [3.5 PriorityBlockingQueue](#35-priorityblockingqueue)
+- [Part 4: Lock-Free Collections](#part-4-lock-free-collections)
+  - [4.1 ConcurrentLinkedQueue](#41-concurrentlinkedqueue)
+  - [4.2 ConcurrentSkipListMap](#42-concurrentskiplistmap)
+- [Part 5: Copy-On-Write Collections](#part-5-copy-on-write-collections)
+  - [5.1 CopyOnWriteArrayList](#51-copyonwritearraylist)
+- [Part 6: Production War Stories](#part-6-production-war-stories)
+- [Part 7: Interview Traps & Self-Check](#part-7-interview-traps--self-check)
+
+---
+
 # Part 1: The Big Picture — Which Collection Do I Use?
 
 ## 1.1 The Decision Table

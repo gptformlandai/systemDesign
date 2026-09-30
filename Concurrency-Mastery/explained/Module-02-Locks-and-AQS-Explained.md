@@ -4,6 +4,37 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: synchronized — The JVM Intrinsic Lock](#part-1-synchronized--the-jvm-intrinsic-lock)
+  - [1.1 Object Layout — Where the Lock Actually Lives](#11-object-layout--where-the-lock-actually-lives)
+  - [1.2 How the Mark Word Changes Based on Lock State](#12-how-the-mark-word-changes-based-on-lock-state)
+  - [1.3 Lock Escalation](#13-lock-escalation)
+  - [1.4 ObjectMonitor Internals](#14-objectmonitor-internals)
+- [Part 2: wait(), notify(), notifyAll()](#part-2-wait-notify-notifyall)
+  - [2.1 The Three Rules](#21-the-three-rules)
+  - [2.2 The Canonical BoundedBuffer](#22-the-canonical-boundedbuffer)
+  - [2.3 Reentrancy](#23-reentrancy)
+- [Part 3: Common synchronized Bugs](#part-3-common-synchronized-bugs)
+  - [3.1 Interned Strings](#31-interned-strings)
+  - [3.2 Boolean.TRUE](#32-booleantrue)
+  - [3.3 Mutable Lock Fields](#33-mutable-lock-fields)
+- [Part 4: AbstractQueuedSynchronizer (AQS)](#part-4-abstractqueuedsynchronizer-aqs)
+  - [4.1 The Purpose](#41-the-purpose)
+  - [4.2 The State Variable](#42-the-state-variable)
+  - [4.3 The CLH Queue](#43-the-clh-queue)
+  - [4.4 Acquire/Release Flow](#44-acquirerelease-flow)
+  - [4.5 Exclusive vs Shared Mode](#45-exclusive-vs-shared-mode)
+- [Part 5: Explicit Locks](#part-5-explicit-locks)
+  - [5.1 ReentrantLock](#51-reentrantlock)
+  - [5.2 ReentrantReadWriteLock](#52-reentrantreadwritelock)
+  - [5.3 Condition](#53-condition)
+- [Part 6: L5-Grade Code Examples](#part-6-l5-grade-code-examples)
+- [Part 7: Production War Stories](#part-7-production-war-stories)
+- [Part 8: Interview Traps](#part-8-interview-traps)
+
+---
+
 # Part 1: `synchronized` — The JVM Intrinsic Lock
 
 ## The Big Picture: A Bathroom Analogy

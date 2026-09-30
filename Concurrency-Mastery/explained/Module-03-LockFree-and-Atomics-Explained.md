@@ -4,6 +4,32 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: Compare-And-Swap (CAS) — The Foundation of Lock-Free](#part-1-compare-and-swap-cas--the-foundation-of-lock-free)
+  - [1.1 The Coffee Shop Scoreboard Analogy](#11-the-coffee-shop-scoreboard-analogy)
+  - [1.2 The CPU Instruction](#12-the-cpu-instruction--what-actually-happens)
+  - [1.3 The CAS Loop Pattern](#13-the-cas-loop-pattern)
+  - [1.4 Lock-Free vs Wait-Free](#14-lock-free-vs-wait-free)
+  - [1.5 Optimistic vs Pessimistic](#15-optimistic-vs-pessimistic)
+- [Part 2: The ABA Problem](#part-2-the-aba-problem)
+  - [2.1 The Concrete Example](#21-the-concrete-example)
+  - [2.2 The Fix: AtomicStampedReference](#22-the-fix-atomicstampedreference)
+  - [2.3 AtomicMarkableReference](#23-atomicmarkablereference)
+- [Part 3: Atomic Wrapper Family](#part-3-atomic-wrapper-family)
+  - [3.1 The Core Wrappers](#31-the-core-wrappers)
+  - [3.2 Decision Tree](#32-decision-tree)
+- [Part 4: High-Contention Counters](#part-4-high-contention-counters)
+  - [4.1 LongAdder vs AtomicLong](#41-longadder-vs-atomiclong)
+  - [4.2 LongAccumulator](#42-longaccumulator)
+- [Part 5: VarHandle and Field Updaters](#part-5-varhandle-and-field-updaters)
+  - [5.1 Memory-Order Modes](#51-memory-order-modes)
+  - [5.2 Field Updaters](#52-field-updaters)
+- [Part 6: Production War Stories](#part-6-production-war-stories)
+- [Part 7: Interview Traps & Self-Check](#part-7-interview-traps--self-check)
+
+---
+
 # Part 1: Compare-And-Swap (CAS) — The Foundation of Lock-Free
 
 ## 1.1 The Coffee Shop Scoreboard Analogy

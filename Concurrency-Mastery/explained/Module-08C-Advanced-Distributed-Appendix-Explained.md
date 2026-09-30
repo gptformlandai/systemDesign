@@ -4,6 +4,38 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🎯 What You'll Master](#-what-youll-master)
+- [🗺️ The Journey Ahead](#️-the-journey-ahead)
+- [Part 1: Spanner + TrueTime — External Consistency at Global Scale](#part-1-spanner--truetime--external-consistency-at-global-scale)
+  - [1.1 The Problem Spanner Solved](#-the-problem-spanner-solved)
+  - [1.2 The Core Insight: TrueTime](#-the-core-insight-truetime)
+  - [1.3 Commit Wait — The Elegant Trick](#-commit-wait--the-elegant-trick)
+- [Part 2: Logical Time](#part-2-logical-time)
+  - [2.1 Lamport Timestamps](#-lamport-timestamps)
+  - [2.2 Vector Clocks](#-vector-clocks)
+  - [2.3 Hybrid Logical Clocks (HLC)](#-hybrid-logical-clocks-hlc)
+- [Part 3: Sharding & Placement](#part-3-sharding--placement)
+  - [3.1 Consistent Hashing](#-consistent-hashing)
+  - [3.2 Virtual Nodes](#-virtual-nodes)
+  - [3.3 Rendezvous Hashing](#-rendezvous-hashing)
+- [Part 4: Failure Detection](#part-4-failure-detection)
+  - [4.1 Heartbeats](#-heartbeats)
+  - [4.2 Phi Accrual Failure Detector](#-phi-accrual-failure-detector)
+  - [4.3 Gossip / SWIM Protocol](#-gossip--swim-protocol)
+- [Part 5: CRDTs — Conflict-Free Replicated Data Types](#part-5-crdts--conflict-free-replicated-data-types)
+  - [5.1 The Five Essential CRDTs](#-the-five-essential-crdts)
+  - [5.2 G-Counter](#-g-counter)
+  - [5.3 PN-Counter](#-pn-counter)
+  - [5.4 LWW-Register](#-lww-register)
+  - [5.5 OR-Set](#-or-set)
+  - [5.6 RGA (Replicated Growable Array)](#-rga-replicated-growable-array)
+- [Part 6: Production War Stories](#part-6-production-war-stories)
+- [Part 7: Interview Traps & Self-Check](#part-7-interview-traps--self-check)
+
+---
+
 ## 🎯 What You'll Master
 
 By the end of this module, you'll be able to:

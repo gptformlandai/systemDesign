@@ -4,6 +4,44 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🎯 What You'll Master](#-what-youll-master)
+- [🗺️ The Journey Ahead](#️-the-journey-ahead)
+- [Part 1: The Concurrency Failure Modes](#part-1-the-concurrency-failure-modes)
+  - [1.1 The Five You MUST Know](#-the-five-you-must-know)
+  - [1.2 Deadlock — The Classic Diamond](#-deadlock--the-classic-diamond)
+  - [1.3 Livelock — The Hallway Dance](#-livelock--the-hallway-dance)
+  - [1.4 Starvation — The Unfair Queue](#-starvation--the-unfair-queue)
+  - [1.5 Priority Inversion](#-priority-inversion)
+  - [1.6 Thread-Pool Starvation Deadlock](#-thread-pool-starvation-deadlock)
+  - [1.7 ThreadLocal Leaks](#-threadlocal-leaks)
+- [Part 2: Thread Dumps — Reading the Crime Scene](#part-2-thread-dumps--reading-the-crime-scene)
+  - [2.1 Capture Methods](#-capture-methods)
+  - [2.2 Thread States](#-thread-states)
+  - [2.3 Anatomy of a Thread Dump](#-anatomy-of-a-thread-dump)
+  - [2.4 Deadlock Detection](#-deadlock-detection)
+  - [2.5 Triage Patterns](#-triage-patterns)
+- [Part 3: Profilers — async-profiler](#part-3-profilers--async-profiler)
+  - [3.1 CPU Flame Graphs](#-cpu-flame-graphs)
+  - [3.2 Wall-Clock Flame Graphs](#-wall-clock-flame-graphs)
+  - [3.3 Lock Flame Graphs](#-lock-flame-graphs)
+  - [3.4 Allocation Flame Graphs](#-allocation-flame-graphs)
+- [Part 4: JFR — Java Flight Recorder](#part-4-jfr--java-flight-recorder)
+  - [4.1 Always-On Profiling](#-always-on-profiling)
+  - [4.2 Key Events](#-key-events)
+  - [4.3 GC vs Safepoint Pause](#-gc-vs-safepoint-pause)
+- [Part 5: Live-System Playbooks](#part-5-live-system-playbooks)
+  - [5.1 Service Stuck](#-service-stuck)
+  - [5.2 High CPU](#-high-cpu)
+  - [5.3 Latency Spikes](#-latency-spikes)
+  - [5.4 Memory Leak](#-memory-leak)
+  - [5.5 Thread Explosion](#-thread-explosion)
+- [Part 6: Production War Stories](#part-6-production-war-stories)
+- [Part 7: Interview Traps & Self-Check](#part-7-interview-traps--self-check)
+
+---
+
 ## 🎯 What You'll Master
 
 By the end of this module, you'll be able to:

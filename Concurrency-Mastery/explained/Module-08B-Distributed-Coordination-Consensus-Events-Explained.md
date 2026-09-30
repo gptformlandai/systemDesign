@@ -4,6 +4,43 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🎯 What You'll Master](#-what-youll-master)
+- [🗺️ The Journey Ahead](#️-the-journey-ahead)
+- [Part 1: Consensus — Raft in Three Diagrams](#part-1-consensus--raft-in-three-diagrams)
+  - [1.1 Why We Care](#-why-we-care)
+  - [1.2 The Committee Vote Analogy](#️-the-analogy-committee-vote-over-a-bad-phone-line)
+  - [1.3 The Three Pieces of Raft](#-the-three-pieces-of-raft)
+  - [1.4 Leader Election](#-leader-election)
+  - [1.5 Log Replication](#-log-replication)
+  - [1.6 Safety](#-safety)
+  - [1.7 Quorum Math](#-quorum-math)
+  - [1.8 Paxos vs Raft](#-paxos-vs-raft)
+- [Part 2: Consistency Models](#part-2-consistency-models)
+  - [2.1 The Spectrum](#-the-spectrum)
+  - [2.2 CAP Theorem](#-cap-theorem)
+  - [2.3 PACELC](#-pacelc)
+  - [2.4 Consistency vs Isolation](#-consistency-vs-isolation)
+- [Part 3: Distributed Transactions](#part-3-distributed-transactions)
+  - [3.1 Two-Phase Commit (2PC)](#-two-phase-commit-2pc)
+  - [3.2 Saga Pattern](#-saga-pattern)
+  - [3.3 TCC (Try-Confirm-Cancel)](#-tcc-try-confirm-cancel)
+- [Part 4: Kafka Concurrency](#part-4-kafka-concurrency)
+  - [4.1 Partitions and Consumer Groups](#-partitions-and-consumer-groups)
+  - [4.2 Rebalancing](#-rebalancing)
+  - [4.3 Delivery Semantics](#-delivery-semantics)
+  - [4.4 Exactly-Once Semantics (EOS-v2)](#-exactly-once-semantics-eos-v2)
+  - [4.5 Common Kafka Traps](#-common-kafka-traps)
+- [Part 5: Outbox Pattern + CDC](#part-5-outbox-pattern--cdc)
+  - [5.1 The Problem](#-the-problem)
+  - [5.2 The Outbox Solution](#-the-outbox-solution)
+  - [5.3 CDC with Debezium](#-cdc-with-debezium)
+- [Part 6: Production War Stories](#part-6-production-war-stories)
+- [Part 7: Interview Traps & Self-Check](#part-7-interview-traps--self-check)
+
+---
+
 ## 🎯 What You'll Master
 
 By the end of this module, you'll be able to:

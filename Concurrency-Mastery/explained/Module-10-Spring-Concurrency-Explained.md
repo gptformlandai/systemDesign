@@ -4,6 +4,39 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🎯 What You'll Master](#-what-youll-master)
+- [🗺️ The Journey Ahead](#️-the-journey-ahead)
+- [Part 1: @Async — The AOP Proxy Trap Every Senior Should Know Cold](#part-1-async--the-aop-proxy-trap-every-senior-should-know-cold)
+  - [1.1 The Office Intercom Analogy](#-the-analogy-the-office-intercom-system)
+  - [1.2 How Spring Implements @Async](#️-how-spring-implements-async)
+  - [1.3 The Self-Invocation Trap](#-the-self-invocation-trap)
+  - [1.4 Private/Final Methods](#-privatefinal-methods)
+  - [1.5 Exception Loss](#-exception-loss)
+  - [1.6 Default Executor](#-default-executor)
+  - [1.7 Already Async Callers](#-already-async-callers)
+- [Part 2: ThreadPoolTaskExecutor — Production Configuration](#part-2-threadpooltaskexecutor--production-configuration)
+  - [2.1 The Seven Parameters](#-the-seven-parameters)
+  - [2.2 CallerRunsPolicy](#-callerrunspolicy)
+  - [2.3 Graceful Shutdown](#-graceful-shutdown)
+  - [2.4 TaskDecorator](#-taskdecorator)
+- [Part 3: Context Propagation](#part-3-context-propagation)
+  - [3.1 The Problem](#-the-problem)
+  - [3.2 MDC Propagation](#-mdc-propagation)
+  - [3.3 SecurityContext Propagation](#-securitycontext-propagation)
+  - [3.4 RequestAttributes Propagation](#-requestattributes-propagation)
+  - [3.5 Micrometer ContextSnapshot](#-micrometer-contextsnapshot)
+- [Part 4: WebFlux vs Spring MVC + Virtual Threads](#part-4-webflux-vs-spring-mvc--virtual-threads)
+  - [4.1 The Decision Matrix](#-the-decision-matrix)
+  - [4.2 Migration Honesty](#-migration-honesty)
+  - [4.3 Common WebFlux Mistakes](#-common-webflux-mistakes)
+- [Part 5: Production War Stories](#part-5-production-war-stories)
+- [Part 6: Interview Traps & Self-Check](#part-6-interview-traps--self-check)
+- [🎓 The Course Complete!](#-the-course-complete)
+
+---
+
 ## 🎯 What You'll Master
 
 By the end of this module, you'll be able to:

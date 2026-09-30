@@ -4,6 +4,35 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [🎯 What You'll Master](#-what-youll-master)
+- [🗺️ The Journey Ahead](#️-the-journey-ahead)
+- [🚨 The Fundamental Truth](#-the-fundamental-truth-read-this-first)
+- [Part 1: Distributed Locks — Redis, ZooKeeper, etcd](#part-1-distributed-locks--redis-zookeeper-etcd)
+  - [1.1 The Analogy: From Bathroom Keys to Post-It Notes](#-the-analogy-from-bathroom-keys-to-post-it-notes)
+  - [1.2 Redis Distributed Locks](#-redis-distributed-locks)
+  - [1.3 ZooKeeper Distributed Locks](#-zookeeper-distributed-locks)
+  - [1.4 etcd Distributed Locks](#-etcd-distributed-locks)
+  - [1.5 Fencing Tokens — The Safety Net](#-fencing-tokens--the-safety-net)
+  - [1.6 Comparison Table](#-comparison-table)
+- [Part 2: Database Concurrency Control](#part-2-database-concurrency-control)
+  - [2.1 Optimistic vs Pessimistic Locking](#-optimistic-vs-pessimistic-locking)
+  - [2.2 SQL Isolation Levels](#-sql-isolation-levels)
+  - [2.3 MVCC — Multi-Version Concurrency Control](#-mvcc--multi-version-concurrency-control)
+  - [2.4 Write Skew](#-write-skew)
+- [Part 3: Distributed Scheduling](#part-3-distributed-scheduling)
+  - [3.1 ShedLock](#-shedlock)
+  - [3.2 Quartz Clustered](#-quartz-clustered)
+  - [3.3 Clock Skew](#-clock-skew)
+- [Part 4: Idempotency & Exactly-Once Semantics](#part-4-idempotency--exactly-once-semantics)
+  - [4.1 The Idempotency Key Pattern](#-the-idempotency-key-pattern)
+  - [4.2 Exactly-Once Semantics](#-exactly-once-semantics)
+- [Part 5: Production War Stories](#part-5-production-war-stories)
+- [Part 6: Interview Traps & Self-Check](#part-6-interview-traps--self-check)
+
+---
+
 ## 🎯 What You'll Master
 
 By the end of this module, you'll be able to:

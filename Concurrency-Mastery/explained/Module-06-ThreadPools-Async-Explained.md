@@ -4,6 +4,36 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: ThreadPoolExecutor — The Only Pool You Really Need](#part-1-threadpoolexecutor--the-only-pool-you-really-need)
+  - [1.1 The Restaurant Kitchen Analogy](#11-the-restaurant-kitchen-analogy)
+  - [1.2 The Seven Parameters](#12-the-seven-parameters--memorize-these)
+  - [1.3 The Routing State Machine](#13-the-routing-state-machine--the-interview-drawing)
+  - [1.4 Executors.* Factory Traps](#14-executors-factory-traps)
+  - [1.5 Production Template](#15-production-template)
+  - [1.6 Pool Sizing Formulas](#16-pool-sizing-formulas)
+  - [1.7 Rejection Policies](#17-rejection-policies)
+- [Part 2: submit() vs execute()](#part-2-submit-vs-execute)
+  - [2.1 Exception Handling](#21-exception-handling)
+  - [2.2 Shutdown Semantics](#22-shutdown-semantics)
+  - [2.3 Hooks](#23-hooks)
+- [Part 3: ForkJoinPool](#part-3-forkjoinpool)
+  - [3.1 Work-Stealing](#31-work-stealing)
+  - [3.2 LIFO Own / FIFO Steal](#32-lifo-own--fifo-steal)
+  - [3.3 The commonPool Trap](#33-the-commonpool-trap)
+- [Part 4: CompletableFuture](#part-4-completablefuture)
+  - [4.1 The Mental Model](#41-the-mental-model)
+  - [4.2 Three Async Modes](#42-three-async-modes)
+  - [4.3 Composition Vocabulary](#43-composition-vocabulary)
+  - [4.4 allOf + join Pattern](#44-allof--join-pattern)
+  - [4.5 Error Handling](#45-error-handling)
+  - [4.6 Cancellation](#46-cancellation)
+- [Part 5: Production War Stories](#part-5-production-war-stories)
+- [Part 6: Interview Traps & Self-Check](#part-6-interview-traps--self-check)
+
+---
+
 # Part 1: `ThreadPoolExecutor` — The Only Pool You Really Need
 
 ## 1.1 The Restaurant Kitchen Analogy

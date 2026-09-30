@@ -4,6 +4,33 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: What Are Virtual Threads?](#part-1-what-are-virtual-threads)
+  - [1.1 The Coworking Space Analogy](#11-the-coworking-space-analogy)
+  - [1.2 The Technical Picture](#12-the-technical-picture)
+  - [1.3 Creating Virtual Threads](#13-creating-virtual-threads)
+- [Part 2: Pinning — When VTs Get Stuck](#part-2-pinning--when-vts-get-stuck)
+  - [2.1 What Causes Pinning](#21-what-causes-pinning)
+  - [2.2 Detecting Pinning](#22-detecting-pinning)
+  - [2.3 Fixing Pinning](#23-fixing-pinning)
+- [Part 3: The Downstream Exhaustion Trap](#part-3-the-downstream-exhaustion-trap)
+  - [3.1 The Problem](#31-the-problem)
+  - [3.2 The Fix: Semaphore Gating](#32-the-fix-semaphore-gating)
+- [Part 4: ThreadLocal vs ScopedValue](#part-4-threadlocal-vs-scopedvalue)
+  - [4.1 The ThreadLocal Problem](#41-the-threadlocal-problem)
+  - [4.2 ScopedValue](#42-scopedvalue)
+- [Part 5: StructuredTaskScope](#part-5-structuredtaskscope)
+  - [5.1 Safe Fan-Out](#51-safe-fan-out)
+  - [5.2 Automatic Cancellation](#52-automatic-cancellation)
+- [Part 6: Virtual Threads vs Reactive](#part-6-virtual-threads-vs-reactive)
+  - [6.1 The Decision Matrix](#61-the-decision-matrix)
+  - [6.2 When Reactive Still Wins](#62-when-reactive-still-wins)
+- [Part 7: Production War Stories](#part-7-production-war-stories)
+- [Part 8: Interview Traps & Self-Check](#part-8-interview-traps--self-check)
+
+---
+
 # Part 1: What Are Virtual Threads?
 
 ## 1.1 The Coworking Space Analogy

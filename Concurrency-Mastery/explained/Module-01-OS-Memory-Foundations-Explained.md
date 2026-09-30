@@ -4,6 +4,35 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [Part 1: Process vs Thread — The Foundation](#part-1-process-vs-thread--the-foundation)
+  - [1.1 The Apartment Analogy](#11-the-apartment-analogy)
+  - [1.2 The Technical Comparison](#12-the-technical-comparison)
+  - [1.3 fork() and Copy-On-Write](#13-fork-and-copy-on-write)
+  - [1.4 Multi-Process vs Multi-Thread Architectures](#14-multi-process-vs-multi-thread-architectures)
+  - [1.5 Context Switch Cost](#15-context-switch-cost)
+- [Part 2: Inter-Process Communication (IPC)](#part-2-inter-process-communication-ipc)
+  - [2.1 The IPC Menu](#21-the-ipc-menu)
+  - [2.2 Pipes](#22-pipes)
+  - [2.3 Unix Domain Sockets](#23-unix-domain-sockets)
+  - [2.4 Shared Memory](#24-shared-memory)
+- [Part 3: CPU & Cache — The Memory Hierarchy](#part-3-cpu--cache--the-memory-hierarchy)
+  - [3.1 The Library Analogy](#31-the-library-analogy)
+  - [3.2 Cache Lines](#32-cache-lines)
+  - [3.3 False Sharing](#33-false-sharing)
+  - [3.4 Memory Reordering](#34-memory-reordering)
+- [Part 4: Java Memory Model (JMM)](#part-4-java-memory-model-jmm)
+  - [4.1 Happens-Before](#41-happens-before)
+  - [4.2 volatile](#42-volatile)
+  - [4.3 The count++ Trap](#43-the-count-trap)
+  - [4.4 Safe Publication](#44-safe-publication)
+  - [4.5 final Fields](#45-final-fields)
+- [Part 5: Production War Stories](#part-5-production-war-stories)
+- [Part 6: Interview Traps & Self-Check](#part-6-interview-traps--self-check)
+
+---
+
 # Part 1: Process vs Thread — The Foundation
 
 ## 1.1 The Apartment Analogy
