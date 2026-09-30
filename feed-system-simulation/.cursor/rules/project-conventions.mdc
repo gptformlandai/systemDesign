@@ -1,0 +1,13 @@
+---
+description: Core project conventions for the feed simulation repo
+alwaysApply: true
+---
+
+# Project conventions
+
+- Minimize scope: only change code required for the task.
+- Match existing Java/Spring style in this repo (package `com.systemdesign.feed`).
+- Prefer editing existing classes over adding new abstractions for one-off needs.
+- Do not add markdown docs unless the user asks.
+- Do not commit unless explicitly requested.
+- Use `mvn` for build/test; use `docker compose` for local Postgres/Kafka.

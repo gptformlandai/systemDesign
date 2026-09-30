@@ -1,0 +1,18 @@
+---
+description: Java and Spring WebFlux patterns for this project
+globs: "**/*.java"
+alwaysApply: false
+---
+
+# Java / Spring conventions
+
+- Controllers return `Mono` or `Flux` — keep the stack reactive end-to-end where possible.
+- Put business logic in `service/`, persistence in `repository/`, models in `model/`.
+- Kafka producers/consumers belong in `service/` or `config/` — follow existing `FanoutConsumer` / `KafkaProducerService` patterns.
+- Use constructor injection; avoid field `@Autowired`.
+- Name feed strategies consistently: `PUSH`, `PULL`, `HYBRID` (see `FeedController`).
+
+```java
+// Prefer explicit strategy handling over magic strings scattered in code
+FeedStrategy strategy = FeedStrategy.fromQueryParam(strategyParam);
+```

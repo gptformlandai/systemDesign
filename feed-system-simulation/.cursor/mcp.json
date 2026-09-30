@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "filesystem-example": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/amala518/IdeaProjects/Personal/feed-system-simulation"
+      ]
+    }
+  }
+}

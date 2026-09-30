@@ -1,0 +1,12 @@
+# Cursor index/read ignore — similar to .gitignore
+# Files listed here are harder for the agent to access
+
+target/
+.idea/
+*.class
+*.jar
+*.log
+
+# Local env overrides (never commit real secrets)
+.env
+.env.local

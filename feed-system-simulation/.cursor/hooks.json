@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/session-start.sh"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-dangerous-shell.sh",
+        "matcher": "rm\\s+-rf|docker\\s+system\\s+prune|DROP\\s+TABLE",
+        "failClosed": false
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/after-java-edit.sh",
+        "matcher": "Write|StrReplace"
+      }
+    ]
+  }
+}

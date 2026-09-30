@@ -2,9 +2,24 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
+      <option name="id" value="libs-release" />
+      <option name="name" value="libs-release" />
+      <option name="url" value="https://artifactory.marriott.com/artifactory/libs-release" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central" />
+      <option name="name" value="Central Repository" />
+      <option name="url" value="https://artifactory.marriott.com/artifactory/maven-virtual" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="libs-snapshot" />
+      <option name="name" value="libs-snapshot" />
+      <option name="url" value="https://artifactory.marriott.com/artifactory/libs-snapshot" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
